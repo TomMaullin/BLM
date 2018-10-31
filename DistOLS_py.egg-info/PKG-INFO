@@ -1,0 +1,13 @@
+Metadata-Version: 1.1
+Name: DistOLS-py
+Version: 0.0.1
+Summary: Code for running distributed OLS.
+Home-page: UNKNOWN
+Author: Tom Maullin
+Author-email: tommaullin@gmail.com
+License: UNKNOWN
+Description: Empty for now
+Platform: UNKNOWN
+Classifier: Development Status :: 3 - Alpha
+Classifier: Topic :: Utilities
+Classifier: Programming Language :: Python :: 3
