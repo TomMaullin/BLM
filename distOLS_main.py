@@ -7,31 +7,7 @@ import warnings
 import glob
 import nibabel as nib
 import resource
-
-def blkXtX(X):
-
-    return np.transpose(X) @ X
-
-def blkXtY(X, Y_files, nvox):
-
-    # Number of scans in block
-    nscan = len(Y_files)
-
-    # Read in Y
-    Y = np.zeros([nscan, nvox])
-    for i in range(0, len(Y_files)):
-
-        # Read in each individual NIFTI.
-        Y_indiv = nib.load(Y_files[i])
-        d = Y_indiv.get_data()
-
-        # NaN check
-        d = np.nan_to_num(d)
-
-        # Constructing Y matrix
-        Y[i, :] = d.reshape([1, nvox])
-
-    return np.transpose(X) @ Y
+from lib import blkXtX, blkXtY
 
 # Maximum Memory - currently using SPM default of 2**29
 MAXMEM = 2**29
@@ -74,8 +50,8 @@ for i in range(0, len(Y_files), int(blksize)):
 
     # Work out X transpose X and X transpose Y for this block
     # and add to running total.
-    sumXtX = sumXtX + blkXtX(X[blk_l:blk_u,:]);
-    sumXtY = sumXtY + blkXtY(X[blk_l:blk_u,:], Y_files[blk_l:blk_u], nvox)
+    sumXtX = sumXtX + blkXtX.blkXtX(X[blk_l:blk_u,:]);
+    sumXtY = sumXtY + blkXtY.blkXtY(X[blk_l:blk_u,:], Y_files[blk_l:blk_u])
 
 beta = sumXtX @ sumXtY
 print(repr(beta.shape[0]))
