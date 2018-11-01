@@ -1,7 +1,7 @@
 import glob
 import nibabel as nib
 import os
-import distOLS_main
+import distOLS_setup
 import numpy as np
 
 def main():

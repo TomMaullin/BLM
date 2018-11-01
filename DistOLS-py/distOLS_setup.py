@@ -25,9 +25,7 @@ def main(Y_files, X):
     blksize = np.floor(MAXMEM/8/NIFTIsize);
 
     # Change to distOLS directory
-    file = sys.argv[0]
-    pathname = os.path.dirname(file)
-    os.chdir(pathname)
+    os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
     # Make a temporary directory for batch inputs
     if os.path.isdir('binputs'):
@@ -38,16 +36,17 @@ def main(Y_files, X):
     for i in range(0, len(Y_files), int(blksize)):
 
         # Lower and upper block lengths
-        blk_l = i*int(blksize)
-        blk_u = min((i+1)*int(blksize), len(Y_files))
-
-        with open(os.path.join("binputs","Y" + str(i) + ".txt"), "w") as a:
+        blk_l = i
+        blk_u = min(i+int(blksize), len(Y_files))
+        index = int(i/int(blksize) + 1)
+        
+        with open(os.path.join("binputs","Y" + str(index) + ".txt"), "w") as a:
 
             # List all y for this batch in a file
             for f in Y_files[blk_l:blk_u]:
                 a.write(str(f) + os.linesep) 
 
-        np.savetxt(os.path.join("binputs","X" + str(i) + ".csv"), 
+        np.savetxt(os.path.join("binputs","X" + str(index) + ".csv"), 
                    X[blk_l:blk_u], delimiter=",") 
 
 
