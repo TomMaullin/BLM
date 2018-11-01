@@ -46,7 +46,7 @@ def main(Y_files, X): #flag='spat'
         sumXtY = sumXtY + blkXtY.blkXtY(X[blk_l:blk_u,:], Y_files[blk_l:blk_u])
 
     # Calculate blocks
-    beta = sumXtX @ sumXtY
+    beta = np.dot(sumXtX, sumXtY)
 
     # Save the result.
     for i in range(0, beta.shape[0]):
