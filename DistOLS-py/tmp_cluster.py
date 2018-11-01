@@ -14,8 +14,7 @@ def main():
     # Design matrix and number of parameters.
     X = np.ones([1815, 1])
 
-    #distOLS_main.main(Y_files, X)
-    print(repr(Y_files[1:20]))
+    distOLS_setup.main(Y_files, X)
 
 
 if __name__ == "__main__":

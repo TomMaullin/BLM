@@ -1,7 +1,7 @@
 import glob
 import nibabel as nib
 import os
-import distOLS_main
+import distOLS_setup
 import numpy as np
 
 def main():
@@ -14,7 +14,7 @@ def main():
     # Design matrix and number of parameters.
     X = np.ones([1815, 1])
 
-    distOLS_main.main(Y_files, X)
+    distOLS_setup.main(Y_files, X)
 
 
 if __name__ == "__main__":
