@@ -37,4 +37,4 @@ def blkXtY(X, Y_files):
         # Constructing Y matrix
         Y[i, :] = d.reshape([1, nvox])
 
-    return np.transpose(X) @ Y
+    return np.dot(np.transpose(X), Y)

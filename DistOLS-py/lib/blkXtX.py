@@ -11,4 +11,4 @@ import numpy as np
 
 def blkXtX(X):
 
-    return np.transpose(X) @ X
+    return np.dot(np.transpose(X), X)
