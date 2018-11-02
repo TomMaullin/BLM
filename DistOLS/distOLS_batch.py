@@ -27,9 +27,24 @@ def main(*args):
 
         X = np.loadtxt(os.path.join("binputs","X" + str(batchNo) + ".csv"), 
                        delimiter=",") 
+    
+    else:
+
+        Y_files = arg[0]
+        X = arg[1]
+
+    # Get X transpose Y and X transpose X
+    XtY = XtY(X, Y_files)
+    XtX = XtX(X, Y_files)
+
+    # Record XtX and XtY
+    np.savetxt(os.path.join("binputs","XtX" + str(index) + ".csv"), 
+               XtX, delimiter=",") 
+    np.savetxt(os.path.join("binputs","XtY" + str(index) + ".csv"), 
+               XtY, delimiter=",") 
 
 
-def blkXtY(X, Y_files):
+def XtY(X, Y_files):
 
     # Load in one nifti to check NIFTI size
     Y0 = nib.load(Y_files[0])
@@ -58,7 +73,7 @@ def blkXtY(X, Y_files):
     return np.dot(np.transpose(X), Y)
 
 
-def blkXtX(X):
+def XtX(X):
 
     return np.dot(np.transpose(X), X)
 
