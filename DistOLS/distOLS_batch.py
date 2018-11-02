@@ -10,6 +10,8 @@ import shutil
 
 def main(*args):
 
+    print('running')
+
     # In the batch mode we are given a batch number pointing us to
     # the correct files
     if len(args)==1:
@@ -31,7 +33,6 @@ def main(*args):
 
         print(repr(X))
         print(repr(Y_files))
-
 
 
 
