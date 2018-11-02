@@ -12,4 +12,4 @@ export PATH="/users/nichols/inf852/anaconda3/etc/profile.d/conda.sh$PATH"
 
 conda activate DistOLSenv
 
-python3 ./DistOLS-py/tmp_cluster.py
+python3 ./DistOLS/tmp_cluster.py

@@ -16,7 +16,7 @@ def main(*args):
     if len(args)==1:
 
         batchNo = args[0];
-
+        print(repr(os.getcwd()))
         with open(os.path.join("binputs","Y" + str(batchNo) + ".txt")) as a:
 
             Y_files = []
