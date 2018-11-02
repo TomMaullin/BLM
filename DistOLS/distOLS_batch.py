@@ -2,7 +2,6 @@ import numpy as np
 import subprocess
 import warnings
 import resource
-from lib import blkXtX, blkXtY
 import nibabel as nib
 import sys
 import os
@@ -34,8 +33,38 @@ def main(*args):
         print(repr(X))
         print(repr(Y_files))
 
+def blkXtY(X, Y_files):
+
+    # Load in one nifti to check NIFTI size
+    Y0 = nib.load(Y_files[0])
+    d = Y0.get_data()
+    
+    # Get number of voxels. ### CAN BE IMPROVED WITH MASK
+    nvox = np.prod(d.shape)
+
+    # Number of scans in block
+    nscan = len(Y_files)
+
+    # Read in Y
+    Y = np.zeros([nscan, nvox])
+    for i in range(0, len(Y_files)):
+
+        # Read in each individual NIFTI.
+        Y_indiv = nib.load(Y_files[i])
+        d = Y_indiv.get_data()
+
+        # NaN check
+        d = np.nan_to_num(d)
+
+        # Constructing Y matrix
+        Y[i, :] = d.reshape([1, nvox])
+
+    return np.dot(np.transpose(X), Y)
 
 
+def blkXtX(X):
+
+    return np.dot(np.transpose(X), X)
 
 if __name__ == "__main__":
     main()
