@@ -1,0 +1,4 @@
+build/*
+log/*
+dist/*
+DistOLS_py.egg-info/*
