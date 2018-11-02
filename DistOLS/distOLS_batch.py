@@ -37,11 +37,15 @@ def main(*args):
     XtY = blkXtY(X, Y_files)
     XtX = blkXtX(X)
 
-    # Record XtX and XtY
-    np.savetxt(os.path.join("binputs","XtX" + str(batchNo) + ".csv"), 
-               XtX, delimiter=",") 
-    np.savetxt(os.path.join("binputs","XtY" + str(batchNo) + ".csv"), 
-               XtY, delimiter=",") 
+    if len(args)==1:
+        # Record XtX and XtY
+        np.savetxt(os.path.join("binputs","XtX" + str(batchNo) + ".csv"), 
+                   XtX, delimiter=",") 
+        np.savetxt(os.path.join("binputs","XtY" + str(batchNo) + ".csv"), 
+                   XtY, delimiter=",") 
+
+    else:
+        return (XtX, XtY)
 
 
 def blkXtY(X, Y_files):
