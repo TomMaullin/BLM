@@ -34,17 +34,17 @@ def main(*args):
         X = arg[1]
 
     # Get X transpose Y and X transpose X
-    XtY = XtY(X, Y_files)
-    XtX = XtX(X, Y_files)
+    XtY = blkXtY(X, Y_files)
+    XtX = blkXtX(X)
 
     # Record XtX and XtY
-    np.savetxt(os.path.join("binputs","XtX" + str(index) + ".csv"), 
+    np.savetxt(os.path.join("binputs","XtX" + str(batchNo) + ".csv"), 
                XtX, delimiter=",") 
-    np.savetxt(os.path.join("binputs","XtY" + str(index) + ".csv"), 
+    np.savetxt(os.path.join("binputs","XtY" + str(batchNo) + ".csv"), 
                XtY, delimiter=",") 
 
 
-def XtY(X, Y_files):
+def blkXtY(X, Y_files):
 
     # Load in one nifti to check NIFTI size
     Y0 = nib.load(Y_files[0])
@@ -73,7 +73,7 @@ def XtY(X, Y_files):
     return np.dot(np.transpose(X), Y)
 
 
-def XtX(X):
+def blkXtX(X):
 
     return np.dot(np.transpose(X), X)
 
