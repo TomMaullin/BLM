@@ -10,27 +10,27 @@ import shutil
 
 def main(*args):
 
-	# In the batch mode we are given a batch number pointing us to
-	# the correct files
-	if len(args)==1:
+    # In the batch mode we are given a batch number pointing us to
+    # the correct files
+    if len(args)==1:
 
-		batchNo = args[0];
+        batchNo = args[0];
 
-		with open(os.path.join("binputs","Y" + str(batchNo) + ".txt")) as a:
+        with open(os.path.join("binputs","Y" + str(batchNo) + ".txt")) as a:
 
-		    Y_files = []
-		    i = 0
-		    for line in a.readlines():
+            Y_files = []
+            i = 0
+            for line in a.readlines():
 
-		        print(repr(line))
+                print(repr(line))
 
-		        Y_files.append(line.replace('\n', ''))
+                Y_files.append(line.replace('\n', ''))
 
-		X = np.loadtxt(os.path.join("binputs","X" + str(batchNo) + ".csv"), 
+        X = np.loadtxt(os.path.join("binputs","X" + str(batchNo) + ".csv"), 
                        delimiter=",") 
 
-		print(repr(X))
-		print(repr(Y_files))
+        print(repr(X))
+        print(repr(Y_files))
 
 
 
