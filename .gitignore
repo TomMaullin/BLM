@@ -3,3 +3,4 @@ log/*
 dist/*
 DistOLS_py.egg-info/*
 DistOLS/binputs/*
+DistOLS/__pycache__/*
