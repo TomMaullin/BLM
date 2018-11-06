@@ -23,8 +23,6 @@ def main():
     sumXtY = np.loadtxt(os.path.join("binputs","XtY1.csv"), 
                         delimiter=",")
 
-    print(sumXtY.ndim)
-
     # Cycle through batches and add together results.
     for batchNo in range(2,(len(XtX_files)+1)):
 
@@ -57,6 +55,7 @@ def main():
     # Read in the nifti size.
     NIFTIsize = np.loadtxt(os.path.join("binputs","NIFTIsize.csv"), 
                         delimiter=",")
+    print(repr(NIFTIsize))
 
     beta = np.dot(isumXtX, sumXtY)
 
