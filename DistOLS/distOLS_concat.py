@@ -2,7 +2,6 @@ import numpy as np
 import subprocess
 import warnings
 import resource
-from lib import blkXtX, blkXtY
 import nibabel as nib
 import sys
 import os
