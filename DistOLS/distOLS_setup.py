@@ -21,7 +21,7 @@ def main(Y_files, X):
 
     # Similar to blksize in SwE, we divide by 8 times the size of a nifti
     # to work out how many blocks we use.
-    blksize = np.floor(MAXMEM/8/NIFTIsize);
+    blksize = np.floor(MAXMEM/4/NIFTIsize);
 
     # Change to distOLS directory
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
