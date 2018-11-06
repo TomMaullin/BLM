@@ -65,7 +65,7 @@ def main():
                          NIFTIsize[2])
 
     # tmp code to output nifti
-    nifti = nib.load('IMAGEN/spmstatsintra/000070830069/SessionB/EPI_short_MID/swea/con_0010.nii')
+    nifti = nib.load('/well/nichols/users/kfh142/data/IMAGEN/spmstatsintra/000070830069/SessionB/EPI_short_MID/swea/con_0010.nii')
 
     beta1map = nib.Nifti1Image(beta1,
                                nifti.affine,
