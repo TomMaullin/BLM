@@ -18,13 +18,13 @@ def main():
     XtY_files = glob.glob("XtY*")
 
     # Read the matrices from the first batch.
-    sumXtX = np.loadtxt(os.path.join("binputs","XtX0.csv"), 
+    sumXtX = np.loadtxt(os.path.join("binputs","XtX1.csv"), 
                         delimiter=",")
-    sumXtY = np.loadtxt(os.path.join("binputs","XtY0.csv"), 
+    sumXtY = np.loadtxt(os.path.join("binputs","XtY1.csv"), 
                         delimiter=",")
 
     # Cycle through batches and add together results.
-    for batchNo in range(1,len(XtX_files)):
+    for batchNo in range(2,(len(XtX_files)+1)):
 
         # Sum the batches.
         sumXtX = sumXtX + np.loadtxt(
