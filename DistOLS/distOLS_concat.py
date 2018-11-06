@@ -5,6 +5,7 @@ import resource
 import nibabel as nib
 import sys
 import os
+import glob
 import shutil
 
 def main():
