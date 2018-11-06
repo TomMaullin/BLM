@@ -35,7 +35,7 @@ def main():
             os.path.join("binputs","XtY" + str(batchNo) + ".csv"), 
                          delimiter=",")
 
-    beta = np.dot(numpy.linalg.inv(sumXtX), XtY)
+    beta = np.dot(np.linalg.inv(sumXtX), XtY)
 
     np.savetxt(os.path.join("binputs","beta.csv"), 
                    beta, delimiter=",") 
