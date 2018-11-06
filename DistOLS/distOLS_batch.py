@@ -39,6 +39,7 @@ def main(*args):
 
     if len(args)==1:
         # Record XtX and XtY
+        disp(repr(XtX))
         np.savetxt(os.path.join("binputs","XtX" + str(batchNo) + ".csv"), 
                    XtX, delimiter=",") 
         np.savetxt(os.path.join("binputs","XtY" + str(batchNo) + ".csv"), 
