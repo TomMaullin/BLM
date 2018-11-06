@@ -33,7 +33,7 @@ def main(Y_files, X):
 
     # Nifti size is needed later.
     np.savetxt(os.path.join("binputs","NIFTIsize.csv"), 
-                   np.asarray([NIFTIsize]), delimiter=",") 
+                   d.shape, delimiter=",") 
 
     # Loop through blocks
     for i in range(0, len(Y_files), int(blksize)):
