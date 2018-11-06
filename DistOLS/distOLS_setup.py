@@ -28,7 +28,7 @@ def main(Y_files, X):
 
     # Nifti size is needed later.
     np.savetxt(os.path.join("binputs","NIFTIsize.csv"), 
-                   NIFTIsize, delimiter=",") 
+                   np.asarray([NIFTIsize]), delimiter=",") 
 
     # Make a temporary directory for batch inputs
     if os.path.isdir('binputs'):
