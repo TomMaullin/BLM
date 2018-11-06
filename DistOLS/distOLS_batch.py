@@ -79,7 +79,9 @@ def blkXtY(X, Y_files):
                 np.dot(np.transpose(X), Y))
 
     if np.ndim(XtY) == 0:
-        XtY = [XtY]
+        XtY = np.array([[XtY]])
+    elif np.ndim(XtY) == 1:
+        XtY = np.array([XtY])
 
     return XtY
 
@@ -91,6 +93,8 @@ def blkXtX(X):
 
     if np.ndim(XtX) == 0:
         XtX = [XtX]
+    elif np.ndim(XtX) == 1:
+        XtX = np.array([XtX])
 
     return XtX
 
