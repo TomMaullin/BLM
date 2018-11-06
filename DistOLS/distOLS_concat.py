@@ -35,13 +35,20 @@ def main():
             os.path.join("binputs","XtY" + str(batchNo) + ".csv"), 
                          delimiter=",")
 
+    # Dimension bug handling
     if np.ndim(sumXtX) == 0:
-        sumXtX = [sumXtX]
+        sumXtX = np.asarray([sumXtX])
 
     if np.ndim(sumXtY) == 0:
-        sumXtY = [sumXtY]
+        sumXtY = np.asarray([sumXtY])
 
-    beta = np.dot(np.linalg.inv(sumXtX), sumXtY)
+    # np linalg inverse doesn't handle dim=[1,1]
+    if np.ndim(sumXtX) == 1:
+        isumXtX = 1/sumXtX
+    else:
+        isumXtX = np.linalg.inv(sumXtX)
+
+    beta = np.dot(isumXtX, sumXtY)
 
     np.savetxt(os.path.join("binputs","beta.csv"), 
                    beta, delimiter=",") 
