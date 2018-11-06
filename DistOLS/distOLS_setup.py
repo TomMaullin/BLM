@@ -26,6 +26,10 @@ def main(Y_files, X):
     # Change to distOLS directory
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
+    # Nifti size is needed later.
+    np.savetxt(os.path.join("binputs","NIFTIsize.csv"), 
+                   NIFTIsize, delimiter=",") 
+
     # Make a temporary directory for batch inputs
     if os.path.isdir('binputs'):
         shutil.rmtree('binputs')

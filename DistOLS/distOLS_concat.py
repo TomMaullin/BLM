@@ -54,10 +54,28 @@ def main():
     else:
         isumXtX = np.linalg.inv(sumXtX)
 
+    # Read in the nifti size.
+    NIFTIsize = np.loadtxt(os.path.join("binputs","NIFTIsize.csv"), 
+                        delimiter=",")
+
     beta = np.dot(isumXtX, sumXtY)
 
+    # TODO: HANDLE MULTI BETA Dimensions
+    beta1 = beta.reshape(NIFTIsize[0],
+                         NIFTIsize[1],
+                         NIFTIsize[2])
+
+    # tmp code to output nifti
+    nifti = nib.load('IMAGEN/spmstatsintra/000070830069/SessionB/EPI_short_MID/swea/con_0010.nii')
+
+    beta1map = nib.Nifti1Image(beta1,
+                               nifti.affine,
+                               header=nifti.header)
+    nib.save(beta1map, 'tmp.nii')
+
+
     np.savetxt(os.path.join("binputs","beta.csv"), 
-                   beta, delimiter=",") 
+                   beta1, delimiter=",") 
 
 
 if __name__ == "__main__":
