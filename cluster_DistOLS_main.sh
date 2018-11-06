@@ -8,4 +8,4 @@ while [ "$i" -le "$nb" ]; do
   i=$(($i + 1))
 done
 
-#qsub -N results -hold_jid "batch*" cluster_DistOLS_results.sh 
+qsub -N results -hold_jid "batch*" cluster_DistOLS_concat.sh 
