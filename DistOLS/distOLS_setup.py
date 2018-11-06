@@ -26,14 +26,14 @@ def main(Y_files, X):
     # Change to distOLS directory
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
-    # Nifti size is needed later.
-    np.savetxt(os.path.join("binputs","NIFTIsize.csv"), 
-                   np.asarray([NIFTIsize]), delimiter=",") 
-
     # Make a temporary directory for batch inputs
     if os.path.isdir('binputs'):
         shutil.rmtree('binputs')
     os.mkdir('binputs')
+
+    # Nifti size is needed later.
+    np.savetxt(os.path.join("binputs","NIFTIsize.csv"), 
+                   np.asarray([NIFTIsize]), delimiter=",") 
 
     # Loop through blocks
     for i in range(0, len(Y_files), int(blksize)):
