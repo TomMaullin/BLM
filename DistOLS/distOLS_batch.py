@@ -92,7 +92,7 @@ def blkXtX(X):
                 np.dot(np.transpose(X), X))
 
     if np.ndim(XtX) == 0:
-        XtX = [XtX]
+        XtX = np.array([XtX])
     elif np.ndim(XtX) == 1:
         XtX = np.array([XtX])
 

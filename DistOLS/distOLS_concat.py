@@ -39,10 +39,14 @@ def main():
 
     # Dimension bug handling
     if np.ndim(sumXtX) == 0:
-        sumXtX = np.asarray([sumXtX])
+        sumXtX = np.array([[sumXtX]])
+    elif np.ndim(sumXtX) == 1:
+        sumXtX = np.array([sumXtX])
 
     if np.ndim(sumXtY) == 0:
-        sumXtY = np.asarray([sumXtY])
+        sumXtY = np.array([[sumXtY]])
+    elif np.ndim(sumXtY) == 1:
+        sumXtY = np.array([sumXtY])
 
     # np linalg inverse doesn't handle dim=[1,1]
     if np.ndim(sumXtX) == 1:
