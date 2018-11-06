@@ -39,8 +39,6 @@ def main(*args):
 
     if len(args)==1:
         # Record XtX and XtY
-        print(repr(XtX))
-        print(repr(type(XtX)))
         np.savetxt(os.path.join("binputs","XtX" + str(batchNo) + ".csv"), 
                    XtX, delimiter=",") 
         np.savetxt(os.path.join("binputs","XtY" + str(batchNo) + ".csv"), 
@@ -76,12 +74,25 @@ def blkXtY(X, Y_files):
         # Constructing Y matrix
         Y[i, :] = d.reshape([1, nvox])
 
-    return np.dot(np.transpose(X), Y)
+    XtY = np.asarray(
+                np.dot(np.transpose(X), Y))
+
+    if np.dim(XtY) == 0
+        XtY = [XtY]
+
+    return XtY
 
 
 def blkXtX(X):
 
-    return np.dot(np.transpose(X), X)
+    XtX = np.asarray(
+                np.dot(np.transpose(X), X))
+
+    if np.dim(XtX) == 0:
+        XtX = [XtX]
+
+    return XtX
+
 
 if __name__ == "__main__":
     main()
