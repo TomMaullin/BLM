@@ -73,9 +73,5 @@ def main():
     nib.save(beta1map, 'tmp.nii')
 
 
-    np.savetxt(os.path.join("binputs","beta.csv"), 
-                   beta1, delimiter=",") 
-
-
 if __name__ == "__main__":
     main()
