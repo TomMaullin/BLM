@@ -55,14 +55,13 @@ def main():
     # Read in the nifti size.
     NIFTIsize = np.loadtxt(os.path.join("binputs","NIFTIsize.csv"), 
                         delimiter=",")
-    print(repr(NIFTIsize))
 
     beta = np.dot(isumXtX, sumXtY)
 
     # TODO: HANDLE MULTI BETA Dimensions
-    beta1 = beta.reshape(NIFTIsize[0],
-                         NIFTIsize[1],
-                         NIFTIsize[2])
+    beta1 = beta.reshape(int(NIFTIsize[0]),
+                         int(NIFTIsize[1]),
+                         int(NIFTIsize[2]))
 
     # tmp code to output nifti
     nifti = nib.load('/well/nichols/users/kfh142/data/IMAGEN/spmstatsintra/000070830069/SessionB/EPI_short_MID/swea/con_0010.nii')

@@ -35,7 +35,6 @@ def main(*args):
 
     # Get X transpose Y and X transpose X
     XtY = blkXtY(X, Y_files)
-    print(XtY.ndim)
     XtX = blkXtX(X)
 
     if len(args)==1:

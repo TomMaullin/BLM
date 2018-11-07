@@ -31,7 +31,14 @@ def main(Y_files, X):
         shutil.rmtree('binputs')
     os.mkdir('binputs')
 
-    # Nifti size is needed later.
+    # Example NIFTI is needed later.
+    exampleNifti = nib.Nifti1Image(np.zeros(d.shape,dtype='uint64'),
+                                   Y0.affine,
+                                   header=Y0.header)
+
+    # Save the result.
+    nib.save(exampleNifti, os.path.join('binputs',
+                                        'example.nii'))    
     np.savetxt(os.path.join("binputs","NIFTIsize.csv"), 
                    d.shape, delimiter=",") 
 
