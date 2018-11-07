@@ -13,8 +13,8 @@ def main():
 
     # Design matrix and number of parameters.
     X = np.ones([1815, 2])
-    X[1800:, 1] = 0
-    X[0:1800, 0] = 0
+    X[1800:, 1] = 0.5
+    X[0:1800, 0] = 0.5
 
     distOLS_setup.main(Y_files, X)
 
