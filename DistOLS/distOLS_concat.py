@@ -58,19 +58,20 @@ def main():
 
     beta = np.dot(isumXtX, sumXtY)
 
-    # TODO: HANDLE MULTI BETA Dimensions
-    print(repr(beta.shape))
-    beta1 = beta.reshape(int(NIFTIsize[0]),
-                         int(NIFTIsize[1]),
-                         int(NIFTIsize[2]))
+    # Cycle through betas and output results.
+    for i in range(0,beta.shape[0]):
 
-    # tmp code to output nifti
-    nifti = nib.load('/well/nichols/users/kfh142/data/IMAGEN/spmstatsintra/000070830069/SessionB/EPI_short_MID/swea/con_0010.nii')
+        betai = beta[i,:].reshape(int(NIFTIsize[0]),
+                                  int(NIFTIsize[1]),
+                                  int(NIFTIsize[2]))
 
-    beta1map = nib.Nifti1Image(beta1,
-                               nifti.affine,
-                               header=nifti.header)
-    nib.save(beta1map, 'tmp.nii')
+        # tmp code to output nifti
+        nifti = nib.load('/well/nichols/users/kfh142/data/IMAGEN/spmstatsintra/000070830069/SessionB/EPI_short_MID/swea/con_0010.nii')
+
+        betaimap = nib.Nifti1Image(betai,
+                                   nifti.affine,
+                                   header=nifti.header)
+        nib.save(betaimap, 'beta' + str(i) + '.nii')
 
 
 if __name__ == "__main__":
