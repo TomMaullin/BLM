@@ -59,6 +59,7 @@ def main():
     beta = np.dot(isumXtX, sumXtY)
 
     # TODO: HANDLE MULTI BETA Dimensions
+    print(repr(beta.shape))
     beta1 = beta.reshape(int(NIFTIsize[0]),
                          int(NIFTIsize[1]),
                          int(NIFTIsize[2]))
