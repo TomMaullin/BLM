@@ -74,6 +74,9 @@ def blkXtY(X, Y_files):
         # Constructing Y matrix
         Y[i, :] = d.reshape([1, nvox])
 
+        tmp = np.dot(np.transpose(Y[i, :]), Y[i, :])
+        print(repr(tmp.shape))
+
     XtY = np.asarray(
                 np.dot(np.transpose(X), Y))
 
