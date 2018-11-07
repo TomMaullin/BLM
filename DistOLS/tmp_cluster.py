@@ -12,7 +12,7 @@ def main():
     Y_files = glob.glob(os.path.join(analydir, "IMAGEN/spmstatsintra/*/SessionB/EPI_short_MID/swea/con_0010.nii"))
 
     # Design matrix and number of parameters.
-    X = np.random.rand([1815, 2])
+    X = np.random.rand(1815, 2)
 
     distOLS_setup.main(Y_files, X)
 
