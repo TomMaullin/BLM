@@ -77,8 +77,8 @@ def blkYtY(Y_files)
         d = np.nan_to_num(d)
 
         # Constructing Y matrix
-        Y[i, 0, :] = d.reshape([1, nvox])
-        Yt[i, :, 0] = d.reshape([1, nvox])
+        Y[:, 0, i] = d.reshape([1, nvox])
+        Yt[:, i, 0] = d.reshape([1, nvox])
 
     # Calculate Y transpose Y.
     YtY = np.matmul(Yt,Y)
