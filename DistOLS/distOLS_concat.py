@@ -13,10 +13,6 @@ def main():
     # Change to distOLS directory
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
-    # Work out which files we need.
-    XtX_files = glob.glob("XtX*")
-    XtY_files = glob.glob("XtY*")
-
     # Read the matrices from the first batch.
     sumXtX = np.loadtxt(os.path.join("binputs","XtX1.csv"), 
                         delimiter=",")
@@ -79,20 +75,20 @@ def main():
                                    header=nifti.header)
         nib.save(betaimap, 'beta' + str(i) + '.nii')
 
-    # if np.ndim(beta) == 0:
-    #     beta = np.array([[beta]])
-    # elif np.ndim(sumXtY) == 1:
-    #     beta = np.array([beta])
+    if np.ndim(beta) == 0:
+        beta = np.array([[beta]])
+    elif np.ndim(beta) == 1:
+        beta = np.array([beta])
 
     # Reshape beta along smallest axis for quicker
     # residual calculation
-    # beta_rs = np.zeros(beta.shape[1], 1, beta.shape[0])
-    # beta_rs_t = np.zeros([beta.shape[1], 1, beta.shape[0])
-    # for i in range(0,beta.shape[0]):
-    #     
-    #    beta_rs[:, i, 0] = beta[i,:];
-    #    beta_rs_t[:, 0, i] = beta[i,:];
-    #
+    beta_rs = np.zeros(beta.shape[1], 1, beta.shape[0])
+    beta_rs_t = np.zeros(beta.shape[1], 1, beta.shape[0])
+    for i in range(0,beta.shape[0]):
+        
+       beta_rs[:, i, 0] = beta[i,:];
+       beta_rs_t[:, 0, i] = beta[i,:];
+
     # Residual sum of squares
     # ete = YtY - np.matmul(np.matmul(beta_rs_t, sumXtX), beta_rs)
 
