@@ -20,6 +20,9 @@ def main():
                         delimiter=",")
     sumYtY = np.loadtxt(os.path.join("binputs","YtY1.csv"), 
                         delimiter=",")
+    
+    # Work out how many files we need.
+    XtX_files = glob.glob("XtX*")
 
     # Cycle through batches and add together results.
     for batchNo in range(2,(len(XtX_files)+1)):
