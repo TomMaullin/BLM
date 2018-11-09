@@ -93,7 +93,7 @@ def main():
        beta_rs_t[:, 0, i] = beta[i,:];
 
     # Residual sum of squares
-    # ete = YtY - np.matmul(np.matmul(beta_rs_t, sumXtX), beta_rs)
+    ete = sumYtY - np.matmul(np.matmul(beta_rs_t, sumXtX), beta_rs)
 
 
 if __name__ == "__main__":
