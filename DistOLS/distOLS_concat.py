@@ -85,7 +85,7 @@ def main():
 
     # Reshape beta along smallest axis for quicker
     # residual calculation
-    beta_rs = np.zeros([beta.shape[1], 1, beta.shape[0]])
+    beta_rs = np.zeros([beta.shape[1], beta.shape[0], 1])
     beta_rs_t = np.zeros([beta.shape[1], 1, beta.shape[0]])
     for i in range(0,beta.shape[0]):
         
