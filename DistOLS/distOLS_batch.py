@@ -33,9 +33,10 @@ def main(*args):
         Y_files = arg[0]
         X = arg[1]
 
-    # Get X transpose Y and X transpose X
+    # Get X transpose Y, X transpose X and Y transpose Y.
     XtY = blkXtY(X, Y_files)
     XtX = blkXtX(X)
+    YtY = blkYtY(Y_files)
 
     if len(args)==1:
         # Record XtX and XtY
@@ -43,9 +44,47 @@ def main(*args):
                    XtX, delimiter=",") 
         np.savetxt(os.path.join("binputs","XtY" + str(batchNo) + ".csv"), 
                    XtY, delimiter=",") 
+        np.savetxt(os.path.join("binputs","YtY" + str(batchNo) + ".csv"), 
+                   YtY, delimiter=",") 
 
     else:
-        return (XtX, XtY)
+        return (XtX, XtY, YtY)
+
+
+def blkYtY(Y_files)
+
+    # Load in one nifti to check NIFTI size
+    Y0 = nib.load(Y_files[0])
+    d = Y0.get_data()
+    
+    # Get number of voxels. ### CAN BE IMPROVED WITH MASK
+    nvox = np.prod(d.shape)
+
+    # Number of scans in block
+    nscan = len(Y_files)
+
+    # Read in Y
+    Y = np.zeros([nvox, 1, nscan])
+    Yt = np.zeros([nvox, nscan, 1])
+
+    for i in range(0, len(Y_files)):
+
+        # Read in each individual NIFTI.
+        Y_indiv = nib.load(Y_files[i])
+        d = Y_indiv.get_data()
+
+        # NaN check
+        d = np.nan_to_num(d)
+
+        # Constructing Y matrix
+        Y[i, 0, :] = d.reshape([1, nvox])
+        Yt[i, :, 0] = d.reshape([1, nvox])
+
+    # Calculate Y transpose Y.
+    YtY = np.matmul(Yt,Y)
+
+    return YtY
+
 
 
 def blkXtY(X, Y_files):
