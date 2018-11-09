@@ -44,6 +44,8 @@ def main(*args):
                    XtX, delimiter=",") 
         np.savetxt(os.path.join("binputs","XtY" + str(batchNo) + ".csv"), 
                    XtY, delimiter=",") 
+        print(YtY.shape)
+        print(YtY.ndim)
         np.savetxt(os.path.join("binputs","YtY" + str(batchNo) + ".csv"), 
                    YtY, delimiter=",") 
 
