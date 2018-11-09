@@ -51,7 +51,7 @@ def main(*args):
         return (XtX, XtY, YtY)
 
 
-def blkYtY(Y_files)
+def blkYtY(Y_files):
 
     # Load in one nifti to check NIFTI size
     Y0 = nib.load(Y_files[0])
