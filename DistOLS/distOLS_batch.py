@@ -66,8 +66,8 @@ def blkYtY(Y_files):
     nscan = len(Y_files)
 
     # Read in Y
-    Y = np.zeros([nvox, 1, nscan])
-    Yt = np.zeros([nvox, nscan, 1])
+    Y = np.zeros([nvox, nscan, 1])
+    Yt = np.zeros([nvox, 1, nscan])
 
     for i in range(0, len(Y_files)):
 
@@ -79,8 +79,8 @@ def blkYtY(Y_files):
         d = np.nan_to_num(d)
 
         # Constructing Y matrix
-        Y[:, 0, i] = d.reshape([1, nvox])
-        Yt[:, i, 0] = d.reshape([1, nvox])
+        Y[:, i, 0] = d.reshape([1, nvox])
+        Yt[:, 0, i] = d.reshape([1, nvox])
 
     # Calculate Y transpose Y.
     YtY = np.matmul(Yt,Y)
