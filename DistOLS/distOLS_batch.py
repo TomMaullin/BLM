@@ -52,7 +52,8 @@ def main(*args):
     else:
         return (XtX, XtY, YtY)
 
-
+# Note: this techniqcally calculates sum(Y.Y) for each voxel,
+# not Y transpose Y for all voxels
 def blkYtY(Y_files):
 
     # Load in one nifti to check NIFTI size
