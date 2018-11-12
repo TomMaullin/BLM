@@ -78,6 +78,10 @@ def main():
                                    header=nifti.header)
         nib.save(betaimap, 'beta' + str(i) + '.nii')
 
+    del betai
+    del betaimap
+    del nifti
+
     if np.ndim(beta) == 0:
         beta = np.array([[beta]])
     elif np.ndim(beta) == 1:
@@ -92,8 +96,36 @@ def main():
        beta_rs[:, i, 0] = beta[i,:];
        beta_rs_t[:, 0, i] = beta[i,:];
 
+    print(beta_rs_t.shape)
+    print(sumXtX.shape)
+    print(beta_rs.shape)
+
+    del beta
+
+    betatXtX = np.matmul(beta_rs_t, sumXtX)
+    del beta_rs_t
+    del sumXtX
+
+    betatXtXbeta = np.matmul(betatXtX, beta_rs)
+    del beta_rs
+
+    betatXtXbeta = np.reshape(betatXtXbeta, betatXtXbeta.shape[0])
+
     # Residual sum of squares
-    ete = sumYtY - np.matmul(np.matmul(beta_rs_t, sumXtX), beta_rs)
+    print(sumYtY.shape)
+    print(betatXtXbeta.shape)
+    ete = sumYtY - betatXtXbeta
+
+    # tmp code to output nifti
+    nifti = nib.load(os.path.join("binputs", "example.nii"))
+
+    ssmap = nib.Nifti1Image(ete.reshape(int(NIFTIsize[0]),
+                                  int(NIFTIsize[1]),
+                                  int(NIFTIsize[2])),
+                            nifti.affine,
+                            header=nifti.header)
+    nib.save(ssmap, 'Residss.nii')
+
 
 
 if __name__ == "__main__":
