@@ -14,6 +14,11 @@ do
   if [ "$(ls -A DistOLS/binputs/)" ]; then
     nb=$(ls -1q DistOLS/binputs/Y* | wc -l)
   fi
+  errorlog=$(ls log/setup.e* | head -1)
+  if [ -s $errorlog ]; then
+    echo "Setup has errored"
+    exit
+  fi
 done
 
 i=1
