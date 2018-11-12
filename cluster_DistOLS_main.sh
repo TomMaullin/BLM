@@ -6,18 +6,24 @@ qsub -N setup cluster_DistOLS_setup.sh
 echo "Setting up distributed analysis..."
 
 # This loop waits for the setup job to finish before
-# deciding how many batches to run.
+# deciding how many batches to run. It also checks to 
+# see if the setup job has errored.
 nb=0
+i=0
 while [ $nb -lt 1 ]
 do
   sleep 1
   if [ "$(ls -A DistOLS/binputs/)" ]; then
     nb=$(ls -1q DistOLS/binputs/Y* | wc -l)
   fi
-  errorlog=$(ls log/setup.e* | head -1)
-  if [ -s $errorlog ]; then
-    echo "Setup has errored"
-    exit
+  i=$(($i + 1))
+
+  if [ $i -gt 5 ]
+    errorlog=$(ls log/setup.e* | head -1)
+    if [ -s $errorlog ]; then
+      echo "Setup has errored"
+      exit
+    fi
   fi
 done
 
