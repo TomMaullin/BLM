@@ -6,10 +6,6 @@
 #$ -e log/
 #$ -cwd
 
-source /users/nichols/inf852/anaconda3/etc/profile.d/conda.sh
+module add fsl/5.0.11
 
-export PATH="/users/nichols/inf852/anaconda3/etc/profile.d/conda.sh$PATH"
-
-conda activate DistOLSenv
-
-python3 ./DistOLS/tmp_cluster.py
+fslpython ./DistOLS/tmp_cluster.py

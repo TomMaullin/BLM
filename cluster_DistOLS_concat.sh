@@ -6,10 +6,6 @@
 #$ -e log/
 #$ -cwd
 
-source /users/nichols/inf852/anaconda3/etc/profile.d/conda.sh
+module add fsl/5.0.11
 
-export PATH="/users/nichols/inf852/anaconda3/etc/profile.d/conda.sh$PATH"
-
-conda activate DistOLSenv
-
-python3 -c "from DistOLS import distOLS_concat; distOLS_concat.main()"
+fslpython -c "from DistOLS import distOLS_concat; distOLS_concat.main()"
