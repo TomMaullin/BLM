@@ -18,7 +18,7 @@ do
   fi
   i=$(($i + 1))
 
-  if [ $i -gt 5 ]
+  if [ $i -gt 5 ]; then
     errorlog=$(ls log/setup.e* | head -1)
     if [ -s $errorlog ]; then
       echo "Setup has errored"
