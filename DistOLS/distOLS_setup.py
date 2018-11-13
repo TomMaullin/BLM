@@ -1,3 +1,7 @@
+import warnings as w
+# These warnings are caused by numpy updates and should not be
+# output.
+w.simplefilter(action = 'ignore', category = FutureWarning)
 import numpy as np
 import subprocess
 import warnings
@@ -58,7 +62,8 @@ def main(Y_files, X):
 
         np.savetxt(os.path.join("binputs","X" + str(index) + ".csv"), 
                    X[blk_l:blk_u], delimiter=",") 
-
+    
+    w.resetwarnings()
 
 if __name__ == "__main__":
     main()

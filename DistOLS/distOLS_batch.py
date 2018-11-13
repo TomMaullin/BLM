@@ -1,3 +1,7 @@
+import warnings as w
+# These warnings are caused by numpy updates and should not be
+# output.
+w.simplefilter(action = 'ignore', category = FutureWarning)
 import numpy as np
 import subprocess
 import warnings
@@ -8,7 +12,7 @@ import os
 import shutil
 
 def main(*args):
-
+    
     # Change to distOLS directory
     os.chdir(os.path.dirname(os.path.realpath(__file__)))    
 
@@ -48,8 +52,10 @@ def main(*args):
         print(YtY.ndim)
         np.savetxt(os.path.join("binputs","YtY" + str(batchNo) + ".csv"), 
                    YtY, delimiter=",") 
+        w.resetwarnings()
 
     else:
+        w.resetwarnings()
         return (XtX, XtY, YtY)
 
 # Note: this techniqcally calculates sum(Y.Y) for each voxel,
@@ -84,7 +90,9 @@ def blkYtY(Y_files):
         Yt[:, 0, i] = d.reshape([1, nvox])
 
     # Calculate Y transpose Y.
-    YtY = np.matmul(Yt,Y)
+    YtY = np.matmul(Yt,Y).reshape([nvox, 1])
+    print('YtY')
+    print(YtY.shape)
 
     return YtY
 
@@ -119,10 +127,13 @@ def blkXtY(X, Y_files):
     XtY = np.asarray(
                 np.dot(np.transpose(X), Y))
 
+    print('XtY')
+    print(XtY.shape)
     if np.ndim(XtY) == 0:
         XtY = np.array([[XtY]])
     elif np.ndim(XtY) == 1:
         XtY = np.array([XtY])
+    print(XtY.shape)
 
     return XtY
 
@@ -132,10 +143,13 @@ def blkXtX(X):
     XtX = np.asarray(
                 np.dot(np.transpose(X), X))
 
+    print('XtX')
+    print(XtX.shape)
     if np.ndim(XtX) == 0:
         XtX = np.array([XtX])
     elif np.ndim(XtX) == 1:
         XtX = np.array([XtX])
+    print(XtX.shape)
 
     return XtX
 

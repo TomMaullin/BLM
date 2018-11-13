@@ -1,3 +1,5 @@
+import warnings as w
+w.simplefilter(action='ignore', category=FutureWarning)
 import glob
 import nibabel as nib
 import os

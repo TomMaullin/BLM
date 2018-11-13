@@ -1,3 +1,7 @@
+import warnings as w
+# This warning is caused by numpy updates and should
+# be ignored for now.
+w.simplefilter(action = 'ignore', category = FutureWarning)
 import numpy as np
 import subprocess
 import warnings
@@ -125,7 +129,8 @@ def main():
                             nifti.affine,
                             header=nifti.header)
     nib.save(ssmap, 'Residss.nii')
-
+    
+    w.resetwarnings()
 
 
 if __name__ == "__main__":
