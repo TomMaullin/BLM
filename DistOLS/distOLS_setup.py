@@ -10,13 +10,13 @@ import nibabel as nib
 import sys
 import os
 import shutil
-import distOLS_defaults
+from DistOLS import distOLS_defaults
 
 def main(*args):
 
     # If X and Y weren't given we look in defaults for all arguments.
     if len(args)<2:
-        
+
         inputs = distOLS_defaults.main()
 
         MAXMEM = inputs[0]
