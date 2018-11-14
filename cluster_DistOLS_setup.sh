@@ -8,4 +8,4 @@
 
 module add fsl/5.0.11
 
-fslpython ./DistOLS/tmp_cluster.py
+fslpython -c "from DistOLS import distOLS_setup; distOLS_setup.main()"
