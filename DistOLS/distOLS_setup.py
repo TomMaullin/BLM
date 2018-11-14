@@ -29,7 +29,7 @@ def main(*args):
 
                 Y_files.append(line.replace('\n', ''))
 
-        X = np.loadtxt(inputs[2]) 
+        X = np.loadtxt(inputs[2], delimiter=',') 
 
         SVFlag = inputs[3]
 
