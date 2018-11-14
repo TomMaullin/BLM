@@ -16,6 +16,9 @@ def main(*args):
 
     if len(args)==0:
         distOLS_defaults.main()
+    else:
+        Y_files = args[0]
+        X = args[1]
 
     # Load in one nifti to check NIFTI size
     Y0 = nib.load(Y_files[0])

@@ -34,8 +34,8 @@ def main(*args):
     
     else:
 
-        Y_files = arg[0]
-        X = arg[1]
+        Y_files = args[0]
+        X = args[1]
 
     # Get X transpose Y, X transpose X and Y transpose Y.
     XtY = blkXtY(X, Y_files)
