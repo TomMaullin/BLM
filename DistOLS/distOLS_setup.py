@@ -14,11 +14,16 @@ import distOLS_defaults
 
 def main(*args):
 
-    if len(args)==0:
+    if len(args)<2:
         distOLS_defaults.main()
+    elif len(args)==2:
+        Y_files = args[0]
+        X = args[1]
+        MAXMEM = 2**29
     else:
         Y_files = args[0]
         X = args[1]
+        MAXMEM = args[2]        
 
     # Load in one nifti to check NIFTI size
     Y0 = nib.load(Y_files[0])
