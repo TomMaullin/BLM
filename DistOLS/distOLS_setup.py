@@ -10,11 +10,12 @@ import nibabel as nib
 import sys
 import os
 import shutil
+import distOLS_defaults
 
-def main(Y_files, X):
+def main(*args):
 
-    # Maximum Memory - currently using SPM default of 2**29
-    MAXMEM = 2**29
+    if len(args)==0:
+        distOLS_defaults.main()
 
     # Load in one nifti to check NIFTI size
     Y0 = nib.load(Y_files[0])
