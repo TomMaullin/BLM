@@ -14,7 +14,7 @@ def main():
     Y_files = glob.glob("/well/nichols/users/kfh142/data/IMAGEN/spmstatsintra/*/SessionB/EPI_short_MID/swea/con_0010.nii")
 
     # Design matrix and number of parameters.
-    X = ''
+    X = '/users/nichols/inf852/DistOLS-py/DistOLS/test/data/DesMat.csv'
 
     # Set this to true if you want a spatially varying analysis and 
     # false otherwise.

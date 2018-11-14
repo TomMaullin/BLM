@@ -14,16 +14,44 @@ import distOLS_defaults
 
 def main(*args):
 
+    # If X and Y weren't given we look in defaults for all arguments.
     if len(args)<2:
-        distOLS_defaults.main()
+        
+        inputs = distOLS_defaults.main()
+
+        MAXMEM = inputs[0]
+
+        with open(inputs[1]) as a:
+
+            Y_files = []
+            i = 0
+            for line in a.readlines():
+
+                Y_files.append(line.replace('\n', ''))
+
+        X = np.loadtxt(inputs[2]) 
+
+        SVFlag = inputs[3]
+
+    # else Y_files is the first input and X is the second.
     elif len(args)==2:
+
         Y_files = args[0]
         X = args[1]
-        MAXMEM = 2**29
+
+        inputs = distOLS_defaults.main()
+        MAXMEM = inputs[0]
+        SVFlag = inputs[3]
+
+    # And MAXMEM may be the third input
     else:
+
         Y_files = args[0]
         X = args[1]
         MAXMEM = args[2]        
+
+        inputs = distOLS_defaults.main()
+        SVFlag = inputs[3]
 
     # Load in one nifti to check NIFTI size
     Y0 = nib.load(Y_files[0])
