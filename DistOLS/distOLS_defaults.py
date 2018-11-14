@@ -11,7 +11,7 @@ def main():
 
     # Enter a list of Y files. (This is a temporary way of entering 
     # this data and will change once we know more about the data).
-    Y_files = glob.glob("/well/nichols/users/kfh142/data/IMAGEN/spmstatsintra/*/SessionB/EPI_short_MID/swea/con_0010.nii")
+    Y_files = '/users/nichols/inf852/Yfiles.txt'
 
     # Design matrix and number of parameters.
     X = '/users/nichols/inf852/DistOLS-py/DistOLS/test/data/DesMat.csv'
