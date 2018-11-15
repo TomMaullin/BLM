@@ -154,18 +154,22 @@ def blkYtY(Y, Mask):
 
 def blkXtY(X, Y, Mask):
     
-    # Calculate X transpose Y
-    XtY = np.asarray(
+    # Calculate X transpose Y (Masked)
+    XtY_m = np.asarray(
                 np.dot(np.transpose(X), Y))
 
     # Check the dimensions haven't been reduced
     # (numpy will lower the dimension of the 
     # array if the length in one dimension is
     # one)
-    if np.ndim(XtY) == 0:
-        XtY = np.array([[XtY]])
-    elif np.ndim(XtY) == 1:
-        XtY = np.array([XtY])
+    if np.ndim(XtY_m) == 0:
+        XtY_m = np.array([[XtY_m]])
+    elif np.ndim(XtY_m) == 1:
+        XtY_m = np.array([XtY_m])
+
+    # Unmask XtY
+    XtY = np.zeros([XtY_m.shape[0], Mask.shape[0]])
+    XtY[:,np.nonzero(Mask)] = XtY_m[:]
 
     return XtY
 
