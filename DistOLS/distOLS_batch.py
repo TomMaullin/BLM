@@ -117,7 +117,7 @@ def obtainY(Y_files):
     Mask = np.zeros([nvox])
     Mask[np.where(Y.any(axis=0))[0]] = 1
 
-    Y = Y[np.where(Y.any(axis=0))[0],:]
+    Y = Y[:, np.where(Y.any(axis=0))[0]]
 
     return Y, Mask
 
