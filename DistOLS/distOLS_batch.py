@@ -31,11 +31,24 @@ def main(*args):
 
         X = np.loadtxt(os.path.join("binputs","X" + str(batchNo) + ".csv"), 
                        delimiter=",") 
-    
+
+        
+        # Check if we are doing spatially varying.
+        inputs = distOLS_defaults.main()
+        SVFlag = inputs[3]
+        del inputs
+        
     else:
 
         Y_files = args[0]
         X = args[1]
+
+        if len(args)==3:
+            SVFlag = args[3]
+        else:
+            inputs = distOLS_defaults.main()
+            SVFlag = inputs[3]
+            del inputs
 
     # Get X transpose Y, X transpose X and Y transpose Y.
     XtY = blkXtY(X, Y_files)
@@ -91,11 +104,8 @@ def blkYtY(Y_files):
 
     # Calculate Y transpose Y.
     YtY = np.matmul(Yt,Y).reshape([nvox, 1])
-    print('YtY')
-    print(YtY.shape)
 
     return YtY
-
 
 
 def blkXtY(X, Y_files):
@@ -127,13 +137,10 @@ def blkXtY(X, Y_files):
     XtY = np.asarray(
                 np.dot(np.transpose(X), Y))
 
-    print('XtY')
-    print(XtY.shape)
     if np.ndim(XtY) == 0:
         XtY = np.array([[XtY]])
     elif np.ndim(XtY) == 1:
         XtY = np.array([XtY])
-    print(XtY.shape)
 
     return XtY
 
@@ -143,13 +150,10 @@ def blkXtX(X):
     XtX = np.asarray(
                 np.dot(np.transpose(X), X))
 
-    print('XtX')
-    print(XtX.shape)
     if np.ndim(XtX) == 0:
         XtX = np.array([XtX])
     elif np.ndim(XtX) == 1:
         XtX = np.array([XtX])
-    print(XtX.shape)
 
     return XtX
 
