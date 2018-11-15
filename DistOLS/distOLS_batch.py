@@ -50,8 +50,15 @@ def main(*args):
             SVFlag = inputs[3]
             del inputs
 
+    # WIP PLAN: for spatially varying,
+    #if SVFlag:
+    #    X = MX(X, Y_files)
+
+
+    Y = obtainY(Y_files)
+
     # Get X transpose Y, X transpose X and Y transpose Y.
-    XtY = blkXtY(X, Y_files)
+    XtY = blkXtY(X, Y)
     XtX = blkXtX(X)
     YtY = blkYtY(Y_files)
 
@@ -71,44 +78,7 @@ def main(*args):
         w.resetwarnings()
         return (XtX, XtY, YtY)
 
-# Note: this techniqcally calculates sum(Y.Y) for each voxel,
-# not Y transpose Y for all voxels
-def blkYtY(Y_files):
-
-    # Load in one nifti to check NIFTI size
-    Y0 = nib.load(Y_files[0])
-    d = Y0.get_data()
-    
-    # Get number of voxels. ### CAN BE IMPROVED WITH MASK
-    nvox = np.prod(d.shape)
-
-    # Number of scans in block
-    nscan = len(Y_files)
-
-    # Read in Y
-    Y = np.zeros([nvox, nscan, 1])
-    Yt = np.zeros([nvox, 1, nscan])
-
-    for i in range(0, len(Y_files)):
-
-        # Read in each individual NIFTI.
-        Y_indiv = nib.load(Y_files[i])
-        d = Y_indiv.get_data()
-
-        # NaN check
-        d = np.nan_to_num(d)
-
-        # Constructing Y matrix
-        Y[:, i, 0] = d.reshape([1, nvox])
-        Yt[:, 0, i] = d.reshape([1, nvox])
-
-    # Calculate Y transpose Y.
-    YtY = np.matmul(Yt,Y).reshape([nvox, 1])
-
-    return YtY
-
-
-def blkXtY(X, Y_files):
+def obtainY(Y_files):
 
     # Load in one nifti to check NIFTI size
     Y0 = nib.load(Y_files[0])
@@ -134,9 +104,37 @@ def blkXtY(X, Y_files):
         # Constructing Y matrix
         Y[i, :] = d.reshape([1, nvox])
 
+    return Y
+
+# Note: this techniqcally calculates sum(Y.Y) for each voxel,
+# not Y transpose Y for all voxels
+def blkYtY(Y):
+
+    # Read in number of scans and voxels.
+    nscan = Y.shape[0]
+    nvox = Y.shape[1]
+
+    # Reshape Y
+    Y_rs = Y.transpose().reshape(nvox, nscan, 1)
+    Yt_rs = Y.transpose().reshape(nvox, 1, nscan)
+    del Y
+
+    # Calculate Y transpose Y.
+    YtY = np.matmul(Yt_rs,Y_rs).reshape([nvox, 1])
+
+    return YtY
+
+
+def blkXtY(X, Y):
+    
+    # Calculate X transpose Y
     XtY = np.asarray(
                 np.dot(np.transpose(X), Y))
 
+    # Check the dimensions haven't been reduced
+    # (numpy will lower the dimension of the 
+    # array if the length in one dimension is
+    # one)
     if np.ndim(XtY) == 0:
         XtY = np.array([[XtY]])
     elif np.ndim(XtY) == 1:
@@ -147,9 +145,14 @@ def blkXtY(X, Y_files):
 
 def blkXtX(X):
 
+    # Calculate XtX
     XtX = np.asarray(
                 np.dot(np.transpose(X), X))
 
+    # Check the dimensions haven't been reduced
+    # (numpy will lower the dimension of the 
+    # array if the length in one dimension is
+    # one)
     if np.ndim(XtX) == 0:
         XtX = np.array([XtX])
     elif np.ndim(XtX) == 1:
