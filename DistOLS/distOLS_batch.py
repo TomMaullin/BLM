@@ -58,20 +58,11 @@ def main(*args):
     # Obtain Y and a mask for Y. This mask is just for voxels
     # with no studies present.
     Y, Mask = obtainY(Y_files)
-    print('Y')
-    print(Y)
-    print('Mask')
-    print(Mask)
 
     # Get X transpose Y, X transpose X and Y transpose Y.
     XtY = blkXtY(X, Y, Mask)
     XtX = blkXtX(X)
     YtY = blkYtY(Y, Mask)
-
-    print('XtY shape')
-    print(XtY.shape)
-    print('YtY shape')
-    print(YtY.shape)
 
     if len(args)==1:
         # Record XtX and XtY
@@ -112,9 +103,6 @@ def obtainY(Y_files):
 
         # Constructing Y matrix
         Y[i, :] = d.reshape([1, nvox])
-
-    print(np.where(np.count_nonzero(Y, axis=0)>1)[0])
-    print(np.where(np.count_nonzero(Y, axis=0)>1)[0].shape)
     
     Mask = np.zeros([nvox])
     Mask[np.where(np.count_nonzero(Y, axis=0)>1)[0]] = 1
@@ -139,15 +127,9 @@ def blkYtY(Y, Mask):
     # Calculate Y transpose Y.
     YtY_m = np.matmul(Yt_rs,Y_rs).reshape([nvox, 1])
 
-    print(Mask.shape[0])
-    print(np.nonzero(Mask))
-
     # Unmask YtY
     YtY = np.zeros([Mask.shape[0], 1])
     YtY[np.nonzero(Mask),:] = YtY_m[:]
-
-    print('YtYYYY')
-    print(YtY)
 
     return YtY
 
@@ -169,6 +151,8 @@ def blkXtY(X, Y, Mask):
 
     # Unmask XtY
     XtY = np.zeros([XtY_m.shape[0], Mask.shape[0]])
+    print(XtY.shape)
+    print(XtY[:,np.nonzero(Mask)].shape)
     XtY[:,np.nonzero(Mask)] = XtY_m[:]
 
     return XtY
