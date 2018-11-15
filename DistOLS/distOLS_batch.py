@@ -129,7 +129,7 @@ def blkYtY(Y, Mask):
 
     # Unmask YtY
     YtY = np.zeros([Mask.shape[0], 1])
-    YtY[np.nonzero(Mask),:] = YtY_m[:]
+    YtY[np.flatnonzero(Mask),:] = YtY_m[:]
 
     return YtY
 
@@ -154,8 +154,8 @@ def blkXtY(X, Y, Mask):
     # Unmask XtY
     XtY = np.zeros([XtY_m.shape[0], Mask.shape[0]])
     print(XtY.shape)
-    print(XtY[:,np.nonzero(Mask)[:]].shape)
-    XtY[:,np.nonzero(Mask)] = XtY_m[:]
+    print(XtY[:,np.flatnonzero(Mask)[:]].shape)
+    XtY[:,np.flatnonzero(Mask)] = XtY_m[:]
 
     return XtY
 
