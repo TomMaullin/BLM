@@ -55,13 +55,21 @@ def main(*args):
     #if SVFlag:
     #    X = MX(X, Y_files)
 
-
-    Y = obtainY(Y_files)
+    Y, Mask = obtainY(Y_files)
+    print('Y')
+    print(Y)
+    print('Mask')
+    print(Mask)
 
     # Get X transpose Y, X transpose X and Y transpose Y.
     XtY = blkXtY(X, Y)
     XtX = blkXtX(X)
     YtY = blkYtY(Y)
+
+    print('XtY shape')
+    print(XtY.shape)
+    print('YtY shape')
+    print(YtY.shape)
 
     if len(args)==1:
         # Record XtX and XtY
@@ -105,8 +113,13 @@ def obtainY(Y_files):
 
     print(np.where(Y.any(axis=0))[0])
     print(np.where(Y.any(axis=0))[0].shape)
+    
+    Mask = np.zeros([nvox])
+    Mask[np.where(Y.any(axis=0))[0]] = 1
 
-    return Y
+    Y = Y[np.where(Y.any(axis=0))[0],:]
+
+    return Y, Mask
 
 # Note: this techniqcally calculates sum(Y.Y) for each voxel,
 # not Y transpose Y for all voxels
