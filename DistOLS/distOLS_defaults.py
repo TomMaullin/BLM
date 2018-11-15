@@ -18,7 +18,7 @@ def main():
 
     # Set this to true if you want a spatially varying analysis and 
     # false otherwise.
-    SVFlag = False;
+    SVFlag = True;
 
     # There should be an output directory here:
     outdir = ''
