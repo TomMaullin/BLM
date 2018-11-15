@@ -61,7 +61,7 @@ def main(*args):
     # Get X transpose Y, X transpose X and Y transpose Y.
     XtY = blkXtY(X, Y)
     XtX = blkXtX(X)
-    YtY = blkYtY(Y_files)
+    YtY = blkYtY(Y)
 
     if len(args)==1:
         # Record XtX and XtY
