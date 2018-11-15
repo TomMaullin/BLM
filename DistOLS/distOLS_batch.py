@@ -55,6 +55,8 @@ def main(*args):
     #if SVFlag:
     #    X = MX(X, Y_files)
 
+    # Obtain Y and a mask for Y. This mask is just for voxels
+    # with no studies present.
     Y, Mask = obtainY(Y_files)
     print('Y')
     print(Y)
@@ -111,13 +113,13 @@ def obtainY(Y_files):
         # Constructing Y matrix
         Y[i, :] = d.reshape([1, nvox])
 
-    print(np.where(Y.any(axis=0))[0])
-    print(np.where(Y.any(axis=0))[0].shape)
+    print(np.where(np.count_nonzero(Y, axis=0)>1)[0])
+    print(np.where(np.count_nonzero(Y, axis=0)>1)[0].shape)
     
     Mask = np.zeros([nvox])
-    Mask[np.where(Y.any(axis=0))[0]] = 1
+    Mask[np.where(np.count_nonzero(Y, axis=0)>1)[0]] = 1
 
-    Y = Y[:, np.where(Y.any(axis=0))[0]]
+    Y = Y[:, np.where(np.count_nonzero(Y, axis=0)>1)[0]]
 
     return Y, Mask
 
