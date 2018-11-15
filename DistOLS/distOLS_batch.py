@@ -149,7 +149,7 @@ def blkYtY(Y, Mask):
     return YtY
 
 
-def blkXtY(X, Y):
+def blkXtY(X, Y, Mask):
     
     # Calculate X transpose Y
     XtY = np.asarray(
