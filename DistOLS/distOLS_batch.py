@@ -64,9 +64,9 @@ def main(*args):
     print(Mask)
 
     # Get X transpose Y, X transpose X and Y transpose Y.
-    XtY = blkXtY(X, Y)
+    XtY = blkXtY(X, Y, Mask)
     XtX = blkXtX(X)
-    YtY = blkYtY(Y)
+    YtY = blkYtY(Y, Mask)
 
     print('XtY shape')
     print(XtY.shape)
@@ -125,7 +125,7 @@ def obtainY(Y_files):
 
 # Note: this techniqcally calculates sum(Y.Y) for each voxel,
 # not Y transpose Y for all voxels
-def blkYtY(Y):
+def blkYtY(Y, Mask):
 
     # Read in number of scans and voxels.
     nscan = Y.shape[0]
@@ -137,7 +137,14 @@ def blkYtY(Y):
     del Y
 
     # Calculate Y transpose Y.
-    YtY = np.matmul(Yt_rs,Y_rs).reshape([nvox, 1])
+    YtY_m = np.matmul(Yt_rs,Y_rs).reshape([nvox, 1])
+
+    # Unmask YtY
+    YtY = np.zeros([YtY.shape[0], 1])
+    YtY[np.where(Mask.any(axis=0))[0]] = YtY_m[:]
+
+    print('YtYYYY')
+    print(YtY)
 
     return YtY
 
