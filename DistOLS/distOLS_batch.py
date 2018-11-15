@@ -69,8 +69,6 @@ def main(*args):
                    XtX, delimiter=",") 
         np.savetxt(os.path.join("binputs","XtY" + str(batchNo) + ".csv"), 
                    XtY, delimiter=",") 
-        print(YtY.shape)
-        print(YtY.ndim)
         np.savetxt(os.path.join("binputs","YtY" + str(batchNo) + ".csv"), 
                    YtY, delimiter=",") 
         w.resetwarnings()
@@ -104,6 +102,9 @@ def obtainY(Y_files):
 
         # Constructing Y matrix
         Y[i, :] = d.reshape([1, nvox])
+
+    print(np.where(~y.any(axis=0))[0])
+    print(np.where(~y.any(axis=1))[0])
 
     return Y
 

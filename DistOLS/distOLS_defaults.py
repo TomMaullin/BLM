@@ -20,7 +20,10 @@ def main():
     # false otherwise.
     SVFlag = False;
 
-    return(MAXMEM, Y_files, X, SVFlag)
+    # There should be an output directory here:
+    outdir = ''
+
+    return(MAXMEM, Y_files, X, SVFlag, outdir)
 
 
 if __name__ == "__main__":

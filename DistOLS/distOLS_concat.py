@@ -82,9 +82,7 @@ def main():
                                    header=nifti.header)
         nib.save(betaimap, 'beta' + str(i) + '.nii')
 
-    del betai
-    del betaimap
-    del nifti
+    del betai, betaimap, nifti
 
     if np.ndim(beta) == 0:
         beta = np.array([[beta]])
@@ -100,19 +98,19 @@ def main():
        beta_rs[:, i, 0] = beta[i,:];
        beta_rs_t[:, 0, i] = beta[i,:];
 
-    print(beta_rs_t.shape)
-    print(sumXtX.shape)
-    print(beta_rs.shape)
-
     del beta
 
+    # Calculate Beta transpose times XtX and delete the
+    # now redudundant matrices.
     betatXtX = np.matmul(beta_rs_t, sumXtX)
-    del beta_rs_t
-    del sumXtX
+    del beta_rs_t, sumXtX
 
+    # Multiply BetatXtX by Beta and delete the reduundant
+    # matrices.
     betatXtXbeta = np.matmul(betatXtX, beta_rs)
-    del beta_rs
+    del betatXtX, beta_rs
 
+    # Reshape betat XtX beta
     betatXtXbeta = np.reshape(betatXtXbeta, betatXtXbeta.shape[0])
 
     # Residual sum of squares
