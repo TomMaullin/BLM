@@ -139,6 +139,9 @@ def blkYtY(Y, Mask):
     # Calculate Y transpose Y.
     YtY_m = np.matmul(Yt_rs,Y_rs).reshape([nvox, 1])
 
+    print(np.where(Mask.any(axis=0))[0])
+    print(np.where(Mask.any(axis=1))[0])
+
     # Unmask YtY
     YtY = np.zeros([YtY_m.shape[0], 1])
     YtY[np.where(Mask.any(axis=0))[0],:] = YtY_m[:]
