@@ -154,7 +154,7 @@ def blkXtY(X, Y, Mask):
     # Unmask XtY
     XtY = np.zeros([XtY_m.shape[0], Mask.shape[0]])
     print(XtY.shape)
-    print(XtY[:,np.nonzero(Mask)].shape)
+    print(XtY[:,np.nonzero(Mask)[:]].shape)
     XtY[:,np.nonzero(Mask)] = XtY_m[:]
 
     return XtY
