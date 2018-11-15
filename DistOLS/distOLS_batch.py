@@ -103,8 +103,8 @@ def obtainY(Y_files):
         # Constructing Y matrix
         Y[i, :] = d.reshape([1, nvox])
 
-    print(np.where(~y.any(axis=0))[0])
-    print(np.where(~y.any(axis=1))[0])
+    print(np.where(~Y.any(axis=0))[0])
+    print(np.where(~Y.any(axis=1))[0])
 
     return Y
 
