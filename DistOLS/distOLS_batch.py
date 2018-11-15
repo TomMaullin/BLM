@@ -51,13 +51,13 @@ def main(*args):
             SVFlag = inputs[3]
             del inputs
 
-    # WIP PLAN: for spatially varying,
-    #if SVFlag:
-    #    X = MX(X, Y_files)
-
     # Obtain Y and a mask for Y. This mask is just for voxels
     # with no studies present.
     Y, Mask = obtainY(Y_files)
+
+    # WIP PLAN: for spatially varying,
+    #if SVFlag:
+    #    X = MX(X, Y)
 
     # Get X transpose Y, X transpose X and Y transpose Y.
     XtY = blkXtY(X, Y, Mask)
@@ -77,6 +77,12 @@ def main(*args):
     else:
         w.resetwarnings()
         return (XtX, XtY, YtY)
+
+def MX(X,Y):
+
+    print(Y!=0)
+
+    return X
 
 def obtainY(Y_files):
 
