@@ -137,6 +137,8 @@ def blkYtY(Y, Mask):
 def blkXtY(X, Y, Mask):
     
     # Calculate X transpose Y (Masked)
+    print(Y.shape)
+    print(X.shape)
     XtY_m = np.asarray(
                 np.dot(np.transpose(X), Y))
 
