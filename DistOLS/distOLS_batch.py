@@ -10,6 +10,7 @@ import nibabel as nib
 import sys
 import os
 import shutil
+from DistOLS import distOLS_defaults
 
 def main(*args):
     
