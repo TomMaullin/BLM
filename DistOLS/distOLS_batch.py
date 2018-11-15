@@ -143,8 +143,8 @@ def blkYtY(Y, Mask):
     print(np.where(Mask.any(axis=1))[0])
 
     # Unmask YtY
-    YtY = np.zeros([YtY_m.shape[0], 1])
-    YtY[np.where(Mask.any(axis=0))[0],:] = YtY_m[:]
+    YtY = np.zeros([Mask.shape[0], 1])
+    YtY[np.nonzero(Mask),:] = YtY_m[:]
 
     print('YtYYYY')
     print(YtY)
