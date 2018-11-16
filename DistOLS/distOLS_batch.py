@@ -55,10 +55,6 @@ def main(*args):
     # with no studies present.
     Y, Mask = obtainY(Y_files)
 
-    # WIP PLAN: for spatially varying,
-    if SVFlag:
-        X = MX(X, Y)
-
     # Get X transpose Y, X transpose X and Y transpose Y.
     XtY = blkXtY(X, Y, Mask)
     XtX = blkXtX(X)
