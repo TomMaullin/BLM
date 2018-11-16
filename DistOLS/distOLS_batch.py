@@ -80,6 +80,7 @@ def main(*args):
 
 def MX(X,Y):
 
+    print(Y)
     print(Y!=0)
 
     return X
