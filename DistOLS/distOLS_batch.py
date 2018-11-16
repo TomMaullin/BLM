@@ -96,11 +96,13 @@ def MX(X,Y):
     print('x')
     print(Xt.shape)
 
-    print(np.multiply(M, Xt))
-    print(np.multiply(M, Xt).transpose().shape)
+    # Obtain design for each voxel
+    MXt = np.multiply(M, Xt)
+    print(MXt)
+    MX = MXt.transpose(MXt.shape[2],MXt.shape[0],MXt.shape[1])
 
-    print(np.multiply(M, Xt).shape)
-
+    print(MX)
+    print(MX.shape)
     return X
 
 def obtainY(Y_files):
