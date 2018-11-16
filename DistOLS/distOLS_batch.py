@@ -57,12 +57,15 @@ def main(*args):
 
     # WIP PLAN: for spatially varying,
     if SVFlag:
-        X = MX(X, Y)
+        MX = MX(X, Y)
 
     # Get X transpose Y, X transpose X and Y transpose Y.
     XtY = blkXtY(X, Y, Mask)
-    XtX = blkXtX(X)
     YtY = blkYtY(Y, Mask)
+    if not SVFlag:
+        XtX = blkXtX(X)
+    else:
+        XtX = blkXtX(MX)
 
     if len(args)==1:
         # Record XtX and XtY
@@ -103,7 +106,7 @@ def MX(X,Y):
 
     print(MX)
     print(MX.shape)
-    return X
+    return MX
 
 def obtainY(Y_files):
 
@@ -185,18 +188,27 @@ def blkXtY(X, Y, Mask):
 
 def blkXtX(X):
 
-    # Calculate XtX
-    XtX = np.asarray(
-                np.dot(np.transpose(X), X))
+    if np.ndim(X) == 3:
 
-    # Check the dimensions haven't been reduced
-    # (numpy will lower the dimension of the 
-    # array if the length in one dimension is
-    # one)
-    if np.ndim(XtX) == 0:
-        XtX = np.array([XtX])
-    elif np.ndim(XtX) == 1:
-        XtX = np.array([XtX])
+        Xt = X.reshape(X.shape[0], X.shape[2], X.shape[1])
+
+        print(np.matmul(Xt, X).shape)
+        XtX = np.matmul(Xt, X)
+
+    else:
+
+        # Calculate XtX
+        XtX = np.asarray(
+                    np.dot(np.transpose(X), X))
+
+        # Check the dimensions haven't been reduced
+        # (numpy will lower the dimension of the 
+        # array if the length in one dimension is
+        # one)
+        if np.ndim(XtX) == 0:
+            XtX = np.array([XtX])
+        elif np.ndim(XtX) == 1:
+            XtX = np.array([XtX])
 
     return XtX
 
