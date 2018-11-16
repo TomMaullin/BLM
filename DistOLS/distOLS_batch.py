@@ -89,7 +89,7 @@ def MX(X,Y):
     # Get M in a form where each voxel's mask is mutliplied
     # by X
     M = M.transpose().reshape([M.shape[0], 1, M.shape[1]])
-    Xt = X.transpose()
+    Xt=X
 
     print('M')
     print(M.shape)
