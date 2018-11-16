@@ -86,7 +86,7 @@ def MX(X,Y):
     print('M')
     print(M.shape)
     print('x')
-    print(x.shape)
+    print(X.shape)
 
     return X
 
@@ -96,7 +96,7 @@ def obtainY(Y_files):
     Y0 = nib.load(Y_files[0])
     d = Y0.get_data()
     
-    # Get number of voxels. ### CAN BE IMPROVED WITH MASK
+    # Get number of voxels.
     nvox = np.prod(d.shape)
 
     # Number of scans in block
@@ -149,8 +149,6 @@ def blkYtY(Y, Mask):
 def blkXtY(X, Y, Mask):
     
     # Calculate X transpose Y (Masked)
-    print(Y.shape)
-    print(X.shape)
     XtY_m = np.asarray(
                 np.dot(np.transpose(X), Y))
 
@@ -165,8 +163,6 @@ def blkXtY(X, Y, Mask):
 
     # Unmask XtY
     XtY = np.zeros([XtY_m.shape[0], Mask.shape[0]])
-    print(XtY.shape)
-    print(XtY[:,np.flatnonzero(Mask)[:]].shape)
     XtY[:,np.flatnonzero(Mask)] = XtY_m[:]
 
     return XtY
