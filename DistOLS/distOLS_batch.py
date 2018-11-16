@@ -57,7 +57,7 @@ def main(*args):
 
     # WIP PLAN: for spatially varying,
     if SVFlag:
-        MX = MX(X, Y)
+        MX = blkMX(X, Y)
 
     # Get X transpose Y, X transpose X and Y transpose Y.
     XtY = blkXtY(X, Y, Mask)
@@ -81,7 +81,7 @@ def main(*args):
         w.resetwarnings()
         return (XtX, XtY, YtY)
 
-def MX(X,Y):
+def blkMX(X,Y):
 
     print(Y)
     print(Y!=0)
