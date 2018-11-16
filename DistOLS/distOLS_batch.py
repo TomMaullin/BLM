@@ -83,6 +83,12 @@ def MX(X,Y):
     print(Y)
     print(Y!=0)
 
+    M = (Y!=0)
+    print('M')
+    print(M.shape)
+    print('x')
+    print(x.shape)
+
     return X
 
 def obtainY(Y_files):
