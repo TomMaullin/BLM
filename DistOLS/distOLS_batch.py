@@ -99,7 +99,7 @@ def MX(X,Y):
     # Obtain design for each voxel
     MXt = np.multiply(M, Xt)
     print(MXt)
-    MX = MXt.transpose(2,0,1)
+    MX = MXt.transpose(0,2,1)
 
     print(MX)
     print(MX.shape)
