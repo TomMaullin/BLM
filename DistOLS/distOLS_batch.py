@@ -99,6 +99,8 @@ def MX(X,Y):
     print(np.multiply(M, Xt))
     print(np.multiply(M, Xt).transpose().shape)
 
+    print(np.multiply(M, Xt).shape)
+
     return X
 
 def obtainY(Y_files):
