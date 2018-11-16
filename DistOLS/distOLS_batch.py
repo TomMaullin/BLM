@@ -83,11 +83,21 @@ def MX(X,Y):
     print(Y)
     print(Y!=0)
 
+    # Work out the mask.
     M = (Y!=0)
+
+    # Get M in a form where each voxel's mask is mutliplied
+    # by X
+    M = M.transpose().reshape([M.shape[0], 1, M.shape[1]])
+    Xt = X.transpose()
+
     print('M')
     print(M.shape)
     print('x')
-    print(X.shape)
+    print(Xt.shape)
+
+    print(np.multiply(M, Xt))
+    print(np.multiply(M, Xt).transpose().shape)
 
     return X
 
