@@ -60,7 +60,7 @@ def main():
     SVFlag = inputs[3]
     if SVFlag:
 
-        sumXtX_m = sumXtX[:, np.where(np.count_nonzero(sumXtX, axis=1)>1)[0]]
+        sumXtX_m = sumXtX[np.where(np.count_nonzero(sumXtX, axis=1)>1)[0]]
         print(sumXtX.shape)
         print(sumXtX_m.shape)
         print(np.where(np.count_nonzero(sumXtX, axis=1)>1)[0].shape)
