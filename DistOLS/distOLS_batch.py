@@ -62,6 +62,7 @@ def main(*args):
     # Get X transpose Y, X transpose X and Y transpose Y.
     XtY = blkXtY(X, Y, Mask)
     YtY = blkYtY(Y, Mask)
+
     if not SVFlag:
         XtX = blkXtX(X)
     else:
@@ -75,6 +76,7 @@ def main(*args):
         XtX = np.zeros([Mask.shape[0],XtX_m.shape[1]])
         XtX[np.flatnonzero(Mask),:] = XtX_m[:]
 
+        np.set_printoptions(threshold=np.nan)
         print(XtX_m)
         print(XtX)
         print(XtX_m.shape)
