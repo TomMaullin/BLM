@@ -64,8 +64,9 @@ def main():
         # mask) by number of parametes by number of parameters)
         sumXtX_m = sumXtX[np.where(
             np.count_nonzero(sumXtX, axis=1)>0)[0]].reshape(
-                [sumXtX.shape[0], np.sqrt(sumXtX.shape[1]),
-                 np.sqrt(sumXtX.shape[1])])
+                [sumXtX.shape[0], 
+                 int(np.sqrt(sumXtX.shape[1])),
+                 int(np.sqrt(sumXtX.shape[1]))])
         
         print(sumXtX_m.shape)
         print(sumXtX_m)
