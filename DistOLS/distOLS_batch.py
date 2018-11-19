@@ -65,6 +65,9 @@ def main(*args):
     if not SVFlag:
         XtX = blkXtX(X)
     else:
+        # In a spatially varying design XtX has dimensions n_voxels
+        # by n_parameters by n_parameters. We reshape to n_voxels by
+        # n_parameters^2 so that we can save as a csv.
         XtX = blkXtX(MX)
         XtX = XtX.reshape([XtX.shape[0], XtX.shape[1]*XtX.shape[2]])
 
