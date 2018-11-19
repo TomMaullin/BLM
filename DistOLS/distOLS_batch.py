@@ -72,7 +72,7 @@ def main(*args):
         XtX_m = XtX_m.reshape([XtX_m.shape[0], XtX_m.shape[1]*XtX_m.shape[2]])
 
         # We then need to unmask XtX as we now are saving XtX.
-        XtX = np.zeros([Mask.shape[0],XtX_m.shape[1]*XtX_m.shape[2]])
+        XtX = np.zeros([Mask.shape[0],XtX_m.shape[1]])
         XtX[np.flatnonzero(Mask),:] = XtX_m[:]
 
         print(XtX_m)
