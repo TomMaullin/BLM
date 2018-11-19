@@ -66,6 +66,7 @@ def main(*args):
         XtX = blkXtX(X)
     else:
         XtX = blkXtX(MX)
+        XtX = XtX.reshape([XtX.shape[0], XtX.shape[1]*XtX.shape[2]])
 
     if len(args)==1:
         # Record XtX and XtY
