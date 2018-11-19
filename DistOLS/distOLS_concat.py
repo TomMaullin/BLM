@@ -62,21 +62,28 @@ def main():
 
         # Remove zero lines and convert back to number voxels (in
         # mask) by number of parametes by number of parameters)
-        sumXtX_m = sumXtX[np.where(
-            np.count_nonzero(sumXtX, axis=1)>0)[0]]
-        sumXtX_m = sumXtX_m.reshape([sumXtX_m.shape[0], 
-                     int(np.sqrt(sumXtX_m.shape[1])),
-                     int(np.sqrt(sumXtX_m.shape[1]))])
+        sumXtX = sumXtX.reshape([sumXtX.shape[0], 
+                     int(np.sqrt(sumXtX.shape[1])),
+                     int(np.sqrt(sumXtX.shape[1]))])
+        sumXtX_m = sumXtX[np.where(np.linalg.det(sumXtX)!=0)[0]]
         
         print(sumXtX_m.shape)
         print(sumXtX_m)
-
-        for i in range(0,92019):
-            print(sumXtX_m[i,:,:])
-            print(np.linalg.inv(sumXtX_m[i,:,:]))
-            print('')
-
         print(np.linalg.inv(sumXtX_m))
+
+        isumXtX_m = np.linalg.inv(sumXtX_m).reshape(
+                      [sumXtX_m.shape[0],
+                       int(sumXtX_m.shape[1])*int(sumXtX_m.shape[2])])
+
+        isumXtX = np.zeros([sumXtX.shape[0],
+                            int(sumXtX.shape[1])*int(sumXtX.shape[2])])
+
+        isumXtX[np.where(np.linalg.det(sumXtX)!=0)[0]]=isumXtX_m
+
+        isumXtX = isumXtX.reshape([isumXtX.shape[0],
+                                   int(np.sqrt(isumXtX.shape[1])),
+                                   int(np.sqrt(isumXtX.shape[1]))])
+
 
     # If we are not using a spatially varying design, inverse in
     # the normal manner.
@@ -91,6 +98,8 @@ def main():
     NIFTIsize = np.loadtxt(os.path.join("binputs","NIFTIsize.csv"), 
                         delimiter=",")
 
+    print(isumXtX.shape)
+    print(sumXtY.shape)
     beta = np.dot(isumXtX, sumXtY)
     print(beta.shape)
 
