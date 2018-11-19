@@ -69,7 +69,7 @@ def main(*args):
         # by n_parameters by n_parameters. We reshape to n_voxels by
         # n_parameters^2 so that we can save as a csv.
         XtX_m = blkXtX(MX)
-        XtX_m = XtX.reshape([XtX_m.shape[0], XtX_m.shape[1]*XtX_m.shape[2]])
+        XtX_m = XtX_m.reshape([XtX_m.shape[0], XtX_m.shape[1]*XtX_m.shape[2]])
 
         # We then need to unmask XtX as we now are saving XtX.
         XtX = np.zeros([Mask.shape[0],XtX_m.shape[1]*XtX_m.shape[2]])
