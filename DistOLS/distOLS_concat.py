@@ -60,11 +60,17 @@ def main():
     SVFlag = inputs[3]
     if SVFlag:
 
-        sumXtX_m = sumXtX[np.where(np.count_nonzero(sumXtX, axis=1)>1)[0]]
-        print(sumXtX.shape)
+        # Remove zero lines and convert back to number voxels (in
+        # mask) by number of parametes by number of parameters)
+        sumXtX_m = sumXtX[np.where(
+            np.count_nonzero(sumXtX, axis=1)>0)[0]].reshape(
+                [sumXtX.shape[0], np.sqrt(sumXtX.shape[1]),
+                 np.sqrt(sumXtX.shape[1])])
+        
         print(sumXtX_m.shape)
-        print(np.where(np.count_nonzero(sumXtX, axis=1)>1)[0].shape)
         print(sumXtX_m)
+
+        print(np.linalg.inv(sumXtX))
 
     # If we are not using a spatially varying design, inverse in
     # the normal manner.
