@@ -63,10 +63,10 @@ def main():
         # Remove zero lines and convert back to number voxels (in
         # mask) by number of parametes by number of parameters)
         sumXtX_m = sumXtX[np.where(
-            np.count_nonzero(sumXtX, axis=1)>0)[0]].reshape(
-                [sumXtX.shape[0], 
-                 int(np.sqrt(sumXtX.shape[1])),
-                 int(np.sqrt(sumXtX.shape[1]))])
+            np.count_nonzero(sumXtX, axis=1)>0)[0]]
+        sumXtX_m = sumXtX_m.reshape([sumXtX_m.shape[0], 
+                     int(np.sqrt(sumXtX_m.shape[1])),
+                     int(np.sqrt(sumXtX_m.shape[1]))])
         
         print(sumXtX_m.shape)
         print(sumXtX_m)
