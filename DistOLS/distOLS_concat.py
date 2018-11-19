@@ -11,6 +11,7 @@ import sys
 import os
 import glob
 import shutil
+from DistOLS import distOLS_defaults
 
 def main():
 
@@ -54,11 +55,23 @@ def main():
     elif np.ndim(sumXtY) == 1:
         sumXtY = np.array([sumXtY])
 
-    # np linalg inverse doesn't handle dim=[1,1]
-    if np.ndim(sumXtX) == 1:
-        isumXtX = 1/sumXtX
+    # Mask and reshape if we are using a spatially varying design.
+    inputs = distOLS_defaults.main()
+    SVFlag = inputs[3]
+    if SVFlag:
+
+        sumXtX_m = sumXtX[np.where(np.count_nonzero(sumXtX, axis=0)>1)[0]]
+
+        print(sumXtX_m)
+
+    # If we are not using a spatially varying design, inverse in
+    # the normal manner.
     else:
-        isumXtX = np.linalg.inv(sumXtX)
+        # np linalg inverse doesn't handle dim=[1,1]
+        if np.ndim(sumXtX) == 1:
+            isumXtX = 1/sumXtX
+        else:
+            isumXtX = np.linalg.inv(sumXtX)
 
     # Read in the nifti size.
     NIFTIsize = np.loadtxt(os.path.join("binputs","NIFTIsize.csv"), 

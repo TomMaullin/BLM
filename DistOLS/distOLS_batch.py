@@ -76,12 +76,6 @@ def main(*args):
         XtX = np.zeros([Mask.shape[0],XtX_m.shape[1]])
         XtX[np.flatnonzero(Mask),:] = XtX_m[:]
 
-        np.set_printoptions(threshold=np.nan)
-        print(XtX_m)
-        print(XtX)
-        print(XtX_m.shape)
-        print(XtX.shape)
-
     if len(args)==1:
         # Record XtX and XtY
         np.savetxt(os.path.join("binputs","XtX" + str(batchNo) + ".csv"), 
