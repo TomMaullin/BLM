@@ -68,8 +68,17 @@ def main(*args):
         # In a spatially varying design XtX has dimensions n_voxels
         # by n_parameters by n_parameters. We reshape to n_voxels by
         # n_parameters^2 so that we can save as a csv.
-        XtX = blkXtX(MX)
-        XtX = XtX.reshape([XtX.shape[0], XtX.shape[1]*XtX.shape[2]])
+        XtX_m = blkXtX(MX)
+        XtX_m = XtX.reshape([XtX_m.shape[0], XtX_m.shape[1]*XtX_m.shape[2]])
+
+        # We then need to unmask XtX as we now are saving XtX.
+        XtX = np.zeros([Mask.shape[0],XtX_m.shape[1]*XtX_m.shape[2]])
+        XtX[np.flatnonzero(Mask),:] = XtX_m[:]
+
+        print(XtX_m)
+        print(XtX)
+        print(XtX_m.shape)
+        print(XtX.shape)
 
     if len(args)==1:
         # Record XtX and XtY
@@ -87,9 +96,6 @@ def main(*args):
 
 def blkMX(X,Y):
 
-    print(Y)
-    print(Y!=0)
-
     # Work out the mask.
     M = (Y!=0)
 
@@ -98,18 +104,10 @@ def blkMX(X,Y):
     M = M.transpose().reshape([M.shape[1], 1, M.shape[0]])
     Xt=X.transpose()
 
-    print('M')
-    print(M.shape)
-    print('x')
-    print(Xt.shape)
-
     # Obtain design for each voxel
     MXt = np.multiply(M, Xt)
-    print(MXt)
     MX = MXt.transpose(0,2,1)
 
-    print(MX)
-    print(MX.shape)
     return MX
 
 def obtainY(Y_files):
