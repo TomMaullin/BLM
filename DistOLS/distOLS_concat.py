@@ -61,7 +61,9 @@ def main():
     if SVFlag:
 
         sumXtX_m = sumXtX[np.where(np.count_nonzero(sumXtX, axis=0)>1)[0]]
-
+        print(sumXtX.shape)
+        print(sumXtX_m.shape)
+        print(np.where(np.count_nonzero(sumXtX, axis=1)>1)[0].shape)
         print(sumXtX_m)
 
     # If we are not using a spatially varying design, inverse in
