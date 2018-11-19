@@ -74,6 +74,7 @@ def main():
         for i in range(0,92019):
             print(sumXtX_m[i,:,:])
             print(np.linalg.inv(sumXtX_m[i,:,:]))
+            print('')
 
         print(np.linalg.inv(sumXtX_m))
 
