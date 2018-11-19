@@ -71,7 +71,7 @@ def main():
         print(sumXtX_m.shape)
         print(sumXtX_m)
 
-        print(np.linalg.inv(sumXtX))
+        print(np.linalg.inv(sumXtX_m))
 
     # If we are not using a spatially varying design, inverse in
     # the normal manner.
