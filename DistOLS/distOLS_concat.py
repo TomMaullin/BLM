@@ -71,6 +71,10 @@ def main():
         print(sumXtX_m.shape)
         print(sumXtX_m)
 
+        for i in range(0,92019)
+            print(sumXtX_m[i,:,:])
+            print(np.linalg.inv(sumXtX_m[i,:,:]))
+
         print(np.linalg.inv(sumXtX_m))
 
     # If we are not using a spatially varying design, inverse in
