@@ -67,10 +67,6 @@ def main():
                      int(np.sqrt(sumXtX.shape[1]))])
         sumXtX_m = sumXtX[np.where(np.linalg.det(sumXtX)!=0)[0]]
         
-        print(sumXtX_m.shape)
-        print(sumXtX_m)
-        print(np.linalg.inv(sumXtX_m))
-
         isumXtX_m = np.linalg.inv(sumXtX_m).reshape(
                       [sumXtX_m.shape[0],
                        int(sumXtX_m.shape[1])*int(sumXtX_m.shape[2])])
@@ -98,19 +94,13 @@ def main():
     NIFTIsize = np.loadtxt(os.path.join("binputs","NIFTIsize.csv"), 
                         delimiter=",")
 
-    print(isumXtX.shape)
-    print(sumXtY.shape)
     # If we are doing spatially varying we need to reshape XtY.
     if SVFlag:
         sumXtY = sumXtY.transpose()
         sumXtY = sumXtY.reshape([sumXtY.shape[0], sumXtY.shape[1], 1])
-
-    print(sumXtY.shape)
-        
+    
     beta = np.matmul(isumXtX, sumXtY)
-    print('lol')        
-    print(beta.shape)
-
+    
     if SVFlag:
         beta = beta.reshape([beta.shape[0], beta.shape[1]]).transpose()
 
@@ -161,8 +151,6 @@ def main():
     betatXtXbeta = np.reshape(betatXtXbeta, betatXtXbeta.shape[0])
 
     # Residual sum of squares
-    print(sumYtY.shape)
-    print(betatXtXbeta.shape)
     ete = sumYtY - betatXtXbeta
 
     # tmp code to output nifti

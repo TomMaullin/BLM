@@ -189,8 +189,6 @@ def blkXtX(X):
     if np.ndim(X) == 3:
 
         Xt = X.reshape(X.shape[0], X.shape[2], X.shape[1])
-
-        print(np.matmul(Xt, X).shape)
         XtX = np.matmul(Xt, X)
 
     else:
