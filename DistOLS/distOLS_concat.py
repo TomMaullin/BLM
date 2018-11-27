@@ -100,8 +100,19 @@ def main():
 
     print(isumXtX.shape)
     print(sumXtY.shape)
-    beta = np.dot(isumXtX, sumXtY)
+    # If we are doing spatially varying we need to reshape XtY.
+    if SVFlag:
+        sumXtY = sumXtY.transpose()
+        sumXtY = sumXtY.reshape([sumXtY.shape[0], sumXtY.shape[1], 1])
+
+    print(sumXtY.shape)
+        
+    beta = np.matmul(isumXtX, sumXtY)
+    print('lol')        
     print(beta.shape)
+
+    if SVFlag:
+        beta = beta.reshape([beta.shape[0], beta.shape[1]]).transpose()
 
     # Cycle through betas and output results.
     for i in range(0,beta.shape[0]):
