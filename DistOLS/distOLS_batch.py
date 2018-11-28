@@ -56,32 +56,30 @@ def main(*args):
     Y, Mask = obtainY(Y_files)
 
     # WIP PLAN: for spatially varying,
-    #if SVFlag:
-    MX = blkMX(X, Y)
+    if SVFlag:
+        MX = blkMX(X, Y)
 
     # Get X transpose Y, X transpose X and Y transpose Y.
     XtY = blkXtY(X, Y, Mask)
     YtY = blkYtY(Y, Mask)
 
-    #if not SVFlag:
-    XtX1 = blkXtX(X)
-    #else:
-    # In a spatially varying design XtX has dimensions n_voxels
-    # by n_parameters by n_parameters. We reshape to n_voxels by
-    # n_parameters^2 so that we can save as a csv.
-    XtX_m = blkXtX(MX)
-    XtX_m = XtX_m.reshape([XtX_m.shape[0], XtX_m.shape[1]*XtX_m.shape[2]])
+    if not SVFlag:
+        XtX = blkXtX(X)
+    else:
+        # In a spatially varying design XtX has dimensions n_voxels
+        # by n_parameters by n_parameters. We reshape to n_voxels by
+        # n_parameters^2 so that we can save as a csv.
+        XtX_m = blkXtX(MX)
+        XtX_m = XtX_m.reshape([XtX_m.shape[0], XtX_m.shape[1]*XtX_m.shape[2]])
 
-    # We then need to unmask XtX as we now are saving XtX.
-    XtX2 = np.zeros([Mask.shape[0],XtX_m.shape[1]])
-    XtX2[np.flatnonzero(Mask),:] = XtX_m[:]
+        # We then need to unmask XtX as we now are saving XtX.
+        XtX = np.zeros([Mask.shape[0],XtX_m.shape[1]])
+        XtX[np.flatnonzero(Mask),:] = XtX_m[:]
 
     if len(args)==1:
         # Record XtX and XtY
-        np.savetxt(os.path.join("binputs","XtX1" + str(batchNo) + ".csv"), 
-                   XtX1, delimiter=",") 
-        np.savetxt(os.path.join("binputs","XtX2" + str(batchNo) + ".csv"), 
-                   XtX2, delimiter=",") 
+        np.savetxt(os.path.join("binputs","XtX" + str(batchNo) + ".csv"), 
+                   XtX, delimiter=",") 
         np.savetxt(os.path.join("binputs","XtY" + str(batchNo) + ".csv"), 
                    XtY, delimiter=",") 
         np.savetxt(os.path.join("binputs","YtY" + str(batchNo) + ".csv"), 
@@ -90,7 +88,7 @@ def main(*args):
 
     else:
         w.resetwarnings()
-        return (XtX1, XtY, YtY)
+        return (XtX, XtY, YtY)
 
 def blkMX(X,Y):
 
