@@ -56,8 +56,8 @@ def main(*args):
     Y, Mask = obtainY(Y_files)
 
     # WIP PLAN: for spatially varying,
-    if SVFlag:
-        MX = blkMX(X, Y)
+    #if SVFlag:
+    MX = blkMX(X, Y)
 
     # Get X transpose Y, X transpose X and Y transpose Y.
     XtY = blkXtY(X, Y, Mask)
