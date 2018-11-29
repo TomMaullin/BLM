@@ -25,6 +25,12 @@ def main():
                         delimiter=",")
     sumYtY = np.loadtxt(os.path.join("binputs","YtY1.csv"), 
                         delimiter=",")
+
+    # Delete the files as they are no longer needed.
+    os.remove(os.path.join("binputs","XtX1.csv"))
+    os.remove(os.path.join("binputs","XtY1.csv"))
+    os.remove(os.path.join("binputs","YtY1.csv"))
+
     
     # Work out how many files we need.
     XtX_files = glob.glob("XtX*")
@@ -45,10 +51,13 @@ def main():
             os.path.join("binputs","YtY" + str(batchNo) + ".csv"), 
                          delimiter=",")
 
+        print('anything?!?!')
+
         # Delete the files as they are no longer needed.
-        os.remove(os.path.join("binputs","XtX" + str(batchNo) + ".csv"))
-        os.remove(os.path.join("binputs","XtY" + str(batchNo) + ".csv"))
-        os.remove(os.path.join("binputs","YtY" + str(batchNo) + ".csv"))
+        print(os.path.join(os.getcwd(), "binputs","XtX" + str(batchNo) + ".csv"))
+        os.remove(os.path.join(os.getcwd(), "binputs","XtX" + str(batchNo) + ".csv"))
+        os.remove(os.path.join(os.getcwd(), "binputs","XtY" + str(batchNo) + ".csv"))
+        os.remove(os.path.join(os.getcwd(), "binputs","YtY" + str(batchNo) + ".csv"))
 
     # Dimension bug handling
     if np.ndim(sumXtX) == 0:
