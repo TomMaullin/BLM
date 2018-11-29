@@ -19,6 +19,14 @@ do
   fi
   i=$(($i + 1))
 
+  if [ $i -eq 10 ]; then
+    echo "Verifying inputs..."
+  fi
+
+  if [ $i -eq 18 ]; then
+    echo "Please wait..."
+  fi
+
   if [ $i -gt 15 ]; then
     errorlog=$(ls log/setup.e* | head -1)
     if [ -s $errorlog ]; then

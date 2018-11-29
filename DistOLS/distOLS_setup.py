@@ -54,7 +54,11 @@ def main(*args):
         SVFlag = inputs[3]
 
     # Load in one nifti to check NIFTI size
-    Y0 = nib.load(Y_files[0])
+    try:
+        Y0 = nib.load(Y_files[0])
+    except Exception as error:
+        raise ValueError('The NIFTI "' + Y_files[0] + '"does not exist')
+
     d0 = Y0.get_data()
     Y0aff = Y0.affine
 
@@ -64,7 +68,11 @@ def main(*args):
     # Initial checks for NIFTI compatability.
     for Y_file in Y_files:
 
-        Y = nib.load(Y_file)
+        try:
+            Y = nib.load(Y_file)
+        except Exception as error:
+            raise ValueError('The NIFTI "' + Y_file + '"does not exist')
+
         d = Y.get_data()
         
         # Check NIFTI images have the same dimensions.
