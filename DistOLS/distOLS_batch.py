@@ -33,6 +33,9 @@ def main(*args):
         X = np.loadtxt(os.path.join("binputs","X" + str(batchNo) + ".csv"), 
                        delimiter=",") 
 
+        # Remove files that are no longer necessary.
+        os.remove(os.path.join("binputs","Y" + str(batchNo) + ".txt"))
+        os.remove(os.path.join("binputs","X" + str(batchNo) + ".csv"))
         
         # Check if we are doing spatially varying.
         inputs = distOLS_defaults.main()

@@ -18,6 +18,8 @@ def main():
     # Change to distOLS directory
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
+    print(os.getcwd())
+
     # Read the matrices from the first batch.
     sumXtX = np.loadtxt(os.path.join("binputs","XtX1.csv"), 
                         delimiter=",")
@@ -33,11 +35,11 @@ def main():
 
     
     # Work out how many files we need.
-    XtX_files = glob.glob("XtX*")
+    XtX_files = glob.glob(os.path.join("binputs","XtX*"))
 
     # Cycle through batches and add together results.
-    for batchNo in range(2,(len(XtX_files)+1)):
-
+    for batchNo in range(2,(len(XtX_files)+2)):
+        
         # Sum the batches.
         sumXtX = sumXtX + np.loadtxt(
             os.path.join("binputs","XtX" + str(batchNo) + ".csv"), 
@@ -50,11 +52,8 @@ def main():
         sumYtY = sumYtY + np.loadtxt(
             os.path.join("binputs","YtY" + str(batchNo) + ".csv"), 
                          delimiter=",")
-
-        print('anything?!?!')
-
+        
         # Delete the files as they are no longer needed.
-        print(os.path.join(os.getcwd(), "binputs","XtX" + str(batchNo) + ".csv"))
         os.remove(os.path.join(os.getcwd(), "binputs","XtX" + str(batchNo) + ".csv"))
         os.remove(os.path.join(os.getcwd(), "binputs","XtY" + str(batchNo) + ".csv"))
         os.remove(os.path.join(os.getcwd(), "binputs","YtY" + str(batchNo) + ".csv"))
