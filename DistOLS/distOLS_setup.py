@@ -55,10 +55,29 @@ def main(*args):
 
     # Load in one nifti to check NIFTI size
     Y0 = nib.load(Y_files[0])
-    d = Y0.get_data()
+    d0 = Y0.get_data()
+    Y0aff = Y0.affine
 
     # Get the maximum memory a NIFTI could take in storage. 
-    NIFTIsize = sys.getsizeof(np.zeros(d.shape,dtype='uint64'))
+    NIFTIsize = sys.getsizeof(np.zeros(d0.shape,dtype='uint64'))
+
+    # Initial checks for NIFTI compatability.
+    for Y_file in Y_files:
+
+        Y = nib.load(Y_file)
+        d = Y.get_data()
+        
+        # Check NIFTI images have the same dimensions.
+        if not np.array_equal(d.shape, d0.shape):
+            raise ValueError('Input NIFTI "' + Y_file + '" has ' +
+                             'different dimensions to "' +
+                             Y_files[0] + '"')
+
+        # Check NIFTI images are in the same space.
+        if not np.array_equal(Y.affine, Y0aff):
+            raise ValueError('Input NIFTI "' + Y_file + '" has a ' +
+                             'different affine transformation to "' +
+                             Y_files[0] + '"')
 
     # Similar to blksize in SwE, we divide by 8 times the size of a nifti
     # to work out how many blocks we use.
@@ -73,7 +92,7 @@ def main(*args):
     os.mkdir('binputs')
 
     # Example NIFTI is needed later.
-    exampleNifti = nib.Nifti1Image(np.zeros(d.shape,dtype='uint64'),
+    exampleNifti = nib.Nifti1Image(np.zeros(d0.shape,dtype='uint64'),
                                    Y0.affine,
                                    header=Y0.header)
 
