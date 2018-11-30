@@ -98,18 +98,6 @@ def main(*args):
     if os.path.isdir('binputs'):
         shutil.rmtree('binputs')
     os.mkdir('binputs')
-
-    # Example NIFTI is needed later.
-    exampleNifti = nib.Nifti1Image(np.zeros(d0.shape,dtype='uint64'),
-                                   Y0.affine,
-                                   header=Y0.header)
-
-    # Save the result.
-    nib.save(exampleNifti, os.path.join('binputs',
-                                        'example.nii'))    
-    np.savetxt(os.path.join("binputs","NIFTIsize.csv"), 
-                   d.shape, delimiter=",") 
-
     # Loop through blocks
     for i in range(0, len(Y_files), int(blksize)):
 

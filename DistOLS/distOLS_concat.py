@@ -17,9 +17,7 @@ def main():
 
     # Change to distOLS directory
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
-
-    print(os.getcwd())
-
+    
     # Read the matrices from the first batch.
     sumXtX = np.loadtxt(os.path.join("binputs","XtX1.csv"), 
                         delimiter=",")
@@ -105,8 +103,10 @@ def main():
             isumXtX = np.linalg.inv(sumXtX)
 
     # Read in the nifti size.
-    NIFTIsize = np.loadtxt(os.path.join("binputs","NIFTIsize.csv"), 
-                        delimiter=",")
+    with open(inputs[1]) as a:
+        nifti = nib.load(a.readline().replace('\n', ''))
+
+    NIFTIsize = nifti.shape
 
     # If we are doing spatially varying we need to reshape XtY.
     if SVFlag:
@@ -125,15 +125,13 @@ def main():
                                   int(NIFTIsize[1]),
                                   int(NIFTIsize[2]))
 
-        # tmp code to output nifti
-        nifti = nib.load(os.path.join("binputs", "example.nii"))
-
+        # Save beta map.
         betaimap = nib.Nifti1Image(betai,
                                    nifti.affine,
                                    header=nifti.header)
         nib.save(betaimap, 'beta' + str(i) + '.nii')
 
-    del betai, betaimap, nifti
+    del betai, betaimap
 
     if np.ndim(beta) == 0:
         beta = np.array([[beta]])
@@ -167,9 +165,7 @@ def main():
     # Residual sum of squares
     ete = sumYtY - betatXtXbeta
 
-    # tmp code to output nifti
-    nifti = nib.load(os.path.join("binputs", "example.nii"))
-
+    # Output ResSS.
     ssmap = nib.Nifti1Image(ete.reshape(int(NIFTIsize[0]),
                                   int(NIFTIsize[1]),
                                   int(NIFTIsize[2])),
