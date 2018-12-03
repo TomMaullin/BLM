@@ -87,7 +87,7 @@ def main(*args):
         d = Y.get_data()
         
         # Count number of scans at each voxel
-        sumVox = sumVox + 1*(d!=0)
+        sumVox = sumVox + 1*(np.nan_to_num(d)!=0)
         print(repr(sumVox))
         print(repr(sum(sum(sum(sumVox)))))
 
