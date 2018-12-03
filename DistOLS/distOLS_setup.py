@@ -14,9 +14,6 @@ import yaml
 
 def main(*args):
 
-    print('active')
-    print(len(args))
-
     # Change to distOLS directory
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
@@ -25,9 +22,6 @@ def main(*args):
 
         with open('distOLS_defaults.yml', 'r') as stream:
             inputs = yaml.load(stream)
-
-        print(repr(inputs['MAXMEM']))
-        print(type(inputs['MAXMEM']))
 
         MAXMEM = eval(inputs['MAXMEM'])
 
@@ -39,9 +33,8 @@ def main(*args):
 
                 Y_files.append(line.replace('\n', ''))
 
-        X = np.loadtxt(inputs['X'], delimiter=',') 
-        print(repr(inputs['SVFlag']))
-        print(type(inputs['SVFlag']))
+        X = np.loadtxt(inputs['X'], delimiter=',')
+
         SVFlag = inputs['SVFlag']
 
     # else Y_files is the first input and X is the second.
