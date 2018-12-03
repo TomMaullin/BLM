@@ -11,6 +11,7 @@ nb=0
 i=0
 while [ $nb -lt 1 ]
 do
+  echo $i
   sleep 1
   if [ "$(ls -A DistOLS/binputs/)" ]; then
     sleep 3
