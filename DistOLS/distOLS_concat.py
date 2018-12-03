@@ -104,7 +104,7 @@ def main():
             isumXtX = np.linalg.inv(sumXtX)
 
     # Read in the nifti size.
-    with open(inputs[1]) as a:
+    with open(inputs['Y_files']) as a:
         nifti = nib.load(a.readline().replace('\n', ''))
 
     NIFTIsize = nifti.shape
