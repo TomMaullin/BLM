@@ -11,7 +11,6 @@ import sys
 import os
 import glob
 import shutil
-from DistOLS import distOLS_defaults
 
 def main():
 
