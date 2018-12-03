@@ -71,6 +71,9 @@ def main(*args):
     # Get the maximum memory a NIFTI could take in storage. 
     NIFTIsize = sys.getsizeof(np.zeros(d0.shape,dtype='uint64'))
 
+    # Count number of scans contributing to voxels
+    sumVox = np.zeros(d0.shape)
+
     # Initial checks for NIFTI compatability.
     for Y_file in Y_files:
 
@@ -81,6 +84,9 @@ def main(*args):
 
         d = Y.get_data()
         
+        # Count number of scans at each voxel
+        sumVox = sumVox + 1*(d==0)
+
         # Check NIFTI images have the same dimensions.
         if not np.array_equal(d.shape, d0.shape):
             raise ValueError('Input NIFTI "' + Y_file + '" has ' +
@@ -92,6 +98,12 @@ def main(*args):
             raise ValueError('Input NIFTI "' + Y_file + '" has a ' +
                              'different affine transformation to "' +
                              Y_files[0] + '"')
+
+    # Get map of number of scans at voxel.
+    nsvmap = nib.Nifti1Image(sumVox,
+                             Y0.affine,
+                             header=Y0.header)
+    nib.save(svmap, 'blm_vox_nsv.nii')
 
     # Similar to blksize in SwE, we divide by 8 times the size of a nifti
     # to work out how many blocks we use.
