@@ -1,6 +1,13 @@
 rm log/*
 rm DistOLS/binputs/*
 
+# include parse_yaml function
+. parse_yaml.sh
+
+# read yaml file
+eval $(parse_yaml DistOLS/distOLS_defaults.yml "config_")
+echo $config_outdir
+
 qsub -N setup -V cluster_DistOLS_setup.sh
 
 echo "Setting up distributed analysis..."
