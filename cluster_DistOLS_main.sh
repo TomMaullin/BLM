@@ -11,7 +11,6 @@ nb=0
 i=0
 while [ $nb -lt 1 ]
 do
-  echo $i
   sleep 1
   if [ "$(ls -A DistOLS/binputs/)" ]; then
     sleep 3
@@ -27,7 +26,7 @@ do
     echo "Please wait..."
   fi
 
-  if [ $i -gt 15 ]; then
+  if [ $i -gt 30 ]; then
     errorlog=$(ls log/setup.e* | head -1)
     if [ -s $errorlog ]; then
       echo "Setup has errored"
