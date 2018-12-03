@@ -59,9 +59,14 @@ def main(*args):
 
     # Obtain Y and a mask for Y. This mask is just for voxels
     # with no studies present.
-    Y, Mask = obtainY(Y_files)
+    Y, Mask, nScan_v = obtainY(Y_files)
 
-    # WIP PLAN: for spatially varying,
+    if len(args)==1:
+        # Record XtX and XtY
+        np.savetxt(os.path.join("binputs","blm_vox_nscan_B" + str(batchNo) + ".csv"), 
+                   XtX, delimiter=",") 
+
+    # For spatially varying,
     if SVFlag:
         MX = blkMX(X, Y)
 
@@ -122,28 +127,38 @@ def obtainY(Y_files):
     nvox = np.prod(d.shape)
 
     # Number of scans in block
-    nscan = len(Y_files)
+    nScan = len(Y_files)
+
+    # Number of scans at each voxel
+    nScan_v = np.zeros([1, nvox])
 
     # Read in Y
-    Y = np.zeros([nscan, nvox])
+    Y = np.zeros([nScan, nvox])
     for i in range(0, len(Y_files)):
 
         # Read in each individual NIFTI.
         Y_indiv = nib.load(Y_files[i])
-        d = Y_indiv.get_data()
+        dat = Y_indiv.get_data()
 
         # NaN check
-        d = np.nan_to_num(d)
+        dat = np.nan_to_num(dat)
+        d = dat.reshape([1, nvox])
+
+        # Add to running total of number of scans
+        # used at each voxel.
+        nScan_v = nScan_v + d
 
         # Constructing Y matrix
-        Y[i, :] = d.reshape([1, nvox])
+        Y[i, :] = d
     
     Mask = np.zeros([nvox])
     Mask[np.where(np.count_nonzero(Y, axis=0)>1)[0]] = 1
 
     Y = Y[:, np.where(np.count_nonzero(Y, axis=0)>1)[0]]
 
-    return Y, Mask
+    nScan_v = nScan_v.reshape([dat.shape[0], dat.shape[1], dat.shape[2]])
+
+    return Y, Mask, nScan_v
 
 # Note: this techniqcally calculates sum(Y.Y) for each voxel,
 # not Y transpose Y for all voxels

@@ -165,6 +165,9 @@ def main():
     # Residual sum of squares
     ete = sumYtY - betatXtXbeta
 
+    print(ete.shape())
+    
+
     # Output ResSS.
     ssmap = nib.Nifti1Image(ete.reshape(int(NIFTIsize[0]),
                                   int(NIFTIsize[1]),
