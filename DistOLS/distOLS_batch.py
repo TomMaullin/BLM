@@ -38,8 +38,9 @@ def main(*args):
         os.remove(os.path.join("binputs","X" + str(batchNo) + ".csv"))
         
         # Check if we are doing spatially varying.
-        inputs = distOLS_defaults.main()
-        SVFlag = inputs[3]
+        with open('distOLS_defaults.yml', 'r') as stream:
+            inputs = yaml.load(stream)
+        SVFlag = inputs['SVFlag']
         del inputs
         
     else:
@@ -50,8 +51,9 @@ def main(*args):
         if len(args)==3:
             SVFlag = args[3]
         else:
-            inputs = distOLS_defaults.main()
-            SVFlag = inputs[3]
+            with open('distOLS_defaults.yml', 'r') as stream:
+                inputs = yaml.load(stream)
+            SVFlag = inputs['SVFlag']
             del inputs
 
     # Obtain Y and a mask for Y. This mask is just for voxels

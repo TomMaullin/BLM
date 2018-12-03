@@ -21,17 +21,12 @@ def main(*args):
     # If X and Y weren't given we look in defaults for all arguments.
     if len(args)<2:
 
-        inputs = distOLS_defaults.main()
-
-        print(os.getcwd())
-
-        print(repr(inputs))
         with open('distOLS_defaults.yml', 'r') as stream:
-            print(repr(yaml.load(stream)))
+            inputs = yaml.load(stream)
 
-        MAXMEM = inputs[0]
+        MAXMEM = eval(inputs['MAXMEM'])
 
-        with open(inputs[1]) as a:
+        with open(inputs['Y_files']) as a:
 
             Y_files = []
             i = 0
@@ -39,9 +34,9 @@ def main(*args):
 
                 Y_files.append(line.replace('\n', ''))
 
-        X = np.loadtxt(inputs[2], delimiter=',') 
+        X = np.loadtxt(inputs['X'], delimiter=',') 
 
-        SVFlag = inputs[3]
+        SVFlag = eval(inputs['SVFlag'])
 
     # else Y_files is the first input and X is the second.
     elif len(args)==2:
@@ -49,9 +44,10 @@ def main(*args):
         Y_files = args[0]
         X = args[1]
 
-        inputs = distOLS_defaults.main()
-        MAXMEM = inputs[0]
-        SVFlag = inputs[3]
+        with open('distOLS_defaults.yml', 'r') as stream:
+            inputs = yaml.load(stream)
+        MAXMEM = eval(inputs['MAXMEM'])
+        SVFlag = eval(inputs['SVFlag'])
 
     # And MAXMEM may be the third input
     else:
@@ -60,8 +56,9 @@ def main(*args):
         X = args[1]
         MAXMEM = args[2]        
 
-        inputs = distOLS_defaults.main()
-        SVFlag = inputs[3]
+        with open('distOLS_defaults.yml', 'r') as stream:
+            inputs = yaml.load(stream)
+        SVFlag = inputs['SVFlag']
 
     # Load in one nifti to check NIFTI size
     try:

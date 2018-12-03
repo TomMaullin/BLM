@@ -68,8 +68,9 @@ def main():
         sumXtY = np.array([sumXtY])
 
     # Mask and reshape if we are using a spatially varying design.
-    inputs = distOLS_defaults.main()
-    SVFlag = inputs[3]
+    with open('distOLS_defaults.yml', 'r') as stream:
+        inputs = yaml.load(stream)
+    SVFlag = inputs['SVFlag']
     if SVFlag:
 
         # Remove zero lines and convert back to number voxels (in
