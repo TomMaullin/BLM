@@ -15,7 +15,7 @@ import yaml
 
 def main():
 
-    # Change to distOLS directory
+    # Change to blm directory
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
     
     # Read the matrices from the first batch.
@@ -68,7 +68,7 @@ def main():
         sumXtY = np.array([sumXtY])
 
     # Mask and reshape if we are using a spatially varying design.
-    with open('distOLS_defaults.yml', 'r') as stream:
+    with open('blm_defaults.yml', 'r') as stream:
         inputs = yaml.load(stream)
     SVFlag = inputs['SVFlag']
     if SVFlag:

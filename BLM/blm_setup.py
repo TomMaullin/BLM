@@ -14,13 +14,13 @@ import yaml
 
 def main(*args):
 
-    # Change to distOLS directory
+    # Change to blm directory
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
     # If X and Y weren't given we look in defaults for all arguments.
     if len(args)<2:
 
-        with open('distOLS_defaults.yml', 'r') as stream:
+        with open('blm_defaults.yml', 'r') as stream:
             inputs = yaml.load(stream)
 
         MAXMEM = eval(inputs['MAXMEM'])
@@ -43,7 +43,7 @@ def main(*args):
         Y_files = args[0]
         X = args[1]
 
-        with open('distOLS_defaults.yml', 'r') as stream:
+        with open('blm_defaults.yml', 'r') as stream:
             inputs = yaml.load(stream)
         MAXMEM = eval(inputs['MAXMEM'])
         SVFlag = inputs['SVFlag']
@@ -55,7 +55,7 @@ def main(*args):
         X = args[1]
         MAXMEM = args[2]        
 
-        with open('distOLS_defaults.yml', 'r') as stream:
+        with open('blm_defaults.yml', 'r') as stream:
             inputs = yaml.load(stream)
         SVFlag = inputs['SVFlag']
 

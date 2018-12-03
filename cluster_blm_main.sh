@@ -1,14 +1,14 @@
 rm log/*
-rm DistOLS/binputs/*
+rm BLM/binputs/*
 
 # include parse_yaml function
 . parse_yaml.sh
 
 # read yaml file
-eval $(parse_yaml DistOLS/distOLS_defaults.yml "config_")
+eval $(parse_yaml BLM/blm_defaults.yml "config_")
 echo $config_outdir
 
-qsub -N setup -V cluster_DistOLS_setup.sh
+qsub -N setup -V cluster_blm_setup.sh
 
 echo "Setting up distributed analysis..."
 
@@ -20,9 +20,9 @@ i=0
 while [ $nb -lt 1 ]
 do
   sleep 1
-  if [ "$(ls -A DistOLS/binputs/)" ]; then
+  if [ "$(ls -A BLM/binputs/)" ]; then
     sleep 3
-    nb=$(ls -1q DistOLS/binputs/Y* | wc -l)
+    nb=$(ls -1q BLM/binputs/Y* | wc -l)
   fi
   i=$(($i + 1))
 
@@ -45,8 +45,8 @@ done
 
 i=1
 while [ "$i" -le "$nb" ]; do
-  qsub -N batch$i -V -hold_jid setup cluster_DistOLS_batch.sh $i
+  qsub -N batch$i -V -hold_jid setup cluster_blm_batch.sh $i
   i=$(($i + 1))
 done
 
-qsub -N results -V -hold_jid "batch*" cluster_DistOLS_concat.sh 
+qsub -N results -V -hold_jid "batch*" cluster_blm_concat.sh 

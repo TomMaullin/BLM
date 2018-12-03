@@ -14,7 +14,7 @@ import yaml
 
 def main(*args):
     
-    # Change to distOLS directory
+    # Change to blm directory
     os.chdir(os.path.dirname(os.path.realpath(__file__)))    
 
     # In the batch mode we are given a batch number pointing us to
@@ -38,7 +38,7 @@ def main(*args):
         os.remove(os.path.join("binputs","X" + str(batchNo) + ".csv"))
         
         # Check if we are doing spatially varying.
-        with open('distOLS_defaults.yml', 'r') as stream:
+        with open('blm_defaults.yml', 'r') as stream:
             inputs = yaml.load(stream)
 
         SVFlag = inputs['SVFlag']
@@ -52,7 +52,7 @@ def main(*args):
         if len(args)==3:
             SVFlag = args[3]
         else:
-            with open('distOLS_defaults.yml', 'r') as stream:
+            with open('blm_defaults.yml', 'r') as stream:
                 inputs = yaml.load(stream)
             SVFlag = inputs['SVFlag']
             del inputs

@@ -6,6 +6,8 @@
 #$ -e log/
 #$ -cwd
 
+
 module add fsl/5.0.11
 
-fslpython -c "from DistOLS import distOLS_setup; distOLS_setup.main()"
+fslpython -c "from BLM import blm_batch; blm_batch.main($1)"
+
