@@ -40,7 +40,8 @@ def main(*args):
                 Y_files.append(line.replace('\n', ''))
 
         X = np.loadtxt(inputs['X'], delimiter=',') 
-
+        print(repr(inputs['SVFlag']))
+        print(type(inputs['SVFlag']))
         SVFlag = eval(inputs['SVFlag'])
 
     # else Y_files is the first input and X is the second.

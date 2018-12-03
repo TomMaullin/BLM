@@ -39,6 +39,7 @@ def main(*args):
         # Check if we are doing spatially varying.
         with open('distOLS_defaults.yml', 'r') as stream:
             inputs = yaml.load(stream)
+
         SVFlag = inputs['SVFlag']
         del inputs
         
