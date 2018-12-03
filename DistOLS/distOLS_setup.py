@@ -11,6 +11,7 @@ import sys
 import os
 import shutil
 from DistOLS import distOLS_defaults
+import yaml
 
 def main(*args):
 
@@ -18,6 +19,11 @@ def main(*args):
     if len(args)<2:
 
         inputs = distOLS_defaults.main()
+
+        print(os.getcwd())
+
+        print(repr(inputs))
+        print(repr(yaml.load('distOLS_defaults.yml')))
 
         MAXMEM = inputs[0]
 
