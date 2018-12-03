@@ -103,7 +103,7 @@ def main(*args):
     nsvmap = nib.Nifti1Image(sumVox,
                              Y0.affine,
                              header=Y0.header)
-    nib.save(svmap, 'blm_vox_nsv.nii')
+    nib.save(nsvmap, 'blm_vox_nsv.nii')
 
     # Similar to blksize in SwE, we divide by 8 times the size of a nifti
     # to work out how many blocks we use.
