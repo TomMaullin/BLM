@@ -10,6 +10,7 @@ import nibabel as nib
 import sys
 import os
 import shutil
+import yaml
 
 def main(*args):
     
