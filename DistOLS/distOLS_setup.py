@@ -26,6 +26,9 @@ def main(*args):
         with open('distOLS_defaults.yml', 'r') as stream:
             inputs = yaml.load(stream)
 
+        print(repr(inputs['MAXMEM']))
+        print(type(inputs['MAXMEM']))
+
         MAXMEM = eval(inputs['MAXMEM'])
 
         with open(inputs['Y_files']) as a:
