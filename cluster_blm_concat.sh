@@ -8,4 +8,4 @@
 
 module add fsl/5.0.11
 
-fslpython -c "from DistOLS import distOLS_concat; distOLS_concat.main()"
+fslpython -c "from BLM import blm_concat; blm_concat.main()"
