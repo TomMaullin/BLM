@@ -18,6 +18,9 @@ def main(*args):
     print('active')
     print(len(args))
 
+    # Change to distOLS directory
+    os.chdir(os.path.dirname(os.path.realpath(__file__)))
+
     # If X and Y weren't given we look in defaults for all arguments.
     if len(args)<2:
 
@@ -97,9 +100,6 @@ def main(*args):
     # Similar to blksize in SwE, we divide by 8 times the size of a nifti
     # to work out how many blocks we use.
     blksize = np.floor(MAXMEM/8/NIFTIsize);
-
-    # Change to distOLS directory
-    os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
     # Make a temporary directory for batch inputs
     if os.path.isdir('binputs'):
