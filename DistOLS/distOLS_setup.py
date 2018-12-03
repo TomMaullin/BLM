@@ -26,7 +26,8 @@ def main(*args):
         print(os.getcwd())
 
         print(repr(inputs))
-        print(repr(yaml.load('distOLS_defaults.yml')))
+        with open('distOLS_defaults.yml', 'r') as stream:
+            print(repr(yaml.load(stream)))
 
         MAXMEM = inputs[0]
 
