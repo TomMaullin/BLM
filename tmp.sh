@@ -1,5 +1,6 @@
+
 i=0
-while [ $i-lt 10000 ]
+while [ $i -lt 10000 ]
 do
 	qstat
 	sleep 1
