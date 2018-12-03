@@ -1,4 +1,5 @@
 rm log/*
+rm DistOLS/binputs/*
 
 qsub -N setup -V cluster_DistOLS_setup.sh
 
