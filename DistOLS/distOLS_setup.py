@@ -15,6 +15,9 @@ import yaml
 
 def main(*args):
 
+    print('active')
+    print(len(args))
+
     # If X and Y weren't given we look in defaults for all arguments.
     if len(args)<2:
 
