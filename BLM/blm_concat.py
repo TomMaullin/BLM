@@ -31,7 +31,6 @@ def main():
     os.remove(os.path.join("binputs","XtY1.csv"))
     os.remove(os.path.join("binputs","YtY1.csv"))
 
-    
     # Work out how many files we need.
     XtX_files = glob.glob(os.path.join("binputs","XtX*"))
 
@@ -130,7 +129,7 @@ def main():
         betaimap = nib.Nifti1Image(betai,
                                    nifti.affine,
                                    header=nifti.header)
-        nib.save(betaimap, 'beta' + str(i) + '.nii')
+        nib.save(betaimap, 'blm_vox_beta_b' + str(i+1) + '.nii')
 
     del betai, betaimap
 
