@@ -42,7 +42,7 @@ def main(*args):
         X = np.loadtxt(inputs['X'], delimiter=',') 
         print(repr(inputs['SVFlag']))
         print(type(inputs['SVFlag']))
-        SVFlag = eval(inputs['SVFlag'])
+        SVFlag = inputs['SVFlag']
 
     # else Y_files is the first input and X is the second.
     elif len(args)==2:
@@ -53,7 +53,7 @@ def main(*args):
         with open('distOLS_defaults.yml', 'r') as stream:
             inputs = yaml.load(stream)
         MAXMEM = eval(inputs['MAXMEM'])
-        SVFlag = eval(inputs['SVFlag'])
+        SVFlag = inputs['SVFlag']
 
     # And MAXMEM may be the third input
     else:
