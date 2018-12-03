@@ -1,6 +1,6 @@
 build/*
 log/*
 dist/*
-DistOLS_py.egg-info/*
-DistOLS/binputs/*
-DistOLS/__pycache__/*
+BLM_py.egg-info/*
+BLM/binputs/*
+BLM/__pycache__/*
