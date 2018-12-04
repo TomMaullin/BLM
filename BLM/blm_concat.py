@@ -213,6 +213,14 @@ def main():
                             nifti.affine,
                             header=nifti.header)
     nib.save(msmap, 'blm_vox_resms.nii')
+
+    # calculate beta covariance maps
+    print(isumXtX.shape)
+    print(resms.shape)
+    #varbeta = resms*resms
+    #for i in 1:numel(varbeta(1,:,1)):
+    #    for j in 1:numel(varbeta(1,1,:)):
+    #        output "blm_vox_cov_b" + str(i) + "," + str(j)
     
     w.resetwarnings()
 
