@@ -177,21 +177,22 @@ def main():
 
         # Get number of scans and number of parameters
         X = np.loadtxt(inputs['X'], delimiter=',')
-        ns = X.shape[0]
-        np = X.shape[1]
+        n_s = X.shape[0]
+        n_p = X.shape[1]
 
         # In non spatially varying the degrees of freedom
         # are fixed across voxels
-        resms = ete/(ns-np)
+        resms = ete/(n_s-n_p)
 
     else:
         
         # Get number of scans and number of parameters
         X = np.loadtxt(inputs['X'], delimiter=',')
-        ns = X.shape[0]
-        np = X.shape[1]
+        n_s = X.shape[0]
+        n_p = X.shape[1]
 
-        print('wip')
+        print(n_s)
+        print(n_p)
 
     # Output ResSS.
     ssmap = nib.Nifti1Image(ete,
