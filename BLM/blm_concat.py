@@ -280,23 +280,24 @@ def main():
 
         print(cvec)
         print(type(cvec))
-        
+
+        # Calculate C\hat{\beta}}
+        cbeta = np.matmul(cvec, beta)
+        cbeta = cbeta.reshape(
+                    resms.shape[0],
+                    resms.shape[1],
+                    resms.shape[2],
+                    )
+
+        # Output cbeta/cope map
+        cbetamap = nib.Nifti1Image(cbeta,
+                                   nifti.affine,
+                                   header=nifti.header)
+        nib.save(cbetamap,
+            'blm_vox_beta_c' + str(i+1) + '.nii')
+
+
         if not SVFlag:
-
-            # Calculate C\hat{\beta}}
-            cbeta = np.matmul(cvec, beta)
-            cbeta = cbeta.reshape(
-                        resms.shape[0],
-                        resms.shape[1],
-                        resms.shape[2],
-                        )
-
-            # Output cbeta/cope map
-            cbetamap = nib.Nifti1Image(cbeta,
-                                       nifti.affine,
-                                       header=nifti.header)
-            nib.save(cbetamap,
-                'blm_vox_beta_c' + str(i+1) + '.nii')
 
             # Calculate c'(X'X)^(-1)c
             cvectiXtXcvec = np.matmul(
@@ -322,9 +323,18 @@ def main():
 
             print(isumXtX.shape)
 
+            # Calculate c'(X'X)^(-1)c
             cvectiXtXcvec = np.matmul(
                 np.matmul(np.transpose(cvec), isumXtX),
                 cvec)
+
+            print(cvectiXtXcvec)
+            print(beta.shape)
+            print(repr(beta))
+
+            # Calculate cov(c\hat{\beta})
+            covbetac = cvectiXtXcvec*resms
+            print(covbetac.shape)           
 
 
     w.resetwarnings()
