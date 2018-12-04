@@ -217,10 +217,28 @@ def main():
     # calculate beta covariance maps
     print(isumXtX.shape)
     print(resms.shape)
+    if not SVFlag:
     #varbeta = resms*resms
-    #for i in 1:numel(varbeta(1,:,1)):
-    #    for j in 1:numel(varbeta(1,1,:)):
-    #        output "blm_vox_cov_b" + str(i) + "," + str(j)
+
+        # Output variance for each pair of betas
+        for i in range(0:isumXtX.shape[0]):
+            for j in range(0:isumXtX.shape[1]):
+
+                    # Calculate covariance of beta i and beta j.
+                    covbetaij = resms*isumXtX(i,j)
+
+                    # Output covariance map
+                    covbetaijmap = nib.Nifti1Image(covbetaij,
+                                                   nifti.affine,
+                                                   header=nifti.header)
+                    nib.save(msmap, 'blm_vox_cov_b' + str(i) + ',' + str(j) + '.nii')
+
+        del covbetaijmap
+
+    else:
+
+        print('tmp')
+
     
     w.resetwarnings()
 
