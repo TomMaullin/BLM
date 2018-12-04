@@ -309,14 +309,14 @@ def main():
             print(repr(beta))
 
             # Calculate cov(c\hat{\beta})
-            covbetac = cvectiXtXcvec*resms
-            print(covbetac.shape)
+            covcbeta = cvectiXtXcvec*resms
+            print(covcbeta.shape)
 
             # Output covariance map
-            covbetacmap = nib.Nifti1Image(covbetac,
+            covcbetamap = nib.Nifti1Image(covcbeta,
                                           nifti.affine,
                                           header=nifti.header)
-            nib.save(covbetacmap,
+            nib.save(covcbetamap,
                 'blm_vox_cov_c' + str(i+1) + '.nii')
 
         else:
@@ -333,24 +333,33 @@ def main():
             print(repr(beta))
 
             # Calculate cov(c\hat{\beta})
-            covbetac = cvectiXtXcvec*resms.reshape(
+            covcbeta = cvectiXtXcvec*resms.reshape(
                 resms.shape[0]*resms.shape[1]*resms.shape[2]
                 )
-            print(covbetac.shape)
+            print(covcbeta.shape)
 
-            covbetac = covbetac.reshape(
+            covcbeta = covcbeta.reshape(
                 resms.shape[0],
                 resms.shape[1],
                 resms.shape[2]
                 )
 
             # Output covariance map
-            covbetacmap = nib.Nifti1Image(covbetac,
+            covcbetamap = nib.Nifti1Image(covcbeta,
                                           nifti.affine,
                                           header=nifti.header)
-            nib.save(covbetacmap,
+            nib.save(covcbetamap,
                 'blm_vox_cov_c' + str(i+1) + '.nii')        
 
+        # Calculate T statistic image
+        tStatc = cbeta/np.sqrt(covcbeta)
+
+        # Output statistic map
+        tStatcmap = nib.Nifti1Image(tStatc,
+                                    nifti.affine,
+                                    header=nifti.header)
+        nib.save(tStatcmap,
+            'blm_vox_tStat_c' + str(i+1) + '.nii') 
 
     w.resetwarnings()
 
