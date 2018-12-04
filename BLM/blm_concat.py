@@ -265,7 +265,7 @@ def main():
 
     print(inputs['contrasts'])
     print(inputs['contrasts'][0])
-    print(inputs['contrasts'][0]['c1'][0]['vector'])
+    print(inputs['contrasts'][0]['c1']['vector'])
 
     # Loop through contrasts, outputting COPEs, statistic maps
     # and covariance maps.
@@ -275,7 +275,7 @@ def main():
     for i in range(0,n_c):
 
         # Read in contrast vector
-        cvec = inputs['contrasts'][0]['c1'][0]['vector']
+        cvec = inputs['contrasts'][0]['c1']['vector']
         cvec = eval(cvec.replace(' ',''))
 
         print(cvec)
