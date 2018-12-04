@@ -273,7 +273,7 @@ def main():
     for i in range(0,n_c):
 
         # Read in contrast vector
-        cvec = np.array(inputs['contrasts'][i]['c1']['vector'])
+        cvec = np.array(inputs['contrasts'][i]['c' + str(i)]['vector'])
         print(cvec)
         print(type(cvec))
         #cvec = eval(cvec.replace(' ',''))
