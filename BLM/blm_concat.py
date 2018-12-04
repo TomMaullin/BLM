@@ -276,7 +276,9 @@ def main():
 
         # Read in contrast vector
         cvec = inputs['contrasts'][0]['c1']['vector']
-        cvec = eval(cvec.replace(' ',''))
+        print(cvec)
+        print(type(cvec))
+        #cvec = eval(cvec.replace(' ',''))
 
         print(cvec)
         print(type(cvec))
