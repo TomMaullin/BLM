@@ -263,6 +263,9 @@ def main():
 
         print('tmp')
 
+        print(inputs['contrasts'])
+        print(inputs['contrasts'][0])
+        print(inputs['contrasts'][0]['vector'])
     
     w.resetwarnings()
 
