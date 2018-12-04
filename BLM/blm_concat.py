@@ -245,7 +245,7 @@ def main():
                     print(repr(isumXtX[:,i,j]))
                     print(repr(isumXtX[:,i,j].shape))
 
-                    covbetaijmap = np.multiply(resms,
+                    covbetaij = np.multiply(resms,
                         isumXtX[:,i,j].reshape(
                             resms.shape[0],
                             resms.shape[1],
