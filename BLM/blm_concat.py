@@ -349,7 +349,11 @@ def main():
                                           nifti.affine,
                                           header=nifti.header)
             nib.save(covcbetamap,
-                'blm_vox_cov_c' + str(i+1) + '.nii')        
+                'blm_vox_cov_c' + str(i+1) + '.nii')
+
+        # To avoid division by zero errors we set the 
+        # zero elements to one.
+        covcbeta[covcbeta == 0] = 1        
 
         # Calculate T statistic image
         tStatc = cbeta/np.sqrt(covcbeta)
