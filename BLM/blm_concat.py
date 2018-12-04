@@ -217,6 +217,7 @@ def main():
     # calculate beta covariance maps
     print(isumXtX.shape)
     print(resms.shape)
+    print(isumXtX)
     if not SVFlag:
 
         # Output variance for each pair of betas
@@ -225,6 +226,7 @@ def main():
 
                     # Calculate covariance of beta i and beta j.
                     covbetaij = resms*isumXtX[i,j]
+                    print(isumXtX[i,j])
 
                     # Output covariance map
                     covbetaijmap = nib.Nifti1Image(covbetaij,
