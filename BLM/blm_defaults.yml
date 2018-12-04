@@ -8,3 +8,21 @@ X: /users/nichols/inf852/BLM-py/BLM/test/data/DesMat.csv
 SVFlag: False
 # There should be an output directory here:
 outdir: tmp
+# Contrasts should be listed here as c1, c2, c3, c4 etc. 
+# The fields included should be name, vector and statType
+# An example c1 is given below:
+# -------------------------------------------------------
+# contrasts:
+#   - c1:
+#       name: contrast1
+#       vector: [1, 2, 0]
+#       statType: T
+contrasts:
+  - c1:
+      name: contrast1
+      vector: [1, 0]
+      statType: T
+  - c2:
+      name: contrast2
+      vector: [1, 1]
+      statType: T

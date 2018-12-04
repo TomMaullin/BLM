@@ -224,7 +224,7 @@ def main():
             for j in range(0,isumXtX.shape[1]):
 
                     # Calculate covariance of beta i and beta j.
-                    covbetaij = resms*isumXtX(i,j)
+                    covbetaij = resms*isumXtX[i,j]
 
                     # Output covariance map
                     covbetaijmap = nib.Nifti1Image(covbetaij,
