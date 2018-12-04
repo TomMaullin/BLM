@@ -144,10 +144,8 @@ def main():
     beta_rs_t = np.zeros([beta.shape[1], 1, beta.shape[0]])
     for i in range(0,beta.shape[0]):
         
-       beta_rs[:, i, 0] = beta[i,:];
-       beta_rs_t[:, 0, i] = beta[i,:];
-
-    del beta
+       beta_rs[:, i, 0] = beta[i,:]
+       beta_rs_t[:, 0, i] = beta[i,:]
 
     # Calculate Beta transpose times XtX and delete the
     # now redudundant matrices.
@@ -275,7 +273,7 @@ def main():
     for i in range(0,n_c):
 
         # Read in contrast vector
-        cvec = inputs['contrasts'][0]['c1']['vector']
+        cvec = np.array(inputs['contrasts'][0]['c1']['vector'])
         print(cvec)
         print(type(cvec))
         #cvec = eval(cvec.replace(' ',''))
@@ -285,11 +283,25 @@ def main():
         
         if not SVFlag:
 
+            # Calculate c'(X'X)^(-1)c
             cvectiXtXcvec = np.matmul(
                 np.matmul(np.transpose(cvec), isumXtX),
                 cvec)
 
             print(cvectiXtXcvec)
+            print(beta.shape)
+            print(repr(beta))
+
+            # Calculate cov(c\hat{\beta})
+            covbetac = cvectiXtXcvec*resms
+            print(covbetac.shape)
+
+            # Output covariance map
+            covbetacmap = nib.Nifti1Image(covbetac,
+                                          nifti.affine,
+                                          header=nifti.header)
+            nib.save(covbetacmap,
+                'blm_vox_cov_c' + str(i+1) + '.nii')
 
         else:
 
