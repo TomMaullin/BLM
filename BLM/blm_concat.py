@@ -226,12 +226,13 @@ def main():
 
                     # Calculate covariance of beta i and beta j.
                     covbetaij = resms*isumXtX[i,j]
-                    
+
                     # Output covariance map
                     covbetaijmap = nib.Nifti1Image(covbetaij,
                                                    nifti.affine,
                                                    header=nifti.header)
-                    nib.save(covbetaijmap, 'blm_vox_cov_b' + str(i) + ',' + str(j) + '.nii')
+                    nib.save(covbetaijmap,
+                        'blm_vox_cov_b' + str(i+1) + ',' + str(j+1) + '.nii')
 
         del covbetaijmap
 
