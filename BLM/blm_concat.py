@@ -243,7 +243,7 @@ def main():
             for j in range(0,isumXtX.shape[1]):
 
                     print(repr(isumXtX[:,i,j]))
-                    print(repr(isumXtX[:,i,j]).shape)
+                    print(repr(isumXtX[:,i,j].shape))
 
                     # # Calculate covariance of beta i and beta j.
                     # covbetaij = resms*isumXtX[i,j]
