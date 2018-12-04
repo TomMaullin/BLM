@@ -191,8 +191,23 @@ def main():
         n_s = X.shape[0]
         n_p = X.shape[1]
 
-        print(n_s)
-        print(n_p)
+        # Load in the spatially varying number of scans.
+        n_s = nib.load('blm_vox_nsv.nii')
+        n_s = n_s.get_data()
+
+        print(repr(n_s))
+
+        # To avoid division by zero errors we set the 
+        # zero elements to one.
+        n_s[n_s == 0] = 1
+
+        print(repr(n_s))
+
+        # In spatially varying the degrees of freedom
+        # varies across voxels
+        resms = ete/(n_s-n_p)
+
+        print(repr(resms))
 
     # Output ResSS.
     ssmap = nib.Nifti1Image(ete,
