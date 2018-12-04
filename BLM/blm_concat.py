@@ -220,8 +220,8 @@ def main():
     if not SVFlag:
 
         # Output variance for each pair of betas
-        for i in range(0:isumXtX.shape[0]):
-            for j in range(0:isumXtX.shape[1]):
+        for i in range(0,isumXtX.shape[0]):
+            for j in range(0,isumXtX.shape[1]):
 
                     # Calculate covariance of beta i and beta j.
                     covbetaij = resms*isumXtX(i,j)
