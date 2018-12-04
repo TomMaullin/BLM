@@ -165,13 +165,36 @@ def main():
     # Residual sum of squares
     ete = sumYtY - betatXtXbeta
 
-    print(ete.shape())
-    
+    print(ete.shape)
+
+    # Get residual mean squares by dividing by degrees of
+    # freedom
+    if not SVFlag:
+
+        ete = ete.reshape(int(NIFTIsize[0]),
+                          int(NIFTIsize[1]),
+                          int(NIFTIsize[2]))
+
+        # Get number of scans and number of parameters
+        X = np.loadtxt(inputs['X'], delimiter=',')
+        ns = X.shape[0]
+        np = X.shape[1]
+
+        # In non spatially varying the degrees of freedom
+        # are fixed across voxels
+        resms = ete/(ns-np)
+
+    else:
+        
+        # Get number of scans and number of parameters
+        X = np.loadtxt(inputs['X'], delimiter=',')
+        ns = X.shape[0]
+        np = X.shape[1]
+
+        print('wip')
 
     # Output ResSS.
-    ssmap = nib.Nifti1Image(ete.reshape(int(NIFTIsize[0]),
-                                  int(NIFTIsize[1]),
-                                  int(NIFTIsize[2])),
+    ssmap = nib.Nifti1Image(ete,
                             nifti.affine,
                             header=nifti.header)
     nib.save(ssmap, 'Residss.nii')
