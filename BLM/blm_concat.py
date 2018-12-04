@@ -338,6 +338,12 @@ def main():
                 )
             print(covbetac.shape)
 
+            covbetac = covbetac.reshape(
+                resms.shape[0],
+                resms.shape[1],
+                resms.shape[2]
+                )
+
             # Output covariance map
             covbetacmap = nib.Nifti1Image(covbetac,
                                           nifti.affine,
