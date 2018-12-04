@@ -239,21 +239,25 @@ def main():
     else:
 
         # Output variance for each pair of betas
-        for i in range(0,isumXtX.shape[0]):
-            for j in range(0,isumXtX.shape[1]):
+        for i in range(0,isumXtX.shape[1]):
+            for j in range(0,isumXtX.shape[2]):
 
                     print(repr(isumXtX[:,i,j]))
                     print(repr(isumXtX[:,i,j].shape))
 
-                    # # Calculate covariance of beta i and beta j.
-                    # covbetaij = resms*isumXtX[i,j]
-                    # print(isumXtX[i,j])
-
-                    # # Output covariance map
-                    # covbetaijmap = nib.Nifti1Image(covbetaij,
-                    #                                nifti.affine,
-                    #                                header=nifti.header)
-                    # nib.save(msmap, 'blm_vox_cov_b' + str(i) + ',' + str(j) + '.nii')
+                    covbetaijmap = np.multiply(resms,
+                        isumXtX[:,i,j].reshape(
+                            resms.shape[0],
+                            resms.shape[1],
+                            resms.shape[2],
+                            ))
+                        
+                    # Output covariance map
+                    covbetaijmap = nib.Nifti1Image(covbetaij,
+                                                   nifti.affine,
+                                                   header=nifti.header)
+                    nib.save(covbetaijmap,
+                        'blm_vox_cov_b' + str(i+1) + ',' + str(j+1) + '.nii')
 
         del covbetaijmap
 
