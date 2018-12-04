@@ -267,7 +267,7 @@ def main():
 
     # Loop through contrasts, outputting COPEs, statistic maps
     # and covariance maps.
-    n_c = len(inputs['contrasts'][0])
+    n_c = len(inputs['contrasts'])
     print(n_c)
 
     for i in range(0,n_c):
