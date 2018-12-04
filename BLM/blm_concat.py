@@ -218,7 +218,6 @@ def main():
     print(isumXtX.shape)
     print(resms.shape)
     if not SVFlag:
-    #varbeta = resms*resms
 
         # Output variance for each pair of betas
         for i in range(0:isumXtX.shape[0]):
