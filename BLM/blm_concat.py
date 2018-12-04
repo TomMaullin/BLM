@@ -164,16 +164,15 @@ def main():
 
     # Residual sum of squares
     ete = sumYtY - betatXtXbeta
+    ete = ete.reshape(int(NIFTIsize[0]),
+                      int(NIFTIsize[1]),
+                      int(NIFTIsize[2]))
 
     print(ete.shape)
 
     # Get residual mean squares by dividing by degrees of
     # freedom
     if not SVFlag:
-
-        ete = ete.reshape(int(NIFTIsize[0]),
-                          int(NIFTIsize[1]),
-                          int(NIFTIsize[2]))
 
         # Get number of scans and number of parameters
         X = np.loadtxt(inputs['X'], delimiter=',')
@@ -210,10 +209,10 @@ def main():
         print(repr(resms))
 
     # Output ResSS.
-    ssmap = nib.Nifti1Image(ete,
+    msmap = nib.Nifti1Image(resms,
                             nifti.affine,
                             header=nifti.header)
-    nib.save(ssmap, 'Residss.nii')
+    nib.save(msmap, 'blm_vox_resms.nii')
     
     w.resetwarnings()
 
