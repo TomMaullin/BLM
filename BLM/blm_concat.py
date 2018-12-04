@@ -334,9 +334,7 @@ def main():
 
             # Calculate cov(c\hat{\beta})
             covbetac = cvectiXtXcvec*resms.reshape(
-                resms.shape[0],
-                resms.shape[1],
-                resms.shape[2]
+                resms.shape[0]*resms.shape[1]*resms.shape[2]
                 )
             print(covbetac.shape)
 
