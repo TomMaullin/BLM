@@ -263,10 +263,41 @@ def main():
 
         print('tmp')
 
-        print(inputs['contrasts'])
-        print(inputs['contrasts'][0])
-        print(inputs['contrasts'][0]['vector'])
-    
+    print(inputs['contrasts'])
+    print(inputs['contrasts'][0])
+    print(inputs['contrasts'][0]['c1'][0]['vector'])
+
+    # Loop through contrasts, outputting COPEs, statistic maps
+    # and covariance maps.
+    n_c = size(inputs['contrasts'][0]['c1'])
+    print(n_c)
+
+    for i in range(0,n_c):
+
+        # Read in contrast vector
+        cvec = inputs['contrasts'][0]['c1'][0]['vector']
+        cvec = eval(cvec.replace(' ',''))
+
+        print(cvec)
+        print(type(cvec))
+        
+        if not SVFlag:
+
+            cvectiXtXcvec = np.matmul(
+                np.matmul(np.transpose(cvec), isumXtX),
+                cvec)
+
+            print(cvectiXtXcvec)
+
+        else:
+
+            print(isumXtX.shape)
+
+            cvectiXtXcvec = np.matmul(
+                np.matmul(np.transpose(cvec), isumXtX),
+                cvec)
+
+
     w.resetwarnings()
 
 
