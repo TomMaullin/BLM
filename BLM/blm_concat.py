@@ -333,8 +333,19 @@ def main():
             print(repr(beta))
 
             # Calculate cov(c\hat{\beta})
-            covbetac = cvectiXtXcvec*resms
-            print(covbetac.shape)           
+            covbetac = cvectiXtXcvec*resms.reshape(
+                resms.shape[0],
+                resms.shape[1],
+                resms.shape[2]
+                )
+            print(covbetac.shape)
+
+            # Output covariance map
+            covbetacmap = nib.Nifti1Image(covbetac,
+                                          nifti.affine,
+                                          header=nifti.header)
+            nib.save(covbetacmap,
+                'blm_vox_cov_c' + str(i+1) + '.nii')        
 
 
     w.resetwarnings()
