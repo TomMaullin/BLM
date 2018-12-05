@@ -158,7 +158,7 @@ def verifyInput(Y_files, Y0, batchNo):
                              Y0.affine,
                              header=Y0.header)
     nib.save(nmap, os.path.join('binputs',
-        'blm_vox_n_batch'+ str(batchNo+1) + '.nii'))
+        'blm_vox_n_batch'+ str(batchNo) + '.nii'))
 
 def blkMX(X,Y):
 
