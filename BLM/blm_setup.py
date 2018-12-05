@@ -17,47 +17,23 @@ def main(*args):
     # Change to blm directory
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
-    # If X and Y weren't given we look in defaults for all arguments.
-    if len(args)<2:
+    # Load in inputs
+    with open('blm_defaults.yml', 'r') as stream:
+        inputs = yaml.load(stream)
 
-        with open('blm_defaults.yml', 'r') as stream:
-            inputs = yaml.load(stream)
+    MAXMEM = eval(inputs['MAXMEM'])
 
-        MAXMEM = eval(inputs['MAXMEM'])
+    with open(inputs['Y_files']) as a:
 
-        with open(inputs['Y_files']) as a:
+        Y_files = []
+        i = 0
+        for line in a.readlines():
 
-            Y_files = []
-            i = 0
-            for line in a.readlines():
+            Y_files.append(line.replace('\n', ''))
 
-                Y_files.append(line.replace('\n', ''))
+    X = np.loadtxt(inputs['X'], delimiter=',')
 
-        X = np.loadtxt(inputs['X'], delimiter=',')
-
-        SVFlag = inputs['SVFlag']
-
-    # else Y_files is the first input and X is the second.
-    elif len(args)==2:
-
-        Y_files = args[0]
-        X = args[1]
-
-        with open('blm_defaults.yml', 'r') as stream:
-            inputs = yaml.load(stream)
-        MAXMEM = eval(inputs['MAXMEM'])
-        SVFlag = inputs['SVFlag']
-
-    # And MAXMEM may be the third input
-    else:
-
-        Y_files = args[0]
-        X = args[1]
-        MAXMEM = args[2]        
-
-        with open('blm_defaults.yml', 'r') as stream:
-            inputs = yaml.load(stream)
-        SVFlag = inputs['SVFlag']
+    SVFlag = inputs['SVFlag']
 
     # Load in one nifti to check NIFTI size
     try:
@@ -130,6 +106,9 @@ def main(*args):
         np.savetxt(os.path.join("binputs","X" + str(index) + ".csv"), 
                    X[blk_l:blk_u], delimiter=",") 
     
+    print(len(range(0, len(Y_files), int(blksize))))
+    print(np.ceil(len(Y_files)/int(blksize)))
+
     w.resetwarnings()
 
 if __name__ == "__main__":
