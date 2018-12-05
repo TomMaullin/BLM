@@ -53,7 +53,7 @@ def main():
                          delimiter=",")
 
         # Obtain the full nmap.
-        nmapd = nmapd + nib.load(os.getcwd(), os.path.join("binputs", 
+        nmapd = nmapd + nib.load(os.path.join(os.getcwd(),"binputs", 
             "blm_vox_n_batch" + str(batchNo) + ".nii")).get_data()
         
         # Delete the files as they are no longer needed.
