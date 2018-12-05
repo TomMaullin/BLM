@@ -21,18 +21,10 @@ while [ $nb -lt 1 ]
 do
   sleep 1
   if [ "$(ls -A log/setup.o*)" ]; then
-    sleep 3
+    sleep 10
     typeset -i nb=$(cat $(ls log/setup.o* | head -1))
   fi
   i=$(($i + 1))
-
-  if [ $i -eq 10 ]; then
-    echo "Verifying inputs..."
-  fi
-
-  if [ $i -eq 18 ]; then
-    echo "Please wait..."
-  fi
 
   if [ $i -gt 30 ]; then
     errorlog=$(ls log/setup.e* | head -1)

@@ -21,8 +21,16 @@ def main(*args):
     # the correct files
     if len(args)==1:
 
+        # Obtain the batch number
         batchNo = args[0];
-        with open(os.path.join("binputs","Y" + str(batchNo) + ".txt")) as a:
+
+        # Load in inputs
+        with open('blm_defaults.yml', 'r') as stream:
+            inputs = yaml.load(stream)
+
+        MAXMEM = eval(inputs['MAXMEM'])
+
+        with open(inputs['Y_files']) as a:
 
             Y_files = []
             i = 0
@@ -30,20 +38,33 @@ def main(*args):
 
                 Y_files.append(line.replace('\n', ''))
 
-        X = np.loadtxt(os.path.join("binputs","X" + str(batchNo) + ".csv"), 
-                       delimiter=",") 
-
-        # Remove files that are no longer necessary.
-        os.remove(os.path.join("binputs","Y" + str(batchNo) + ".txt"))
-        os.remove(os.path.join("binputs","X" + str(batchNo) + ".csv"))
-        
-        # Check if we are doing spatially varying.
-        with open('blm_defaults.yml', 'r') as stream:
-            inputs = yaml.load(stream)
+        X = np.loadtxt(inputs['X'], delimiter=',')
 
         SVFlag = inputs['SVFlag']
-        del inputs
+
+        # Load in one nifti to check NIFTI size
+        try:
+            Y0 = nib.load(Y_files[0])
+        except Exception as error:
+            raise ValueError('The NIFTI "' + Y_files[0] + '"does not exist')
+
+        d0 = Y0.get_data()
+        Y0aff = Y0.affine
+
+        # Get the maximum memory a NIFTI could take in storage. 
+        NIFTIsize = sys.getsizeof(np.zeros(d0.shape,dtype='uint64'))
+
+        # Similar to blksize in SwE, we divide by 8 times the size of a nifti
+        # to work out how many blocks we use.
+        blksize = int(np.floor(MAXMEM/8/NIFTIsize));
+
+        # Reduce Y_files to only Y_files for this block.
+        Y_files = Y_files[(blksize*(batchNo-1)):(blksize*batchNo)]
+        X = X[(blksize*(batchNo-1)):(blksize*batchNo)]
         
+        print(Y_files)
+        print(X)
+
     else:
 
         Y_files = args[0]
