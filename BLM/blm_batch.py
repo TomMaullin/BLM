@@ -48,9 +48,6 @@ def main(*args):
         except Exception as error:
             raise ValueError('The NIFTI "' + Y_files[0] + '"does not exist')
 
-        d0 = Y0.get_data()
-        Y0aff = Y0.affine
-
         # Get the maximum memory a NIFTI could take in storage. 
         NIFTIsize = sys.getsizeof(np.zeros(d0.shape,dtype='uint64'))
 
@@ -62,6 +59,7 @@ def main(*args):
         Y_files = Y_files[(blksize*(batchNo-1)):(blksize*batchNo)]
         X = X[(blksize*(batchNo-1)):(blksize*batchNo)]
         
+        verifyInput(Y_files, Y0)
         print(Y_files)
         print(X)
 
@@ -116,6 +114,41 @@ def main(*args):
     else:
         w.resetwarnings()
         return (XtX, XtY, YtY)
+
+def verifyInput(Y_files, Y0):
+
+    # Obtain information about zero-th scan
+    Y0 = nib.load(Y0)
+    d0 = Y0.get_data()
+    Y0aff = Y0.affine
+
+
+    # Initial checks for NIFTI compatability.
+    for Y_file in Y_files:
+
+        print(repr(Y_file))
+
+        try:
+            Y = nib.load(Y_file)
+        except Exception as error:
+            raise ValueError('The NIFTI "' + Y_file + '"does not exist')
+
+        d = Y.get_data()
+        
+        # Count number of scans at each voxel
+        sumVox = sumVox + 1*(np.nan_to_num(d)!=0)
+
+        # Check NIFTI images have the same dimensions.
+        if not np.array_equal(d.shape, d0.shape):
+            raise ValueError('Input NIFTI "' + Y_file + '" has ' +
+                             'different dimensions to "' +
+                             Y0 + '"')
+
+        # Check NIFTI images are in the same space.
+        if not np.array_equal(Y.affine, Y0aff):
+            raise ValueError('Input NIFTI "' + Y_file + '" has a ' +
+                             'different affine transformation to "' +
+                             Y0 + '"')
 
 def blkMX(X,Y):
 
