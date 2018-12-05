@@ -7,7 +7,6 @@ rm BLM/binputs/*
 # read yaml file
 eval $(parse_yaml BLM/blm_defaults.yml "config_")
 echo $config_outdir
-echo $(wc -l $config_Y_files)
 
 qsub -N setup -V cluster_blm_setup.sh
 
@@ -44,7 +43,7 @@ do
   fi
 done
 
-typeset -i nb = $(cat $(ls log/setup.o* | head -1))
+typeset -i nb=$(cat $(ls log/setup.o* | head -1))
 
 echo $nb
 
