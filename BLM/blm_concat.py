@@ -64,7 +64,7 @@ def main():
 
     
     # Output final n map
-    nsvmap = nib.Nifti1Image(nmap,
+    nsvmap = nib.Nifti1Image(nmapd,
                              nmapb.affine,
                              header=nmapb.header)
     nib.save(nsvmap, 'blm_vox_nsv.nii')
