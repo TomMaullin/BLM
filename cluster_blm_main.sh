@@ -45,6 +45,8 @@ done
 
 typeset -i nb = $(cat $(ls log/setup.o* | head -1))
 
+echo $nb
+
 i=1
 while [ "$i" -le "$nb" ]; do
   qsub -N batch$i -V -hold_jid setup cluster_blm_batch.sh $i
