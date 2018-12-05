@@ -25,55 +25,55 @@ def main():
     OutDir = inputs['outdir']
     
     # Read the matrices from the first batch.
-    sumXtX = np.loadtxt(os.path.join("binputs","XtX1.csv"), 
+    sumXtX = np.loadtxt(os.path.join(OutDir,"binputs","XtX1.csv"), 
                         delimiter=",")
-    sumXtY = np.loadtxt(os.path.join("binputs","XtY1.csv"), 
+    sumXtY = np.loadtxt(os.path.join(OutDir,"binputs","XtY1.csv"), 
                         delimiter=",")
-    sumYtY = np.loadtxt(os.path.join("binputs","YtY1.csv"), 
+    sumYtY = np.loadtxt(os.path.join(OutDir,"binputs","YtY1.csv"), 
                         delimiter=",")
-    nmapb  = nib.load(os.path.join(os.getcwd(),"binputs", "blm_vox_n_batch1.nii"))
+    nmapb  = nib.load(os.path.join(OutDir,"binputs", "blm_vox_n_batch1.nii"))
     nmapd = nmapb.get_data()
 
     # Delete the files as they are no longer needed.
-    os.remove(os.path.join("binputs","XtX1.csv"))
-    os.remove(os.path.join("binputs","XtY1.csv"))
-    os.remove(os.path.join("binputs","YtY1.csv"))
+    os.remove(os.path.join(OutDir,"binputs","XtX1.csv"))
+    os.remove(os.path.join(OutDir,"binputs","XtY1.csv"))
+    os.remove(os.path.join(OutDir,"binputs","YtY1.csv"))
 
     # Work out how many files we need.
-    XtX_files = glob.glob(os.path.join("binputs","XtX*"))
+    XtX_files = glob.glob(os.path.join(OutDir,"binputs","XtX*"))
 
     # Cycle through batches and add together results.
     for batchNo in range(2,(len(XtX_files)+2)):
         
         # Sum the batches.
         sumXtX = sumXtX + np.loadtxt(
-            os.path.join("binputs","XtX" + str(batchNo) + ".csv"), 
+            os.path.join(OutDir,"binputs","XtX" + str(batchNo) + ".csv"), 
                          delimiter=",")
 
         sumXtY = sumXtY + np.loadtxt(
-            os.path.join("binputs","XtY" + str(batchNo) + ".csv"), 
+            os.path.join(OutDir,"binputs","XtY" + str(batchNo) + ".csv"), 
                          delimiter=",")
 
         sumYtY = sumYtY + np.loadtxt(
-            os.path.join("binputs","YtY" + str(batchNo) + ".csv"), 
+            os.path.join(OutDir,"binputs","YtY" + str(batchNo) + ".csv"), 
                          delimiter=",")
 
         # Obtain the full nmap.
-        nmapd = nmapd + nib.load(os.path.join(os.getcwd(),"binputs", 
+        nmapd = nmapd + nib.load(os.path.join(OutDir,"binputs", 
             "blm_vox_n_batch" + str(batchNo) + ".nii")).get_data()
         
         # Delete the files as they are no longer needed.
-        os.remove(os.path.join(os.getcwd(), "binputs","XtX" + str(batchNo) + ".csv"))
-        os.remove(os.path.join(os.getcwd(), "binputs","XtY" + str(batchNo) + ".csv"))
-        os.remove(os.path.join(os.getcwd(), "binputs","YtY" + str(batchNo) + ".csv"))
-        os.remove(os.path.join("binputs", "blm_vox_n_batch" + str(batchNo) + ".nii"))
+        os.remove(os.path.join(OutDir, "binputs","XtX" + str(batchNo) + ".csv"))
+        os.remove(os.path.join(OutDir, "binputs","XtY" + str(batchNo) + ".csv"))
+        os.remove(os.path.join(OutDir, "binputs","YtY" + str(batchNo) + ".csv"))
+        os.remove(os.path.join(OutDir, "binputs", "blm_vox_n_batch" + str(batchNo) + ".nii"))
 
     
     # Output final n map
     nsvmap = nib.Nifti1Image(nmapd,
                              nmapb.affine,
                              header=nmapb.header)
-    nib.save(nsvmap, 'blm_vox_nsv.nii')
+    nib.save(nsvmap, os.path.join(OutDir,'blm_vox_nsv.nii'))
 
     # Dimension bug handling
     if np.ndim(sumXtX) == 0:
@@ -146,7 +146,7 @@ def main():
         betaimap = nib.Nifti1Image(betai,
                                    nifti.affine,
                                    header=nifti.header)
-        nib.save(betaimap, 'blm_vox_beta_b' + str(i+1) + '.nii')
+        nib.save(betaimap, os.path.join(OutDir,'blm_vox_beta_b' + str(i+1) + '.nii'))
 
     del betai, betaimap
 
@@ -206,7 +206,7 @@ def main():
         n_p = X.shape[1]
 
         # Load in the spatially varying number of scans.
-        n_s = nib.load('blm_vox_nsv.nii')
+        n_s = nib.load(os.path.join(OutDir,'blm_vox_nsv.nii'))
         n_s = n_s.get_data()
 
         print(repr(n_s))
@@ -227,12 +227,10 @@ def main():
     msmap = nib.Nifti1Image(resms,
                             nifti.affine,
                             header=nifti.header)
-    nib.save(msmap, 'blm_vox_resms.nii')
+    nib.save(msmap, os.path.join(OutDir,'blm_vox_resms.nii'))
 
     # calculate beta covariance maps
     print(isumXtX.shape)
-    print(resms.shape)
-    print(isumXtX)
     if not SVFlag:
 
         # Output variance for each pair of betas
@@ -247,7 +245,8 @@ def main():
                                                    nifti.affine,
                                                    header=nifti.header)
                     nib.save(covbetaijmap,
-                        'blm_vox_cov_b' + str(i+1) + ',' + str(j+1) + '.nii')
+                        os.path.join(OutDir, 
+                            'blm_vox_cov_b' + str(i+1) + ',' + str(j+1) + '.nii'))
 
         del covbetaijmap
 
@@ -272,15 +271,12 @@ def main():
                                                    nifti.affine,
                                                    header=nifti.header)
                     nib.save(covbetaijmap,
-                        'blm_vox_cov_b' + str(i+1) + ',' + str(j+1) + '.nii')
+                        os.path.join(OutDir, 
+                            'blm_vox_cov_b' + str(i+1) + ',' + str(j+1) + '.nii'))
 
         del covbetaijmap
 
         print('tmp')
-
-    print(inputs['contrasts'])
-    print(inputs['contrasts'][0])
-    print(inputs['contrasts'][0]['c1']['vector'])
 
     # Loop through contrasts, outputting COPEs, statistic maps
     # and covariance maps.
@@ -311,7 +307,8 @@ def main():
                                    nifti.affine,
                                    header=nifti.header)
         nib.save(cbetamap,
-            'blm_vox_beta_c' + str(i+1) + '.nii')
+            os.path.join(OutDir, 
+                'blm_vox_beta_c' + str(i+1) + '.nii'))
 
 
         if not SVFlag:
@@ -334,7 +331,8 @@ def main():
                                           nifti.affine,
                                           header=nifti.header)
             nib.save(covcbetamap,
-                'blm_vox_cov_c' + str(i+1) + '.nii')
+                os.path.join(OutDir, 
+                    'blm_vox_cov_c' + str(i+1) + '.nii'))
 
         else:
 
@@ -366,7 +364,8 @@ def main():
                                           nifti.affine,
                                           header=nifti.header)
             nib.save(covcbetamap,
-                'blm_vox_cov_c' + str(i+1) + '.nii')
+                os.path.join(OutDir, 
+                    'blm_vox_cov_c' + str(i+1) + '.nii'))
 
         # To avoid division by zero errors we set the 
         # zero elements to one.
@@ -380,7 +379,8 @@ def main():
                                     nifti.affine,
                                     header=nifti.header)
         nib.save(tStatcmap,
-            'blm_vox_tStat_c' + str(i+1) + '.nii') 
+            os.path.join(OutDir, 
+                'blm_vox_tStat_c' + str(i+1) + '.nii'))
 
     w.resetwarnings()
 

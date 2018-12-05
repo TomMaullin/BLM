@@ -106,11 +106,11 @@ def main(*args):
 
     if len(args)==1:
         # Record XtX and XtY
-        np.savetxt(os.path.join("binputs","XtX" + str(batchNo) + ".csv"), 
+        np.savetxt(os.path.join(OutDir,"binputs","XtX" + str(batchNo) + ".csv"), 
                    XtX, delimiter=",") 
-        np.savetxt(os.path.join("binputs","XtY" + str(batchNo) + ".csv"), 
+        np.savetxt(os.path.join(OutDir,"binputs","XtY" + str(batchNo) + ".csv"), 
                    XtY, delimiter=",") 
-        np.savetxt(os.path.join("binputs","YtY" + str(batchNo) + ".csv"), 
+        np.savetxt(os.path.join(OutDir,"binputs","YtY" + str(batchNo) + ".csv"), 
                    YtY, delimiter=",") 
         w.resetwarnings()
 
@@ -158,7 +158,7 @@ def verifyInput(Y_files, Y0, batchNo):
     nmap = nib.Nifti1Image(sumVox,
                              Y0.affine,
                              header=Y0.header)
-    nib.save(nmap, os.path.join('binputs',
+    nib.save(nmap, os.path.join(OutDir,'binputs',
         'blm_vox_n_batch'+ str(batchNo) + '.nii'))
 
 def blkMX(X,Y):

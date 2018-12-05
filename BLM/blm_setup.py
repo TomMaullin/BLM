@@ -24,6 +24,11 @@ def main(*args):
     MAXMEM = eval(inputs['MAXMEM'])
     OutDir = inputs['outdir']
 
+    if ~os.path.isdir(OutDir):
+        os.mkdir(OutDir)
+        if ~os.path.isdir(os.path.join(OutDir, "binputs")):
+            os.mkdir(os.path.join(OutDir, "binputs"))
+
     with open(inputs['Y_files']) as a:
 
         Y_files = []
