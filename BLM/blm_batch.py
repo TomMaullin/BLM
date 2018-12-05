@@ -41,6 +41,7 @@ def main(*args):
         X = np.loadtxt(inputs['X'], delimiter=',')
 
         SVFlag = inputs['SVFlag']
+        OutDir = inputs['outdir']
 
         # Load in one nifti to check NIFTI size
         try:

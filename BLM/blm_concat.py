@@ -15,6 +15,12 @@ import yaml
 
 def main():
 
+    # Obtain necessry inputs
+    with open('blm_defaults.yml', 'r') as stream:
+        inputs = yaml.load(stream)
+    SVFlag = inputs['SVFlag']
+    OutDir = inputs['outdir']
+
     # Change to blm directory
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
     
@@ -81,9 +87,6 @@ def main():
         sumXtY = np.array([sumXtY])
 
     # Mask and reshape if we are using a spatially varying design.
-    with open('blm_defaults.yml', 'r') as stream:
-        inputs = yaml.load(stream)
-    SVFlag = inputs['SVFlag']
     if SVFlag:
 
         # Remove zero lines and convert back to number voxels (in
