@@ -25,6 +25,8 @@ def main():
                         delimiter=",")
     sumYtY = np.loadtxt(os.path.join("binputs","YtY1.csv"), 
                         delimiter=",")
+    nmapb  = nib.load(os.path.join(os.getcwd(),"binputs", "blm_vox_n_batch1.nii"))
+    nmapd = nmapb.get_data()
 
     # Delete the files as they are no longer needed.
     os.remove(os.path.join("binputs","XtX1.csv"))
@@ -49,11 +51,23 @@ def main():
         sumYtY = sumYtY + np.loadtxt(
             os.path.join("binputs","YtY" + str(batchNo) + ".csv"), 
                          delimiter=",")
+
+        # Obtain the full nmap.
+        nmapd = nmapd + nib.load(os.getcwd(), os.path.join("binputs", 
+            "blm_vox_n_batch" + str(batchNo) + ".nii")).get_data()
         
         # Delete the files as they are no longer needed.
         os.remove(os.path.join(os.getcwd(), "binputs","XtX" + str(batchNo) + ".csv"))
         os.remove(os.path.join(os.getcwd(), "binputs","XtY" + str(batchNo) + ".csv"))
         os.remove(os.path.join(os.getcwd(), "binputs","YtY" + str(batchNo) + ".csv"))
+        os.remove(os.path.join("binputs", "blm_vox_n_batch" + str(batchNo) + ".nii"))
+
+    
+    # Output final n map
+    nsvmap = nib.Nifti1Image(nmap,
+                             nmapb.affine,
+                             header=nmapb.header)
+    nib.save(nsvmap, 'blm_vox_nsv.nii')
 
     # Dimension bug handling
     if np.ndim(sumXtX) == 0:

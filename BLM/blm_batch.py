@@ -61,7 +61,7 @@ def main(*args):
         Y_files = Y_files[(blksize*(batchNo-1)):(blksize*batchNo)]
         X = X[(blksize*(batchNo-1)):(blksize*batchNo)]
         
-        verifyInput(Y_files, Y0)
+        verifyInput(Y_files, Y0, batchNo)
         print(Y_files)
         print(X)
 
@@ -117,12 +117,14 @@ def main(*args):
         w.resetwarnings()
         return (XtX, XtY, YtY)
 
-def verifyInput(Y_files, Y0):
+def verifyInput(Y_files, Y0, batchNo):
 
     # Obtain information about zero-th scan
     d0 = Y0.get_data()
     Y0aff = Y0.affine
 
+    # Count number of scans contributing to voxels
+    sumVox = np.zeros(d0.shape)
 
     # Initial checks for NIFTI compatability.
     for Y_file in Y_files:
@@ -150,6 +152,13 @@ def verifyInput(Y_files, Y0):
             raise ValueError('Input NIFTI "' + Y_file + '" has a ' +
                              'different affine transformation to "' +
                              Y0 + '"')
+
+    # Get map of number of scans at voxel.
+    nmap = nib.Nifti1Image(sumVox,
+                             Y0.affine,
+                             header=Y0.header)
+    nib.save(nmap, os.path.join('binputs',
+        'blm_vox_n_batch'+ str(batchNo+1) + '.nii'))
 
 def blkMX(X,Y):
 
