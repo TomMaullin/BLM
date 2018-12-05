@@ -48,6 +48,8 @@ def main(*args):
         except Exception as error:
             raise ValueError('The NIFTI "' + Y_files[0] + '"does not exist')
 
+        d0 = Y0.get_data()
+
         # Get the maximum memory a NIFTI could take in storage. 
         NIFTIsize = sys.getsizeof(np.zeros(d0.shape,dtype='uint64'))
 
@@ -118,7 +120,6 @@ def main(*args):
 def verifyInput(Y_files, Y0):
 
     # Obtain information about zero-th scan
-    Y0 = nib.load(Y0)
     d0 = Y0.get_data()
     Y0aff = Y0.affine
 
