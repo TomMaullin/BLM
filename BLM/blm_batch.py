@@ -58,8 +58,8 @@ def main(*args):
         blksize = int(np.floor(MAXMEM/8/NIFTIsize));
 
         # Reduce Y_files to only Y_files for this block.
-        Y_files = Y_files[(blksize*(batchNo-1)):(blksize*batchNo)]
-        X = X[(blksize*(batchNo-1)):(blksize*batchNo)]
+        Y_files = Y_files[(blksize*(batchNo-1)):min((blksize*batchNo),len(Y_files))]
+        X = X[(blksize*(batchNo-1)):min((blksize*batchNo),len(Y_files))]
         
         verifyInput(Y_files, Y0, batchNo)
         print(Y_files)
