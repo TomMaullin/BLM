@@ -15,14 +15,14 @@ echo "Setting up distributed analysis..."
 # This loop waits for the setup job to finish before
 # deciding how many batches to run. It also checks to 
 # see if the setup job has errored.
-nb=0
+nb2=0
 i=0
-while [ $nb -lt 1 ]
+while [ $nb2 -lt 1 ]
 do
   sleep 1
   if [ "$(ls -A BLM/binputs/)" ]; then
     sleep 3
-    nb=$(ls -1q BLM/binputs/Y* | wc -l)
+    nb2=$(ls -1q BLM/binputs/Y* | wc -l)
   fi
   i=$(($i + 1))
 
@@ -42,6 +42,8 @@ do
     fi
   fi
 done
+
+typeset -i nb = $(cat $(ls log/setup.o* | head -1))
 
 i=1
 while [ "$i" -le "$nb" ]; do

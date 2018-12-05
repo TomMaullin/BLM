@@ -106,7 +106,6 @@ def main(*args):
         np.savetxt(os.path.join("binputs","X" + str(index) + ".csv"), 
                    X[blk_l:blk_u], delimiter=",") 
     
-    print(len(range(0, len(Y_files), int(blksize))))
     print(np.ceil(len(Y_files)/int(blksize)))
 
     w.resetwarnings()
