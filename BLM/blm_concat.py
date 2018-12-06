@@ -70,10 +70,10 @@ def main():
 
     
     # Output final n map
-    nsvmap = nib.Nifti1Image(nmapd,
-                             nmapb.affine,
-                             header=nmapb.header)
-    nib.save(nsvmap, os.path.join(OutDir,'blm_vox_nsv.nii'))
+    nmap = nib.Nifti1Image(nmapd,
+                           nmapb.affine,
+                           header=nmapb.header)
+    nib.save(nmap, os.path.join(OutDir,'blm_vox_n.nii'))
 
     # Dimension bug handling
     if np.ndim(sumXtX) == 0:
@@ -206,7 +206,7 @@ def main():
         n_p = X.shape[1]
 
         # Load in the spatially varying number of scans.
-        n_s = nib.load(os.path.join(OutDir,'blm_vox_nsv.nii'))
+        n_s = nib.load(os.path.join(OutDir,'blm_vox_n.nii'))
         n_s = n_s.get_data()
 
         print(repr(n_s))
