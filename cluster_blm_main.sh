@@ -3,7 +3,7 @@ rm log/*
 # include parse_yaml function
 . parse_yaml.sh
 
-# read yaml file
+# read yaml file to get output directory
 eval $(parse_yaml BLM/blm_defaults.yml "config_")
 echo $config_outdir
 
@@ -36,8 +36,7 @@ do
   fi
 done
 
-echo $nb
-
+echo "Submitting analysis jobs..."
 i=1
 while [ "$i" -le "$nb" ]; do
   qsub -N batch$i -V -hold_jid setup cluster_blm_batch.sh $i
@@ -45,3 +44,4 @@ while [ "$i" -le "$nb" ]; do
 done
 
 qsub -N results -V -hold_jid "batch*" cluster_blm_concat.sh 
+echo "Please use qstat to monitor progress."
