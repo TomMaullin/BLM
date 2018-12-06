@@ -25,13 +25,14 @@ def main(*args):
     OutDir = inputs['outdir']
 
     # Check if output directory already exists
-    if not os.path.isdir(OutDir):
-        os.mkdir(OutDir)
-        if not os.path.isdir(os.path.join(OutDir, "binputs")):
-            os.mkdir(os.path.join(OutDir, "binputs"))
-    else:
+    if os.path.isdir(OutDir):
         #print('Warning: Directory "' + OutDir + '" will be removed.')
         shutil.rmtree(OutDir)
+
+    # Make output directory and binputs
+    os.mkdir(OutDir)
+    if not os.path.isdir(os.path.join(OutDir, "binputs")):
+        os.mkdir(os.path.join(OutDir, "binputs"))
 
     with open(inputs['Y_files']) as a:
 
