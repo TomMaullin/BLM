@@ -37,6 +37,10 @@ do
       exit
     fi
   fi
+
+  if [ $i -gt 500 ]; then
+    echo "Something seems to be taking a while. Please check for errors."
+  fi
 done
 
 echo "Submitting analysis jobs..."
