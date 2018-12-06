@@ -62,7 +62,10 @@ def main(*args):
         X = X[(blksize*(batchNo-1)):min((blksize*batchNo),len(Y_files))]
         Y_files = Y_files[(blksize*(batchNo-1)):min((blksize*batchNo),len(Y_files))]
         
-        verifyInput(Y_files, Y0, batchNo)
+        # Obtain n map and verify input
+        nmap = verifyInput(Y_files, Y0)
+        nib.save(nmap, os.path.join(OutDir,'binputs',
+                        'blm_vox_n_batch'+ str(batchNo) + '.nii'))
         print(Y_files)
         print(X)
 
@@ -118,7 +121,7 @@ def main(*args):
         w.resetwarnings()
         return (XtX, XtY, YtY)
 
-def verifyInput(Y_files, Y0, batchNo):
+def verifyInput(Y_files, Y0):
 
     # Obtain information about zero-th scan
     d0 = Y0.get_data()
@@ -158,8 +161,8 @@ def verifyInput(Y_files, Y0, batchNo):
     nmap = nib.Nifti1Image(sumVox,
                              Y0.affine,
                              header=Y0.header)
-    nib.save(nmap, os.path.join(OutDir,'binputs',
-        'blm_vox_n_batch'+ str(batchNo) + '.nii'))
+    
+    return nmap
 
 def blkMX(X,Y):
 
