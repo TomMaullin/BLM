@@ -8,6 +8,9 @@ eval $(parse_yaml BLM/blm_defaults.yml "config_")
 echo $config_outdir
 
 # This file is used to record number of batches
+if [ -f $config_outdir/nb.txt ] ; then
+    rm $config_outdir/nb.txt 
+fi
 touch $config_outdir/nb.txt 
 
 qsub -N setup -V cluster_blm_setup.sh
