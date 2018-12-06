@@ -1,5 +1,4 @@
 rm log/*
-rm BLM/binputs/*
 
 # include parse_yaml function
 . parse_yaml.sh
@@ -7,6 +6,9 @@ rm BLM/binputs/*
 # read yaml file
 eval $(parse_yaml BLM/blm_defaults.yml "config_")
 echo $config_outdir
+
+# This file is used to record number of batches
+touch $config_outdir/nb.txt 
 
 qsub -N setup -V cluster_blm_setup.sh
 
@@ -20,9 +22,8 @@ i=0
 while [ $nb -lt 1 ]
 do
   sleep 1
-  if [ "$(ls -A log/setup.o*)" ]; then
-    sleep 10
-    typeset -i nb=$(cat $(ls log/setup.o* | head -1))
+  if [ -s $config_outdir/nb.txt ]; then
+    typeset -i nb=$(cat $config_outdir/nb.txt)
   fi
   i=$(($i + 1))
 
