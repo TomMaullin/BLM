@@ -64,7 +64,7 @@ def main(*args):
         
         # Obtain n map and verify input
         nmap = verifyInput(Y_files, Y0)
-        nib.save(nmap, os.path.join(OutDir,'binputs',
+        nib.save(nmap, os.path.join(OutDir,'tmp',
                         'blm_vox_n_batch'+ str(batchNo) + '.nii'))
         print(Y_files)
         print(X)
@@ -109,11 +109,11 @@ def main(*args):
 
     if len(args)==1:
         # Record XtX and XtY
-        np.savetxt(os.path.join(OutDir,"binputs","XtX" + str(batchNo) + ".csv"), 
+        np.savetxt(os.path.join(OutDir,"tmp","XtX" + str(batchNo) + ".csv"), 
                    XtX, delimiter=",") 
-        np.savetxt(os.path.join(OutDir,"binputs","XtY" + str(batchNo) + ".csv"), 
+        np.savetxt(os.path.join(OutDir,"tmp","XtY" + str(batchNo) + ".csv"), 
                    XtY, delimiter=",") 
-        np.savetxt(os.path.join(OutDir,"binputs","YtY" + str(batchNo) + ".csv"), 
+        np.savetxt(os.path.join(OutDir,"tmp","YtY" + str(batchNo) + ".csv"), 
                    YtY, delimiter=",") 
         w.resetwarnings()
 

@@ -25,48 +25,48 @@ def main():
     OutDir = inputs['outdir']
     
     # Read the matrices from the first batch.
-    sumXtX = np.loadtxt(os.path.join(OutDir,"binputs","XtX1.csv"), 
+    sumXtX = np.loadtxt(os.path.join(OutDir,"tmp","XtX1.csv"), 
                         delimiter=",")
-    sumXtY = np.loadtxt(os.path.join(OutDir,"binputs","XtY1.csv"), 
+    sumXtY = np.loadtxt(os.path.join(OutDir,"tmp","XtY1.csv"), 
                         delimiter=",")
-    sumYtY = np.loadtxt(os.path.join(OutDir,"binputs","YtY1.csv"), 
+    sumYtY = np.loadtxt(os.path.join(OutDir,"tmp","YtY1.csv"), 
                         delimiter=",")
-    nmapb  = nib.load(os.path.join(OutDir,"binputs", "blm_vox_n_batch1.nii"))
+    nmapb  = nib.load(os.path.join(OutDir,"tmp", "blm_vox_n_batch1.nii"))
     nmapd = nmapb.get_data()
 
     # Delete the files as they are no longer needed.
-    os.remove(os.path.join(OutDir,"binputs","XtX1.csv"))
-    os.remove(os.path.join(OutDir,"binputs","XtY1.csv"))
-    os.remove(os.path.join(OutDir,"binputs","YtY1.csv"))
+    os.remove(os.path.join(OutDir,"tmp","XtX1.csv"))
+    os.remove(os.path.join(OutDir,"tmp","XtY1.csv"))
+    os.remove(os.path.join(OutDir,"tmp","YtY1.csv"))
 
     # Work out how many files we need.
-    XtX_files = glob.glob(os.path.join(OutDir,"binputs","XtX*"))
+    XtX_files = glob.glob(os.path.join(OutDir,"tmp","XtX*"))
 
     # Cycle through batches and add together results.
     for batchNo in range(2,(len(XtX_files)+2)):
         
         # Sum the batches.
         sumXtX = sumXtX + np.loadtxt(
-            os.path.join(OutDir,"binputs","XtX" + str(batchNo) + ".csv"), 
+            os.path.join(OutDir,"tmp","XtX" + str(batchNo) + ".csv"), 
                          delimiter=",")
 
         sumXtY = sumXtY + np.loadtxt(
-            os.path.join(OutDir,"binputs","XtY" + str(batchNo) + ".csv"), 
+            os.path.join(OutDir,"tmp","XtY" + str(batchNo) + ".csv"), 
                          delimiter=",")
 
         sumYtY = sumYtY + np.loadtxt(
-            os.path.join(OutDir,"binputs","YtY" + str(batchNo) + ".csv"), 
+            os.path.join(OutDir,"tmp","YtY" + str(batchNo) + ".csv"), 
                          delimiter=",")
 
         # Obtain the full nmap.
-        nmapd = nmapd + nib.load(os.path.join(OutDir,"binputs", 
+        nmapd = nmapd + nib.load(os.path.join(OutDir,"tmp", 
             "blm_vox_n_batch" + str(batchNo) + ".nii")).get_data()
         
         # Delete the files as they are no longer needed.
-        os.remove(os.path.join(OutDir, "binputs","XtX" + str(batchNo) + ".csv"))
-        os.remove(os.path.join(OutDir, "binputs","XtY" + str(batchNo) + ".csv"))
-        os.remove(os.path.join(OutDir, "binputs","YtY" + str(batchNo) + ".csv"))
-        os.remove(os.path.join(OutDir, "binputs", "blm_vox_n_batch" + str(batchNo) + ".nii"))
+        os.remove(os.path.join(OutDir, "tmp","XtX" + str(batchNo) + ".csv"))
+        os.remove(os.path.join(OutDir, "tmp","XtY" + str(batchNo) + ".csv"))
+        os.remove(os.path.join(OutDir, "tmp","YtY" + str(batchNo) + ".csv"))
+        os.remove(os.path.join(OutDir, "tmp", "blm_vox_n_batch" + str(batchNo) + ".nii"))
 
     
     # Output final n map
@@ -384,7 +384,7 @@ def main():
 
     # Clean up files
     os.remove(os.path.join(OutDir, 'nb.txt'))
-    shutil.rmtree(os.path.join(OutDir, 'binputs'))
+    shutil.rmtree(os.path.join(OutDir, 'tmp'))
 
     w.resetwarnings()
 
