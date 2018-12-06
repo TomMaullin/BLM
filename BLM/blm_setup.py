@@ -24,10 +24,14 @@ def main(*args):
     MAXMEM = eval(inputs['MAXMEM'])
     OutDir = inputs['outdir']
 
+    # Check if output directory already exists
     if ~os.path.isdir(OutDir):
         os.mkdir(OutDir)
         if ~os.path.isdir(os.path.join(OutDir, "binputs")):
             os.mkdir(os.path.join(OutDir, "binputs"))
+    else:
+        #print('Warning: Directory "' + OutDir + '" will be removed.')
+        shutil.rmtree(OutDir)
 
     with open(inputs['Y_files']) as a:
 
