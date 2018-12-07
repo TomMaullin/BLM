@@ -12,75 +12,53 @@ import os
 import shutil
 import yaml
 
-def main(*args):
+def main(batchNo):
     
     # Change to blm directory
     os.chdir(os.path.dirname(os.path.realpath(__file__)))    
 
-    # In the batch mode we are given a batch number pointing us to
-    # the correct files
-    if len(args)==1:
+    # Load in inputs
+    with open('blm_defaults.yml', 'r') as stream:
+        inputs = yaml.load(stream)
 
-        # Obtain the batch number
-        batchNo = args[0];
+    MAXMEM = eval(inputs['MAXMEM'])
 
-        # Load in inputs
-        with open('blm_defaults.yml', 'r') as stream:
-            inputs = yaml.load(stream)
+    with open(inputs['Y_files']) as a:
 
-        MAXMEM = eval(inputs['MAXMEM'])
+        Y_files = []
+        i = 0
+        for line in a.readlines():
 
-        with open(inputs['Y_files']) as a:
+            Y_files.append(line.replace('\n', ''))
 
-            Y_files = []
-            i = 0
-            for line in a.readlines():
+    X = np.loadtxt(inputs['X'], delimiter=',')
 
-                Y_files.append(line.replace('\n', ''))
+    SVFlag = inputs['SVFlag']
+    OutDir = inputs['outdir']
 
-        X = np.loadtxt(inputs['X'], delimiter=',')
+    # Load in one nifti to check NIFTI size
+    try:
+        Y0 = nib.load(Y_files[0])
+    except Exception as error:
+        raise ValueError('The NIFTI "' + Y_files[0] + '"does not exist')
 
-        SVFlag = inputs['SVFlag']
-        OutDir = inputs['outdir']
+    d0 = Y0.get_data()
 
-        # Load in one nifti to check NIFTI size
-        try:
-            Y0 = nib.load(Y_files[0])
-        except Exception as error:
-            raise ValueError('The NIFTI "' + Y_files[0] + '"does not exist')
+    # Get the maximum memory a NIFTI could take in storage. 
+    NIFTIsize = sys.getsizeof(np.zeros(d0.shape,dtype='uint64'))
 
-        d0 = Y0.get_data()
+    # Similar to blksize in SwE, we divide by 8 times the size of a nifti
+    # to work out how many blocks we use.
+    blksize = int(np.floor(MAXMEM/8/NIFTIsize));
 
-        # Get the maximum memory a NIFTI could take in storage. 
-        NIFTIsize = sys.getsizeof(np.zeros(d0.shape,dtype='uint64'))
-
-        # Similar to blksize in SwE, we divide by 8 times the size of a nifti
-        # to work out how many blocks we use.
-        blksize = int(np.floor(MAXMEM/8/NIFTIsize));
-
-        # Reduce Y_files to only Y_files for this block.
-        X = X[(blksize*(batchNo-1)):min((blksize*batchNo),len(Y_files))]
-        Y_files = Y_files[(blksize*(batchNo-1)):min((blksize*batchNo),len(Y_files))]
-        
-        # Obtain n map and verify input
-        nmap = verifyInput(Y_files, Y0)
-        nib.save(nmap, os.path.join(OutDir,'tmp',
-                        'blm_vox_n_batch'+ str(batchNo) + '.nii'))
-        print(Y_files)
-        print(X)
-
-    else:
-
-        Y_files = args[0]
-        X = args[1]
-
-        if len(args)==3:
-            SVFlag = args[3]
-        else:
-            with open('blm_defaults.yml', 'r') as stream:
-                inputs = yaml.load(stream)
-            SVFlag = inputs['SVFlag']
-            del inputs
+    # Reduce Y_files to only Y_files for this block.
+    X = X[(blksize*(batchNo-1)):min((blksize*batchNo),len(Y_files))]
+    Y_files = Y_files[(blksize*(batchNo-1)):min((blksize*batchNo),len(Y_files))]
+    
+    # Obtain n map and verify input
+    nmap = verifyInput(Y_files, Y0)
+    nib.save(nmap, os.path.join(OutDir,'tmp',
+                    'blm_vox_n_batch'+ str(batchNo) + '.nii'))
 
     # Obtain Y and a mask for Y. This mask is just for voxels
     # with no studies present.
@@ -107,19 +85,14 @@ def main(*args):
         XtX = np.zeros([Mask.shape[0],XtX_m.shape[1]])
         XtX[np.flatnonzero(Mask),:] = XtX_m[:]
 
-    if len(args)==1:
-        # Record XtX and XtY
-        np.savetxt(os.path.join(OutDir,"tmp","XtX" + str(batchNo) + ".csv"), 
-                   XtX, delimiter=",") 
-        np.savetxt(os.path.join(OutDir,"tmp","XtY" + str(batchNo) + ".csv"), 
-                   XtY, delimiter=",") 
-        np.savetxt(os.path.join(OutDir,"tmp","YtY" + str(batchNo) + ".csv"), 
-                   YtY, delimiter=",") 
-        w.resetwarnings()
-
-    else:
-        w.resetwarnings()
-        return (XtX, XtY, YtY)
+    # Record XtX and XtY
+    np.savetxt(os.path.join(OutDir,"tmp","XtX" + str(batchNo) + ".csv"), 
+               XtX, delimiter=",") 
+    np.savetxt(os.path.join(OutDir,"tmp","XtY" + str(batchNo) + ".csv"), 
+               XtY, delimiter=",") 
+    np.savetxt(os.path.join(OutDir,"tmp","YtY" + str(batchNo) + ".csv"), 
+               YtY, delimiter=",") 
+    w.resetwarnings()
 
 def verifyInput(Y_files, Y0):
 
@@ -132,8 +105,6 @@ def verifyInput(Y_files, Y0):
 
     # Initial checks for NIFTI compatability.
     for Y_file in Y_files:
-
-        print(repr(Y_file))
 
         try:
             Y = nib.load(Y_file)

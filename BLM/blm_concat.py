@@ -183,8 +183,6 @@ def main():
                       int(NIFTIsize[1]),
                       int(NIFTIsize[2]))
 
-    print(ete.shape)
-
     # Get residual mean squares by dividing by degrees of
     # freedom
     if not SVFlag:
@@ -209,19 +207,13 @@ def main():
         n_s = nib.load(os.path.join(OutDir,'blm_vox_n.nii'))
         n_s = n_s.get_data()
 
-        print(repr(n_s))
-
         # To avoid division by zero errors we set the 
         # zero elements to one.
         n_s[n_s == 0] = 1
 
-        print(repr(n_s))
-
         # In spatially varying the degrees of freedom
         # varies across voxels
         resms = ete/(n_s-n_p)
-
-        print(repr(resms))
 
     # Output ResSS.
     msmap = nib.Nifti1Image(resms,
@@ -230,7 +222,6 @@ def main():
     nib.save(msmap, os.path.join(OutDir,'blm_vox_resms.nii'))
 
     # calculate beta covariance maps
-    print(isumXtX.shape)
     if not SVFlag:
 
         # Output variance for each pair of betas
@@ -256,9 +247,6 @@ def main():
         for i in range(0,isumXtX.shape[1]):
             for j in range(0,isumXtX.shape[2]):
 
-                    print(repr(isumXtX[:,i,j]))
-                    print(repr(isumXtX[:,i,j].shape))
-
                     covbetaij = np.multiply(resms,
                         isumXtX[:,i,j].reshape(
                             resms.shape[0],
@@ -276,23 +264,14 @@ def main():
 
         del covbetaijmap
 
-        print('tmp')
-
     # Loop through contrasts, outputting COPEs, statistic maps
     # and covariance maps.
     n_c = len(inputs['contrasts'])
-    print(n_c)
 
     for i in range(0,n_c):
 
         # Read in contrast vector
         cvec = np.array(inputs['contrasts'][i]['c' + str(i+1)]['vector'])
-        print(cvec)
-        print(type(cvec))
-        #cvec = eval(cvec.replace(' ',''))
-
-        print(cvec)
-        print(type(cvec))
 
         # Calculate C\hat{\beta}}
         cbeta = np.matmul(cvec, beta)
@@ -318,13 +297,8 @@ def main():
                 np.matmul(np.transpose(cvec), isumXtX),
                 cvec)
 
-            print(cvectiXtXcvec)
-            print(beta.shape)
-            print(repr(beta))
-
             # Calculate cov(c\hat{\beta})
             covcbeta = cvectiXtXcvec*resms
-            print(covcbeta.shape)
 
             # Output covariance map
             covcbetamap = nib.Nifti1Image(covcbeta,
@@ -336,22 +310,15 @@ def main():
 
         else:
 
-            print(isumXtX.shape)
-
             # Calculate c'(X'X)^(-1)c
             cvectiXtXcvec = np.matmul(
                 np.matmul(np.transpose(cvec), isumXtX),
                 cvec)
 
-            print(cvectiXtXcvec)
-            print(beta.shape)
-            print(repr(beta))
-
             # Calculate cov(c\hat{\beta})
             covcbeta = cvectiXtXcvec*resms.reshape(
                 resms.shape[0]*resms.shape[1]*resms.shape[2]
                 )
-            print(covcbeta.shape)
 
             covcbeta = covcbeta.reshape(
                 resms.shape[0],
