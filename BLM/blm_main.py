@@ -12,7 +12,7 @@ import blm_concat
 def main(Y_files, X): #flag='spat'
 
     print('Setting up analysis...')
-	# Run the setup job to obtain the number of batches needed.
+    # Run the setup job to obtain the number of batches needed.
     blm_setup.main()
 
     # Load in inputs
@@ -28,14 +28,14 @@ def main(Y_files, X): #flag='spat'
 
     # Run batch jobs
     for i in range(0, nB):
-    	print('Running job ' + str(i) + '/' + str(nB))
-    	blm_batch.main(i+1)
+        print('Running job ' + str(i) + '/' + str(nB))
+        blm_batch.main(i+1)
 
     # Run concatenation job
     print('Combining batch results...')
-	blm_concat.main()
+    blm_concat.main()
 
-	print('Distributed analysis complete. Please see "' + outDir + "for output.")
+    print('Distributed analysis complete. Please see "' + outDir + "for output.")
 
 if __name__ == "__main__":
     main()
