@@ -18,7 +18,7 @@ def main(*args):
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
     # Load in inputs
-    with open('blm_defaults.yml', 'r') as stream:
+    with open(os.path.join('..','blm_defaults.yml'), 'r') as stream:
         inputs = yaml.load(stream)
 
     MAXMEM = eval(inputs['MAXMEM'])

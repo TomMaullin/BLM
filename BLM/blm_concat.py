@@ -19,7 +19,7 @@ def main():
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
     # Obtain necessry inputs
-    with open('blm_defaults.yml', 'r') as stream:
+    with open(os.path.join('..','blm_defaults.yml'), 'r') as stream:
         inputs = yaml.load(stream)
     SVFlag = inputs['SVFlag']
     OutDir = inputs['outdir']
