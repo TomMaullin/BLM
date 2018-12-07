@@ -347,7 +347,7 @@ def main():
                                     header=nifti.header)
         nib.save(tStatcmap,
             os.path.join(OutDir, 
-                'blm_vox_tStat_c' + str(i+1) + '.nii'))
+                'blm_vox_Tstat_c' + str(i+1) + '.nii'))
 
     # Clean up files
     os.remove(os.path.join(OutDir, 'nb.txt'))
