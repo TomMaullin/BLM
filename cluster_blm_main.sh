@@ -14,7 +14,7 @@ if [ -f $config_outdir/nb.txt ] ; then
 fi
 touch $config_outdir/nb.txt 
 
-qsub -N setup -V cluster_blm_setup.sh
+qsub -N setup -V lib/cluster_blm_setup.sh
 
 echo "Setting up distributed analysis..."
 
@@ -47,9 +47,9 @@ done
 echo "Submitting analysis jobs..."
 i=1
 while [ "$i" -le "$nb" ]; do
-  qsub -N batch$i -V -hold_jid setup cluster_blm_batch.sh $i
+  qsub -N batch$i -V -hold_jid setup lib/cluster_blm_batch.sh $i
   i=$(($i + 1))
 done
 
-qsub -N results -V -hold_jid "batch*" cluster_blm_concat.sh 
+qsub -N results -V -hold_jid "batch*" lib/cluster_blm_concat.sh 
 echo "Please use qstat to monitor progress."
