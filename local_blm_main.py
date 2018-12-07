@@ -24,7 +24,7 @@ def main():
 
     # Run batch jobs
     for i in range(0, nB):
-        print('Running job ' + str(i+1) + '/' + str(nB))
+        print('Running batch ' + str(i+1) + '/' + str(nB))
         blm_batch.main(i+1)
 
     # Run concatenation job
