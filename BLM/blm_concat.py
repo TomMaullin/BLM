@@ -334,6 +334,11 @@ def main():
                 os.path.join(OutDir, 
                     'blm_vox_cov_c' + str(i+1) + '.nii'))
 
+        print(cvectiXtXcvec.shape)
+        print(cbeta.shape)
+        print(resms.shape)
+        print(inputs['contrasts'][i]['c' + str(i+1)]['statType'])
+
         # To avoid division by zero errors we set the 
         # zero elements to one.
         covcbeta[covcbeta == 0] = 1        
