@@ -31,7 +31,7 @@ def main():
     print('Combining batch results...')
     blm_concat.main()
 
-    print('Distributed analysis complete. Please see "' + OutDir + "for output.")
+    print('Distributed analysis complete. Please see "' + OutDir + '" for output.')
 
 if __name__ == "__main__":
     main()
