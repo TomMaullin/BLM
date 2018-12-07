@@ -11,10 +11,8 @@ def main():
     # Run the setup job to obtain the number of batches needed.
     blm_setup.main()
 
-    print(os.getcwd())
     # Load in inputs
     with open(os.path.join(os.getcwd(),'blm_defaults.yml'), 'r') as stream:
-        print(os.path.join(os.getcwd(),'blm_defaults.yml'))
         inputs = yaml.load(stream)
 
     # Retrieve Output directory
@@ -26,7 +24,7 @@ def main():
 
     # Run batch jobs
     for i in range(0, nB):
-        print('Running job ' + str(i) + '/' + str(nB))
+        print('Running job ' + str(i+1) + '/' + str(nB))
         blm_batch.main(i+1)
 
     # Run concatenation job
