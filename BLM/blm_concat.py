@@ -383,10 +383,19 @@ def main():
                 print(q)
                 print(cvectiXtXcvec.shape)
                 print(cbeta.shape)
+
+                # Cbeta needs to be nvox by 1 by npar for stacked
+                # multiply.
+                cbeta = cbeta.reshape(
+                    cbeta.shape[0],
+                    cbeta.shape[1],
+                    1)
+                cbeta = cbeta.transpose(1, 0, 2)
+
                 print(resms.shape)
 
                 Fnumerator = np.matmul(
-                    np.transpose(cbeta),
+                    cbeta.transpose(0, 2, 1),
                     np.matmul(cvectiXtXcvec, cbeta))
 
                 print(Fnumerator.shape)
