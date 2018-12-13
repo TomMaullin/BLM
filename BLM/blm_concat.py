@@ -410,6 +410,11 @@ def main():
 
                 # Calculate F statistic.
                 fStatc = Fnumerator/Fdenominator
+                fStatc = fStatc.reshape(
+                    resms.shape[0],
+                    resms.shape[1],
+                    resms.shape[2]
+                    )
 
                 # Output statistic map
                 fStatcmap = nib.Nifti1Image(fStatc,
