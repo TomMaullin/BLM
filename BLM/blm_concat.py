@@ -394,10 +394,16 @@ def main():
 
                 print(resms.shape)
 
+                # np linalg inverse doesn't handle dim=[1,1]
+                if np.ndim(cvectiXtXcvec) == 1:
+                    icvectiXtXcvec = 1/cvectiXtXcvec
+                else:
+                    icvectiXtXcvec = np.linalg.inv(cvectiXtXcvec)
+
                 # Calculate the numerator of the F statistic
                 Fnumerator = np.matmul(
                     cbeta.transpose(0, 2, 1),
-                    np.matmul(cvectiXtXcvec, cbeta))
+                    np.matmul(icvectiXtXcvec, cbeta))
                 Fnumerator = Fnumerator.reshape(Fnumerator.shape[0])
 
                 print(Fnumerator.shape)
