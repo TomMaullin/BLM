@@ -300,8 +300,8 @@ def main():
 
                 # Calculate c'(X'X)^(-1)c
                 cvectiXtXcvec = np.matmul(
-                    np.matmul(np.transpose(cvec), isumXtX),
-                    cvec)
+                    np.matmul(cvec, isumXtX),
+                    np.transpose(cvec))
 
                 # Calculate cov(c\hat{\beta})
                 covcbeta = cvectiXtXcvec*resms
@@ -318,8 +318,8 @@ def main():
 
                 # Calculate c'(X'X)^(-1)c
                 cvectiXtXcvec = np.matmul(
-                    np.matmul(np.transpose(cvec), isumXtX),
-                    cvec)
+                    np.matmul(cvec, isumXtX),
+                    np.transpose(cvec))
 
                 print(cvectiXtXcvec.shape)
 
