@@ -404,6 +404,7 @@ def main():
                 Fnumerator = np.matmul(
                     cbeta.transpose(0, 2, 1),
                     np.matmul(icvectiXtXcvec, cbeta))
+                print(np.amin(Fnumerator))
                 Fnumerator = Fnumerator.reshape(Fnumerator.shape[0])
 
                 print(Fnumerator.shape)
@@ -413,6 +414,7 @@ def main():
                     resms.shape[0]*resms.shape[1]*resms.shape[2])
                 # Remove zeros in Fdenominator to avoid divide by 
                 # zero errors
+                print(np.amin(Fdenominator))
                 Fdenominator[Fdenominator == 0] = 1
 
                 print(Fdenominator.shape)
