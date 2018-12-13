@@ -290,60 +290,61 @@ def main():
                 'blm_vox_beta_c' + str(i+1) + '.nii'))
 
 
-        if not SVFlag:
+        if inputs['contrasts'][i]['c' + str(i+1)]['statType'] == 'T':
 
-            # Calculate c'(X'X)^(-1)c
-            cvectiXtXcvec = np.matmul(
-                np.matmul(np.transpose(cvec), isumXtX),
-                cvec)
+            if not SVFlag:
 
-            # Calculate cov(c\hat{\beta})
-            covcbeta = cvectiXtXcvec*resms
+                # Calculate c'(X'X)^(-1)c
+                cvectiXtXcvec = np.matmul(
+                    np.matmul(np.transpose(cvec), isumXtX),
+                    cvec)
 
-            # Output covariance map
-            covcbetamap = nib.Nifti1Image(covcbeta,
-                                          nifti.affine,
-                                          header=nifti.header)
-            nib.save(covcbetamap,
-                os.path.join(OutDir, 
-                    'blm_vox_cov_c' + str(i+1) + '.nii'))
+                # Calculate cov(c\hat{\beta})
+                covcbeta = cvectiXtXcvec*resms
 
-        else:
+                # Output covariance map
+                covcbetamap = nib.Nifti1Image(covcbeta,
+                                              nifti.affine,
+                                              header=nifti.header)
+                nib.save(covcbetamap,
+                    os.path.join(OutDir, 
+                        'blm_vox_cov_c' + str(i+1) + '.nii'))
 
-            # Calculate c'(X'X)^(-1)c
-            cvectiXtXcvec = np.matmul(
-                np.matmul(np.transpose(cvec), isumXtX),
-                cvec)
+            else:
+
+                # Calculate c'(X'X)^(-1)c
+                cvectiXtXcvec = np.matmul(
+                    np.matmul(np.transpose(cvec), isumXtX),
+                    cvec)
+
+                print(cvectiXtXcvec.shape)
+
+                # Calculate cov(c\hat{\beta})
+                covcbeta = cvectiXtXcvec*resms.reshape(
+                    resms.shape[0]*resms.shape[1]*resms.shape[2]
+                    )
+
+                print(covcbeta.shape)
+
+                covcbeta = covcbeta.reshape(
+                    resms.shape[0],
+                    resms.shape[1],
+                    resms.shape[2]
+                    )
+
+                # Output covariance map
+                covcbetamap = nib.Nifti1Image(covcbeta,
+                                              nifti.affine,
+                                              header=nifti.header)
+                nib.save(covcbetamap,
+                    os.path.join(OutDir, 
+                        'blm_vox_cov_c' + str(i+1) + '.nii'))
 
             print(cvectiXtXcvec.shape)
+            print(cbeta.shape)
+            print(resms.shape)
+            print(inputs['contrasts'][i]['c' + str(i+1)]['statType'])
 
-            # Calculate cov(c\hat{\beta})
-            covcbeta = cvectiXtXcvec*resms.reshape(
-                resms.shape[0]*resms.shape[1]*resms.shape[2]
-                )
-
-            print(covcbeta.shape)
-
-            covcbeta = covcbeta.reshape(
-                resms.shape[0],
-                resms.shape[1],
-                resms.shape[2]
-                )
-
-            # Output covariance map
-            covcbetamap = nib.Nifti1Image(covcbeta,
-                                          nifti.affine,
-                                          header=nifti.header)
-            nib.save(covcbetamap,
-                os.path.join(OutDir, 
-                    'blm_vox_cov_c' + str(i+1) + '.nii'))
-
-        print(cvectiXtXcvec.shape)
-        print(cbeta.shape)
-        print(resms.shape)
-        print(inputs['contrasts'][i]['c' + str(i+1)]['statType'])
-
-        if inputs['contrasts'][i]['c' + str(i+1)]['statType'] == 'T':
 
             # To avoid division by zero errors we set the 
             # zero elements to one.
@@ -363,6 +364,24 @@ def main():
         if inputs['contrasts'][i]['c' + str(i+1)]['statType'] == 'F':
 
             print(cov)
+        
+            # Not spatially varying
+            if not SpatVar:
+                
+                # Get dumension of cvector
+                q = cvec.shape[1]
+
+                # Calculate c'(X'X)^(-1)c
+                cvectiXtXcvec = np.matmul(
+                    np.matmul(np.transpose(cvec), isumXtX),
+                    cvec)#XXX duplication - should remove in cleanup
+
+                print('F')
+                print(q)
+                print(cvectiXtXcvec.shape)
+                print(cbeta.shape)
+
+
 
     # Clean up files
     os.remove(os.path.join(OutDir, 'nb.txt'))
