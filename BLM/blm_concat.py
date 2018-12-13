@@ -368,7 +368,7 @@ def main():
         if inputs['contrasts'][i]['c' + str(i+1)]['statType'] == 'F':
         
             # Not spatially varying
-            if not SpatVar:
+            if not SVFlag:
                 
                 # Get dumension of cvector
                 q = cvec.shape[1]
