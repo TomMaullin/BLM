@@ -385,6 +385,17 @@ def main():
                 print(cbeta.shape)
                 print(resms.shape)
 
+                Fnumerator = np.matmul(
+                    np.transpose(cbeta),
+                    np.matmul(cvectiXtXcvec, cbeta))
+
+                print(Fnumerator.shape)
+
+                Fdenominator = (q*resms).reshape(
+                    resms.shape[0]*resms.shape[1]*resms.shape[2])
+
+                print(Fdenominator.shape)
+
 
 
     # Clean up files
