@@ -394,16 +394,31 @@ def main():
 
                 print(resms.shape)
 
+                # Calculate the numerator of the F statistic
                 Fnumerator = np.matmul(
                     cbeta.transpose(0, 2, 1),
                     np.matmul(cvectiXtXcvec, cbeta))
+                Fnumerator.reshape(Fnumerator[0])
 
                 print(Fnumerator.shape)
 
+                # Calculate the denominator of the F statistic
                 Fdenominator = (q*resms).reshape(
                     resms.shape[0]*resms.shape[1]*resms.shape[2])
 
                 print(Fdenominator.shape)
+
+                # Calculate F statistic.
+                fStatc = Fnumerator/Fdenominator
+
+                # Output statistic map
+                fStatcmap = nib.Nifti1Image(fStatc,
+                                            nifti.affine,
+                                            header=nifti.header)
+                nib.save(fStatcmap,
+                    os.path.join(OutDir, 
+                        'blm_vox_Fstat_c' + str(i+1) + '.nii'))
+
 
 
 
