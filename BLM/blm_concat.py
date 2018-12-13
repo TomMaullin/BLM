@@ -371,7 +371,7 @@ def main():
             if not SVFlag:
                 
                 # Get dumension of cvector
-                q = cvec.shape[1]
+                q = cvec.shape[0]
 
                 # Calculate c'(X'X)^(-1)c
                 cvectiXtXcvec = np.matmul(
@@ -382,6 +382,7 @@ def main():
                 print(q)
                 print(cvectiXtXcvec.shape)
                 print(cbeta.shape)
+                print(resms.shape)
 
 
 

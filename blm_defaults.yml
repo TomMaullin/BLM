@@ -28,5 +28,5 @@ contrasts:
       statType: T
   - c3:
       name: contrast3
-      vector: [[1, 1],[1, 0]]
+      vector: [[1, 1],[1, 0],[0, 1]]
       statType: F
