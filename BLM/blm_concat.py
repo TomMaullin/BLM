@@ -374,9 +374,10 @@ def main():
                 q = cvec.shape[0]
 
                 # Calculate c'(X'X)^(-1)c
+                # (Note C is read in the other way around for F)
                 cvectiXtXcvec = np.matmul(
-                    np.matmul(np.transpose(cvec), isumXtX),
-                    cvec)#XXX duplication - should remove in cleanup
+                    np.matmul(cvec, isumXtX),
+                    np.transpose(cvec))
 
                 print('F')
                 print(q)
