@@ -400,6 +400,10 @@ def main():
                 else:
                     icvectiXtXcvec = np.linalg.inv(cvectiXtXcvec)
 
+
+                print(cvectiXtXcvec)
+                print(icvectiXtXcvec)
+
                 # Calculate the numerator of the F statistic
                 Fnumerator = np.matmul(
                     cbeta.transpose(0, 2, 1),
