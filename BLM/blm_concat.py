@@ -398,7 +398,7 @@ def main():
                 Fnumerator = np.matmul(
                     cbeta.transpose(0, 2, 1),
                     np.matmul(cvectiXtXcvec, cbeta))
-                Fnumerator.reshape(Fnumerator[0])
+                Fnumerator.reshape(Fnumerator.shape[0])
 
                 print(Fnumerator.shape)
 
