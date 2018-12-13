@@ -405,6 +405,9 @@ def main():
                 # Calculate the denominator of the F statistic
                 Fdenominator = (q*resms).reshape(
                     resms.shape[0]*resms.shape[1]*resms.shape[2])
+                # Remove zeros in Fdenominator to avoid divide by 
+                # zero errors
+                Fdenominator[Fdenominator == 0] = 1
 
                 print(Fdenominator.shape)
 
