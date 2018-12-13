@@ -408,6 +408,8 @@ def main():
 
                 print(Fdenominator.shape)
 
+                print(Fnumerator.shape)
+
                 # Calculate F statistic.
                 fStatc = Fnumerator/Fdenominator
 
