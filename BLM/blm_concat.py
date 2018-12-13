@@ -275,24 +275,26 @@ def main():
 
         # Calculate C\hat{\beta}}
         cbeta = np.matmul(cvec, beta)
-        cbeta = cbeta.reshape(
-                    resms.shape[0],
-                    resms.shape[1],
-                    resms.shape[2],
-                    )
-
-        # Output cbeta/cope map
-        cbetamap = nib.Nifti1Image(cbeta,
-                                   nifti.affine,
-                                   header=nifti.header)
-        nib.save(cbetamap,
-            os.path.join(OutDir, 
-                'blm_vox_beta_c' + str(i+1) + '.nii'))
 
         print(inputs['contrasts'][i]['c' + str(i+1)]['statType'])
 
 
         if inputs['contrasts'][i]['c' + str(i+1)]['statType'] == 'T':
+
+            # A T contrast has only one row so we can output cbeta here
+            cbeta = cbeta.reshape(
+                        resms.shape[0],
+                        resms.shape[1],
+                        resms.shape[2],
+                        )
+
+            # Output cbeta/cope map
+            cbetamap = nib.Nifti1Image(cbeta,
+                                       nifti.affine,
+                                       header=nifti.header)
+            nib.save(cbetamap,
+                os.path.join(OutDir, 
+                    'blm_vox_beta_c' + str(i+1) + '.nii'))
 
             if not SVFlag:
 
