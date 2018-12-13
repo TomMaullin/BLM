@@ -289,6 +289,8 @@ def main():
             os.path.join(OutDir, 
                 'blm_vox_beta_c' + str(i+1) + '.nii'))
 
+        print(inputs['contrasts'][i]['c' + str(i+1)]['statType'])
+
 
         if inputs['contrasts'][i]['c' + str(i+1)]['statType'] == 'T':
 
