@@ -13,6 +13,7 @@ import glob
 import shutil
 import yaml
 import pandas
+import time
 
 def main():
 
@@ -46,6 +47,7 @@ def main():
     # Cycle through batches and add together results.
     for batchNo in range(2,(len(XtX_files)+2)):
         
+        t1 = time.time()
         # Sum the batches.
         sumXtX = sumXtX + pandas.io.parsers.read_csv(
             os.path.join(OutDir,"tmp","XtX" + str(batchNo) + ".csv"), 
@@ -58,10 +60,17 @@ def main():
         sumYtY = sumYtY + pandas.io.parsers.read_csv(
             os.path.join(OutDir,"tmp","YtY" + str(batchNo) + ".csv"), 
                          sep=",", header=None).values
+        t2 = time.time()
 
+        print('CSV time: ' + str(t2-t1))
+
+        t1 = time.time()
         # Obtain the full nmap.
         nmapd = nmapd + nib.load(os.path.join(OutDir,"tmp", 
             "blm_vox_n_batch" + str(batchNo) + ".nii")).get_data()
+        t2 = time.time()
+
+        print('NIFTI time: ' + str(t2-t1))
         
         # Delete the files as they are no longer needed.
         os.remove(os.path.join(OutDir, "tmp","XtX" + str(batchNo) + ".csv"))
