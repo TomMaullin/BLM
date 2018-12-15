@@ -53,11 +53,15 @@ def main(batchNo):
     blksize = int(np.floor(MAXMEM/8/NIFTIsize));
 
     print(blksize)
+    print(batchNo)
+    print((blksize*(batchNo-1)))
+    print(min((blksize*batchNo),len(Y_files)))
+    print(np.dim(X))
 
     # Reduce Y_files to only Y_files for this block.
     X = X[(blksize*(batchNo-1)):min((blksize*batchNo),len(Y_files))]
 
-    print(X)
+    print(X.shape)
     print(len(Y_files))
     Y_files = Y_files[(blksize*(batchNo-1)):min((blksize*batchNo),len(Y_files))]
     
