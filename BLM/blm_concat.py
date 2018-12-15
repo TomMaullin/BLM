@@ -114,7 +114,7 @@ def main():
     # the normal manner.
     else:
         # Calculate inverse of XtX
-        isumXtX = blm_inverse(sumXtX))
+        isumXtX = blm_inverse(sumXtX)
 
     # Read in the nifti size.
     with open(inputs['Y_files']) as a:
