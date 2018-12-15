@@ -379,7 +379,7 @@ def main():
                 cbeta = cbeta.transpose(1, 0, 2)
 
                 # Calculate the inverse
-                icvectiXtXcvec =blm_inverse(cvectiXtXcvec, ouflow=True))
+                icvectiXtXcvec =blm_inverse(cvectiXtXcvec, ouflow=True)
 
                 # Calculate the numerator of the F statistic
                 Fnumerator = np.matmul(
