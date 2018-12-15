@@ -119,6 +119,9 @@ def main():
         else:
             isumXtX = np.linalg.inv(sumXtX)
 
+        print(isumXtX)
+        print(blm_inverse(sumXtX))
+
     # Read in the nifti size.
     with open(inputs['Y_files']) as a:
         nifti = nib.load(a.readline().replace('\n', ''))
@@ -321,14 +324,10 @@ def main():
                     np.matmul(cvec, isumXtX),
                     np.transpose(cvec))
 
-                print(cvectiXtXcvec.shape)
-
                 # Calculate cov(c\hat{\beta})
                 covcbeta = cvectiXtXcvec*resms.reshape(
                     resms.shape[0]*resms.shape[1]*resms.shape[2]
                     )
-
-                print(covcbeta.shape)
 
                 covcbeta = covcbeta.reshape(
                     resms.shape[0],
@@ -344,9 +343,7 @@ def main():
                     os.path.join(OutDir, 
                         'blm_vox_cov_c' + str(i+1) + '.nii'))
 
-            print(cvectiXtXcvec.shape)
-            print(cbeta.shape)
-            print(resms.shape)
+
             print(inputs['contrasts'][i]['c' + str(i+1)]['statType'])
 
 
@@ -379,11 +376,6 @@ def main():
                     np.matmul(cvec, isumXtX),
                     np.transpose(cvec))
 
-                print('F')
-                print(q)
-                print(cvectiXtXcvec.shape)
-                print(cbeta.shape)
-
                 # Cbeta needs to be nvox by 1 by npar for stacked
                 # multiply.
                 cbeta = cbeta.reshape(
@@ -392,17 +384,17 @@ def main():
                     1)
                 cbeta = cbeta.transpose(1, 0, 2)
 
-                print(resms.shape)
-
                 # np linalg inverse doesn't handle dim=[1,1]
                 if np.ndim(cvectiXtXcvec) == 1:
                     icvectiXtXcvec = 1/cvectiXtXcvec
                 else:
+                    m = np.amin(cvectiXtXcvec)
                     icvectiXtXcvec = np.linalg.inv(cvectiXtXcvec)
 
 
                 print(cvectiXtXcvec)
                 print(icvectiXtXcvec)
+                print(blm_inverse(cvectiXtXcvec, ouflow=True))
 
                 # Calculate the numerator of the F statistic
                 Fnumerator = np.matmul(
@@ -450,6 +442,35 @@ def main():
 
     w.resetwarnings()
 
+# This function inverts matrix A. If ouflow is True,
+# special handling is used to account for over/under
+# flow.
+def blm_inverse(A, ouflow=False):
+
+
+    # If ouflow is true, we need to precondition A.
+    if ouflow:
+
+        # Calculate D, diagonal matrix with diagonal
+        # elements D_ii equal to 1/sqrt(A_ii)
+        D = np.zeros([3,3])
+        np.fill_diagonal(D, 1/np.sqrt(A.diagonal()))
+
+        # Precondition A.
+        A = np.matmul(np.matmul(D, A), D)
+
+    # np linalg inverse doesn't handle dim=[1,1]
+    if np.ndim(A) == 1:
+        iA = 1/A
+    else:
+        iA = np.linalg.inv(A)
+
+    if ouflow:
+
+        # Undo preconditioning.
+        iA = np.matmul(np.matmul(D, iA), D)
+
+    return(iA)
 
 if __name__ == "__main__":
     main()
