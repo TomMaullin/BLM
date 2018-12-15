@@ -387,7 +387,7 @@ def main():
                     np.matmul(icvectiXtXcvec, cbeta))
                 Fnumerator2 = np.matmul(
                     cbeta.transpose(0, 2, 1),
-                    np.solve(cvectiXtXcvec, cbeta))
+                    np.linalg.solve(cvectiXtXcvec, cbeta))
                 print(np.amin(Fnumerator))
                 print(np.amin(Fnumerator2))
                 Fnumerator = Fnumerator.reshape(Fnumerator.shape[0])
