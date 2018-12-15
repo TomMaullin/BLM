@@ -32,7 +32,7 @@ def main(batchNo):
 
             Y_files.append(line.replace('\n', ''))
 
-    X = pandas.io.parsers.read_csv(inputs['X'], sep=',')
+    X = pandas.io.parsers.read_csv(inputs['X'], sep=',').values
 
     SVFlag = inputs['SVFlag']
     OutDir = inputs['outdir']
@@ -70,6 +70,9 @@ def main(batchNo):
         MX = blkMX(X, Y)
 
     # Get X transpose Y, X transpose X and Y transpose Y.
+    print(X.shape)
+    print(Y.shape)
+    print(Mask)
     XtY = blkXtY(X, Y, Mask)
     YtY = blkYtY(Y, Mask)
 

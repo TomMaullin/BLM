@@ -27,11 +27,11 @@ def main():
     
     # Read the matrices from the first batch.
     sumXtX = pandas.io.parsers.read_csv(os.path.join(OutDir,"tmp","XtX1.csv"), 
-                        sep=",")
+                        sep=",").values
     sumXtY = pandas.io.parsers.read_csv(os.path.join(OutDir,"tmp","XtY1.csv"), 
-                        sep=",")
+                        sep=",").values
     sumYtY = pandas.io.parsers.read_csv(os.path.join(OutDir,"tmp","YtY1.csv"), 
-                        sep=",")
+                        sep=",").values
     nmapb  = nib.load(os.path.join(OutDir,"tmp", "blm_vox_n_batch1.nii"))
     nmapd = nmapb.get_data()
 
@@ -49,15 +49,15 @@ def main():
         # Sum the batches.
         sumXtX = sumXtX + pandas.io.parsers.read_csv(
             os.path.join(OutDir,"tmp","XtX" + str(batchNo) + ".csv"), 
-                         sep=",")
+                         sep=",").values
 
         sumXtY = sumXtY + pandas.io.parsers.read_csv(
             os.path.join(OutDir,"tmp","XtY" + str(batchNo) + ".csv"), 
-                         sep=",")
+                         sep=",").values
 
         sumYtY = sumYtY + pandas.io.parsers.read_csv(
             os.path.join(OutDir,"tmp","YtY" + str(batchNo) + ".csv"), 
-                         sep=",")
+                         sep=",").values
 
         # Obtain the full nmap.
         nmapd = nmapd + nib.load(os.path.join(OutDir,"tmp", 
@@ -186,7 +186,8 @@ def main():
     if not SVFlag:
 
         # Get number of scans and number of parameters
-        X = pandas.io.parsers.read_csv(inputs['X'], sep=',')
+        X = pandas.io.parsers.read_csv(
+            inputs['X'], sep=',').values
         n_s = X.shape[0]
         n_p = X.shape[1]
 
@@ -197,7 +198,8 @@ def main():
     else:
         
         # Get number of scans and number of parameters
-        X = pandas.io.parsers.read_csv(inputs['X'], sep=',')
+        X = pandas.io.parsers.read_csv(
+            inputs['X'], sep=',').values
         n_s = X.shape[0]
         n_p = X.shape[1]
 
