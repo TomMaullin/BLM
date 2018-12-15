@@ -31,7 +31,7 @@ def main(batchNo):
 
             Y_files.append(line.replace('\n', ''))
 
-    X = np.loadtxt(inputs['X'], delimiter=',')
+    X = pandas.io.parsers.read_csv(inputs['X'], sep=',')
 
     SVFlag = inputs['SVFlag']
     OutDir = inputs['outdir']

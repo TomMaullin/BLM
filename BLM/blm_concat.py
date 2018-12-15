@@ -25,12 +25,12 @@ def main():
     OutDir = inputs['outdir']
     
     # Read the matrices from the first batch.
-    sumXtX = np.loadtxt(os.path.join(OutDir,"tmp","XtX1.csv"), 
-                        delimiter=",",dtype=np.float64)
-    sumXtY = np.loadtxt(os.path.join(OutDir,"tmp","XtY1.csv"), 
-                        delimiter=",",dtype=np.float64)
-    sumYtY = np.loadtxt(os.path.join(OutDir,"tmp","YtY1.csv"), 
-                        delimiter=",",dtype=np.float64)
+    sumXtX = pandas.io.parsers.read_csv(os.path.join(OutDir,"tmp","XtX1.csv"), 
+                        sep=",")
+    sumXtY = pandas.io.parsers.read_csv(os.path.join(OutDir,"tmp","XtY1.csv"), 
+                        sep=",")
+    sumYtY = pandas.io.parsers.read_csv(os.path.join(OutDir,"tmp","YtY1.csv"), 
+                        sep=",")
     nmapb  = nib.load(os.path.join(OutDir,"tmp", "blm_vox_n_batch1.nii"))
     nmapd = nmapb.get_data()
 
@@ -46,17 +46,17 @@ def main():
     for batchNo in range(2,(len(XtX_files)+2)):
         
         # Sum the batches.
-        sumXtX = sumXtX + np.loadtxt(
+        sumXtX = sumXtX + pandas.io.parsers.read_csv(
             os.path.join(OutDir,"tmp","XtX" + str(batchNo) + ".csv"), 
-                         delimiter=",",dtype=np.float64)
+                         sep=",")
 
-        sumXtY = sumXtY + np.loadtxt(
+        sumXtY = sumXtY + pandas.io.parsers.read_csv(
             os.path.join(OutDir,"tmp","XtY" + str(batchNo) + ".csv"), 
-                         delimiter=",",dtype=np.float64)
+                         sep=",")
 
-        sumYtY = sumYtY + np.loadtxt(
+        sumYtY = sumYtY + pandas.io.parsers.read_csv(
             os.path.join(OutDir,"tmp","YtY" + str(batchNo) + ".csv"), 
-                         delimiter=",",dtype=np.float64)
+                         sep=",")
 
         # Obtain the full nmap.
         nmapd = nmapd + nib.load(os.path.join(OutDir,"tmp", 
@@ -185,7 +185,7 @@ def main():
     if not SVFlag:
 
         # Get number of scans and number of parameters
-        X = np.loadtxt(inputs['X'], delimiter=',')
+        X = pandas.io.parsers.read_csv(inputs['X'], sep=',')
         n_s = X.shape[0]
         n_p = X.shape[1]
 
@@ -196,7 +196,7 @@ def main():
     else:
         
         # Get number of scans and number of parameters
-        X = np.loadtxt(inputs['X'], delimiter=',')
+        X = pandas.io.parsers.read_csv(inputs['X'], sep=',')
         n_s = X.shape[0]
         n_p = X.shape[1]
 
