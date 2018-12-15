@@ -14,7 +14,7 @@ def main():
     	if j >= 10:
 
             print(str(j))
-            X = np.ones([1,j])
+            X = np.ones([j,1])
             np.savetxt(os.path.join(os.getcwd(),'BLM','test','data','ukbb', 'X_ukbb_' + str(j) + '.csv'), X, delimiter=",")
 
     	j = j + 1
