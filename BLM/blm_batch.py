@@ -33,7 +33,7 @@ def main(batchNo):
             Y_files.append(line.replace('\n', ''))
 
     X = pandas.io.parsers.read_csv(
-        inputs['X'], sep=',').Series.tolist()
+        inputs['X'], sep=',', header=None).values
 
     SVFlag = inputs['SVFlag']
     OutDir = inputs['outdir']
@@ -53,18 +53,8 @@ def main(batchNo):
     # to work out how many blocks we use.
     blksize = int(np.floor(MAXMEM/8/NIFTIsize));
 
-    print(blksize)
-    print(batchNo)
-    print((blksize*(batchNo-1)))
-    print(min((blksize*batchNo),len(Y_files)))
-    print(np.ndim(X))
-    print(type(X))
-
     # Reduce Y_files to only Y_files for this block.
     X = X[(blksize*(batchNo-1)):min((blksize*batchNo),len(Y_files))]
-
-    print(X.shape)
-    print(len(Y_files))
     Y_files = Y_files[(blksize*(batchNo-1)):min((blksize*batchNo),len(Y_files))]
     
     # Obtain n map and verify input
@@ -81,9 +71,6 @@ def main(batchNo):
         MX = blkMX(X, Y)
 
     # Get X transpose Y, X transpose X and Y transpose Y.
-    print(X.shape)
-    print(Y.shape)
-    print(Mask)
     XtY = blkXtY(X, Y, Mask)
     YtY = blkYtY(Y, Mask)
 

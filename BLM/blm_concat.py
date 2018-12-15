@@ -27,11 +27,11 @@ def main():
     
     # Read the matrices from the first batch.
     sumXtX = pandas.io.parsers.read_csv(os.path.join(OutDir,"tmp","XtX1.csv"), 
-                        sep=",").values
+                        sep=",", header=None).values
     sumXtY = pandas.io.parsers.read_csv(os.path.join(OutDir,"tmp","XtY1.csv"), 
-                        sep=",").values
+                        sep=",", header=None).values
     sumYtY = pandas.io.parsers.read_csv(os.path.join(OutDir,"tmp","YtY1.csv"), 
-                        sep=",").values
+                        sep=",", header=None).values
     nmapb  = nib.load(os.path.join(OutDir,"tmp", "blm_vox_n_batch1.nii"))
     nmapd = nmapb.get_data()
 
@@ -49,15 +49,15 @@ def main():
         # Sum the batches.
         sumXtX = sumXtX + pandas.io.parsers.read_csv(
             os.path.join(OutDir,"tmp","XtX" + str(batchNo) + ".csv"), 
-                         sep=",").values
+                         sep=",", header=None).values
 
         sumXtY = sumXtY + pandas.io.parsers.read_csv(
             os.path.join(OutDir,"tmp","XtY" + str(batchNo) + ".csv"), 
-                         sep=",").values
+                         sep=",", header=None).values
 
         sumYtY = sumYtY + pandas.io.parsers.read_csv(
             os.path.join(OutDir,"tmp","YtY" + str(batchNo) + ".csv"), 
-                         sep=",").values
+                         sep=",", header=None).values
 
         # Obtain the full nmap.
         nmapd = nmapd + nib.load(os.path.join(OutDir,"tmp", 
@@ -187,7 +187,7 @@ def main():
 
         # Get number of scans and number of parameters
         X = pandas.io.parsers.read_csv(
-            inputs['X'], sep=',').values
+            inputs['X'], sep=',', header=None).values
         n_s = X.shape[0]
         n_p = X.shape[1]
 
@@ -199,7 +199,7 @@ def main():
         
         # Get number of scans and number of parameters
         X = pandas.io.parsers.read_csv(
-            inputs['X'], sep=',').values
+            inputs['X'], sep=',', header=None).values
         n_s = X.shape[0]
         n_p = X.shape[1]
 
