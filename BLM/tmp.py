@@ -14,7 +14,7 @@ for Y_file in Y_files:
 
     frac = np.count_nonzero(d)/(d.shape[0]*d.shape[1]*d.shape[2])
 
-        print(frac)
+    print(frac)
 
     if frac > 0.3:
         print(Y_file)
