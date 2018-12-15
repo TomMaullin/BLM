@@ -26,11 +26,11 @@ def main():
     
     # Read the matrices from the first batch.
     sumXtX = np.loadtxt(os.path.join(OutDir,"tmp","XtX1.csv"), 
-                        delimiter=",")
+                        delimiter=",",dtype=np.float64)
     sumXtY = np.loadtxt(os.path.join(OutDir,"tmp","XtY1.csv"), 
-                        delimiter=",")
+                        delimiter=",",dtype=np.float64)
     sumYtY = np.loadtxt(os.path.join(OutDir,"tmp","YtY1.csv"), 
-                        delimiter=",")
+                        delimiter=",",dtype=np.float64)
     nmapb  = nib.load(os.path.join(OutDir,"tmp", "blm_vox_n_batch1.nii"))
     nmapd = nmapb.get_data()
 
@@ -48,15 +48,15 @@ def main():
         # Sum the batches.
         sumXtX = sumXtX + np.loadtxt(
             os.path.join(OutDir,"tmp","XtX" + str(batchNo) + ".csv"), 
-                         delimiter=",")
+                         delimiter=",",dtype=np.float64)
 
         sumXtY = sumXtY + np.loadtxt(
             os.path.join(OutDir,"tmp","XtY" + str(batchNo) + ".csv"), 
-                         delimiter=",")
+                         delimiter=",",dtype=np.float64)
 
         sumYtY = sumYtY + np.loadtxt(
             os.path.join(OutDir,"tmp","YtY" + str(batchNo) + ".csv"), 
-                         delimiter=",")
+                         delimiter=",",dtype=np.float64)
 
         # Obtain the full nmap.
         nmapd = nmapd + nib.load(os.path.join(OutDir,"tmp", 
@@ -113,14 +113,8 @@ def main():
     # If we are not using a spatially varying design, inverse in
     # the normal manner.
     else:
-        # np linalg inverse doesn't handle dim=[1,1]
-        if np.ndim(sumXtX) == 1:
-            isumXtX = 1/sumXtX
-        else:
-            isumXtX = np.linalg.inv(sumXtX)
-
-        print(isumXtX)
-        print(blm_inverse(sumXtX))
+        # Calculate inverse of XtX
+        isumXtX = blm_inverse(sumXtX))
 
     # Read in the nifti size.
     with open(inputs['Y_files']) as a:
@@ -384,17 +378,8 @@ def main():
                     1)
                 cbeta = cbeta.transpose(1, 0, 2)
 
-                # np linalg inverse doesn't handle dim=[1,1]
-                if np.ndim(cvectiXtXcvec) == 1:
-                    icvectiXtXcvec = 1/cvectiXtXcvec
-                else:
-                    m = np.amin(cvectiXtXcvec)
-                    icvectiXtXcvec = np.linalg.inv(cvectiXtXcvec)
-
-
-                print(cvectiXtXcvec)
-                print(icvectiXtXcvec)
-                print(blm_inverse(cvectiXtXcvec, ouflow=True))
+                # Calculate the inverse
+                icvectiXtXcvec =blm_inverse(cvectiXtXcvec, ouflow=True))
 
                 # Calculate the numerator of the F statistic
                 Fnumerator = np.matmul(
