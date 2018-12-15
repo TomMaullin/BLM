@@ -32,7 +32,11 @@ def main(batchNo):
 
             Y_files.append(line.replace('\n', ''))
 
-    X = pandas.io.parsers.read_csv(inputs['X'], sep=',').values
+    X = pandas.io.parsers.read_csv(
+        inputs['X'], sep=',').values
+    
+    if X.shape[0]==0:
+        X = X.reshape([1,X.shape[1]])
 
     SVFlag = inputs['SVFlag']
     OutDir = inputs['outdir']
