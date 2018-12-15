@@ -389,7 +389,6 @@ def main():
                 #     cbeta.transpose(0, 2, 1),
                 #     np.linalg.solve(cvectiXtXcvec, cbeta))
                 print(np.amin(Fnumerator))
-                print(np.amin(Fnumerator2))
                 Fnumerator = Fnumerator.reshape(Fnumerator.shape[0])
 
                 print(Fnumerator.shape)
