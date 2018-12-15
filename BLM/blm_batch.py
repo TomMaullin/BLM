@@ -35,6 +35,8 @@ def main(batchNo):
     X = pandas.io.parsers.read_csv(
         inputs['X'], sep=',', header=None).values
 
+    print(X.shape)
+
     SVFlag = inputs['SVFlag']
     OutDir = inputs['outdir']
 
