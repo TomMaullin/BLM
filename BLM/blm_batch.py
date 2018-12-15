@@ -57,6 +57,7 @@ def main(batchNo):
     print((blksize*(batchNo-1)))
     print(min((blksize*batchNo),len(Y_files)))
     print(np.ndim(X))
+    print(type(X))
 
     # Reduce Y_files to only Y_files for this block.
     X = X[(blksize*(batchNo-1)):min((blksize*batchNo),len(Y_files))]
