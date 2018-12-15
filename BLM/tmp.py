@@ -12,11 +12,15 @@ def main():
     j = 1
     for Y_file in Y_files:
 
-        for i in range(10, length(Y_files)+1):
+        print('j: ' + str(j))
 
-            with open(os.path.join(os.getcwd(),'BLM','test','data','ukbb', 'Y_files_ukbb_' + str(i) + '.txt')) as a:
+        for i in range(10, len(Y_files)+1):
 
-                if j >= i:
+            if j <= i:
+
+                print('i: ' + str(i))
+
+                with open(os.path.join(os.getcwd(),'BLM','test','data','ukbb', 'Y_files_ukbb_' + str(i) + '.txt'), 'a') as a:
 
                     a.write(Y_file + os.linesep)
 
