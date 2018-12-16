@@ -17,6 +17,7 @@ import time
 
 def main():
 
+    print('active')
     # Change to blm directory
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
@@ -42,12 +43,16 @@ def main():
     os.remove(os.path.join(OutDir,"tmp","YtY1.csv"))
     os.remove(os.path.join(OutDir, "tmp", "blm_vox_n_batch1.nii"))
 
+    print('globbing')
     # Work out how many files we need.
     XtX_files = glob.glob(os.path.join(OutDir,"tmp","XtX*"))
+    print('globbed')
+    print(len(XtX_files))
 
     # Cycle through batches and add together results.
     for batchNo in range(2,(len(XtX_files)+2)):
-        
+        print(batchNo)        
+
         t1 = time.time()
         # Sum the batches.
         sumXtX = sumXtX + pandas.io.parsers.read_csv(

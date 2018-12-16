@@ -1,13 +1,13 @@
 # Maximum Memory for computing in bytes - current default of 2**29 bytes matches that of SPM.
 MAXMEM: 2**29
 # Enter a list of Y files. (This is a temporary way of entering this data and will change once we know more about the data).
-Y_files: /users/nichols/inf852/Yfiles.txt
+Y_files: /users/nichols/inf852/BLM-py/BLM/test/data/ukbb/Y_files_ukbb_6000.txt
 # Design matrix and number of parameters.
-X: /users/nichols/inf852/BLM-py/BLM/test/data/DesMat.csv
+X: /users/nichols/inf852/BLM-py/BLM/test/data/ukbb/X_ukbb_6000.csv
 # Set this to true if you want a spatially varying analysis and false otherwise.
 SVFlag: False
 # There should be an output directory here:
-outdir: /users/nichols/inf852/BLM-py/BLM/test/NotSpatVar
+outdir: /users/nichols/inf852/BLM-py/BLM/test/6000ukbb/
 # Contrasts should be listed here as c1, c2, c3, c4 etc. 
 # The fields included should be name, vector and statType
 # An example c1 is given below:
@@ -20,13 +20,5 @@ outdir: /users/nichols/inf852/BLM-py/BLM/test/NotSpatVar
 contrasts:
   - c1:
       name: contrast1
-      vector: [1, 0]
+      vector: [1]
       statType: T
-  - c2:
-      name: contrast2
-      vector: [1, 1]
-      statType: T
-  - c3:
-      name: contrast3
-      vector: [[1, 1],[1, 0],[0, 1]]
-      statType: F
