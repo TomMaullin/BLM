@@ -78,6 +78,9 @@ def main(batchNo):
 
     if not SVFlag:
         XtX = blkXtX(X)
+        # Pandas reads and writes files much more quickly with nrows <<
+        # number of columns
+        XtY_t = XtX.transpose()
     else:
         # In a spatially varying design XtX has dimensions n_voxels
         # by n_parameters by n_parameters. We reshape to n_voxels by
@@ -93,7 +96,7 @@ def main(batchNo):
     np.savetxt(os.path.join(OutDir,"tmp","XtX" + str(batchNo) + ".csv"), 
                XtX, delimiter=",") 
     np.savetxt(os.path.join(OutDir,"tmp","XtY" + str(batchNo) + ".csv"), 
-               XtY, delimiter=",") 
+               XtY_t, delimiter=",") 
     np.savetxt(os.path.join(OutDir,"tmp","YtY" + str(batchNo) + ".csv"), 
                YtY, delimiter=",") 
     w.resetwarnings()
