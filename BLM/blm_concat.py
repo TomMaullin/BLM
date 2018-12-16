@@ -71,23 +71,23 @@ def main():
         print('CSV time: ' + str(t2-t1))
 
         t1 = time.time()
-        pandas.io.parsers.read_csv(
+        XtX = pandas.io.parsers.read_csv(
             os.path.join(OutDir,"tmp","XtX" + str(batchNo) + ".csv"), 
                          sep=",", header=None).values
         t2 = time.time()
 
-        pandas.io.parsers.read_csv(
+        XtY = pandas.io.parsers.read_csv(
             os.path.join(OutDir,"tmp","XtY" + str(batchNo) + ".csv"), 
                          sep=",", header=None).values
         t3 = time.time()
-        pandas.io.parsers.read_csv(
+        YtY = pandas.io.parsers.read_csv(
             os.path.join(OutDir,"tmp","YtY" + str(batchNo) + ".csv"), 
                          sep=",", header=None).values
         t4 = time.time()
 
         print('CSV time (only): ' + str(t4-t1))
-        print('Breakdown: XtX ' + str(t2-t1) + ' XtY ' + str(t3-t2) + ' YtY ' str(t4-t3))
-        print('Sizes: XtX ' + str(XtX.shape) + ' XtY ' + str(XtY.shape) +' YtY ' + str(YtY.shape) + )
+        print('Breakdown: XtX ' + str(t2-t1) + ' XtY ' + str(t3-t2) + ' YtY ' + str(t4-t3))
+        print('Sizes: XtX ' + str(XtX.shape) + ' XtY ' + str(XtY.shape) +' YtY ' + str(YtY.shape))
 
         t1 = time.time()
         # Obtain the full nmap.
