@@ -27,11 +27,12 @@ def main():
     SVFlag = inputs['SVFlag']
     OutDir = inputs['outdir']
     
-    # Read the matrices from the first batch.
+    # Read the matrices from the first batch. Note XtY is transposed as pandas
+    # handles lots of rows much faster than lots of columns.
     sumXtX = pandas.io.parsers.read_csv(os.path.join(OutDir,"tmp","XtX1.csv"), 
                         sep=",", header=None).values
     sumXtY = pandas.io.parsers.read_csv(os.path.join(OutDir,"tmp","XtY1.csv"), 
-                        sep=",", header=None).values
+                        sep=",", header=None).values.transpose()
     sumYtY = pandas.io.parsers.read_csv(os.path.join(OutDir,"tmp","YtY1.csv"), 
                         sep=",", header=None).values
     nmapb  = nib.load(os.path.join(OutDir,"tmp", "blm_vox_n_batch1.nii"))
@@ -61,7 +62,7 @@ def main():
 
         sumXtY = sumXtY + pandas.io.parsers.read_csv(
             os.path.join(OutDir,"tmp","XtY" + str(batchNo) + ".csv"), 
-                         sep=",", header=None).values
+                         sep=",", header=None).values.transpose()
 
         sumYtY = sumYtY + pandas.io.parsers.read_csv(
             os.path.join(OutDir,"tmp","YtY" + str(batchNo) + ".csv"), 
