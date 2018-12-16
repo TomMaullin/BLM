@@ -92,6 +92,9 @@ def main(batchNo):
         XtX = np.zeros([Mask.shape[0],XtX_m.shape[1]])
         XtX[np.flatnonzero(Mask),:] = XtX_m[:]
 
+    print(XtY)
+    print(XtY_t)
+
     # Record XtX and XtY
     np.savetxt(os.path.join(OutDir,"tmp","XtX" + str(batchNo) + ".csv"), 
                XtX, delimiter=",") 
