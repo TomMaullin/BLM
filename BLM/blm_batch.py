@@ -80,7 +80,7 @@ def main(batchNo):
         XtX = blkXtX(X)
         # Pandas reads and writes files much more quickly with nrows <<
         # number of columns
-        XtY_t = XtX.transpose()
+        XtY_t = XtY.transpose()
     else:
         # In a spatially varying design XtX has dimensions n_voxels
         # by n_parameters by n_parameters. We reshape to n_voxels by
