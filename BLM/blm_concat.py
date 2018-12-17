@@ -131,6 +131,7 @@ def main(*args):
                                    int(np.sqrt(isumXtX.shape[1]))])
 
         print(isumXtX)
+        print(np.linalg.det(sumXtX)!=0)
 
 
     # If we are not using a spatially varying design, inverse in
