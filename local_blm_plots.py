@@ -14,6 +14,7 @@ def main(i):
                'outdir': '/well/nichols/users/inf852/' + str(i) + 'ukbbsv/', 
                'X': '/users/nichols/inf852/BLM-py/BLM/test/data/ukbb/X_ukbb_' + str(i) + '.csv', 
                'Y_files': '/users/nichols/inf852/BLM-py/BLM/test/data/ukbb/Y_files_ukbb_' + str(i) + '.txt', 
+               'M_files': '/users/nichols/inf852/BLM-py/BLM/test/data/ukbb/M_files_ukbb_' + str(i) + '.txt',
                'MAXMEM': '2**31'}
 
     t1 = time.time()

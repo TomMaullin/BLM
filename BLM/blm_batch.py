@@ -72,7 +72,7 @@ def main(*args):
     # Reduce Y_files to only Y_files for this block.
     X = X[(blksize*(batchNo-1)):min((blksize*batchNo),len(Y_files))]
     Y_files = Y_files[(blksize*(batchNo-1)):min((blksize*batchNo),len(Y_files))]
-    M_files = M_files[(blksize*(batchNo-1)):min((blksize*batchNo),len(Y_files))]
+    M_files = M_files[(blksize*(batchNo-1)):min((blksize*batchNo),len(M_files))]
     
     # Obtain n map and verify input
     nmap = verifyInput(Y_files, Y0)
