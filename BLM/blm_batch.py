@@ -22,7 +22,7 @@ def main(*args):
 
     if len(args)==1:
         # Load in inputs
-        with open(os.path.join(os.getcwd(),'blm_defaults.yml'), 'r') as stream:
+        with open(os.path.join(os.getcwd(),'..','blm_defaults.yml'), 'r') as stream:
             inputs = yaml.load(stream)
     else:
         # In this case inputs is first argument

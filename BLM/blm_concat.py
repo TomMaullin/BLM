@@ -47,7 +47,7 @@ def main(*args):
     os.remove(os.path.join(OutDir,"tmp","XtX1.csv"))
     os.remove(os.path.join(OutDir,"tmp","XtY1.csv"))
     os.remove(os.path.join(OutDir,"tmp","YtY1.csv"))
-    os.remove(os.path.join(OutDir, "tmp", "blm_vox_n_batch1.nii"))
+    os.remove(os.path.join(OutDir,"tmp","blm_vox_n_batch1.nii"))
 
     # Work out how many files we need.
     XtX_files = glob.glob(os.path.join(OutDir,"tmp","XtX*"))
