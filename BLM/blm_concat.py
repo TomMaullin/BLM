@@ -118,7 +118,7 @@ def main(*args):
         isumXtX = np.zeros([sumXtX.shape[0],
                             int(sumXtX.shape[1])*int(sumXtX.shape[2])])
         print(isumXtX_m)
-        print(isumXtX)
+        print(isumXtX==0)
 
         print(isumXtX.shape)
 
@@ -130,7 +130,7 @@ def main(*args):
                                    int(np.sqrt(isumXtX.shape[1])),
                                    int(np.sqrt(isumXtX.shape[1]))])
 
-        print(isumXtX)
+        print(isumXtX==0)
 
 
     # If we are not using a spatially varying design, inverse in
