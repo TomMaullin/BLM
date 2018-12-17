@@ -120,7 +120,11 @@ def main(*args):
         print(isumXtX_m)
         print(isumXtX)
 
+        print(isumXtX.shape)
+
         isumXtX[np.where(np.linalg.det(sumXtX)!=0)[0]]=isumXtX_m
+
+        print(isumXtX.shape)
 
         isumXtX = isumXtX.reshape([isumXtX.shape[0],
                                    int(np.sqrt(isumXtX.shape[1])),
