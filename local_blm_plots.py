@@ -6,7 +6,7 @@ import time
 
 def main(i):
     
-    inputsi = {'SVFlag': False,
+    inputsi = {'SVFlag': True,
                'contrasts': [{'c1': {'vector': [1], 
                                      'statType': 'T', 
                                      'name': 'contrast1'}}], 
