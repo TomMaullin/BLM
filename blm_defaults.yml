@@ -2,6 +2,8 @@
 MAXMEM: 2**31
 # Enter a list of Y files. (This is a temporary way of entering this data and will change once we know more about the data).
 Y_files: /users/nichols/inf852/BLM-py/BLM/test/data/ukbb/Y_files_ukbb_6063.txt
+# Enter a list of Mask files. (This is a temporary way of entering this data and will change once we know more about the data).
+Y_files: /users/nichols/inf852/BLM-py/BLM/test/data/ukbb/M_files_ukbb_6063.txt
 # Design matrix and number of parameters.
 X: /users/nichols/inf852/BLM-py/BLM/test/data/ukbb/X_ukbb_6063.csv
 # Set this to true if you want a spatially varying analysis and false otherwise.
