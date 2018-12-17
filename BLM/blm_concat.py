@@ -108,7 +108,7 @@ def main(*args):
                      int(np.sqrt(sumXtX.shape[1]))])
         sumXtX_m = sumXtX[np.where(np.linalg.det(sumXtX)!=0)[0]]
         
-        print(np.where(np.linalg.det(sumXtX)!=0)[0])
+        print(np.where(np.linalg.det(sumXtX)==0)[0])
         print('where done')
 
         isumXtX_m = np.linalg.inv(sumXtX_m).reshape(
