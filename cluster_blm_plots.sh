@@ -9,4 +9,4 @@
 
 module add fsl/5.0.11
 
-fslpython -c "from BLM import local_blm_plots; local_blm_plots.main($1)"
+fslpython -c "import local_blm_plots; local_blm_plots.main($1)"
