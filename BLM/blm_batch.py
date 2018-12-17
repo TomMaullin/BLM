@@ -13,14 +13,20 @@ import shutil
 import yaml
 import pandas
 
-def main(batchNo):
+def main(*args):
     
     # Change to blm directory
     os.chdir(os.path.dirname(os.path.realpath(__file__)))    
 
-    # Load in inputs
-    with open(os.path.join('..','blm_defaults.yml'), 'r') as stream:
-        inputs = yaml.load(stream)
+    batchNo = args[0]
+
+    if len(args)==1:
+        # Load in inputs
+        with open(os.path.join(os.getcwd(),'blm_defaults.yml'), 'r') as stream:
+            inputs = yaml.load(stream)
+    else:
+        # In this case inputs is first argument
+        inputs = args[1]
 
     MAXMEM = eval(inputs['MAXMEM'])
 
