@@ -53,8 +53,6 @@ def main():
     # Cycle through batches and add together results.
     for batchNo in range(2,(len(XtX_files)+2)):
         print(batchNo)        
-
-        t1 = time.time()
         # Sum the batches.
         sumXtX = sumXtX + pandas.io.parsers.read_csv(
             os.path.join(OutDir,"tmp","XtX" + str(batchNo) + ".csv"), 
@@ -67,36 +65,10 @@ def main():
         sumYtY = sumYtY + pandas.io.parsers.read_csv(
             os.path.join(OutDir,"tmp","YtY" + str(batchNo) + ".csv"), 
                          sep=",", header=None).values
-        t2 = time.time()
-
-        print('CSV time: ' + str(t2-t1))
-
-        t1 = time.time()
-        XtX = pandas.io.parsers.read_csv(
-            os.path.join(OutDir,"tmp","XtX" + str(batchNo) + ".csv"), 
-                         sep=",", header=None).values
-        t2 = time.time()
-
-        XtY = pandas.io.parsers.read_csv(
-            os.path.join(OutDir,"tmp","XtY" + str(batchNo) + ".csv"), 
-                         sep=",", header=None).values
-        t3 = time.time()
-        YtY = pandas.io.parsers.read_csv(
-            os.path.join(OutDir,"tmp","YtY" + str(batchNo) + ".csv"), 
-                         sep=",", header=None).values
-        t4 = time.time()
-
-        print('CSV time (only): ' + str(t4-t1))
-        print('Breakdown: XtX ' + str(t2-t1) + ' XtY ' + str(t3-t2) + ' YtY ' + str(t4-t3))
-        print('Sizes: XtX ' + str(XtX.shape) + ' XtY ' + str(XtY.shape) +' YtY ' + str(YtY.shape))
-
-        t1 = time.time()
+        
         # Obtain the full nmap.
         nmapd = nmapd + nib.load(os.path.join(OutDir,"tmp", 
             "blm_vox_n_batch" + str(batchNo) + ".nii")).get_data()
-        t2 = time.time()
-
-        print('NIFTI time: ' + str(t2-t1))
         
         # Delete the files as they are no longer needed.
         os.remove(os.path.join(OutDir, "tmp","XtX" + str(batchNo) + ".csv"))
@@ -126,7 +98,7 @@ def main():
     if SVFlag:
 
         # Remove zero lines and convert back to number voxels (in
-        # mask) by number of parametes by number of parameters)
+        # mask) by number of parameters by number of parameters)
         sumXtX = sumXtX.reshape([sumXtX.shape[0], 
                      int(np.sqrt(sumXtX.shape[1])),
                      int(np.sqrt(sumXtX.shape[1]))])
@@ -208,9 +180,13 @@ def main():
     del betatXtX, beta_rs
 
     # Reshape betat XtX beta
-    betatXtXbeta = np.reshape(betatXtXbeta, betatXtXbeta.shape[0])
+    betatXtXbeta = np.reshape(betatXtXbeta, [betatXtXbeta.shape[0],1])
 
     # Residual sum of squares
+    print('YtY shape')
+    print(sumYtY.shape)
+    print('betatXtXbeta shape')
+    print(betatXtXbeta.shape)
     ete = sumYtY - betatXtXbeta
     ete = ete.reshape(int(NIFTIsize[0]),
                       int(NIFTIsize[1]),
@@ -244,7 +220,7 @@ def main():
 
         # To avoid division by zero errors we set the 
         # zero elements to one.
-        n_s[n_s == 0] = 1
+        n_s[n_s == n_p] = n_p + 1
 
         # In spatially varying the degrees of freedom
         # varies across voxels

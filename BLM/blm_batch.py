@@ -35,8 +35,6 @@ def main(batchNo):
     X = pandas.io.parsers.read_csv(
         inputs['X'], sep=',', header=None).values
 
-    print(X.shape)
-
     SVFlag = inputs['SVFlag']
     OutDir = inputs['outdir']
 
@@ -76,11 +74,10 @@ def main(batchNo):
     XtY = blkXtY(X, Y, Mask)
     YtY = blkYtY(Y, Mask)
 
+    print(XtY.shape)
+
     if not SVFlag:
         XtX = blkXtX(X)
-        # Pandas reads and writes files much more quickly with nrows <<
-        # number of columns
-        XtY_t = XtY.transpose()
     else:
         # In a spatially varying design XtX has dimensions n_voxels
         # by n_parameters by n_parameters. We reshape to n_voxels by
@@ -92,14 +89,15 @@ def main(batchNo):
         XtX = np.zeros([Mask.shape[0],XtX_m.shape[1]])
         XtX[np.flatnonzero(Mask),:] = XtX_m[:]
 
-    print(XtY)
-    print(XtY_t)
+    # Pandas reads and writes files much more quickly with nrows <<
+    # number of columns
+    XtY = XtY.transpose()
 
     # Record XtX and XtY
     np.savetxt(os.path.join(OutDir,"tmp","XtX" + str(batchNo) + ".csv"), 
                XtX, delimiter=",") 
     np.savetxt(os.path.join(OutDir,"tmp","XtY" + str(batchNo) + ".csv"), 
-               XtY_t, delimiter=",") 
+               XtY, delimiter=",") 
     np.savetxt(os.path.join(OutDir,"tmp","YtY" + str(batchNo) + ".csv"), 
                YtY, delimiter=",") 
     w.resetwarnings()
