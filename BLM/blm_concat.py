@@ -15,6 +15,8 @@ import yaml
 import pandas
 import time
 
+np.set_printoptions(threshold=np.nan)
+
 def main(*args):
 
     print('active')
@@ -51,11 +53,10 @@ def main(*args):
 
     # Work out how many files we need.
     XtX_files = glob.glob(os.path.join(OutDir,"tmp","XtX*"))
-    print(len(XtX_files))
 
     # Cycle through batches and add together results.
     for batchNo in range(2,(len(XtX_files)+2)):
-        print(batchNo)        
+
         # Sum the batches.
         sumXtX = sumXtX + pandas.io.parsers.read_csv(
             os.path.join(OutDir,"tmp","XtX" + str(batchNo) + ".csv"), 
@@ -119,6 +120,8 @@ def main(*args):
         isumXtX = isumXtX.reshape([isumXtX.shape[0],
                                    int(np.sqrt(isumXtX.shape[1])),
                                    int(np.sqrt(isumXtX.shape[1]))])
+
+        print(isumXtX)
 
 
     # If we are not using a spatially varying design, inverse in
@@ -186,10 +189,6 @@ def main(*args):
     betatXtXbeta = np.reshape(betatXtXbeta, [betatXtXbeta.shape[0],1])
 
     # Residual sum of squares
-    print('YtY shape')
-    print(sumYtY.shape)
-    print('betatXtXbeta shape')
-    print(betatXtXbeta.shape)
     ete = sumYtY - betatXtXbeta
     ete = ete.reshape(int(NIFTIsize[0]),
                       int(NIFTIsize[1]),
@@ -290,9 +289,6 @@ def main(*args):
         # Calculate C\hat{\beta}}
         cbeta = np.matmul(cvec, beta)
 
-        print(inputs['contrasts'][i]['c' + str(i+1)]['statType'])
-
-
         if inputs['contrasts'][i]['c' + str(i+1)]['statType'] == 'T':
 
             # A T contrast has only one row so we can output cbeta here
@@ -355,9 +351,6 @@ def main(*args):
                         'blm_vox_cov_c' + str(i+1) + '.nii'))
 
 
-            print(inputs['contrasts'][i]['c' + str(i+1)]['statType'])
-
-
             # To avoid division by zero errors we set the 
             # zero elements to one.
             covcbeta[covcbeta == 0] = 1        
@@ -405,22 +398,14 @@ def main(*args):
                 # Fnumerator2 = np.matmul(
                 #     cbeta.transpose(0, 2, 1),
                 #     np.linalg.solve(cvectiXtXcvec, cbeta))
-                print(np.amin(Fnumerator))
                 Fnumerator = Fnumerator.reshape(Fnumerator.shape[0])
-
-                print(Fnumerator.shape)
 
                 # Calculate the denominator of the F statistic
                 Fdenominator = (q*resms).reshape(
                     resms.shape[0]*resms.shape[1]*resms.shape[2])
                 # Remove zeros in Fdenominator to avoid divide by 
                 # zero errors
-                print(np.amin(Fdenominator))
                 Fdenominator[Fdenominator == 0] = 1
-
-                print(Fdenominator.shape)
-
-                print(Fnumerator.shape)
 
                 # Calculate F statistic.
                 fStatc = Fnumerator/Fdenominator
