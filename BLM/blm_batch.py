@@ -30,6 +30,7 @@ def main(*args):
 
     MAXMEM = eval(inputs['MAXMEM'])
 
+    # Y volumes
     with open(inputs['Y_files']) as a:
 
         Y_files = []
@@ -37,6 +38,15 @@ def main(*args):
         for line in a.readlines():
 
             Y_files.append(line.replace('\n', ''))
+
+    # Mask volumes
+    with open(inputs['M_files']) as a:
+
+        M_files = []
+        i = 0
+        for line in a.readlines():
+
+            M_files.append(line.replace('\n', ''))
 
     X = pandas.io.parsers.read_csv(
         inputs['X'], sep=',', header=None).values
@@ -70,7 +80,7 @@ def main(*args):
 
     # Obtain Y and a mask for Y. This mask is just for voxels
     # with no studies present.
-    Y, Mask = obtainY(Y_files)
+    Y, Mask = obtainY(Y_files, M_files)
 
     # For spatially varying,
     if SVFlag:
@@ -163,7 +173,7 @@ def blkMX(X,Y):
 
     return MX
 
-def obtainY(Y_files):
+def obtainY(Y_files, M_files):
 
     # Load in one nifti to check NIFTI size
     Y0 = nib.load(Y_files[0])
@@ -181,7 +191,10 @@ def obtainY(Y_files):
 
         # Read in each individual NIFTI.
         Y_indiv = nib.load(Y_files[i])
-        d = Y_indiv.get_data()
+        M_indiv = nib.load(M_files[i])
+        d = np.multiply(
+            Y_indiv.get_data(),
+            M_indiv.get_data())
 
         # NaN check
         d = np.nan_to_num(d)
