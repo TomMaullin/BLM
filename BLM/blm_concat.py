@@ -15,11 +15,8 @@ import yaml
 import pandas
 import time
 
-np.set_printoptions(threshold=np.nan)
-
 def main(*args):
 
-    print('active')
     # Change to blm directory
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
@@ -108,30 +105,18 @@ def main(*args):
                      int(np.sqrt(sumXtX.shape[1]))])
         sumXtX_m = sumXtX[np.where(np.linalg.det(sumXtX)!=0)[0]]
         
-        print(np.where(np.linalg.det(sumXtX)==0)[0])
-        print('where done')
-
         isumXtX_m = np.linalg.inv(sumXtX_m).reshape(
                       [sumXtX_m.shape[0],
                        int(sumXtX_m.shape[1])*int(sumXtX_m.shape[2])])
 
         isumXtX = np.zeros([sumXtX.shape[0],
                             int(sumXtX.shape[1])*int(sumXtX.shape[2])])
-        print(isumXtX_m)
-        print(isumXtX==0)
-
-        print(isumXtX.shape)
-
+        
         isumXtX[np.where(np.linalg.det(sumXtX)!=0)[0]]=isumXtX_m
-
-        print(isumXtX.shape)
 
         isumXtX = isumXtX.reshape([isumXtX.shape[0],
                                    int(np.sqrt(isumXtX.shape[1])),
                                    int(np.sqrt(isumXtX.shape[1]))])
-
-        print(isumXtX==0)
-
 
     # If we are not using a spatially varying design, inverse in
     # the normal manner.

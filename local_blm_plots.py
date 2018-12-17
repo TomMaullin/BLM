@@ -3,6 +3,7 @@ import yaml
 import os
 import local_blm_main
 import time
+import shutil
 
 def main(i):
     
@@ -20,7 +21,8 @@ def main(i):
     t2 = time.time()
     t=t2-t1
 
-    np.savetxt('/well/nichols/users/inf852/t' + str(i) + '.csv',t, delimiter=",") 
+    shutil.rmtree('/well/nichols/users/inf852/' + str(i) + 'ukbbsv/')
+    np.savetxt('/well/nichols/users/inf852/t' + str(i) + '.csv',np.array([t]), delimiter=",") 
 
 if __name__ == "__main__":
     main()
