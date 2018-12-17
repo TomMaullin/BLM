@@ -5,7 +5,7 @@ from BLM import blm_setup
 from BLM import blm_batch
 from BLM import blm_concat
 
-def main(**args):
+def main(*args):
 
     print('Setting up analysis...')
 
