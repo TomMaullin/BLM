@@ -80,8 +80,6 @@ def main(*args):
     XtY = blkXtY(X, Y, Mask)
     YtY = blkYtY(Y, Mask)
 
-    print(XtY.shape)
-
     if not SVFlag:
         XtX = blkXtX(X)
     else:

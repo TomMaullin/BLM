@@ -49,10 +49,8 @@ def main(*args):
     os.remove(os.path.join(OutDir,"tmp","YtY1.csv"))
     os.remove(os.path.join(OutDir, "tmp", "blm_vox_n_batch1.nii"))
 
-    print('globbing')
     # Work out how many files we need.
     XtX_files = glob.glob(os.path.join(OutDir,"tmp","XtX*"))
-    print('globbed')
     print(len(XtX_files))
 
     # Cycle through batches and add together results.
