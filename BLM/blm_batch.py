@@ -75,7 +75,7 @@ def main(*args):
     M_files = M_files[(blksize*(batchNo-1)):min((blksize*batchNo),len(M_files))]
     
     # Obtain n map and verify input
-    nmap = verifyInput(Y_files, Y0)
+    nmap = verifyInput(Y_files, M_files, Y0)
     nib.save(nmap, os.path.join(OutDir,'tmp',
                     'blm_vox_n_batch'+ str(batchNo) + '.nii'))
 
@@ -117,7 +117,7 @@ def main(*args):
                YtY, delimiter=",") 
     w.resetwarnings()
 
-def verifyInput(Y_files, Y0):
+def verifyInput(Y_files, M_files, Y0):
 
     # Obtain information about zero-th scan
     d0 = Y0.get_data()
@@ -127,14 +127,23 @@ def verifyInput(Y_files, Y0):
     sumVox = np.zeros(d0.shape)
 
     # Initial checks for NIFTI compatability.
-    for Y_file in Y_files:
+    for i in range(0, len(Y_files)):
+
+        Y_file = Y_files[i]
+        M_file = M_files[i]
 
         try:
             Y = nib.load(Y_file)
         except Exception as error:
             raise ValueError('The NIFTI "' + Y_file + '"does not exist')
 
-        d = Y.get_data()
+        try:
+            M = nib.load(M_file)
+        except Exception as error:
+            raise ValueError('The NIFTI "' + M_file + '"does not exist')
+
+
+        d = np.multiply(Y.get_data(), M.get_data())
         
         # Count number of scans at each voxel
         sumVox = sumVox + 1*(np.nan_to_num(d)!=0)
@@ -162,6 +171,8 @@ def blkMX(X,Y):
 
     # Work out the mask.
     M = (Y!=0)
+
+    print(M)
 
     # Get M in a form where each voxel's mask is mutliplied
     # by X
@@ -207,6 +218,8 @@ def obtainY(Y_files, M_files):
     Mask[np.where(np.count_nonzero(Y, axis=0)>1)[0]] = 1
 
     Y = Y[:, np.where(np.count_nonzero(Y, axis=0)>1)[0]]
+
+    print(Mask)
 
     return Y, Mask
 
