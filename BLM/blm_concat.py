@@ -17,6 +17,7 @@ import time
 
 def main(*args):
 
+    t1 = time.time()
     # Change to blm directory
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
@@ -103,6 +104,7 @@ def main(*args):
         sumXtX = sumXtX.reshape([sumXtX.shape[0], 
                      int(np.sqrt(sumXtX.shape[1])),
                      int(np.sqrt(sumXtX.shape[1]))])
+        
         sumXtX_m = sumXtX[np.where(np.linalg.det(sumXtX)!=0)[0]]
         
         isumXtX_m = np.linalg.inv(sumXtX_m).reshape(
@@ -278,7 +280,11 @@ def main(*args):
     for i in range(0,n_c):
 
         # Read in contrast vector
+        print(inputs['contrasts'][i]['c' + str(i+1)]['vector'])
+        print(type(inputs['contrasts'][i]['c' + str(i+1)]['vector']))
         cvec = np.array(inputs['contrasts'][i]['c' + str(i+1)]['vector'])
+        print(type(cvec[0]))
+        print(type(beta[0]))
 
         # Calculate C\hat{\beta}}
         cbeta = np.matmul(cvec, beta)
@@ -346,10 +352,11 @@ def main(*args):
 
 
             # To avoid division by zero errors we set the 
-            # zero elements to one.
-            covcbeta[covcbeta == 0] = 1        
+            # zero elements to one. XXXX ERRORS UNDER O LOOK INTO
+            covcbeta[covcbeta <= 0] = 1        
 
             # Calculate T statistic image
+            print(covcbeta[covcbeta<0])
             tStatc = cbeta/np.sqrt(covcbeta)
 
             # Output statistic map
@@ -425,6 +432,11 @@ def main(*args):
     shutil.rmtree(os.path.join(OutDir, 'tmp'))
 
     w.resetwarnings()
+
+    t2 = time.time()
+
+    print(t2-t1)
+
 
 # This function inverts matrix A. If ouflow is True,
 # special handling is used to account for over/under
