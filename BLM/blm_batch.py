@@ -200,6 +200,8 @@ def blkMX(X,Y):
 
     # Obtain design for each voxel
     MXt = np.multiply(M, Xt)
+    print(MXt.shape)
+    print(MXt)
     MX = MXt.transpose(0,2,1)
 
     return MX
