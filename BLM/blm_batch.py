@@ -112,12 +112,15 @@ def main(*args):
         # n_parameters^2 so that we can save as a csv.
         print('ActiveSV')
         XtX_m = blkXtX(MX)
-        #print(XtX_m)
+        print(XtX_m.shape)
         XtX_m = XtX_m.reshape([XtX_m.shape[0], XtX_m.shape[1]*XtX_m.shape[2]])
 
         # We then need to unmask XtX as we now are saving XtX.
         XtX = np.zeros([Mask.shape[0],XtX_m.shape[1]])
+        print(XtX.shape)
         XtX[np.flatnonzero(Mask),:] = XtX_m[:]
+        print(XtX.shape)
+        print(XtX[50000:90000,:])
 
     # Pandas reads and writes files much more quickly with nrows <<
     # number of columns
@@ -191,8 +194,6 @@ def blkMX(X,Y):
     # Work out the mask.
     M = (Y!=0)
 
-    print(M.shape)
-
     # Get M in a form where each voxel's mask is mutliplied
     # by X
     M = M.transpose().reshape([M.shape[1], 1, M.shape[0]])
@@ -200,8 +201,6 @@ def blkMX(X,Y):
 
     # Obtain design for each voxel
     MXt = np.multiply(M, Xt)
-    #print(MXt.shape)
-    #print(MXt)
     MX = MXt.transpose(0,2,1)
 
     return MX
@@ -293,23 +292,9 @@ def blkXtX(X):
 
     if np.ndim(X) == 3:
 
-        print('active')
-        print('X')
-        print(X[0,:,:])
-        print(X[500,:,:])
-        print(X[800,:,:])
 
         Xt = X.transpose((0, 2, 1))
-        print('Xt')
-        print(Xt[0,:,:])
-        print(Xt[500,:,:])
-        print(Xt[800,:,:])
-
         XtX = np.matmul(Xt, X)
-        print('XtX')
-        print(XtX[0,:,:])
-        print(XtX[500,:,:])
-        print(XtX[800,:,:])
 
     else:
 
