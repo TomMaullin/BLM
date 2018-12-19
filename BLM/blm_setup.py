@@ -11,8 +11,11 @@ import sys
 import os
 import shutil
 import yaml
+import time
 
 def main(*args):
+
+    t1 = time.time()
 
     # Change to blm directory
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
@@ -64,6 +67,10 @@ def main(*args):
         print(int(np.ceil(len(Y_files)/int(blksize))), file=f)
 
     w.resetwarnings()
+
+    t2 = time.time()
+
+    print(t2-t1)
 
 if __name__ == "__main__":
     main()
