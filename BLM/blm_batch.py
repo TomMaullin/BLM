@@ -191,7 +191,7 @@ def blkMX(X,Y):
     # Work out the mask.
     M = (Y!=0)
 
-    print(M)
+    print(M.shape)
 
     # Get M in a form where each voxel's mask is mutliplied
     # by X
