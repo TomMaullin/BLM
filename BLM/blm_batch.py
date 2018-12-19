@@ -55,15 +55,9 @@ def main(*args):
     X = pandas.io.parsers.read_csv(
         inputs['X'], sep=',', header=None).values
 
-    print(X)
-
-    print(X[:,2])
-
     SVFlag = inputs['SVFlag']
     OutDir = inputs['outdir']
 
-    print('SVFlag')
-    print(SVFlag)
     # Load in one nifti to check NIFTI size
     try:
         Y0 = nib.load(Y_files[0])
@@ -104,8 +98,6 @@ def main(*args):
 
     if not SVFlag:
         XtX = blkXtX(X)
-        print('Active')
-        print(XtX)
     else:
         # In a spatially varying design XtX has dimensions n_voxels
         # by n_parameters by n_parameters. We reshape to n_voxels by
@@ -120,7 +112,6 @@ def main(*args):
         print(XtX.shape)
         XtX[np.flatnonzero(Mask),:] = XtX_m[:]
         print(XtX.shape)
-        print(XtX[50000:90000,:])
 
     # Pandas reads and writes files much more quickly with nrows <<
     # number of columns
@@ -134,10 +125,6 @@ def main(*args):
     np.savetxt(os.path.join(OutDir,"tmp","YtY" + str(batchNo) + ".csv"), 
                YtY, delimiter=",") 
     w.resetwarnings()
-
-    t2 = time.time()
-
-    print(t2-t1)
 
 def verifyInput(Y_files, M_files, Y0):
 
@@ -270,6 +257,9 @@ def blkXtY(X, Y, Mask):
     XtY_m = np.asarray(
                 np.dot(np.transpose(X), Y))
 
+    print(XtY_m.shape)
+    print(XtY[30000:50000,:])
+
     # Check the dimensions haven't been reduced
     # (numpy will lower the dimension of the 
     # array if the length in one dimension is
@@ -287,8 +277,6 @@ def blkXtY(X, Y, Mask):
 
 
 def blkXtX(X):
-
-    print(np.ndim(X))
 
     if np.ndim(X) == 3:
 
