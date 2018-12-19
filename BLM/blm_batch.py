@@ -295,15 +295,21 @@ def blkXtX(X):
 
         print('active')
         print('X')
-        print(X)
+        print(X[0,:,:])
+        print(X[500,:,:])
+        print(X[800,:,:])
 
         Xt = X.transpose((0, 2, 1))
         print('Xt')
-        print(Xt)
+        print(Xt[0,:,:])
+        print(Xt[500,:,:])
+        print(Xt[800,:,:])
 
         XtX = np.matmul(Xt, X)
         print('XtX')
-        print(XtX)
+        print(XtX[0,:,:])
+        print(XtX[500,:,:])
+        print(XtX[800,:,:])
 
     else:
 
