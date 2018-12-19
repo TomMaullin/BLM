@@ -12,9 +12,13 @@ import os
 import shutil
 import yaml
 import pandas
+import time
+np.set_printoptions(threshold=np.nan)
 
 def main(*args):
-    
+
+    t1 = time.time()    
+
     # Change to blm directory
     os.chdir(os.path.dirname(os.path.realpath(__file__)))    
 
@@ -51,9 +55,15 @@ def main(*args):
     X = pandas.io.parsers.read_csv(
         inputs['X'], sep=',', header=None).values
 
+    print(X)
+
+    print(X[:,2])
+
     SVFlag = inputs['SVFlag']
     OutDir = inputs['outdir']
 
+    print('SVFlag')
+    print(SVFlag)
     # Load in one nifti to check NIFTI size
     try:
         Y0 = nib.load(Y_files[0])
@@ -71,6 +81,7 @@ def main(*args):
 
     # Reduce Y_files to only Y_files for this block.
     X = X[(blksize*(batchNo-1)):min((blksize*batchNo),len(Y_files))]
+    print(X)
     Y_files = Y_files[(blksize*(batchNo-1)):min((blksize*batchNo),len(Y_files))]
     M_files = M_files[(blksize*(batchNo-1)):min((blksize*batchNo),len(M_files))]
     
@@ -93,11 +104,15 @@ def main(*args):
 
     if not SVFlag:
         XtX = blkXtX(X)
+        print('Active')
+        print(XtX)
     else:
         # In a spatially varying design XtX has dimensions n_voxels
         # by n_parameters by n_parameters. We reshape to n_voxels by
         # n_parameters^2 so that we can save as a csv.
+        print('ActiveSV')
         XtX_m = blkXtX(MX)
+        #print(XtX_m)
         XtX_m = XtX_m.reshape([XtX_m.shape[0], XtX_m.shape[1]*XtX_m.shape[2]])
 
         # We then need to unmask XtX as we now are saving XtX.
@@ -116,6 +131,10 @@ def main(*args):
     np.savetxt(os.path.join(OutDir,"tmp","YtY" + str(batchNo) + ".csv"), 
                YtY, delimiter=",") 
     w.resetwarnings()
+
+    t2 = time.time()
+
+    print(t2-t1)
 
 def verifyInput(Y_files, M_files, Y0):
 
@@ -270,10 +289,21 @@ def blkXtY(X, Y, Mask):
 
 def blkXtX(X):
 
+    print(np.ndim(X))
+
     if np.ndim(X) == 3:
 
+        print('active')
+        print(X.shape)
+        print('X')
+
         Xt = X.transpose((0, 2, 1))
+        print(Xt.shape)
+        print('Xt')
+
         XtX = np.matmul(Xt, X)
+        print(XtX.shape)
+        print('XtX')
 
     else:
 
