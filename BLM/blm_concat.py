@@ -77,7 +77,6 @@ def main(*args):
         os.remove(os.path.join(OutDir, "tmp","YtY" + str(batchNo) + ".csv"))
         os.remove(os.path.join(OutDir, "tmp", "blm_vox_n_batch" + str(batchNo) + ".nii"))
 
-    print(sumXtX[30000:50000],:)
     
     # Output final n map
     nmap = nib.Nifti1Image(nmapd,
@@ -85,6 +84,8 @@ def main(*args):
                            header=nmapb.header)
     nib.save(nmap, os.path.join(OutDir,'blm_vox_n.nii'))
 
+    print(sumXtX.shape)
+    print(sumXtX[30000:5000,:])
     # Dimension bug handling
     if np.ndim(sumXtX) == 0:
         sumXtX = np.array([[sumXtX]])
