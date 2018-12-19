@@ -240,8 +240,6 @@ def obtainY(Y_files, M_files):
 
     Y = Y[:, np.where(np.count_nonzero(Y, axis=0)>1)[0]]
 
-    print(Mask)
-
     return Y, Mask
 
 # Note: this techniqcally calculates sum(Y.Y) for each voxel,
@@ -296,16 +294,16 @@ def blkXtX(X):
     if np.ndim(X) == 3:
 
         print('active')
-        print(X.shape)
         print('X')
+        print(X)
 
         Xt = X.transpose((0, 2, 1))
-        print(Xt.shape)
         print('Xt')
+        print(Xt)
 
         XtX = np.matmul(Xt, X)
-        print(XtX.shape)
         print('XtX')
+        print(XtX)
 
     else:
 
