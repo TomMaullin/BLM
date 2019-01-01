@@ -8,16 +8,27 @@ import matplotlib as plt
 def main():
 
     print('running')
-    tvals = np.zeros((291,1));
-    for i in range(10,301):
-    	#tvals = np.concatenate((tvals,
-        #	pandas.io.parsers.read_csv('/gpfs2/well/nichols/users/inf852/t'+ str(10*i) + '.csv')), axis=0)
-        t = np.loadtxt('/gpfs2/well/nichols/users/inf852/t'+ str(10*i) + '.csv')
-        print(t)
-        print(t.shape)
-        tvals[i-10] = t
+    tvals = np.zeros((15,1));
+    for i in range(0,15):
 
-    np.savetxt(os.path.join(os.getcwd(),"tvals.csv"), 
+        filesi = glob.glob('/gpfs2/well/nichols/users/inf852/t_np'+ str(i+1) + '_*.csv')
+        print(filesi)
+
+        t = 0
+        for file in filesi:
+
+            #tvals = np.concatenate((tvals,
+            #	pandas.io.parsers.read_csv('/gpfs2/well/nichols/users/inf852/t'+ str(10*i) + '.csv')), axis=0)
+            print(pandas.io.parsers.read_csv(file,header=None))
+            t = t + pandas.io.parsers.read_csv(file,header=None).values
+            print(t)
+            print(t.shape)
+        
+        tvals[i] = t/len(filesi)
+
+    print(tvals)
+
+    np.savetxt(os.path.join(os.getcwd(),"tparvals.csv"), 
                tvals, delimiter=",") 
 
 

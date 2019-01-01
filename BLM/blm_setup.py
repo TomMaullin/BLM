@@ -61,6 +61,7 @@ def main(*args):
     # to work out how many blocks we use.
     blksize = np.floor(MAXMEM/8/NIFTIsize);
 
+    print(len(Y_files))
     print(blksize)
 
     with open(os.path.join(OutDir, "nb.txt"), 'w') as f:
@@ -69,8 +70,6 @@ def main(*args):
     w.resetwarnings()
 
     t2 = time.time()
-
-    print(t2-t1)
 
 if __name__ == "__main__":
     main()

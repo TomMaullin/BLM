@@ -14,6 +14,7 @@ import shutil
 import yaml
 import pandas
 import time
+np.set_printoptions(threshold=np.nan)
 
 def main(*args):
 
@@ -78,15 +79,17 @@ def main(*args):
         os.remove(os.path.join(OutDir, "tmp","YtY" + str(batchNo) + ".csv"))
         os.remove(os.path.join(OutDir, "tmp", "blm_vox_n_batch" + str(batchNo) + ".nii"))
 
-    
+    print('XtX')
+    print(sumXtX[300000, :])    
+    print('XtY')
+    print(sumXtY[:, 300000])
+
     # Output final n map
     nmap = nib.Nifti1Image(nmapd,
                            nmapb.affine,
                            header=nmapb.header)
     nib.save(nmap, os.path.join(OutDir,'blm_vox_n.nii'))
 
-    print(sumXtX.shape)
-    print(sumXtX[30000:5000,:])
     # Dimension bug handling
     if np.ndim(sumXtX) == 0:
         sumXtX = np.array([[sumXtX]])
@@ -122,6 +125,10 @@ def main(*args):
                                    int(np.sqrt(isumXtX.shape[1])),
                                    int(np.sqrt(isumXtX.shape[1]))])
 
+        print('XtX inverse')
+        print(isumXtX[300000, :, :])
+
+
     # If we are not using a spatially varying design, inverse in
     # the normal manner.
     else:
@@ -138,11 +145,19 @@ def main(*args):
     if SVFlag:
         sumXtY = sumXtY.transpose()
         sumXtY = sumXtY.reshape([sumXtY.shape[0], sumXtY.shape[1], 1])
-    
+
+    print('XtY (after reshape?)')    
+    print(sumXtY[300000, :])
+
     beta = np.matmul(isumXtX, sumXtY)
-    
+
+    print('beta')
+    print(beta[70000, :])
+    print(beta.shape)
+
     if SVFlag:
         beta = beta.reshape([beta.shape[0], beta.shape[1]]).transpose()
+        #print(beta[300000,:])
 
     # Cycle through betas and output results.
     for i in range(0,beta.shape[0]):
@@ -169,14 +184,24 @@ def main(*args):
     beta_rs = np.zeros([beta.shape[1], beta.shape[0], 1])
     beta_rs_t = np.zeros([beta.shape[1], 1, beta.shape[0]])
     for i in range(0,beta.shape[0]):
-        
+       
+       print(i)
        beta_rs[:, i, 0] = beta[i,:]
        beta_rs_t[:, 0, i] = beta[i,:]
 
     # Calculate Beta transpose times XtX and delete the
     # now redudundant matrices.
+    print('beta_rs_t shape')
+    print(beta_rs_t.shape)
+    print(beta_rs_t[700000:700003,:,:])
+    print('beta_rs shape')
+    print(beta_rs.shape)
+    print(beta_rs[700000:700003,:,:])
+    print('sumXtX')
+    print(sumXtX.shape)
+    print(sumXtX[700000:700003,:,:])
     betatXtX = np.matmul(beta_rs_t, sumXtX)
-    del beta_rs_t, sumXtX
+    del beta_rs_t
 
     # Multiply BetatXtX by Beta and delete the reduundant
     # matrices.
@@ -187,10 +212,34 @@ def main(*args):
     betatXtXbeta = np.reshape(betatXtXbeta, [betatXtXbeta.shape[0],1])
 
     # Residual sum of squares
+    print('sumYtY')
+    print(sumYtY.shape)
+    print(sumYtY[300000])
+    print('betatXtXbeta')
+    print(betatXtXbeta.shape)
+    print(betatXtXbeta[300000])
     ete = sumYtY - betatXtXbeta
     ete = ete.reshape(int(NIFTIsize[0]),
                       int(NIFTIsize[1]),
                       int(NIFTIsize[2]))
+
+    YtYv = sumYtY.reshape(int(NIFTIsize[0]),
+                      int(NIFTIsize[1]),
+                      int(NIFTIsize[2]))
+    betatXtXbetavol = betatXtXbeta.reshape(int(NIFTIsize[0]),
+                      int(NIFTIsize[1]),
+                      int(NIFTIsize[2]))
+
+    bXXbmap = nib.Nifti1Image(betatXtXbetavol,
+                            nifti.affine,
+                            header=nifti.header)
+    nib.save(bXXbmap, os.path.join(OutDir,'blm_vox_bXXb.nii'))
+
+    YtYmap = nib.Nifti1Image(YtYv,
+                            nifti.affine,
+                            header=nifti.header)
+    nib.save(YtYmap, os.path.join(OutDir,'blm_vox_YtY.nii'))
+
 
     # Get residual mean squares by dividing by degrees of
     # freedom
@@ -219,7 +268,7 @@ def main(*args):
         n_s = n_s.get_data()
 
         # To avoid division by zero errors we set the 
-        # zero elements to one.
+        # zero elements to one. XXX THIS SHOULD ONLY BE DONE FOR INMASK THUS NO ERRORS
         n_s[n_s == n_p] = n_p + 1
 
         # In spatially varying the degrees of freedom
@@ -282,14 +331,16 @@ def main(*args):
     for i in range(0,n_c):
 
         # Read in contrast vector
-        print(inputs['contrasts'][i]['c' + str(i+1)]['vector'])
-        print(type(inputs['contrasts'][i]['c' + str(i+1)]['vector']))
         cvec = np.array(inputs['contrasts'][i]['c' + str(i+1)]['vector'])
-        print(type(cvec[0]))
-        print(type(beta[0]))
 
         # Calculate C\hat{\beta}}
         cbeta = np.matmul(cvec, beta)
+        print('contrast')
+        print(cvec)
+        print('beta')
+        print(beta[:, 300000])
+        print('cbeta')
+        print(cbeta[300000])
 
         if inputs['contrasts'][i]['c' + str(i+1)]['statType'] == 'T':
 
@@ -333,6 +384,10 @@ def main(*args):
                     np.matmul(cvec, isumXtX),
                     np.transpose(cvec))
 
+                print('cvectiXtXcvec shape')
+                print(cvectiXtXcvec.shape)
+                print(cvectiXtXcvec[300000])
+
                 # Calculate cov(c\hat{\beta})
                 covcbeta = cvectiXtXcvec*resms.reshape(
                     resms.shape[0]*resms.shape[1]*resms.shape[2]
@@ -355,10 +410,65 @@ def main(*args):
 
             # To avoid division by zero errors we set the 
             # zero elements to one. XXXX ERRORS UNDER O LOOK INTO
+            print(covcbeta[covcbeta<0])
+            # Output covcbeta<0
+            zm = (covcbeta<0).reshape(
+                    resms.shape[0],
+                    resms.shape[1],
+                    resms.shape[2]
+                    )
+            zmmap = nib.Nifti1Image(zm,
+                                    nifti.affine,
+                                    header=nifti.header)
+            nib.save(zmmap,
+                    os.path.join(OutDir,
+                        'blm_vox_zm.nii'))
+
+            # Mask test
+            m1 = np.zeros([sumXtX.shape[0]])
+            m1[np.where(np.linalg.det(sumXtX)!=0)[0]]=1
+            m2 = np.zeros([sumXtX.shape[0]])
+            m2[np.where(sumXtX[:,0,0]!=0)[0]]=1
+
+            print(m1.shape)
+            m1 = m1.reshape(
+                    resms.shape[0],
+                    resms.shape[1],
+                    resms.shape[2]
+                    )
+            m2 = m2.reshape(
+                    resms.shape[0],
+                    resms.shape[1],
+                    resms.shape[2]
+                    )
+            m1map = nib.Nifti1Image(m1,
+                                    nifti.affine,
+                                    header=nifti.header)
+            nib.save(m1map,
+                    os.path.join(OutDir,
+                        'blm_vox_m1.nii'))
+            m2map = nib.Nifti1Image((nmapd>0),
+                                    nifti.affine,
+                                    header=nifti.header)
+            nib.save(m2map,
+                    os.path.join(OutDir,
+                        'blm_vox_m2.nii'))
+            print('output')
+
+
+
             covcbeta[covcbeta <= 0] = 1        
 
+            print('resms')
+            resms2 = resms.reshape(
+                    resms.shape[0]*resms.shape[1]*resms.shape[2]
+                    )
+            print(resms2[300000])
+            print('covcbeta')
+            covcbeta2 = covcbeta.reshape(covcbeta.shape[0]*covcbeta.shape[1]*covcbeta.shape[2])
+            print(covcbeta2[300000])
+
             # Calculate T statistic image
-            print(covcbeta[covcbeta<0])
             tStatc = cbeta/np.sqrt(covcbeta)
 
             # Output statistic map
@@ -434,10 +544,6 @@ def main(*args):
     shutil.rmtree(os.path.join(OutDir, 'tmp'))
 
     w.resetwarnings()
-
-    t2 = time.time()
-
-    print(t2-t1)
 
 
 # This function inverts matrix A. If ouflow is True,

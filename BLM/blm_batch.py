@@ -75,7 +75,6 @@ def main(*args):
 
     # Reduce Y_files to only Y_files for this block.
     X = X[(blksize*(batchNo-1)):min((blksize*batchNo),len(Y_files))]
-    print(X)
     Y_files = Y_files[(blksize*(batchNo-1)):min((blksize*batchNo),len(Y_files))]
     M_files = M_files[(blksize*(batchNo-1)):min((blksize*batchNo),len(M_files))]
     
@@ -91,10 +90,15 @@ def main(*args):
     # For spatially varying,
     if SVFlag:
         MX = blkMX(X, Y)
-
+    
     # Get X transpose Y, X transpose X and Y transpose Y.
     XtY = blkXtY(X, Y, Mask)
     YtY = blkYtY(Y, Mask)
+    print('Y')
+    print(Y.shape)
+    print(Y[:, 70000])
+    print('YtY')
+    print(YtY[70000,:])
 
     if not SVFlag:
         XtX = blkXtX(X)
@@ -102,16 +106,12 @@ def main(*args):
         # In a spatially varying design XtX has dimensions n_voxels
         # by n_parameters by n_parameters. We reshape to n_voxels by
         # n_parameters^2 so that we can save as a csv.
-        print('ActiveSV')
         XtX_m = blkXtX(MX)
-        print(XtX_m.shape)
         XtX_m = XtX_m.reshape([XtX_m.shape[0], XtX_m.shape[1]*XtX_m.shape[2]])
 
         # We then need to unmask XtX as we now are saving XtX.
         XtX = np.zeros([Mask.shape[0],XtX_m.shape[1]])
-        print(XtX.shape)
         XtX[np.flatnonzero(Mask),:] = XtX_m[:]
-        print(XtX.shape)
 
     # Pandas reads and writes files much more quickly with nrows <<
     # number of columns
@@ -222,9 +222,13 @@ def obtainY(Y_files, M_files):
         Y[i, :] = d.reshape([1, nvox])
     
     Mask = np.zeros([nvox])
-    Mask[np.where(np.count_nonzero(Y, axis=0)>1)[0]] = 1
+    print('mask shape')
+    print(Mask.shape)
+    Mask[np.where(np.count_nonzero(Y, axis=0)>0)[0]] = 1
 
-    Y = Y[:, np.where(np.count_nonzero(Y, axis=0)>1)[0]]
+    print('Y shape')
+    print(Y.shape)
+    Y = Y[:, np.where(np.count_nonzero(Y, axis=0)>0)[0]]
 
     return Y, Mask
 
@@ -236,13 +240,24 @@ def blkYtY(Y, Mask):
     nscan = Y.shape[0]
     nvox = Y.shape[1]
 
+    print('Y shape')
+    print(Y.shape)
     # Reshape Y
+    print('Y transpose shape')
+    print(Y.transpose().shape)
     Y_rs = Y.transpose().reshape(nvox, nscan, 1)
     Yt_rs = Y.transpose().reshape(nvox, 1, nscan)
+    print('1')
+    print(Y_rs[70000, :, 0])
+    print('2')
+    print(Yt_rs[70000, 0, :])
     del Y
 
     # Calculate Y transpose Y.
+    print('YtY masked')
     YtY_m = np.matmul(Yt_rs,Y_rs).reshape([nvox, 1])
+    print('3')
+    print(YtY_m[70000,:])
 
     # Unmask YtY
     YtY = np.zeros([Mask.shape[0], 1])
@@ -256,9 +271,6 @@ def blkXtY(X, Y, Mask):
     # Calculate X transpose Y (Masked)
     XtY_m = np.asarray(
                 np.dot(np.transpose(X), Y))
-
-    print(XtY_m.shape)
-    print(XtY[30000:50000,:])
 
     # Check the dimensions haven't been reduced
     # (numpy will lower the dimension of the 
