@@ -296,11 +296,11 @@ def main(*args):
 
         # Mask n_s
         n_s_m = n_s.reshape(int(np.prod(NIFTIsize)), 1)
-        n_s_m = n_s_m[np.where(Mask==1),:]
+        n_s_m = n_s_m[M_inds,:]
 
         # Mask ete
         ete_m = ete.reshape(int(np.prod(NIFTIsize)), 1)
-        ete_m = ete_m[np.where(Mask==1),:]
+        ete_m = ete_m[M_inds,:]
 
         # In spatially varying the degrees of freedom
         # varies across voxels
@@ -308,7 +308,7 @@ def main(*args):
 
         # Unmask resms
         resms = np.zeros([np.prod(NIFTIsize),1])
-        resms[np.where(Mask==1),1] = resms_m
+        resms[M_inds,:] = resms_m
         resms = resms.reshape(NIFTIsize[0], 
                               NIFTIsize[1],
                               NIFTIsize[2])
