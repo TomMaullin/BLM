@@ -124,13 +124,13 @@ def main(*args):
     Mask = np.zeros([int(np.prod(NIFTIsize)), 1])
     print(Mask.shape)
 
-    # Add all voxels where n_s > n_p
-    n_s = nib.load(os.path.join(OutDir,'blm_vox_n.nii'))
-    n_s = n_s.get_data()
-    Mask[n_s.reshape(int(np.prod(NIFTIsize)), 1)>n_p]=1
-
     # If spatially varying remove the designs that aren't of full rank.
     if SVFlag:
+
+        # Add all voxels where n_s > n_p
+        n_s = nib.load(os.path.join(OutDir,'blm_vox_n.nii'))
+        n_s = n_s.get_data()
+        Mask[n_s.reshape(int(np.prod(NIFTIsize)), 1)>n_p]=1
 
         # Reshape sumXtX to correct n_v by n_p by n_p
         sumXtX = sumXtX.reshape([sumXtX.shape[0], 
@@ -139,6 +139,10 @@ def main(*args):
 
         # Remove voxels with designs without full rank.
         Mask[np.where(np.linalg.det(sumXtX)==0)[0]]=0
+
+    else:
+
+        Mask[n_s > 1] = 1
 
     # Output final mask map
     maskmap = nib.Nifti1Image(Mask.reshape(
@@ -189,6 +193,15 @@ def main(*args):
     if SVFlag:
         sumXtY = sumXtY.transpose()
         sumXtY = sumXtY.reshape([sumXtY.shape[0], sumXtY.shape[1], 1])
+    else:
+        # If we are doing non-spatially varying we need to mask XtY
+        sumXtY = np.matmul(sumXtY, 
+                           Mask.reshape(
+                              Mask.shape[0],
+                              Mask.shape[1],
+                              1
+                              )
+                           ) 
 
     # ----------------------------------------------------------------------
     # Calculate betahat = (X'X)^(-1)X'Y and output beta maps
