@@ -40,7 +40,8 @@ def main(*args):
     
     # Get number of parameters
     c1 = np.array(inputs['contrasts'][0]['c' + str(1)]['vector'])
-    n_p = c1.shape[1]
+    n_p = c1.shape[0]
+    print(n_p)
     del c1
     
     # Read in the nifti size.
