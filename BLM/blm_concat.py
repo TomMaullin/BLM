@@ -294,13 +294,24 @@ def main(*args):
 
     else:
 
-        # To avoid division by zero errors we set the 
-        # zero elements to one. XXX THIS SHOULD ONLY BE DONE FOR INMASK THUS NO ERRORS
-        n_s[n_s == n_p] = n_p + 1
+        # Mask n_s
+        n_s_m = n_s.reshape(int(np.prod(NIFTIsize)), 1)
+        n_s_m = n_s_m[np.where(Mask==1),:]
+
+        # Mask ete
+        ete_m = ete.reshape(int(np.prod(NIFTIsize)), 1)
+        ete_m = ete_m[np.where(Mask==1),:]
 
         # In spatially varying the degrees of freedom
         # varies across voxels
-        resms = ete/(n_s-n_p)
+        resms_m = ete_m/(n_s_m-n_p)
+
+        # Unmask resms
+        resms = np.zeros([np.prod(NIFTIsize),1])
+        resms[np.where(Mask==1),1] = resms_m
+        resms = resms.reshape(NIFTIsize[0], 
+                              NIFTIsize[1],
+                              NIFTIsize[2])
 
     # Output ResSS.
     msmap = nib.Nifti1Image(resms,
@@ -413,7 +424,6 @@ def main(*args):
 
                 print('cvectiXtXcvec shape')
                 print(cvectiXtXcvec.shape)
-                print(cvectiXtXcvec[300000])
 
                 # Calculate cov(c\hat{\beta})
                 covcbeta = cvectiXtXcvec*resms.reshape(
@@ -438,31 +448,10 @@ def main(*args):
             # To avoid division by zero errors we set the 
             # zero elements to one. XXXX ERRORS UNDER O LOOK INTO
             print(covcbeta[covcbeta<0])
-            # Output covcbeta<0
-            zm = (covcbeta<0).reshape(
-                    resms.shape[0],
-                    resms.shape[1],
-                    resms.shape[2]
-                    )
-            zmmap = nib.Nifti1Image(zm,
-                                    nifti.affine,
-                                    header=nifti.header)
-            nib.save(zmmap,
-                    os.path.join(OutDir,
-                        'blm_vox_zm.nii'))
-
             covcbeta[covcbeta <= 0] = 1        
 
-            print('resms')
-            resms2 = resms.reshape(
-                    resms.shape[0]*resms.shape[1]*resms.shape[2]
-                    )
-            print(resms2[300000])
-            print('covcbeta')
-            covcbeta2 = covcbeta.reshape(covcbeta.shape[0]*covcbeta.shape[1]*covcbeta.shape[2])
-            print(covcbeta2[300000])
-
             # Calculate T statistic image
+
             tStatc = cbeta/np.sqrt(covcbeta)
 
             # Output statistic map
