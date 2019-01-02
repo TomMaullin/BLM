@@ -433,6 +433,8 @@ def main(*args):
             print(resms[resms<0])
             print(n_s[resms<0])
             print(covcbeta[covcbeta<0])
+            print(cvectiXtXcvec[resms<0])
+            print(ete[resms<0])
             covcbeta[covcbeta <= 0] = 1        
 
             # Calculate T statistic image
