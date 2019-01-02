@@ -194,14 +194,8 @@ def main(*args):
         sumXtY = sumXtY.transpose()
         sumXtY = sumXtY.reshape([sumXtY.shape[0], sumXtY.shape[1], 1])
     else:
-        # If we are doing non-spatially varying we need to mask XtY
-        sumXtY = np.matmul(sumXtY, 
-                           Mask.reshape(
-                              Mask.shape[0],
-                              Mask.shape[1],
-                              1
-                              )
-                           ) 
+        # If we are doing non-spatially varying we still need to mask XtY
+        sumXtY[:, np.where(Mask==0)]=0
 
     # ----------------------------------------------------------------------
     # Calculate betahat = (X'X)^(-1)X'Y and output beta maps
