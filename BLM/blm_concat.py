@@ -440,6 +440,8 @@ def main(*args):
             print(np.where(covcbeta<0))
             tmp = covcbeta.reshape([np.prod(NIFTIsize),1])
             print(np.where(tmp<0))
+            print(sumXtX[np.where(tmp<0),:,:])
+            print(isumXtX[np.where(tmp<0),:,:])
             covcbeta[covcbeta <= 0] = 1        
 
             # Calculate T statistic image
