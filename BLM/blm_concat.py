@@ -18,10 +18,9 @@ np.set_printoptions(threshold=np.nan)
 
 def main(*args):
 
-    t1 = time.time()
-    # Change to blm directory
-    os.chdir(os.path.dirname(os.path.realpath(__file__)))
-
+    # ----------------------------------------------------------------------
+    # Check inputs
+    # ----------------------------------------------------------------------
     if len(args)==0:
         # Load in inputs
         with open(os.path.join('..','blm_defaults.yml'), 'r') as stream:
@@ -30,9 +29,27 @@ def main(*args):
         # In this case inputs is first argument
         inputs = args[0]
 
+    # ----------------------------------------------------------------------
+    # Read basic inputs
+    # ----------------------------------------------------------------------
     SVFlag = inputs['SVFlag']
     OutDir = inputs['outdir']
     
+    # Get number of parameters
+    c1 = np.array(inputs['contrasts'][i]['c' + str(1)]['vector'])
+    n_p = c1.shape[1]
+    del c1
+    
+    # Read in the nifti size.
+    with open(inputs['Y_files']) as a:
+        nifti = nib.load(a.readline().replace('\n', ''))
+
+    NIFTIsize = nifti.shape
+
+    # ----------------------------------------------------------------------
+    # Load X'X, X'Y, Y'Y and n_s
+    # ----------------------------------------------------------------------
+
     # Read the matrices from the first batch. Note XtY is transposed as pandas
     # handles lots of rows much faster than lots of columns.
     sumXtX = pandas.io.parsers.read_csv(os.path.join(OutDir,"tmp","XtX1.csv"), 
@@ -79,11 +96,6 @@ def main(*args):
         os.remove(os.path.join(OutDir, "tmp","YtY" + str(batchNo) + ".csv"))
         os.remove(os.path.join(OutDir, "tmp", "blm_vox_n_batch" + str(batchNo) + ".nii"))
 
-    print('XtX')
-    print(sumXtX[300000, :])    
-    print('XtY')
-    print(sumXtY[:, 300000])
-
     # Output final n map
     nmap = nib.Nifti1Image(nmapd,
                            nmapb.affine,
@@ -101,6 +113,16 @@ def main(*args):
     elif np.ndim(sumXtY) == 1:
         sumXtY = np.array([sumXtY])
 
+    # ----------------------------------------------------------------------
+    # Create Mask
+    # ----------------------------------------------------------------------
+
+    Mask = np.zeros([int(np.prod(NIFTIsize)), 1])
+    print(Mask.shape)
+
+    # ----------------------------------------------------------------------
+    # Calculate (X'X)^(-1)
+    # ----------------------------------------------------------------------
     # Mask and reshape if we are using a spatially varying design.
     if SVFlag:
 
@@ -125,9 +147,6 @@ def main(*args):
                                    int(np.sqrt(isumXtX.shape[1])),
                                    int(np.sqrt(isumXtX.shape[1]))])
 
-        print('XtX inverse')
-        print(isumXtX[300000, :, :])
-
 
     # If we are not using a spatially varying design, inverse in
     # the normal manner.
@@ -135,29 +154,19 @@ def main(*args):
         # Calculate inverse of XtX
         isumXtX = blm_inverse(sumXtX)
 
-    # Read in the nifti size.
-    with open(inputs['Y_files']) as a:
-        nifti = nib.load(a.readline().replace('\n', ''))
-
-    NIFTIsize = nifti.shape
-
     # If we are doing spatially varying we need to reshape XtY.
     if SVFlag:
         sumXtY = sumXtY.transpose()
         sumXtY = sumXtY.reshape([sumXtY.shape[0], sumXtY.shape[1], 1])
 
-    print('XtY (after reshape?)')    
-    print(sumXtY[300000, :])
+    # ----------------------------------------------------------------------
+    # Calculate betahat = (X'X)^(-1)X'Y and output beta maps
+    # ----------------------------------------------------------------------    
 
     beta = np.matmul(isumXtX, sumXtY)
 
-    print('beta')
-    print(beta[70000, :])
-    print(beta.shape)
-
     if SVFlag:
         beta = beta.reshape([beta.shape[0], beta.shape[1]]).transpose()
-        #print(beta[300000,:])
 
     # Cycle through betas and output results.
     for i in range(0,beta.shape[0]):
@@ -179,27 +188,21 @@ def main(*args):
     elif np.ndim(beta) == 1:
         beta = np.array([beta])
 
+    # ----------------------------------------------------------------------
+    # Calculate residual sum of squares e'e = Y'Y - (Xb)'Xb
+    # ---------------------------------------------------------------------- 
+
     # Reshape beta along smallest axis for quicker
     # residual calculation
     beta_rs = np.zeros([beta.shape[1], beta.shape[0], 1])
     beta_rs_t = np.zeros([beta.shape[1], 1, beta.shape[0]])
     for i in range(0,beta.shape[0]):
-       
-       print(i)
+
        beta_rs[:, i, 0] = beta[i,:]
        beta_rs_t[:, 0, i] = beta[i,:]
 
     # Calculate Beta transpose times XtX and delete the
     # now redudundant matrices.
-    print('beta_rs_t shape')
-    print(beta_rs_t.shape)
-    print(beta_rs_t[700000:700003,:,:])
-    print('beta_rs shape')
-    print(beta_rs.shape)
-    print(beta_rs[700000:700003,:,:])
-    print('sumXtX')
-    print(sumXtX.shape)
-    print(sumXtX[700000:700003,:,:])
     betatXtX = np.matmul(beta_rs_t, sumXtX)
     del beta_rs_t
 
@@ -212,12 +215,6 @@ def main(*args):
     betatXtXbeta = np.reshape(betatXtXbeta, [betatXtXbeta.shape[0],1])
 
     # Residual sum of squares
-    print('sumYtY')
-    print(sumYtY.shape)
-    print(sumYtY[300000])
-    print('betatXtXbeta')
-    print(betatXtXbeta.shape)
-    print(betatXtXbeta[300000])
     ete = sumYtY - betatXtXbeta
     ete = ete.reshape(int(NIFTIsize[0]),
                       int(NIFTIsize[1]),
@@ -240,6 +237,9 @@ def main(*args):
                             header=nifti.header)
     nib.save(YtYmap, os.path.join(OutDir,'blm_vox_YtY.nii'))
 
+    # ----------------------------------------------------------------------
+    # Calculate residual mean squares = e'e/(n_s - n_p)
+    # ----------------------------------------------------------------------
 
     # Get residual mean squares by dividing by degrees of
     # freedom
@@ -249,19 +249,12 @@ def main(*args):
         X = pandas.io.parsers.read_csv(
             inputs['X'], sep=',', header=None).values
         n_s = X.shape[0]
-        n_p = X.shape[1]
 
         # In non spatially varying the degrees of freedom
         # are fixed across voxels
         resms = ete/(n_s-n_p)
 
     else:
-        
-        # Get number of scans and number of parameters
-        X = pandas.io.parsers.read_csv(
-            inputs['X'], sep=',', header=None).values
-        n_s = X.shape[0]
-        n_p = X.shape[1]
 
         # Load in the spatially varying number of scans.
         n_s = nib.load(os.path.join(OutDir,'blm_vox_n.nii'))
