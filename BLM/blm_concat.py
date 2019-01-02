@@ -439,7 +439,7 @@ def main(*args):
             print(n_s[resms<0])
             print(covcbeta[covcbeta<0])
             print(ete[resms<0])
-            print(np.where(resms<0)[0])
+            print(np.where(resms<0))
             print(isumXtX[np.where(resms<0)[0], :, :])
             print(sumXtX[np.where(resms<0)[0], :, :])
             print(cvectiXtXcvec[np.where(resms<0)])
