@@ -156,7 +156,7 @@ def main(*args):
     # Mask and reshape if we are using a spatially varying design.
     if SVFlag:
         
-        sumXtX_m = sumXtX[np.where(np.linalg.det(sumXtX)!=0)[0]]
+        sumXtX_m = sumXtX[Mask]
         
         isumXtX_m = np.linalg.inv(sumXtX_m).reshape(
                       [sumXtX_m.shape[0],
@@ -165,7 +165,7 @@ def main(*args):
         isumXtX = np.zeros([sumXtX.shape[0],
                             int(sumXtX.shape[1])*int(sumXtX.shape[2])])
         
-        isumXtX[np.where(np.linalg.det(sumXtX)!=0)[0]]=isumXtX_m
+        isumXtX[Mask]=isumXtX_m
 
         isumXtX = isumXtX.reshape([isumXtX.shape[0],
                                    int(np.sqrt(isumXtX.shape[1])),
@@ -187,7 +187,7 @@ def main(*args):
     # Calculate betahat = (X'X)^(-1)X'Y and output beta maps
     # ----------------------------------------------------------------------    
 
-    beta = np.matmul(isumXtX, sumXtY)
+    beta = np.matmul(np.matmul(isumXtX, sumXtY), Mask)
 
     if SVFlag:
         beta = beta.reshape([beta.shape[0], beta.shape[1]]).transpose()
