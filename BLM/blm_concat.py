@@ -39,7 +39,7 @@ def main(*args):
     OutDir = inputs['outdir']
     
     # Get number of parameters
-    c1 = np.array(inputs['contrasts'][i]['c' + str(1)]['vector'])
+    c1 = np.array(inputs['contrasts'][0]['c' + str(1)]['vector'])
     n_p = c1.shape[1]
     del c1
     
