@@ -435,16 +435,9 @@ def main(*args):
 
             # To avoid division by zero errors we set the 
             # zero elements to one. XXXX ERRORS UNDER O LOOK INTO
-            print(resms[resms<0])
-            print(n_s[resms<0])
             print(covcbeta[covcbeta<0])
-            print(ete[resms<0])
-            print(np.where(resms<0))
-            print(isumXtX[np.where(resms<0)[0], :, :])
-            print(sumXtX[np.where(resms<0)[0], :, :])
-            print(cvectiXtXcvec[np.where(resms<0)])
-            print(np.linalg.det(sumXtX[np.where(resms<0)[0][0], :, :])==0)
-            print(np.linalg.det(sumXtX[np.where(resms<0)[0][1], :, :])==0)
+            print(covcbeta.shape)
+            print(np.where(covcbeta<0))
             covcbeta[covcbeta <= 0] = 1        
 
             # Calculate T statistic image
