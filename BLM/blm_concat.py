@@ -442,7 +442,7 @@ def main(*args):
             print(np.where(resms<0)[0])
             print(isumXtX[np.where(resms<0)[0], :, :])
             print(sumXtX[np.where(resms<0)[0], :, :])
-            print(cvectiXtXcvec[np.where(resms<0)[0]])
+            print(cvectiXtXcvec[np.where(resms<0)])
             print(np.linalg.det(sumXtX[np.where(resms<0)[0][0], :, :])==0)
             print(np.linalg.det(sumXtX[np.where(resms<0)[0][1], :, :])==0)
             covcbeta[covcbeta <= 0] = 1        
