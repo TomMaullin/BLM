@@ -438,6 +438,8 @@ def main(*args):
             print(covcbeta[covcbeta<0])
             print(covcbeta.shape)
             print(np.where(covcbeta<0))
+            tmp = covcbeta.reshape([np.prod(NIFTIsize),1])
+            print(np.where(temp<0))
             covcbeta[covcbeta <= 0] = 1        
 
             # Calculate T statistic image
