@@ -123,6 +123,11 @@ def main(*args):
     Mask = np.zeros([int(np.prod(NIFTIsize)), 1])
     print(Mask.shape)
 
+    # Add all voxels with n_s > n_p
+    n_s = nib.load(os.path.join(OutDir,'blm_vox_n.nii'))
+    n_s = n_s.get_data().reshape(int(np.prod(NIFTIsize)), 1)
+    Mask[n_s>n_p]=1
+
     # ----------------------------------------------------------------------
     # Calculate (X'X)^(-1)
     # ----------------------------------------------------------------------
@@ -258,10 +263,6 @@ def main(*args):
         resms = ete/(n_s-n_p)
 
     else:
-
-        # Load in the spatially varying number of scans.
-        n_s = nib.load(os.path.join(OutDir,'blm_vox_n.nii'))
-        n_s = n_s.get_data()
 
         # To avoid division by zero errors we set the 
         # zero elements to one. XXX THIS SHOULD ONLY BE DONE FOR INMASK THUS NO ERRORS
