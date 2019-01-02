@@ -258,23 +258,6 @@ def main(*args):
                       int(NIFTIsize[1]),
                       int(NIFTIsize[2]))
 
-    YtYv = sumYtY.reshape(int(NIFTIsize[0]),
-                      int(NIFTIsize[1]),
-                      int(NIFTIsize[2]))
-    betatXtXbetavol = betatXtXbeta.reshape(int(NIFTIsize[0]),
-                      int(NIFTIsize[1]),
-                      int(NIFTIsize[2]))
-
-    bXXbmap = nib.Nifti1Image(betatXtXbetavol,
-                            nifti.affine,
-                            header=nifti.header)
-    nib.save(bXXbmap, os.path.join(OutDir,'blm_vox_bXXb.nii'))
-
-    YtYmap = nib.Nifti1Image(YtYv,
-                            nifti.affine,
-                            header=nifti.header)
-    nib.save(YtYmap, os.path.join(OutDir,'blm_vox_YtY.nii'))
-
     # ----------------------------------------------------------------------
     # Calculate residual mean squares = e'e/(n_s - n_p)
     # ----------------------------------------------------------------------
