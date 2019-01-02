@@ -129,17 +129,32 @@ def main(*args):
     n_s = n_s.get_data()
     Mask[n_s.reshape(int(np.prod(NIFTIsize)), 1)>n_p]=1
 
+    # If spatially varying remove the designs that aren't of full rank.
+    if SVFlag:
+
+        # Reshape sumXtX to correct n_v by n_p by n_p
+        sumXtX = sumXtX.reshape([sumXtX.shape[0], 
+                     int(np.sqrt(sumXtX.shape[1])),
+                     int(np.sqrt(sumXtX.shape[1]))])
+
+        # Remove voxels with designs without full rank.
+        Mask[np.where(np.linalg.det(sumXtX)==0)[0]]=0
+
+    # Output final mask map
+    maskmap = nib.Nifti1Image(Mask.reshape(
+                                    NIFTIsize[0],
+                                    NIFTIsize[1],
+                                    NIFTIsize[2]
+                                    ),
+                              nmapb.affine,
+                              header=nmapb.header)
+    nib.save(maskmap, os.path.join(OutDir,'blm_vox_mask.nii'))
+
     # ----------------------------------------------------------------------
     # Calculate (X'X)^(-1)
     # ----------------------------------------------------------------------
     # Mask and reshape if we are using a spatially varying design.
     if SVFlag:
-
-        # Remove zero lines and convert back to number voxels (in
-        # mask) by number of parameters by number of parameters)
-        sumXtX = sumXtX.reshape([sumXtX.shape[0], 
-                     int(np.sqrt(sumXtX.shape[1])),
-                     int(np.sqrt(sumXtX.shape[1]))])
         
         sumXtX_m = sumXtX[np.where(np.linalg.det(sumXtX)!=0)[0]]
         
@@ -421,39 +436,6 @@ def main(*args):
             nib.save(zmmap,
                     os.path.join(OutDir,
                         'blm_vox_zm.nii'))
-
-            # Mask test
-            m1 = np.zeros([sumXtX.shape[0]])
-            m1[np.where(np.linalg.det(sumXtX)!=0)[0]]=1
-            m2 = np.zeros([sumXtX.shape[0]])
-            m2[np.where(sumXtX[:,0,0]!=0)[0]]=1
-
-            print(m1.shape)
-            m1 = m1.reshape(
-                    resms.shape[0],
-                    resms.shape[1],
-                    resms.shape[2]
-                    )
-            m2 = m2.reshape(
-                    resms.shape[0],
-                    resms.shape[1],
-                    resms.shape[2]
-                    )
-            m1map = nib.Nifti1Image(m1,
-                                    nifti.affine,
-                                    header=nifti.header)
-            nib.save(m1map,
-                    os.path.join(OutDir,
-                        'blm_vox_m1.nii'))
-            m2map = nib.Nifti1Image((nmapd>0),
-                                    nifti.affine,
-                                    header=nifti.header)
-            nib.save(m2map,
-                    os.path.join(OutDir,
-                        'blm_vox_m2.nii'))
-            print('output')
-
-
 
             covcbeta[covcbeta <= 0] = 1        
 
