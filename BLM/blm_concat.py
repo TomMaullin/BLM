@@ -256,7 +256,7 @@ def main(*args):
     ete_m = sumYtY[M_inds] - betatXtXbeta[M_inds]
 
     # Unmask ete
-    ete = np.zeros([prod(NIFTIsize), 1])
+    ete = np.zeros([np.prod(NIFTIsize), 1])
     ete[M_inds]=ete_m
     ete = ete.reshape(int(NIFTIsize[0]),
                       int(NIFTIsize[1]),
