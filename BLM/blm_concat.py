@@ -430,6 +430,8 @@ def main(*args):
 
             # To avoid division by zero errors we set the 
             # zero elements to one. XXXX ERRORS UNDER O LOOK INTO
+            print(resms[resms<0])
+            print(n_s[resms<0])
             print(covcbeta[covcbeta<0])
             covcbeta[covcbeta <= 0] = 1        
 
