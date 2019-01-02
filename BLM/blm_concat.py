@@ -150,14 +150,21 @@ def main(*args):
                               header=nmapb.header)
     nib.save(maskmap, os.path.join(OutDir,'blm_vox_mask.nii'))
 
+    # Get indices of voxels in mask.
+    M_inds = np.where(Mask==1)[0]
+
     # ----------------------------------------------------------------------
     # Calculate (X'X)^(-1)
     # ----------------------------------------------------------------------
     # Mask and reshape if we are using a spatially varying design.
     if SVFlag:
         
-        sumXtX_m = sumXtX[Mask==1,:,:]
-        
+        print(sumXtX.shape)
+        print(M_inds[1:10])
+        sumXtX_m = sumXtX[M_inds,:,:]
+        print(sumXtX_m.shape)
+        print(sumXtX_m[300:305,:,:])
+
         isumXtX_m = np.linalg.inv(sumXtX_m).reshape(
                       [sumXtX_m.shape[0],
                        int(sumXtX_m.shape[1])*int(sumXtX_m.shape[2])])
@@ -165,7 +172,7 @@ def main(*args):
         isumXtX = np.zeros([sumXtX.shape[0],
                             int(sumXtX.shape[1])*int(sumXtX.shape[2])])
         
-        isumXtX[Mask==1,:,:]=isumXtX_m
+        isumXtX[M_inds,:]=isumXtX_m
 
         isumXtX = isumXtX.reshape([isumXtX.shape[0],
                                    int(np.sqrt(isumXtX.shape[1])),
@@ -187,7 +194,7 @@ def main(*args):
     # Calculate betahat = (X'X)^(-1)X'Y and output beta maps
     # ----------------------------------------------------------------------    
 
-    beta = np.matmul(np.matmul(isumXtX, sumXtY), Mask)
+    beta = np.matmul(isumXtX, sumXtY)
 
     if SVFlag:
         beta = beta.reshape([beta.shape[0], beta.shape[1]]).transpose()
