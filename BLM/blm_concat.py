@@ -122,14 +122,14 @@ def main(*args):
     # ----------------------------------------------------------------------
 
     Mask = np.zeros([int(np.prod(NIFTIsize)), 1])
+    # Add all voxels where n_s > n_p
+    n_s = nib.load(os.path.join(OutDir,'blm_vox_n.nii'))
+    n_s = n_s.get_data()
     print(Mask.shape)
 
     # If spatially varying remove the designs that aren't of full rank.
     if SVFlag:
 
-        # Add all voxels where n_s > n_p
-        n_s = nib.load(os.path.join(OutDir,'blm_vox_n.nii'))
-        n_s = n_s.get_data()
         Mask[n_s.reshape(int(np.prod(NIFTIsize)), 1)>n_p]=1
 
         # Reshape sumXtX to correct n_v by n_p by n_p
@@ -142,7 +142,7 @@ def main(*args):
 
     else:
 
-        Mask[n_s > 1] = 1
+        Mask[n_s.reshape(int(np.prod(NIFTIsize)), 1) > 1] = 1
 
     # Output final mask map
     maskmap = nib.Nifti1Image(Mask.reshape(
