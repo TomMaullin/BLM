@@ -210,6 +210,7 @@ def main(*args):
     beta = np.matmul(isumXtX, sumXtY)
 
     if SVFlag:
+        print(n_v)
         beta = beta.reshape([n_p, n_v]).transpose()
 
     # Cycle through betas and output results.
