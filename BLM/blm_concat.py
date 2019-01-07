@@ -201,8 +201,7 @@ def main(*args):
     beta = np.matmul(isumXtX, sumXtY)
 
     if SVFlag:
-        beta = beta.reshape([beta.shape[0], beta.shape[1]]).transpose()
-        print(beta.shape)
+        beta = beta.reshape([n_p, n_v]).transpose()
 
     # Cycle through betas and output results.
     for i in range(0,beta.shape[0]):
@@ -230,9 +229,8 @@ def main(*args):
 
     # Reshape beta along smallest axis for quicker
     # residual calculation
-    beta_rs = np.zeros([beta.shape[1], beta.shape[0], 1])
-    beta_rs_t = np.zeros([beta.shape[1], 1, beta.shape[0]])
-    print(beta.shape)
+    beta_rs = np.zeros([n_v, n_p, 1])
+    beta_rs_t = np.zeros([n_v, 1, n_p])
     for i in range(0,beta.shape[0]):
 
        beta_rs[:, i, 0] = beta[i,:]
@@ -307,8 +305,8 @@ def main(*args):
 
         # Output variance for each pair of betas
         print(isumXtX.shape)
-        for i in range(0,isumXtX.shape[0]):
-            for j in range(0,isumXtX.shape[1]):
+        for i in range(0,n_p):
+            for j in range(0,n_p):
 
                     # Calculate covariance of beta i and beta j.
                     covbetaij = resms*isumXtX[i,j]
@@ -326,9 +324,8 @@ def main(*args):
     else:
 
         # Output variance for each pair of betas
-        print(isumXtX.shape)
-        for i in range(0,isumXtX.shape[1]):
-            for j in range(0,isumXtX.shape[2]):
+        for i in range(0,n_p):
+            for j in range(0,n_p):
 
                     covbetaij = np.multiply(resms,
                         isumXtX[:,i,j].reshape(
@@ -402,9 +399,6 @@ def main(*args):
                     np.matmul(cvec, isumXtX),
                     np.transpose(cvec))
 
-                print('cvectiXtXcvec shape')
-                print(cvectiXtXcvec.shape)
-
                 # Calculate cov(c\hat{\beta})
                 covcbeta = cvectiXtXcvec*resms.reshape(n_v)
 
@@ -444,7 +438,7 @@ def main(*args):
             # Not spatially varying
             if not SVFlag:
                 
-                # Get dumension of cvector
+                # Get dimension of cvector
                 q = cvec.shape[0]
 
                 # Calculate c'(X'X)^(-1)c
@@ -462,7 +456,7 @@ def main(*args):
                 cbeta = cbeta.transpose(1, 0, 2)
 
                 # Calculate the inverse
-                icvectiXtXcvec =blm_inverse(cvectiXtXcvec, ouflow=True)
+                icvectiXtXcvec = blm_inverse(cvectiXtXcvec, ouflow=True)
 
                 # Calculate the numerator of the F statistic
                 Fnumerator = np.matmul(
@@ -471,12 +465,13 @@ def main(*args):
                 # Fnumerator2 = np.matmul(
                 #     cbeta.transpose(0, 2, 1),
                 #     np.linalg.solve(cvectiXtXcvec, cbeta))
-                Fnumerator = Fnumerator.reshape(Fnumerator.shape[0])
+                Fnumerator = Fnumerator.reshape(n_v)
 
                 # Calculate the denominator of the F statistic
                 Fdenominator = (q*resms).reshape(n_v)
                 # Remove zeros in Fdenominator to avoid divide by 
-                # zero errors
+                # zero errors. This should really be done with 
+                # masking
                 Fdenominator[Fdenominator == 0] = 1
 
                 # Calculate F statistic.
