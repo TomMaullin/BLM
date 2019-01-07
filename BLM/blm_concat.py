@@ -39,12 +39,13 @@ def main(*args):
     OutDir = inputs['outdir']
     
     # Get number of parameters
-    c1 = np.array(inputs['contrasts'][0]['c' + str(1)]['vector'])
-    if not isinstance(c1, list):
+    c1 = inputs['contrasts'][0]['c' + str(1)]['vector']
+    if isinstance(c1, str):
         try:
-            c1 = eval('[' + c1[0].replace(' ', ', ') + ']')
+            c1 = eval(c1[0].replace(' ', ', '))
         except:
             print('Error: Contrast Vector ' + c1 + ' is input incorrectly.')
+    c1 = np.array(c1)
     print(c1)
     print(type(c1))
     n_p = c1.shape[0]
