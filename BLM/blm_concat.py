@@ -49,7 +49,7 @@ def main(*args):
         nifti = nib.load(a.readline().replace('\n', ''))
 
     NIFTIsize = nifti.shape
-    n_v = int(n_v)
+    n_v = int(np.prod(NIFTIsize))
 
     # ----------------------------------------------------------------------
     # Load X'X, X'Y, Y'Y and n_s
