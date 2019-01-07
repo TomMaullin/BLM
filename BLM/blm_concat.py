@@ -44,11 +44,12 @@ def main(*args):
     print(n_p)
     del c1
     
-    # Read in the nifti size.
+    # Read in the nifti size and work out number of voxels.
     with open(inputs['Y_files']) as a:
         nifti = nib.load(a.readline().replace('\n', ''))
 
     NIFTIsize = nifti.shape
+    n_v = int(np.prod(NIFTIsize))
 
     # ----------------------------------------------------------------------
     # Load X'X, X'Y, Y'Y and n_s
@@ -121,7 +122,7 @@ def main(*args):
     # Create Mask
     # ----------------------------------------------------------------------
 
-    Mask = np.zeros([int(np.prod(NIFTIsize)), 1])
+    Mask = np.zeros([n_v, 1])
     # Add all voxels where n_s > n_p
     n_s = nib.load(os.path.join(OutDir,'blm_vox_n.nii'))
     n_s = n_s.get_data()
@@ -130,12 +131,10 @@ def main(*args):
     # If spatially varying remove the designs that aren't of full rank.
     if SVFlag:
 
-        Mask[n_s.reshape(int(np.prod(NIFTIsize)), 1)>n_p]=1
+        Mask[n_s.reshape(n_v, 1)>n_p]=1
 
         # Reshape sumXtX to correct n_v by n_p by n_p
-        sumXtX = sumXtX.reshape([sumXtX.shape[0], 
-                     int(np.sqrt(sumXtX.shape[1])),
-                     int(np.sqrt(sumXtX.shape[1]))])
+        sumXtX = sumXtX.reshape([n_v, n_p, n_p])
 
         # Remove voxels with designs without full rank.
         Mask[np.where(np.linalg.det(sumXtX)==0)[0]]=0
@@ -143,7 +142,7 @@ def main(*args):
 
     else:
 
-        Mask[n_s.reshape(int(np.prod(NIFTIsize)), 1) > 1] = 1
+        Mask[n_s.reshape(n_v, 1) > 1] = 1
 
     # Output final mask map
     maskmap = nib.Nifti1Image(Mask.reshape(
@@ -157,6 +156,7 @@ def main(*args):
 
     # Get indices of voxels in mask.
     M_inds = np.where(Mask==1)[0]
+    print(M_inds.shape)
 
     # ----------------------------------------------------------------------
     # Calculate (X'X)^(-1)
@@ -283,11 +283,11 @@ def main(*args):
     else:
 
         # Mask n_s
-        n_s_m = n_s.reshape(int(np.prod(NIFTIsize)), 1)
+        n_s_m = n_s.reshape(n_v, 1)
         n_s_m = n_s_m[M_inds,:]
 
         # Mask ete
-        ete_m = ete.reshape(int(np.prod(NIFTIsize)), 1)
+        ete_m = ete.reshape(n_v, 1)
         ete_m = ete_m[M_inds,:]
 
         # In spatially varying the degrees of freedom
