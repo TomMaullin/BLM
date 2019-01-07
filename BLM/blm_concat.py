@@ -172,12 +172,12 @@ def main(*args):
         
         # Calculate masked (x'X)^(-1) values
         sumXtX_m = sumXtX[M_inds,:,:]
-        isumXtX_m = np.linalg.inv(sumXtX_m).reshape([n_v_m, n_s*n_s])
+        isumXtX_m = np.linalg.inv(sumXtX_m).reshape([n_v_m, n_p*n_p])
 
         # Make (X'X)^(-1) unmasked
-        isumXtX = np.zeros([n_v, n_s*n_s])
+        isumXtX = np.zeros([n_v, n_p*n_p])
         isumXtX[M_inds,:]=isumXtX_m
-        isumXtX = isumXtX.reshape([n_v, n_s, n_s])
+        isumXtX = isumXtX.reshape([n_v, n_p, n_p])
 
 
     # If we are not using a spatially varying design, inverse in
@@ -274,7 +274,7 @@ def main(*args):
 
     else:
 
-        # Mask n_s
+        # Mask spatially varying n_s
         n_s_sv_m = n_s_sv.reshape(n_v, 1)
         n_s_sv_m = n_s_sv_m[M_inds,:]
 
