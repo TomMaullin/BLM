@@ -142,14 +142,14 @@ def main(*args):
         sumXtX = sumXtX.reshape([n_v, n_p, n_p])
 
         # Remove voxels with designs without full rank.
-        Mask[np.where(np.linalg.slogdet(sumXtX)[0]==0)[0]]=0
-        tmp = np.linalg.slogdet(sumXtX)
+        Mask[np.where(np.linalg.log(sumXtX)[0]==0)[0]]=0
+        tmp = np.linalg.log(sumXtX)
         print(tmp[305325])
         print(tmp[504572])
         print(tmp[575892])
         print(tmp[595824])
 
-        print(np.where(np.linalg.slogdet(sumXtX)[0]==0)[0])
+        print(np.where(np.linalg.log(sumXtX)[0]==0)[0])
         print('Mask Values')
         print(Mask[305325])
         print(Mask[504572])
