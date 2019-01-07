@@ -143,18 +143,6 @@ def main(*args):
 
         # Remove voxels with designs without full rank.
         Mask[np.where(np.linalg.slogdet(sumXtX)[0]==0)[0]]=0
-        print(np.where(np.linalg.slogdet(sumXtX)[0]==0)[0])
-        print('Mask Values')
-        print(Mask[305325])
-        print(Mask[504572])
-        print(Mask[575892])
-        print(Mask[595824])
-        print('sumXtX (1)')
-        print(sumXtX[305325,:,:])
-        print(sumXtX[504572,:,:])
-        print(sumXtX[575892,:,:])
-        print(sumXtX[595824,:,:])
-
 
     else:
 
@@ -214,6 +202,7 @@ def main(*args):
 
     if SVFlag:
         beta = beta.reshape([beta.shape[0], beta.shape[1]]).transpose()
+        print(beta.shape)
 
     # Cycle through betas and output results.
     for i in range(0,beta.shape[0]):
@@ -243,6 +232,7 @@ def main(*args):
     # residual calculation
     beta_rs = np.zeros([beta.shape[1], beta.shape[0], 1])
     beta_rs_t = np.zeros([beta.shape[1], 1, beta.shape[0]])
+    print(beta.shape)
     for i in range(0,beta.shape[0]):
 
        beta_rs[:, i, 0] = beta[i,:]
@@ -259,7 +249,7 @@ def main(*args):
     del betatXtX, beta_rs
 
     # Reshape betat XtX beta
-    betatXtXbeta = np.reshape(betatXtXbeta, [betatXtXbeta.shape[0],1])
+    betatXtXbeta = np.reshape(betatXtXbeta, [n_v,1])
 
     # Residual sum of squares
     ete_m = sumYtY[M_inds] - betatXtXbeta[M_inds]
@@ -310,10 +300,13 @@ def main(*args):
                             header=nifti.header)
     nib.save(msmap, os.path.join(OutDir,'blm_vox_resms.nii'))
 
-    # calculate beta covariance maps
+    # ----------------------------------------------------------------------
+    # Calculate beta covariance maps
+    # ----------------------------------------------------------------------
     if not SVFlag:
 
         # Output variance for each pair of betas
+        print(isumXtX.shape)
         for i in range(0,isumXtX.shape[0]):
             for j in range(0,isumXtX.shape[1]):
 
@@ -333,14 +326,15 @@ def main(*args):
     else:
 
         # Output variance for each pair of betas
+        print(isumXtX.shape)
         for i in range(0,isumXtX.shape[1]):
             for j in range(0,isumXtX.shape[2]):
 
                     covbetaij = np.multiply(resms,
                         isumXtX[:,i,j].reshape(
-                            resms.shape[0],
-                            resms.shape[1],
-                            resms.shape[2],
+                            NIFTIsize[0],
+                            NIFTIsize[1],
+                            NIFTIsize[2],
                             ))
                         
                     # Output covariance map
@@ -353,8 +347,9 @@ def main(*args):
 
         del covbetaijmap
 
-    # Loop through contrasts, outputting COPEs, statistic maps
-    # and covariance maps.
+    # ----------------------------------------------------------------------
+    # Calculate COPEs, statistic maps and covariance maps.
+    # ----------------------------------------------------------------------
     n_c = len(inputs['contrasts'])
 
     for i in range(0,n_c):
@@ -369,9 +364,9 @@ def main(*args):
 
             # A T contrast has only one row so we can output cbeta here
             cbeta = cbeta.reshape(
-                        resms.shape[0],
-                        resms.shape[1],
-                        resms.shape[2],
+                        NIFTIsize[0],
+                        NIFTIsize[1],
+                        NIFTIsize[2],
                         )
 
             # Output cbeta/cope map
@@ -411,14 +406,12 @@ def main(*args):
                 print(cvectiXtXcvec.shape)
 
                 # Calculate cov(c\hat{\beta})
-                covcbeta = cvectiXtXcvec*resms.reshape(
-                    resms.shape[0]*resms.shape[1]*resms.shape[2]
-                    )
+                covcbeta = cvectiXtXcvec*resms.reshape(n_v)
 
                 covcbeta = covcbeta.reshape(
-                    resms.shape[0],
-                    resms.shape[1],
-                    resms.shape[2]
+                    NIFTIsize[0],
+                    NIFTIsize[1],
+                    NIFTIsize[2]
                     )
 
                 # Output covariance map
@@ -431,9 +424,8 @@ def main(*args):
 
 
             # To avoid division by zero errors we set the 
-            # zero elements to one. XXXX ERRORS UNDER O LOOK INTO
-            tmp = covcbeta.reshape([n_v,1])
-            print(np.where(tmp<0))
+            # zero elements to one. This could be updated to 
+            # be done with masking.
             covcbeta[covcbeta == 0] = 1  
 
             # Calculate T statistic image
@@ -482,8 +474,7 @@ def main(*args):
                 Fnumerator = Fnumerator.reshape(Fnumerator.shape[0])
 
                 # Calculate the denominator of the F statistic
-                Fdenominator = (q*resms).reshape(
-                    resms.shape[0]*resms.shape[1]*resms.shape[2])
+                Fdenominator = (q*resms).reshape(n_v)
                 # Remove zeros in Fdenominator to avoid divide by 
                 # zero errors
                 Fdenominator[Fdenominator == 0] = 1
@@ -491,9 +482,9 @@ def main(*args):
                 # Calculate F statistic.
                 fStatc = Fnumerator/Fdenominator
                 fStatc = fStatc.reshape(
-                    resms.shape[0],
-                    resms.shape[1],
-                    resms.shape[2]
+                    NIFTIsize[0],
+                    NIFTIsize[1],
+                    NIFTIsize[2]
                     )
 
                 # Output statistic map
