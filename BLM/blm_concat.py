@@ -423,14 +423,15 @@ def main(*args):
             print(tmp[np.where(tmp<0)])
             print(tmp.shape)
             print('sumXtX')
-            print(sumXtX[np.where(tmp<0),:,:])
+            print(sumXtX[np.where(tmp<0)[0],:,:])
             print(sumXtX.shape)
             print('isumXtX')
-            print(isumXtX[np.where(tmp<0),:,:])
+            print(isumXtX[np.where(tmp<0)[0],:,:])
             print(isumXtX.shape)
             print('ns')
-            print(n_s_sv[np.where(tmp<0)])
-            print(n_s_sv.shape)
+            n_s_sv_tmp=n_s_sv.reshape(n_v, 1)
+            print(n_s_sv_tmp[np.where(tmp<0)])
+            print(n_s_sv_tmp.shape)
             covcbeta[covcbeta <= 0] = 1        
 
             # Calculate T statistic image
