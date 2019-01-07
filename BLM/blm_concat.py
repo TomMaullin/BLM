@@ -140,6 +140,17 @@ def main(*args):
 
         # Remove voxels with designs without full rank.
         Mask[np.where(np.linalg.det(sumXtX)==0)[0]]=0
+        print('Mask Values')
+        print(Mask[305325])
+        print(Mask[504572])
+        print(Mask[575892])
+        print(Mask[595824])
+        print('sumXtX (1)')
+        print(sumXtX[305325,:,:])
+        print(sumXtX[504572,:,:])
+        print(sumXtX[575892,:,:])
+        print(sumXtX[595824,:,:])
+
 
     else:
 
@@ -432,10 +443,9 @@ def main(*args):
             n_s_sv_tmp=n_s_sv.reshape(n_v, 1)
             print(n_s_sv_tmp[np.where(tmp<0)])
             print(n_s_sv_tmp.shape)
-            covcbeta[covcbeta <= 0] = 1        
+            covcbeta[covcbeta <= 0] = 1  
 
             # Calculate T statistic image
-
             tStatc = cbeta/np.sqrt(covcbeta)
 
             # Output statistic map
