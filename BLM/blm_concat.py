@@ -143,6 +143,12 @@ def main(*args):
 
         # Remove voxels with designs without full rank.
         Mask[np.where(np.linalg.slogdet(sumXtX)[0]==0)[0]]=0
+        tmp = np.linalg.slogdet(sumXtX)
+        print(tmp[305325])
+        print(tmp[504572])
+        print(tmp[575892])
+        print(tmp[595824])
+
         print(np.where(np.linalg.slogdet(sumXtX)[0]==0)[0])
         print('Mask Values')
         print(Mask[305325])
