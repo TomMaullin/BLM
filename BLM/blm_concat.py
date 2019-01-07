@@ -49,7 +49,7 @@ def main(*args):
         nifti = nib.load(a.readline().replace('\n', ''))
 
     NIFTIsize = nifti.shape
-    n_v = int(np.prod(NIFTIsize))
+    n_v = int(n_v)
 
     # ----------------------------------------------------------------------
     # Load X'X, X'Y, Y'Y and n_s
@@ -156,7 +156,9 @@ def main(*args):
 
     # Get indices of voxels in mask.
     M_inds = np.where(Mask==1)[0]
-    print(M_inds.shape)
+
+    # Number of voxels in mask
+    n_v_m = M_inds.shape[0]
 
     # ----------------------------------------------------------------------
     # Calculate (X'X)^(-1)
@@ -164,24 +166,14 @@ def main(*args):
     # Mask and reshape if we are using a spatially varying design.
     if SVFlag:
         
-        print(sumXtX.shape)
-        print(M_inds[1:10])
+        # Calculate masked (x'X)^(-1) values
         sumXtX_m = sumXtX[M_inds,:,:]
-        print(sumXtX_m.shape)
-        print(sumXtX_m[300:305,:,:])
+        isumXtX_m = np.linalg.inv(sumXtX_m).reshape([n_v_m, n_s*n_s])
 
-        isumXtX_m = np.linalg.inv(sumXtX_m).reshape(
-                      [sumXtX_m.shape[0],
-                       int(sumXtX_m.shape[1])*int(sumXtX_m.shape[2])])
-
-        isumXtX = np.zeros([sumXtX.shape[0],
-                            int(sumXtX.shape[1])*int(sumXtX.shape[2])])
-        
+        # Make (X'X)^(-1) unmasked
+        isumXtX = np.zeros([n_v, n_s*n_s])
         isumXtX[M_inds,:]=isumXtX_m
-
-        isumXtX = isumXtX.reshape([isumXtX.shape[0],
-                                   int(np.sqrt(isumXtX.shape[1])),
-                                   int(np.sqrt(isumXtX.shape[1]))])
+        isumXtX = isumXtX.reshape([n_v, n_s, n_s])
 
 
     # If we are not using a spatially varying design, inverse in
@@ -193,7 +185,7 @@ def main(*args):
     # If we are doing spatially varying we need to reshape XtY.
     if SVFlag:
         sumXtY = sumXtY.transpose()
-        sumXtY = sumXtY.reshape([sumXtY.shape[0], sumXtY.shape[1], 1])
+        sumXtY = sumXtY.reshape([n_v, n_p, 1])
     else:
         # If we are doing non-spatially varying we still need to mask XtY
         sumXtY[:, np.where(Mask==0)]=0
@@ -257,7 +249,7 @@ def main(*args):
     ete_m = sumYtY[M_inds] - betatXtXbeta[M_inds]
 
     # Unmask ete
-    ete = np.zeros([np.prod(NIFTIsize), 1])
+    ete = np.zeros([n_v, 1])
     ete[M_inds]=ete_m
     ete = ete.reshape(int(NIFTIsize[0]),
                       int(NIFTIsize[1]),
@@ -295,7 +287,7 @@ def main(*args):
         resms_m = ete_m/(n_s_m-n_p)
 
         # Unmask resms
-        resms = np.zeros([np.prod(NIFTIsize),1])
+        resms = np.zeros([n_v,1])
         resms[M_inds,:] = resms_m
         resms = resms.reshape(NIFTIsize[0], 
                               NIFTIsize[1],
@@ -438,7 +430,7 @@ def main(*args):
             print(covcbeta[covcbeta<0])
             print(covcbeta.shape)
             print(np.where(covcbeta<0))
-            tmp = covcbeta.reshape([np.prod(NIFTIsize),1])
+            tmp = covcbeta.reshape([n_v,1])
             print(np.where(tmp<0))
             print(sumXtX[np.where(tmp<0),:,:])
             print(isumXtX[np.where(tmp<0),:,:])
