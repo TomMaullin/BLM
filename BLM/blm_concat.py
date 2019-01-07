@@ -433,21 +433,9 @@ def main(*args):
             # To avoid division by zero errors we set the 
             # zero elements to one. XXXX ERRORS UNDER O LOOK INTO
             tmp = covcbeta.reshape([n_v,1])
+            print('tmpchk')
             print(np.where(tmp<0))
-            print('covcbeta')
-            print(tmp[np.where(tmp<0)])
-            print(tmp.shape)
-            print('sumXtX')
-            print(sumXtX[np.where(tmp<0)[0],:,:])
-            print(sumXtX.shape)
-            print('isumXtX')
-            print(isumXtX[np.where(tmp<0)[0],:,:])
-            print(isumXtX.shape)
-            print('ns')
-            n_s_sv_tmp=n_s_sv.reshape(n_v, 1)
-            print(n_s_sv_tmp[np.where(tmp<0)])
-            print(n_s_sv_tmp.shape)
-            covcbeta[covcbeta <= 0] = 1  
+            covcbeta[covcbeta == 0] = 1  
 
             # Calculate T statistic image
             tStatc = cbeta/np.sqrt(covcbeta)
