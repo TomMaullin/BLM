@@ -40,7 +40,7 @@ def main(*args):
     
     # Get number of parameters
     c1 = np.array(inputs['contrasts'][0]['c' + str(1)]['vector'])
-    if isinstance(c1, basestring):
+    if isinstance(c1, str):
         try:
             c1 = eval(c1.replace(' ', ', '))
         except:
@@ -358,7 +358,7 @@ def main(*args):
 
         # Read in contrast vector
         cvec = np.array(inputs['contrasts'][i]['c' + str(i+1)]['vector'])
-        if isinstance(cvec, basestring):
+        if isinstance(cvec, str):
             try:
                 cvec = eval(cvec.replace(' ', ', '))
             except:
