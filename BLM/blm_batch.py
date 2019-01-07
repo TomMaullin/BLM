@@ -11,18 +11,30 @@ import sys
 import os
 import shutil
 import yaml
+import pandas
+import time
+np.set_printoptions(threshold=np.nan)
 
-def main(batchNo):
-    
+def main(*args):
+
+    t1 = time.time()    
+
     # Change to blm directory
     os.chdir(os.path.dirname(os.path.realpath(__file__)))    
 
-    # Load in inputs
-    with open(os.path.join('..','blm_defaults.yml'), 'r') as stream:
-        inputs = yaml.load(stream)
+    batchNo = args[0]
+
+    if len(args)==1:
+        # Load in inputs
+        with open(os.path.join(os.getcwd(),'..','blm_defaults.yml'), 'r') as stream:
+            inputs = yaml.load(stream)
+    else:
+        # In this case inputs is first argument
+        inputs = args[1]
 
     MAXMEM = eval(inputs['MAXMEM'])
 
+    # Y volumes
     with open(inputs['Y_files']) as a:
 
         Y_files = []
@@ -31,7 +43,17 @@ def main(batchNo):
 
             Y_files.append(line.replace('\n', ''))
 
-    X = np.loadtxt(inputs['X'], delimiter=',')
+    # Mask volumes
+    with open(inputs['M_files']) as a:
+
+        M_files = []
+        i = 0
+        for line in a.readlines():
+
+            M_files.append(line.replace('\n', ''))
+
+    X = pandas.io.parsers.read_csv(
+        inputs['X'], sep=',', header=None).values
 
     SVFlag = inputs['SVFlag']
     OutDir = inputs['outdir']
@@ -54,23 +76,29 @@ def main(batchNo):
     # Reduce Y_files to only Y_files for this block.
     X = X[(blksize*(batchNo-1)):min((blksize*batchNo),len(Y_files))]
     Y_files = Y_files[(blksize*(batchNo-1)):min((blksize*batchNo),len(Y_files))]
+    M_files = M_files[(blksize*(batchNo-1)):min((blksize*batchNo),len(M_files))]
     
     # Obtain n map and verify input
-    nmap = verifyInput(Y_files, Y0)
+    nmap = verifyInput(Y_files, M_files, Y0)
     nib.save(nmap, os.path.join(OutDir,'tmp',
                     'blm_vox_n_batch'+ str(batchNo) + '.nii'))
 
     # Obtain Y and a mask for Y. This mask is just for voxels
     # with no studies present.
-    Y, Mask = obtainY(Y_files)
+    Y, Mask = obtainY(Y_files, M_files)
 
     # For spatially varying,
     if SVFlag:
         MX = blkMX(X, Y)
-
+    
     # Get X transpose Y, X transpose X and Y transpose Y.
     XtY = blkXtY(X, Y, Mask)
     YtY = blkYtY(Y, Mask)
+    print('Y')
+    print(Y.shape)
+    print(Y[:, 70000])
+    print('YtY')
+    print(YtY[70000,:])
 
     if not SVFlag:
         XtX = blkXtX(X)
@@ -85,6 +113,10 @@ def main(batchNo):
         XtX = np.zeros([Mask.shape[0],XtX_m.shape[1]])
         XtX[np.flatnonzero(Mask),:] = XtX_m[:]
 
+    # Pandas reads and writes files much more quickly with nrows <<
+    # number of columns
+    XtY = XtY.transpose()
+
     # Record XtX and XtY
     np.savetxt(os.path.join(OutDir,"tmp","XtX" + str(batchNo) + ".csv"), 
                XtX, delimiter=",") 
@@ -94,7 +126,7 @@ def main(batchNo):
                YtY, delimiter=",") 
     w.resetwarnings()
 
-def verifyInput(Y_files, Y0):
+def verifyInput(Y_files, M_files, Y0):
 
     # Obtain information about zero-th scan
     d0 = Y0.get_data()
@@ -104,14 +136,23 @@ def verifyInput(Y_files, Y0):
     sumVox = np.zeros(d0.shape)
 
     # Initial checks for NIFTI compatability.
-    for Y_file in Y_files:
+    for i in range(0, len(Y_files)):
+
+        Y_file = Y_files[i]
+        M_file = M_files[i]
 
         try:
             Y = nib.load(Y_file)
         except Exception as error:
             raise ValueError('The NIFTI "' + Y_file + '"does not exist')
 
-        d = Y.get_data()
+        try:
+            M = nib.load(M_file)
+        except Exception as error:
+            raise ValueError('The NIFTI "' + M_file + '"does not exist')
+
+
+        d = np.multiply(Y.get_data(), M.get_data())
         
         # Count number of scans at each voxel
         sumVox = sumVox + 1*(np.nan_to_num(d)!=0)
@@ -151,7 +192,7 @@ def blkMX(X,Y):
 
     return MX
 
-def obtainY(Y_files):
+def obtainY(Y_files, M_files):
 
     # Load in one nifti to check NIFTI size
     Y0 = nib.load(Y_files[0])
@@ -169,7 +210,10 @@ def obtainY(Y_files):
 
         # Read in each individual NIFTI.
         Y_indiv = nib.load(Y_files[i])
-        d = Y_indiv.get_data()
+        M_indiv = nib.load(M_files[i])
+        d = np.multiply(
+            Y_indiv.get_data(),
+            M_indiv.get_data())
 
         # NaN check
         d = np.nan_to_num(d)
@@ -178,9 +222,13 @@ def obtainY(Y_files):
         Y[i, :] = d.reshape([1, nvox])
     
     Mask = np.zeros([nvox])
-    Mask[np.where(np.count_nonzero(Y, axis=0)>1)[0]] = 1
+    print('mask shape')
+    print(Mask.shape)
+    Mask[np.where(np.count_nonzero(Y, axis=0)>0)[0]] = 1
 
-    Y = Y[:, np.where(np.count_nonzero(Y, axis=0)>1)[0]]
+    print('Y shape')
+    print(Y.shape)
+    Y = Y[:, np.where(np.count_nonzero(Y, axis=0)>0)[0]]
 
     return Y, Mask
 
@@ -192,13 +240,24 @@ def blkYtY(Y, Mask):
     nscan = Y.shape[0]
     nvox = Y.shape[1]
 
+    print('Y shape')
+    print(Y.shape)
     # Reshape Y
+    print('Y transpose shape')
+    print(Y.transpose().shape)
     Y_rs = Y.transpose().reshape(nvox, nscan, 1)
     Yt_rs = Y.transpose().reshape(nvox, 1, nscan)
+    print('1')
+    print(Y_rs[70000, :, 0])
+    print('2')
+    print(Yt_rs[70000, 0, :])
     del Y
 
     # Calculate Y transpose Y.
+    print('YtY masked')
     YtY_m = np.matmul(Yt_rs,Y_rs).reshape([nvox, 1])
+    print('3')
+    print(YtY_m[70000,:])
 
     # Unmask YtY
     YtY = np.zeros([Mask.shape[0], 1])
@@ -232,6 +291,7 @@ def blkXtY(X, Y, Mask):
 def blkXtX(X):
 
     if np.ndim(X) == 3:
+
 
         Xt = X.transpose((0, 2, 1))
         XtX = np.matmul(Xt, X)

@@ -11,15 +11,22 @@ import sys
 import os
 import shutil
 import yaml
+import time
 
 def main(*args):
+
+    t1 = time.time()
 
     # Change to blm directory
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
-    # Load in inputs
-    with open(os.path.join('..','blm_defaults.yml'), 'r') as stream:
-        inputs = yaml.load(stream)
+    if len(args)==0:
+        # Load in inputs
+        with open(os.path.join('..','blm_defaults.yml'), 'r') as stream:
+            inputs = yaml.load(stream)
+    else:
+        # In this case inputs is first argument
+        inputs = args[0]      
 
     MAXMEM = eval(inputs['MAXMEM'])
     OutDir = inputs['outdir']
@@ -54,10 +61,15 @@ def main(*args):
     # to work out how many blocks we use.
     blksize = np.floor(MAXMEM/8/NIFTIsize);
 
+    print(len(Y_files))
+    print(blksize)
+
     with open(os.path.join(OutDir, "nb.txt"), 'w') as f:
         print(int(np.ceil(len(Y_files)/int(blksize))), file=f)
 
     w.resetwarnings()
+
+    t2 = time.time()
 
 if __name__ == "__main__":
     main()
