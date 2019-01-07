@@ -42,7 +42,7 @@ def main(*args):
     c1 = inputs['contrasts'][0]['c' + str(1)]['vector']
     if isinstance(c1, str):
         try:
-            c1 = eval(c1[0].replace(' ', ', '))
+            c1 = eval('[' + c1[0].replace(' ', ', ') + ']')
         except:
             print('Error: Contrast Vector ' + c1 + ' is input incorrectly.')
     c1 = np.array(c1)
