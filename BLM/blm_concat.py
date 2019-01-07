@@ -49,6 +49,7 @@ def main(*args):
     print(c1)
     print(type(c1))
     n_p = c1.shape[0]
+    print(n_p)
     del c1
     
     # Read in the nifti size and work out number of voxels.
@@ -360,12 +361,14 @@ def main(*args):
     for i in range(0,n_c):
 
         # Read in contrast vector
-        cvec = np.array(inputs['contrasts'][i]['c' + str(i+1)]['vector'])
-        if isinstance(cvec, str):
+        # Get number of parameters
+        cvec = inputs['contrasts'][0]['c' + str(1)]['vector']
+        if isinstance(cvec[0], str):
             try:
-                cvec = eval(cvec.replace(' ', ', '))
+                cvec = eval('[' + cvec[0].replace(' ', ', ') + ']')
             except:
                 print('Error: Contrast Vector ' + cvec + ' is input incorrectly.')
+        cvec = np.array(cvec)
 
         # Calculate C\hat{\beta}}
         cbeta = np.matmul(cvec, beta)
