@@ -133,7 +133,10 @@ def main(*args):
     # If spatially varying remove the designs that aren't of full rank.
     if SVFlag:
 
-        Mask[n_s_sv.reshape(n_v, 1)>n_p]=1
+        # We remove anything with 1 degree of freedom (or less) by default.
+        # 1 degree of freedom seems to cause broadcasting errors on a very
+        # small percentage of voxels.
+        Mask[n_s_sv.reshape(n_v, 1)>n_p+1]=1
 
         # Reshape sumXtX to correct n_v by n_p by n_p
         sumXtX = sumXtX.reshape([n_v, n_p, n_p])
