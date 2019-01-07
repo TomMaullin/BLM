@@ -118,14 +118,18 @@ def main(*args):
     elif np.ndim(sumXtY) == 1:
         sumXtY = np.array([sumXtY])
 
+    # Get ns and spatially varying ns.
+    n_s_sv = nib.load(os.path.join(OutDir,'blm_vox_n.nii'))
+    n_s_sv = n_s_sv.get_data()
+    X = pandas.io.parsers.read_csv(
+        inputs['X'], sep=',', header=None).values
+    n_s = X.shape[0]
+
     # ----------------------------------------------------------------------
     # Create Mask
     # ----------------------------------------------------------------------
 
     Mask = np.zeros([n_v, 1])
-    # Add all voxels where spatially varying n_s > n_p
-    n_s_sv = nib.load(os.path.join(OutDir,'blm_vox_n.nii'))
-    n_s_sv = n_s.get_data()
     print(Mask.shape)
 
     # If spatially varying remove the designs that aren't of full rank.
@@ -198,6 +202,7 @@ def main(*args):
 
     if SVFlag:
         beta = beta.reshape([beta.shape[0], beta.shape[1]]).transpose()
+        print(beta.shape)
 
     # Cycle through betas and output results.
     for i in range(0,beta.shape[0]):
@@ -263,11 +268,6 @@ def main(*args):
     # freedom
     if not SVFlag:
 
-        # Get number of scans and number of parameters
-        X = pandas.io.parsers.read_csv(
-            inputs['X'], sep=',', header=None).values
-        n_s = X.shape[0]
-
         # In non spatially varying the degrees of freedom
         # are fixed across voxels
         resms = ete/(n_s-n_p)
@@ -275,8 +275,8 @@ def main(*args):
     else:
 
         # Mask n_s
-        n_s_m = n_s.reshape(n_v, 1)
-        n_s_m = n_s_m[M_inds,:]
+        n_s_sv_m = n_s_sv.reshape(n_v, 1)
+        n_s_sv_m = n_s_sv_m[M_inds,:]
 
         # Mask ete
         ete_m = ete.reshape(n_v, 1)
@@ -284,7 +284,7 @@ def main(*args):
 
         # In spatially varying the degrees of freedom
         # varies across voxels
-        resms_m = ete_m/(n_s_m-n_p)
+        resms_m = ete_m/(n_s_sv_m-n_p)
 
         # Unmask resms
         resms = np.zeros([n_v,1])
