@@ -358,10 +358,10 @@ def main(*args):
 
         # Read in contrast vector
         # Get number of parameters
-        cvec = inputs['contrasts'][0]['c' + str(1)]['vector']
-        if isinstance(cvec[0], str):
+        cvec = inputs['contrasts'][i]['c' + str(i+1)]['vector']
+        if isinstance(cvec[i], str):
             try:
-                cvec = eval('[' + cvec[0].replace(' ', ', ') + ']')
+                cvec = eval('[' + cvec[i].replace(' ', ', ') + ']')
             except:
                 print('Error: Contrast Vector ' + cvec + ' is input incorrectly.')
         cvec = np.array(cvec)
