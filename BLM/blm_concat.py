@@ -41,7 +41,6 @@ def main(*args):
     # Get number of parameters
     c1 = np.array(inputs['contrasts'][0]['c' + str(1)]['vector'])
     n_p = c1.shape[0]
-    print(n_p)
     del c1
     
     # Read in the nifti size and work out number of voxels.
@@ -130,7 +129,6 @@ def main(*args):
     # ----------------------------------------------------------------------
 
     Mask = np.zeros([n_v, 1])
-    print(Mask.shape)
 
     # If spatially varying remove the designs that aren't of full rank.
     if SVFlag:
@@ -142,7 +140,6 @@ def main(*args):
 
         # Remove voxels with designs without full rank.
         Mask[np.where(np.linalg.det(sumXtX)==0)[0]]=0
-        print(np.where(np.linalg.det(sumXtX)==0)[0])
 
     else:
 
@@ -202,7 +199,6 @@ def main(*args):
 
     if SVFlag:
         beta = beta.reshape([beta.shape[0], beta.shape[1]]).transpose()
-        print(beta.shape)
 
     # Cycle through betas and output results.
     for i in range(0,beta.shape[0]):
@@ -353,12 +349,6 @@ def main(*args):
 
         # Calculate C\hat{\beta}}
         cbeta = np.matmul(cvec, beta)
-        print('contrast')
-        print(cvec)
-        print('beta')
-        print(beta[:, 300000])
-        print('cbeta')
-        print(cbeta[300000])
 
         if inputs['contrasts'][i]['c' + str(i+1)]['statType'] == 'T':
 
@@ -427,13 +417,20 @@ def main(*args):
 
             # To avoid division by zero errors we set the 
             # zero elements to one. XXXX ERRORS UNDER O LOOK INTO
-            print(covcbeta[covcbeta<0])
-            print(covcbeta.shape)
-            print(np.where(covcbeta<0))
             tmp = covcbeta.reshape([n_v,1])
             print(np.where(tmp<0))
+            print('covcbeta')
+            print(tmp[np.where(tmp<0)])
+            print(tmp.shape)
+            print('sumXtX')
             print(sumXtX[np.where(tmp<0),:,:])
+            print(sumXtX.shape)
+            print('isumXtX')
             print(isumXtX[np.where(tmp<0),:,:])
+            print(isumXtX.shape)
+            print('ns')
+            print(n_s_sv[np.where(tmp<0)])
+            print(n_s_sv.shape)
             covcbeta[covcbeta <= 0] = 1        
 
             # Calculate T statistic image
