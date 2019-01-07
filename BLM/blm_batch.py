@@ -94,12 +94,7 @@ def main(*args):
     # Get X transpose Y, X transpose X and Y transpose Y.
     XtY = blkXtY(X, Y, Mask)
     YtY = blkYtY(Y, Mask)
-    print('Y')
-    print(Y.shape)
-    print(Y[:, 70000])
-    print('YtY')
-    print(YtY[70000,:])
-
+    
     if not SVFlag:
         XtX = blkXtX(X)
     else:
@@ -222,12 +217,8 @@ def obtainY(Y_files, M_files):
         Y[i, :] = d.reshape([1, nvox])
     
     Mask = np.zeros([nvox])
-    print('mask shape')
-    print(Mask.shape)
     Mask[np.where(np.count_nonzero(Y, axis=0)>0)[0]] = 1
-
-    print('Y shape')
-    print(Y.shape)
+    
     Y = Y[:, np.where(np.count_nonzero(Y, axis=0)>0)[0]]
 
     return Y, Mask
@@ -239,25 +230,14 @@ def blkYtY(Y, Mask):
     # Read in number of scans and voxels.
     nscan = Y.shape[0]
     nvox = Y.shape[1]
-
-    print('Y shape')
-    print(Y.shape)
+    
     # Reshape Y
-    print('Y transpose shape')
-    print(Y.transpose().shape)
     Y_rs = Y.transpose().reshape(nvox, nscan, 1)
     Yt_rs = Y.transpose().reshape(nvox, 1, nscan)
-    print('1')
-    print(Y_rs[70000, :, 0])
-    print('2')
-    print(Yt_rs[70000, 0, :])
     del Y
 
     # Calculate Y transpose Y.
-    print('YtY masked')
     YtY_m = np.matmul(Yt_rs,Y_rs).reshape([nvox, 1])
-    print('3')
-    print(YtY_m[70000,:])
 
     # Unmask YtY
     YtY = np.zeros([Mask.shape[0], 1])
@@ -291,7 +271,6 @@ def blkXtY(X, Y, Mask):
 def blkXtX(X):
 
     if np.ndim(X) == 3:
-
 
         Xt = X.transpose((0, 2, 1))
         XtX = np.matmul(Xt, X)

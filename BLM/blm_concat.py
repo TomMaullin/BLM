@@ -46,10 +46,7 @@ def main(*args):
         except:
             print('Error: Contrast Vector ' + c1 + ' is input incorrectly.')
     c1 = np.array(c1)
-    print(c1)
-    print(type(c1))
     n_p = c1.shape[0]
-    print(n_p)
     del c1
     
     # Read in the nifti size and work out number of voxels.
@@ -210,16 +207,11 @@ def main(*args):
     beta = np.matmul(isumXtX, sumXtY)
 
     if SVFlag:
-        print(n_v)
-        print(n_p)
-        print(beta.shape)
         beta = beta.reshape([n_v, n_p]).transpose()
 
-    print(beta.shape)
     # Cycle through betas and output results.
     for i in range(0,beta.shape[0]):
-
-        print(beta[i,:].shape)
+        
         betai = beta[i,:].reshape(int(NIFTIsize[0]),
                                   int(NIFTIsize[1]),
                                   int(NIFTIsize[2]))
@@ -318,7 +310,6 @@ def main(*args):
     if not SVFlag:
 
         # Output variance for each pair of betas
-        print(isumXtX.shape)
         for i in range(0,n_p):
             for j in range(0,n_p):
 

@@ -60,10 +60,7 @@ def main(*args):
     # Similar to blksize in SwE, we divide by 8 times the size of a nifti
     # to work out how many blocks we use.
     blksize = np.floor(MAXMEM/8/NIFTIsize);
-
-    print(len(Y_files))
-    print(blksize)
-
+    
     with open(os.path.join(OutDir, "nb.txt"), 'w') as f:
         print(int(np.ceil(len(Y_files)/int(blksize))), file=f)
 
