@@ -40,7 +40,7 @@ def main(*args):
     
     # Get number of parameters
     c1 = np.array(inputs['contrasts'][0]['c' + str(1)]['vector'])
-    if isinstance(c1, str):
+    if not isinstance(c1, list):
         try:
             c1 = eval('[' + c1[0].replace(' ', ', ') + ']')
         except:
