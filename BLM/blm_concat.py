@@ -211,11 +211,15 @@ def main(*args):
 
     if SVFlag:
         print(n_v)
-        beta = beta.reshape([n_p, n_v]).transpose()
+        print(n_p)
+        print(beta.shape)
+        beta = beta.reshape([n_v, n_p]).transpose()
 
+    print(beta.shape)
     # Cycle through betas and output results.
     for i in range(0,beta.shape[0]):
 
+        print(beta[i,:].shape)
         betai = beta[i,:].reshape(int(NIFTIsize[0]),
                                   int(NIFTIsize[1]),
                                   int(NIFTIsize[2]))
