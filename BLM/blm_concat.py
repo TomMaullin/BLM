@@ -353,6 +353,11 @@ def main(*args):
 
         # Read in contrast vector
         cvec = np.array(inputs['contrasts'][i]['c' + str(i+1)]['vector'])
+        if isinstance(cvec, basestring):
+            try:
+                cvec = eval(cvec.replace(' ', ', '))
+            except:
+                print('Error: Contrast Vector ' + cvec + ' is input incorrectly.')
 
         # Calculate C\hat{\beta}}
         cbeta = np.matmul(cvec, beta)
