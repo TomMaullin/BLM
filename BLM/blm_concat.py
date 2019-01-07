@@ -45,6 +45,8 @@ def main(*args):
             c1 = eval(c1.replace(' ', ', '))
         except:
             print('Error: Contrast Vector ' + c1 + ' is input incorrectly.')
+    print(c1)
+    print(type(c1))
     n_p = c1.shape[0]
     del c1
     
