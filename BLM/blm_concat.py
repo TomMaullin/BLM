@@ -40,6 +40,11 @@ def main(*args):
     
     # Get number of parameters
     c1 = np.array(inputs['contrasts'][0]['c' + str(1)]['vector'])
+    if isinstance(c1, basestring):
+        try:
+            c1 = eval(c1.replace(' ', ', '))
+        except:
+            print('Error: Contrast Vector ' + c1 + ' is input incorrectly.')
     n_p = c1.shape[0]
     del c1
     
