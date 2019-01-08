@@ -504,6 +504,15 @@ def main(*args):
                     os.path.join(OutDir, 
                         'blm_vox_Fstat_c' + str(i+1) + '.nii'))
 
+            else:
+                
+                # Get dimension of cvector
+                q = cvec.shape[0]
+
+                print(cvec.shape)
+                print(isumXtX.shape)
+                print(cbeta.shape)
+
 
 
 
