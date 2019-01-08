@@ -368,7 +368,9 @@ def main(*args):
                     cvec = eval('[' + cvec[0].replace(' ', ', ') + ']')
                 else:
                     cvec = []
+                    print(len(cvec))
                     for i in range(0, len(cvec)):
+                        print(i)
                         cvec = cvec + eval('[' + cvec[0][i].replace(' ', ', ') + ']')
                         print(eval('[' + cvec[0][i].replace(' ', ', ') + ']'))
                         print(type(eval('[' + cvec[0][i].replace(' ', ', ') + ']')))
