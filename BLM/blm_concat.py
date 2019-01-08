@@ -364,17 +364,9 @@ def main(*args):
         if isinstance(cvec[0], str):
             try:
                 if len(cvec)==1:
-                    print('active')
                     cvec = eval('[' + cvec[0].replace(' ', ', ') + ']')
                 else:
-                    cvec = []
-                    print(len(cvec))
-                    for i in range(0, len(cvec)):
-                        print(i)
-                        cvec = cvec + eval('[' + cvec[0][i].replace(' ', ', ') + ']')
-                        print(eval('[' + cvec[0][i].replace(' ', ', ') + ']'))
-                        print(type(eval('[' + cvec[0][i].replace(' ', ', ') + ']')))
-
+                    print('Error: Contrast Vector ' + cvec + ' is input incorrectly.')
             except:
                 print('Error: Contrast Vector ' + cvec + ' is input incorrectly.')
         cvec = np.array(cvec)
