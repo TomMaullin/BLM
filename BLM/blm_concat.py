@@ -508,6 +508,17 @@ def main(*args):
                     np.transpose(cvec))
 
 
+                # Cbeta needs to be nvox by 1 by npar for stacked
+                # multiply.
+                cbeta = cbeta.reshape(
+                    cbeta.shape[0],
+                    cbeta.shape[1],
+                    1)
+                cbeta = cbeta.transpose(1, 0, 2)
+
+                print(cbeta.shape)
+
+
 
     # Clean up files
     os.remove(os.path.join(OutDir, 'nb.txt'))
