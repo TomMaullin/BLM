@@ -522,6 +522,11 @@ def main(*args):
                 print(isumXtX.shape)
                 print(cbeta.shape)
 
+                # Calculate c'(X'X)^(-1)c
+                # (Note C is read in the other way around for F)
+                cvectiXtXcvec = np.matmul(
+                    np.matmul(cvec, isumXtX),
+                    np.transpose(cvec))
 
 
 
