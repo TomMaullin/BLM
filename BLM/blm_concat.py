@@ -363,7 +363,13 @@ def main(*args):
         print(type(cvec))
         if isinstance(cvec[0], str):
             try:
-                cvec = eval('[' + cvec[i].replace(' ', ', ') + ']')
+                if len(cvec)==1:
+                    cvec = eval('[' + cvec[0].replace(' ', ', ') + ']')
+                else:
+                    cvec = []
+                    for i in range(0, len(cvec)):
+                        cvec = cvec + eval('[' + cvec[0][i].replace(' ', ', ') + ']')
+
             except:
                 print('Error: Contrast Vector ' + cvec + ' is input incorrectly.')
         cvec = np.array(cvec)
