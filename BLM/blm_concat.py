@@ -39,12 +39,7 @@ def main(*args):
     OutDir = inputs['outdir']
     
     # Get number of parameters
-    c1 = inputs['contrasts'][0]['c' + str(1)]['vector']
-    if isinstance(c1[0], str):
-        try:
-            c1 = eval('[' + c1[0].replace(' ', ', ') + ']')
-        except:
-            print('Error: Contrast Vector ' + c1 + ' is input incorrectly.')
+    c1 = blm_eval(inputs['contrasts'][0]['c' + str(1)]['vector'])
     c1 = np.array(c1)
     n_p = c1.shape[0]
     del c1
@@ -358,17 +353,7 @@ def main(*args):
 
         # Read in contrast vector
         # Get number of parameters
-        cvec = inputs['contrasts'][i]['c' + str(i+1)]['vector']
-        print(cvec)
-        print(type(cvec))
-        if isinstance(cvec[0], str):
-            try:
-                if len(cvec)==1:
-                    cvec = eval('[' + cvec[0].replace(' ', ', ') + ']')
-                else:
-                    print('Error: Contrast Vector ' + cvec + ' is input incorrectly.')
-            except:
-                print('Error: Contrast Vector ' + cvec + ' is input incorrectly.')
+        cvec = blm_eval(inputs['contrasts'][i]['c' + str(i+1)]['vector'])
         cvec = np.array(cvec)
 
         # Calculate C\hat{\beta}}
@@ -560,6 +545,24 @@ def blm_inverse(A, ouflow=False):
         iA = np.matmul(np.matmul(D, iA), D)
 
     return(iA)
+
+# This is a small function to help evaluate a string containing
+# a contrast vector
+def blm_eval(c):
+
+    c = str(c)
+    c = c.replace("'", "")
+    c = c.replace('][', '], [').replace('],[', '], [').replace('] [', '], [')
+    c = c.replace('[ [', '[[').replace('] ]', ']]')
+    cs = c.split(' ')
+    cf = ''
+    for i in range(0,len(cs)):
+        cs[i]=cs[i].replace(',', '')
+        cf=cf + cs[i]
+        if i < (len(cs)-1):
+            cf = cf + ', '
+        
+    return(eval(cf))
 
 if __name__ == "__main__":
     main()
