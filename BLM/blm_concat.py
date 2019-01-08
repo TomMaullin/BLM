@@ -364,11 +364,14 @@ def main(*args):
         if isinstance(cvec[0], str):
             try:
                 if len(cvec)==1:
+                    print('active')
                     cvec = eval('[' + cvec[0].replace(' ', ', ') + ']')
                 else:
                     cvec = []
                     for i in range(0, len(cvec)):
                         cvec = cvec + eval('[' + cvec[0][i].replace(' ', ', ') + ']')
+                        print(eval('[' + cvec[0][i].replace(' ', ', ') + ']'))
+                        print(type(eval('[' + cvec[0][i].replace(' ', ', ') + ']')))
 
             except:
                 print('Error: Contrast Vector ' + cvec + ' is input incorrectly.')
