@@ -361,7 +361,7 @@ def main(*args):
         cvec = inputs['contrasts'][i]['c' + str(i+1)]['vector']
         print(cvec)
         print(type(cvec))
-        if isinstance(cvec[i], str):
+        if isinstance(cvec[0], str):
             try:
                 cvec = eval('[' + cvec[i].replace(' ', ', ') + ']')
             except:
