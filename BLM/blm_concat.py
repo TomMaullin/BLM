@@ -518,6 +518,18 @@ def main(*args):
 
                 print(cbeta.shape)
 
+                # Calculate masked (x'X)^(-1) values
+                cvectiXtXcvec_m = cvectiXtXcvec[M_inds,:,:]
+                icvectiXtXcvec_m = np.linalg.inv(cvectiXtXcvec_m).reshape([n_v_m, q*q])
+
+                # Make (X'X)^(-1) unmasked
+                icvectiXtXcvec = np.zeros([n_v, q*q])
+                icvectiXtXcvec[M_inds,:]=icvectiXtXcvec_m
+                icvectiXtXcvec = icvectiXtXcvec.reshape([n_v, q, q])
+
+                print(icvectiXtXcvec_m[1:20,:])
+                print(icvectiXtXcvec.shape)
+
 
 
     # Clean up files
