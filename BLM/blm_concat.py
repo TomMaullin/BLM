@@ -359,6 +359,8 @@ def main(*args):
         # Read in contrast vector
         # Get number of parameters
         cvec = inputs['contrasts'][i]['c' + str(i+1)]['vector']
+        print(cvec)
+        print(type(cvec))
         if isinstance(cvec[i], str):
             try:
                 cvec = eval('[' + cvec[i].replace(' ', ', ') + ']')
