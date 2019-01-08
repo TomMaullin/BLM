@@ -525,7 +525,7 @@ def blm_inverse(A, ouflow=False):
 
         # Calculate D, diagonal matrix with diagonal
         # elements D_ii equal to 1/sqrt(A_ii)
-        D = np.zeros([3,3])
+        D = np.zeros(A.shape)
         np.fill_diagonal(D, 1/np.sqrt(A.diagonal()))
 
         # Precondition A.
