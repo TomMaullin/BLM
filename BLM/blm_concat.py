@@ -180,7 +180,12 @@ def main(*args):
         isumXtX[M_inds,:]=isumXtX_m
         isumXtX = isumXtX.reshape([n_v, n_p, n_p])
 
-        blm_inverse(sumXtX_m, SVFlag, ouflow=True)
+        isumXtX_m2 = blm_inverse(sumXtX_m, SVFlag, ouflow=True).reshape([n_v_m, n_p*n_p])
+
+        print(isumXtX_m[1:20,:])
+        print(isumXtX_m2[1:20,:])
+
+
 
 
     # If we are not using a spatially varying design, inverse in
