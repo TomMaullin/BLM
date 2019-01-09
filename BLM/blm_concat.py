@@ -439,32 +439,87 @@ def main(*args):
 
             print('cvec')
             print(cvec)
-
-            # Get dimension of cvector
-            q = cvec.shape[0]
-            
-            # Calculate c'(X'X)^(-1)c
-            # (Note C is read in the other way around for F)
-            cvectiXtXcvec = np.matmul(
-                np.matmul(cvec, isumXtX),
-                np.transpose(cvec))
-
-
-            # Cbeta needs to be nvox by 1 by npar for stacked
-            # multiply.
-            cbeta = cbeta.reshape(
-                cbeta.shape[0],
-                cbeta.shape[1],
-                1)
-            cbeta = cbeta.transpose(1, 0, 2)
         
             # Not spatially varying
             if not SVFlag:
+                
+                # Get dimension of cvector
+                q = cvec.shape[0]
+
+                # Calculate c'(X'X)^(-1)c
+                # (Note C is read in the other way around for F)
+                cvectiXtXcvec = np.matmul(
+                    np.matmul(cvec, isumXtX),
+                    np.transpose(cvec))
+
+                # Cbeta needs to be nvox by 1 by npar for stacked
+                # multiply.
+                cbeta = cbeta.reshape(
+                    cbeta.shape[0],
+                    cbeta.shape[1],
+                    1)
+                cbeta = cbeta.transpose(1, 0, 2)
 
                 # Calculate the inverse
                 icvectiXtXcvec = blm_inverse(cvectiXtXcvec, ouflow=True)
 
+                # Calculate the numerator of the F statistic
+                Fnumerator = np.matmul(
+                    cbeta.transpose(0, 2, 1),
+                    np.matmul(icvectiXtXcvec, cbeta))
+                # Fnumerator2 = np.matmul(
+                #     cbeta.transpose(0, 2, 1),
+                #     np.linalg.solve(cvectiXtXcvec, cbeta))
+                Fnumerator = Fnumerator.reshape(n_v)
+
+                # Calculate the denominator of the F statistic
+                Fdenominator = (q*resms).reshape(n_v)
+                # Remove zeros in Fdenominator to avoid divide by 
+                # zero errors. This should really be done with 
+                # masking
+                Fdenominator[Fdenominator == 0] = 1
+
+                # Calculate F statistic.
+                fStatc = Fnumerator/Fdenominator
+                fStatc = fStatc.reshape(
+                    NIFTIsize[0],
+                    NIFTIsize[1],
+                    NIFTIsize[2]
+                    )
+
+                # Output statistic map
+                fStatcmap = nib.Nifti1Image(fStatc,
+                                            nifti.affine,
+                                            header=nifti.header)
+                nib.save(fStatcmap,
+                    os.path.join(OutDir, 
+                        'blm_vox_Fstat_c' + str(i+1) + '.nii'))
+
             else:
+                
+                # Get dimension of cvector
+                q = cvec.shape[0]
+
+                print(cvec.shape)
+                print(isumXtX.shape)
+                print(cbeta.shape)
+
+                # Calculate c'(X'X)^(-1)c
+                # (Note C is read in the other way around for F)
+                cvectiXtXcvec = np.matmul(
+                    np.matmul(cvec, isumXtX),
+                    np.transpose(cvec))
+
+
+                # Cbeta needs to be nvox by 1 by npar for stacked
+                # multiply.
+                cbeta = cbeta.reshape(
+                    cbeta.shape[0],
+                    cbeta.shape[1],
+                    1)
+                cbeta = cbeta.transpose(1, 0, 2)
+
+                print(cbeta.shape)
 
                 # Calculate masked (x'X)^(-1) values
                 cvectiXtXcvec_m = cvectiXtXcvec[M_inds,:,:]
@@ -475,34 +530,42 @@ def main(*args):
                 icvectiXtXcvec[M_inds,:]=icvectiXtXcvec_m
                 icvectiXtXcvec = icvectiXtXcvec.reshape([n_v, q, q])
 
-            # Calculate the numerator of the F statistic
-            Fnumerator = np.matmul(
-                cbeta.transpose(0, 2, 1),
-                np.matmul(icvectiXtXcvec, cbeta))
-            Fnumerator = Fnumerator.reshape(n_v)
+                print(icvectiXtXcvec_m[1:20,:])
+                print(icvectiXtXcvec.shape)
 
-            # Calculate the denominator of the F statistic
-            Fdenominator = (q*resms).reshape(n_v)
-            # Remove zeros in Fdenominator to avoid divide by 
-            # zero errors. This should really be done with 
-            # masking
-            Fdenominator[Fdenominator == 0] = 1
+                # Calculate the numerator of the F statistic
+                Fnumerator = np.matmul(
+                    cbeta.transpose(0, 2, 1),
+                    np.matmul(icvectiXtXcvec, cbeta))
+                # Fnumerator2 = np.matmul(
+                #     cbeta.transpose(0, 2, 1),
+                #     np.linalg.solve(cvectiXtXcvec, cbeta))
+                Fnumerator = Fnumerator.reshape(n_v)
 
-            # Calculate F statistic.
-            fStatc = Fnumerator/Fdenominator
-            fStatc = fStatc.reshape(
-                NIFTIsize[0],
-                NIFTIsize[1],
-                NIFTIsize[2]
-                )
+                # Calculate the denominator of the F statistic
+                Fdenominator = (q*resms).reshape(n_v)
+                # Remove zeros in Fdenominator to avoid divide by 
+                # zero errors. This should really be done with 
+                # masking
+                Fdenominator[Fdenominator == 0] = 1
 
-            # Output statistic map
-            fStatcmap = nib.Nifti1Image(fStatc,
-                                        nifti.affine,
-                                        header=nifti.header)
-            nib.save(fStatcmap,
-                os.path.join(OutDir, 
-                    'blm_vox_Fstat_c' + str(i+1) + '.nii'))
+                # Calculate F statistic.
+                fStatc = Fnumerator/Fdenominator
+                fStatc = fStatc.reshape(
+                    NIFTIsize[0],
+                    NIFTIsize[1],
+                    NIFTIsize[2]
+                    )
+
+                # Output statistic map
+                fStatcmap = nib.Nifti1Image(fStatc,
+                                            nifti.affine,
+                                            header=nifti.header)
+                nib.save(fStatcmap,
+                    os.path.join(OutDir, 
+                        'blm_vox_Fstat_c' + str(i+1) + '.nii'))
+
+
 
     # Clean up files
     os.remove(os.path.join(OutDir, 'nb.txt'))
