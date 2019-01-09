@@ -180,12 +180,14 @@ def main(*args):
         isumXtX[M_inds,:]=isumXtX_m
         isumXtX = isumXtX.reshape([n_v, n_p, n_p])
 
+        blm_inverse(sumXtX_m, SVFlag, ouflow=True)
+
 
     # If we are not using a spatially varying design, inverse in
     # the normal manner.
     else:
         # Calculate inverse of XtX
-        isumXtX = blm_inverse(sumXtX)
+        isumXtX = blm_inverse(sumXtX, SVFlag)
 
     # If we are doing spatially varying we need to reshape XtY.
     if SVFlag:
@@ -458,7 +460,7 @@ def main(*args):
             if not SVFlag:
 
                 # Calculate the inverse
-                icvectiXtXcvec = blm_inverse(cvectiXtXcvec, ouflow=True)
+                icvectiXtXcvec = blm_inverse(cvectiXtXcvec, SVFlag, ouflow=True)
 
             else:
 
@@ -514,17 +516,39 @@ def main(*args):
 
 # This function inverts matrix A. If ouflow is True,
 # special handling is used to account for over/under
-# flow.
-def blm_inverse(A, ouflow=False):
+# flow. In this case, it assumes that A has non-zero
+# diagonals.
+def blm_inverse(A, SVFlag, ouflow=False):
 
 
     # If ouflow is true, we need to precondition A.
     if ouflow:
 
-        # Calculate D, diagonal matrix with diagonal
-        # elements D_ii equal to 1/sqrt(A_ii)
-        D = np.zeros(A.shape)
-        np.fill_diagonal(D, 1/np.sqrt(A.diagonal()))
+        if not SVFlag:
+
+            # Calculate D, diagonal matrix with diagonal
+            # elements D_ii equal to 1/sqrt(A_ii)
+            D = np.zeros(A.shape)
+            np.fill_diagonal(D, 1/np.sqrt(A.diagonal()))
+
+        else:
+
+            # Work out number of matrices and dimension of
+            # matrices. I.e. if we have seven 3 by 3 matrices
+            # to invert n_m = 7, d_m = 3.
+            n_m = A.shape[0]
+            d_m = A.shape[1]
+
+            # Make D to be filled with diagonal elements
+            D = np.broadcast_to(np.eye(d_m), (n_m,d_m,d_m)).copy()
+
+            # Obtain 1/sqrt(diagA)
+            diagA = 1/np.sqrt(A.diagonal(0,1,2))
+            diagA = diagA.reshape(n_m, d_m)
+
+            # Make this back into diagonal matrices
+            diaginds = np.diag_indices(d_m)
+            D[:, diaginds[0], diaginds[1]] = diagA 
 
         # Precondition A.
         A = np.matmul(np.matmul(D, A), D)
