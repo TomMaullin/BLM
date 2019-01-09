@@ -530,6 +530,38 @@ def main(*args):
                 print(icvectiXtXcvec_m[1:20,:])
                 print(icvectiXtXcvec.shape)
 
+                # Calculate the numerator of the F statistic
+                Fnumerator = np.matmul(
+                    cbeta.transpose(0, 2, 1),
+                    np.matmul(icvectiXtXcvec, cbeta))
+                # Fnumerator2 = np.matmul(
+                #     cbeta.transpose(0, 2, 1),
+                #     np.linalg.solve(cvectiXtXcvec, cbeta))
+                Fnumerator = Fnumerator.reshape(n_v)
+
+                # Calculate the denominator of the F statistic
+                Fdenominator = (q*resms).reshape(n_v)
+                # Remove zeros in Fdenominator to avoid divide by 
+                # zero errors. This should really be done with 
+                # masking
+                Fdenominator[Fdenominator == 0] = 1
+
+                # Calculate F statistic.
+                fStatc = Fnumerator/Fdenominator
+                fStatc = fStatc.reshape(
+                    NIFTIsize[0],
+                    NIFTIsize[1],
+                    NIFTIsize[2]
+                    )
+
+                # Output statistic map
+                fStatcmap = nib.Nifti1Image(fStatc,
+                                            nifti.affine,
+                                            header=nifti.header)
+                nib.save(fStatcmap,
+                    os.path.join(OutDir, 
+                        'blm_vox_Fstat_c' + str(i+1) + '.nii'))
+
 
 
     # Clean up files
