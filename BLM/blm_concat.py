@@ -541,6 +541,7 @@ def blm_inverse(A, SVFlag, ouflow=False):
             # Work out number of matrices and dimension of
             # matrices. I.e. if we have seven 3 by 3 matrices
             # to invert n_m = 7, d_m = 3.
+            print('acting')
             n_m = A.shape[0]
             d_m = A.shape[1]
 
