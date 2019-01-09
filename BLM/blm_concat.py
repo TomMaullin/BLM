@@ -436,6 +436,9 @@ def main(*args):
                     'blm_vox_Tstat_c' + str(i+1) + '.nii'))
 
         if inputs['contrasts'][i]['c' + str(i+1)]['statType'] == 'F':
+
+            print('cvec')
+            print(cvec)
         
             # Not spatially varying
             if not SVFlag:
