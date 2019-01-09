@@ -145,7 +145,7 @@ def main(*args):
         # Remove voxels with designs without full rank.
         Mask[np.where(np.linalg.slogdet(sumXtX)[0]==0)[0]]=0
 
-        blm_det(sumXtX,ouflow=True)
+        blm_det(sumXtX,SVFlag)
 
     else:
 
