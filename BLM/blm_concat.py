@@ -39,12 +39,7 @@ def main(*args):
     OutDir = inputs['outdir']
     
     # Get number of parameters
-    c1 = inputs['contrasts'][0]['c' + str(1)]['vector']
-    if isinstance(c1[0], str):
-        try:
-            c1 = eval('[' + c1[0].replace(' ', ', ') + ']')
-        except:
-            print('Error: Contrast Vector ' + c1 + ' is input incorrectly.')
+    c1 = blm_eval(inputs['contrasts'][0]['c' + str(1)]['vector'])
     c1 = np.array(c1)
     n_p = c1.shape[0]
     del c1
@@ -358,12 +353,7 @@ def main(*args):
 
         # Read in contrast vector
         # Get number of parameters
-        cvec = inputs['contrasts'][i]['c' + str(i+1)]['vector']
-        if isinstance(cvec[i], str):
-            try:
-                cvec = eval('[' + cvec[i].replace(' ', ', ') + ']')
-            except:
-                print('Error: Contrast Vector ' + cvec + ' is input incorrectly.')
+        cvec = blm_eval(inputs['contrasts'][i]['c' + str(i+1)]['vector'])
         cvec = np.array(cvec)
 
         # Calculate C\hat{\beta}}
@@ -446,62 +436,72 @@ def main(*args):
                     'blm_vox_Tstat_c' + str(i+1) + '.nii'))
 
         if inputs['contrasts'][i]['c' + str(i+1)]['statType'] == 'F':
+                
+            # Get dimension of cvector
+            q = cvec.shape[0]
+
+            # Calculate c'(X'X)^(-1)c
+            # (Note C is read in the other way around for F)
+            cvectiXtXcvec = np.matmul(
+                np.matmul(cvec, isumXtX),
+                np.transpose(cvec))
+
+            # Cbeta needs to be nvox by 1 by npar for stacked
+            # multiply.
+            cbeta = cbeta.reshape(
+                cbeta.shape[0],
+                cbeta.shape[1],
+                1)
+            cbeta = cbeta.transpose(1, 0, 2)
         
             # Not spatially varying
             if not SVFlag:
-                
-                # Get dimension of cvector
-                q = cvec.shape[0]
-
-                # Calculate c'(X'X)^(-1)c
-                # (Note C is read in the other way around for F)
-                cvectiXtXcvec = np.matmul(
-                    np.matmul(cvec, isumXtX),
-                    np.transpose(cvec))
-
-                # Cbeta needs to be nvox by 1 by npar for stacked
-                # multiply.
-                cbeta = cbeta.reshape(
-                    cbeta.shape[0],
-                    cbeta.shape[1],
-                    1)
-                cbeta = cbeta.transpose(1, 0, 2)
 
                 # Calculate the inverse
                 icvectiXtXcvec = blm_inverse(cvectiXtXcvec, ouflow=True)
 
-                # Calculate the numerator of the F statistic
-                Fnumerator = np.matmul(
-                    cbeta.transpose(0, 2, 1),
-                    np.matmul(icvectiXtXcvec, cbeta))
-                # Fnumerator2 = np.matmul(
-                #     cbeta.transpose(0, 2, 1),
-                #     np.linalg.solve(cvectiXtXcvec, cbeta))
-                Fnumerator = Fnumerator.reshape(n_v)
+            else:
 
-                # Calculate the denominator of the F statistic
-                Fdenominator = (q*resms).reshape(n_v)
-                # Remove zeros in Fdenominator to avoid divide by 
-                # zero errors. This should really be done with 
-                # masking
-                Fdenominator[Fdenominator == 0] = 1
+                # Calculate masked (x'X)^(-1) values
+                cvectiXtXcvec_m = cvectiXtXcvec[M_inds,:,:]
+                icvectiXtXcvec_m = np.linalg.inv(cvectiXtXcvec_m).reshape([n_v_m, q*q])
 
-                # Calculate F statistic.
-                fStatc = Fnumerator/Fdenominator
-                fStatc = fStatc.reshape(
-                    NIFTIsize[0],
-                    NIFTIsize[1],
-                    NIFTIsize[2]
-                    )
+                # Make (X'X)^(-1) unmasked
+                icvectiXtXcvec = np.zeros([n_v, q*q])
+                icvectiXtXcvec[M_inds,:]=icvectiXtXcvec_m
+                icvectiXtXcvec = icvectiXtXcvec.reshape([n_v, q, q])
 
-                # Output statistic map
-                fStatcmap = nib.Nifti1Image(fStatc,
-                                            nifti.affine,
-                                            header=nifti.header)
-                nib.save(fStatcmap,
-                    os.path.join(OutDir, 
-                        'blm_vox_Fstat_c' + str(i+1) + '.nii'))
+            # Calculate the numerator of the F statistic
+            Fnumerator = np.matmul(
+                cbeta.transpose(0, 2, 1),
+                np.matmul(icvectiXtXcvec, cbeta))
+            # Fnumerator2 = np.matmul(
+            #     cbeta.transpose(0, 2, 1),
+            #     np.linalg.solve(cvectiXtXcvec, cbeta))
+            Fnumerator = Fnumerator.reshape(n_v)
 
+            # Calculate the denominator of the F statistic
+            Fdenominator = (q*resms).reshape(n_v)
+            # Remove zeros in Fdenominator to avoid divide by 
+            # zero errors. This should really be done with 
+            # masking
+            Fdenominator[Fdenominator == 0] = 1
+
+            # Calculate F statistic.
+            fStatc = Fnumerator/Fdenominator
+            fStatc = fStatc.reshape(
+                NIFTIsize[0],
+                NIFTIsize[1],
+                NIFTIsize[2]
+                )
+
+            # Output statistic map
+            fStatcmap = nib.Nifti1Image(fStatc,
+                                        nifti.affine,
+                                        header=nifti.header)
+            nib.save(fStatcmap,
+                os.path.join(OutDir, 
+                    'blm_vox_Fstat_c' + str(i+1) + '.nii'))
 
 
 
@@ -523,7 +523,7 @@ def blm_inverse(A, ouflow=False):
 
         # Calculate D, diagonal matrix with diagonal
         # elements D_ii equal to 1/sqrt(A_ii)
-        D = np.zeros([3,3])
+        D = np.zeros(A.shape)
         np.fill_diagonal(D, 1/np.sqrt(A.diagonal()))
 
         # Precondition A.
@@ -541,6 +541,24 @@ def blm_inverse(A, ouflow=False):
         iA = np.matmul(np.matmul(D, iA), D)
 
     return(iA)
+
+# This is a small function to help evaluate a string containing
+# a contrast vector
+def blm_eval(c):
+
+    c = str(c)
+    c = c.replace("'", "")
+    c = c.replace('][', '], [').replace('],[', '], [').replace('] [', '], [')
+    c = c.replace('[ [', '[[').replace('] ]', ']]')
+    cs = c.split(' ')
+    cf = ''
+    for i in range(0,len(cs)):
+        cs[i]=cs[i].replace(',', '')
+        cf=cf + cs[i]
+        if i < (len(cs)-1):
+            cf = cf + ', '
+        
+    return(eval(cf))
 
 if __name__ == "__main__":
     main()
