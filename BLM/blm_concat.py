@@ -138,6 +138,7 @@ def main(*args):
         # 1 degree of freedom seems to cause broadcasting errors on a very
         # small percentage of voxels.
         Mask[n_s_sv.reshape(n_v, 1)>n_p+1]=1
+        M_inds = np.where(Mask==1)[0]
 
         # Reshape sumXtX to correct n_v by n_p by n_p
         sumXtX = sumXtX.reshape([n_v, n_p, n_p])
@@ -145,7 +146,7 @@ def main(*args):
         # Remove voxels with designs without full rank.
         Mask[np.where(np.linalg.slogdet(sumXtX)[0]==0)[0]]=0
 
-        blm_det(sumXtX,SVFlag)
+        blm_det(sumXtX[M_inds,:,:],SVFlag)
 
     else:
 
