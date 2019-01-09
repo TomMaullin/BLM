@@ -145,6 +145,8 @@ def main(*args):
         # Remove voxels with designs without full rank.
         Mask[np.where(np.linalg.slogdet(sumXtX)[0]==0)[0]]=0
 
+        blm_det(sumXtX,ouflow=True)
+
     else:
 
         Mask[n_s_sv.reshape(n_v, 1) > 0] = 1
@@ -571,6 +573,49 @@ def blm_inverse(A, SVFlag, ouflow=False):
         iA = np.matmul(np.matmul(D, iA), D)
 
     return(iA)
+
+# This function calculates the determinant of matrix A/
+# stack of matrices A, with special handling accounting
+# for over/under flow. 
+def blm_det(A, ouflow=False):
+
+
+    # Precondition A.
+    if not SVFlag:
+
+        # Calculate D, diagonal matrix with diagonal
+        # elements D_ii equal to 1/sqrt(A_ii)
+        D = np.zeros(A.shape)
+        np.fill_diagonal(D, 1/np.sqrt(A.diagonal()))
+
+    else:
+
+        # Work out number of matrices and dimension of
+        # matrices. I.e. if we have seven 3 by 3 matrices
+        # to invert n_m = 7, d_m = 3.
+        print('acting')
+        n_m = A.shape[0]
+        d_m = A.shape[1]
+
+        # Make D to be filled with diagonal elements
+        D = np.broadcast_to(np.eye(d_m), (n_m,d_m,d_m)).copy()
+
+        # Obtain 1/sqrt(diagA)
+        diagA = 1/np.sqrt(A.diagonal(0,1,2))
+        diagA = diagA.reshape(n_m, d_m)
+
+        # Make this back into diagonal matrices
+        diaginds = np.diag_indices(d_m)
+        D[:, diaginds[0], diaginds[1]] = diagA 
+
+    # Calculate DAD.
+    A = np.matmul(np.matmul(D, A), D)
+
+    detA = np.linalg.det(A)
+    print(A.diagonal(0,1,2).shape)
+    print(np.prod(A.diagonal(0,1,2)))
+
+    return(detA)
 
 # This is a small function to help evaluate a string containing
 # a contrast vector
