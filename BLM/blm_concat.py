@@ -577,7 +577,7 @@ def blm_inverse(A, SVFlag, ouflow=False):
 # This function calculates the determinant of matrix A/
 # stack of matrices A, with special handling accounting
 # for over/under flow. 
-def blm_det(A, ouflow=False):
+def blm_det(A, SVFlag):
 
 
     # Precondition A.
