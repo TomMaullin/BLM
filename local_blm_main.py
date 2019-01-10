@@ -35,6 +35,10 @@ def main(*args):
     print('Combining batch results...')
     blm_concat.main(inputs, sumXtX, sumXtY, sumYtY, sumnmap)
 
+    # Retrieve Output directory
+    OutDir = inputs['outdir']
+
+    # Print final message
     print('Distributed analysis complete. Please see "' + OutDir + '" for output.')
 
 if __name__ == "__main__":
