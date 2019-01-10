@@ -187,7 +187,7 @@ def main(*args):
         # Make (X'X)^(-1) unmasked
         isumXtX = np.zeros([n_v, n_p*n_p])
         isumXtX[M_inds,:]=isumXtX_m
-        isumXtX = isumXtX.reshape([n_v_m, n_p, n_p])
+        isumXtX = isumXtX.reshape([n_v, n_p, n_p])
 
     # If we are not using a spatially varying design, inverse in
     # the normal manner.
@@ -477,7 +477,7 @@ def main(*args):
                 # Make (c'(X'X)^(-1)c)^(-1) unmasked
                 icvectiXtXcvec = np.zeros([n_v, q*q])
                 icvectiXtXcvec[M_inds,:]=icvectiXtXcvec_m
-                icvectiXtXcvec = icvectiXtXcvec.reshape([n_v_m, q, q])
+                icvectiXtXcvec = icvectiXtXcvec.reshape([n_v, q, q])
 
 
             # Calculate the numerator of the F statistic
