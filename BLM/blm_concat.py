@@ -263,6 +263,7 @@ def main(*args):
 
     # Residual sum of squares
     ete_m = sumYtY[M_inds] - betatXtXbeta[M_inds]
+    print(sumYtY.shape)
 
     # Unmask ete
     ete = np.zeros([n_v, 1])
