@@ -110,8 +110,8 @@ def main(*args):
 
     # Save nmap
     nmap = nib.Nifti1Image(n_s_sv,
-                           nmapb.affine,
-                           header=nmapb.header)
+                           nifti.affine,
+                           header=nifti.header)
     nib.save(n_s_sv, os.path.join(OutDir,'blm_vox_n.nii'))
 
     # Dimension bug handling
@@ -167,8 +167,8 @@ def main(*args):
                                     NIFTIsize[1],
                                     NIFTIsize[2]
                                     ),
-                              nmapb.affine,
-                              header=nmapb.header)
+                              nifti.affine,
+                              header=nifti.header)
     nib.save(maskmap, os.path.join(OutDir,'blm_vox_mask.nii'))
 
     # Get indices of voxels in mask.
