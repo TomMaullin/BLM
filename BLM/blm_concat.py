@@ -150,10 +150,6 @@ def main(*args):
 
         # Remove voxels with designs without full rank.
         M_inds = np.where(Mask==1)[0]
-        print('shape')
-        print(M_inds.shape)
-        print(M_inds[np.where(blm_det(sumXtX[M_inds,:,:],SVFlag)==0)].shape)
-
         Mask[M_inds[np.where(blm_det(sumXtX[M_inds,:,:],SVFlag)==0)]]=0
 
     else:
@@ -186,20 +182,12 @@ def main(*args):
         
         # Calculate masked (x'X)^(-1) values
         sumXtX_m = sumXtX[M_inds,:,:]
-        isumXtX_m = np.linalg.inv(sumXtX_m).reshape([n_v_m, n_p*n_p])
+        isumXtX = blm_inverse(sumXtX_m, SVFlag, ouflow=True).reshape([n_v_m, n_p*n_p])
 
         # Make (X'X)^(-1) unmasked
         isumXtX = np.zeros([n_v, n_p*n_p])
         isumXtX[M_inds,:]=isumXtX_m
-        isumXtX = isumXtX.reshape([n_v, n_p, n_p])
-
-        isumXtX_m2 = blm_inverse(sumXtX_m, SVFlag, ouflow=True).reshape([n_v_m, n_p*n_p])
-
-        print(isumXtX_m[1:20,:])
-        print(isumXtX_m2[1:20,:])
-
-
-
+        isumXtX = isumXtX.reshape([n_v_m, n_p, n_p])
 
     # If we are not using a spatially varying design, inverse in
     # the normal manner.
@@ -482,14 +470,15 @@ def main(*args):
 
             else:
 
-                # Calculate masked (x'X)^(-1) values
+                # Calculate masked (c'(X'X)^(-1)c)^(-1) values
                 cvectiXtXcvec_m = cvectiXtXcvec[M_inds,:,:]
-                icvectiXtXcvec_m = np.linalg.inv(cvectiXtXcvec_m).reshape([n_v_m, q*q])
+                icvectiXtXcvec = blm_inverse(cvectiXtXcvec_m, SVFlag, ouflow=True).reshape([n_v_m, q*q])
 
-                # Make (X'X)^(-1) unmasked
+                # Make (c'(X'X)^(-1)c)^(-1) unmasked
                 icvectiXtXcvec = np.zeros([n_v, q*q])
-                icvectiXtXcvec[M_inds,:]=icvectiXtXcvec_m
-                icvectiXtXcvec = icvectiXtXcvec.reshape([n_v, q, q])
+                icvectiXtXcvec[M_inds,:]=icvectiXtXcvec
+                icvectiXtXcvec = icvectiXtXcvec.reshape([n_v_m, q, q])
+
 
             # Calculate the numerator of the F statistic
             Fnumerator = np.matmul(
