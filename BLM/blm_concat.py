@@ -543,7 +543,6 @@ def blm_inverse(A, SVFlag, ouflow=False):
             # Work out number of matrices and dimension of
             # matrices. I.e. if we have seven 3 by 3 matrices
             # to invert n_m = 7, d_m = 3.
-            print('acting')
             n_m = A.shape[0]
             d_m = A.shape[1]
 
@@ -593,7 +592,6 @@ def blm_det(A, SVFlag):
         # Work out number of matrices and dimension of
         # matrices. I.e. if we have seven 3 by 3 matrices
         # to invert n_m = 7, d_m = 3.
-        print('acting')
         n_m = A.shape[0]
         d_m = A.shape[1]
 
@@ -611,9 +609,12 @@ def blm_det(A, SVFlag):
     # Calculate DAD.
     A = np.matmul(np.matmul(D, A), D)
 
+    # Calculate determinants.
     detA = np.linalg.det(A)
-    print(A.diagonal(0,1,2).shape)
-    print(np.prod(A.diagonal(0,1,2)))
+    print('detA')
+    print(detA.shape)
+    print(detA[1:20])
+    print(np.prod(D, axis=0).shape)
 
     return(detA)
 
