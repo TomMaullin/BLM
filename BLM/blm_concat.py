@@ -149,10 +149,10 @@ def main(*args):
             Mask[np.where(sumXtX[:,i,i]==0)]=0
 
         # Remove voxels with designs without full rank.
-        Mask[np.where(np.linalg.slogdet(sumXtX)[0]==0)[0]]=0
         M_inds = np.where(Mask==1)[0]
+        Mask[np.where(np.linalg.slogdet(sumXtX)[0]==0)[0]]=0
 
-        blm_det(sumXtX[M_inds,:,:],SVFlag)
+        Mask[blm_det(sumXtX[M_inds,:,:],SVFlag)
 
     else:
 
