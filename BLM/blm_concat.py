@@ -137,8 +137,7 @@ def main(*args):
     Mask = np.ones([n_v, 1])
 
     # Apply user specified thresholding.
-    if ("Relative" in inputs["Missingness"]) or
-       ("relative" in inputs["Missingness"]):
+    if ("Relative" in inputs["Missingness"]) or ("relative" in inputs["Missingness"]):
         print('R')
 
     # If spatially varying remove the designs that aren't of full rank.
