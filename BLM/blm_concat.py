@@ -150,15 +150,8 @@ def main(*args):
 
         # Remove voxels with designs without full rank.
         M_inds = np.where(Mask==1)[0]
-        #Mask[np.where(np.linalg.slogdet(sumXtX)[0]==0)[0]]=0
-        blm_det(sumXtX[M_inds,:,:],SVFlag)
-        print(M_inds)
         print('shape')
         print(M_inds.shape)
-        #print(blm_det(sumXtX[M_inds,:,:],SVFlag)==0)
-        print('M_inds updated')
-        print(M_inds[np.where(blm_det(sumXtX[M_inds,:,:],SVFlag))])
-        print('shape')
         print(M_inds[np.where(blm_det(sumXtX[M_inds,:,:],SVFlag)==0)].shape)
 
         Mask[M_inds[np.where(blm_det(sumXtX[M_inds,:,:],SVFlag)==0)]]=0
@@ -179,6 +172,8 @@ def main(*args):
 
     # Get indices of voxels in mask.
     M_inds = np.where(Mask==1)[0]
+    print('shape')
+    print(M_inds.shape)
 
     # Number of voxels in mask
     n_v_m = M_inds.shape[0]
