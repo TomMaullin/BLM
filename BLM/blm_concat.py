@@ -109,20 +109,20 @@ def main(*args):
         n_s_sv = args[4]
 
     tmp = sumXtX[sumXtX!=0]
-    print(tmp[1:20,:])
+    print(tmp[1:20])
     print(sumXtX.shape)
 
     tmp = sumXtY[sumXtY!=0]
-    print(tmp[1:20,:])
+    print(tmp[1:20])
     print(sumXtY.shape)
 
     tmp = sumYtY[sumYtY!=0]
-    print(tmp[1:20,:])
+    print(tmp[1:20])
     print(sumYtY.shape)
 
     print(n_s_sv.shape)
     tmp = n_s_sv[n_s_sv!=0]
-    print(tmp[1:20,:])
+    print(tmp[1:20])
 
     # Save nmap
     nmap = nib.Nifti1Image(n_s_sv,
