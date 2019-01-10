@@ -279,7 +279,6 @@ def main(*args):
 
     # Residual sum of squares
     ete_m = sumYtY[M_inds] - betatXtXbeta[M_inds]
-    print(sumYtY.shape)
 
     # Unmask ete
     ete = np.zeros([n_v, 1])
@@ -451,7 +450,6 @@ def main(*args):
             # zero elements to one. This could be updated to 
             # be done with masking.
             covcbeta[covcbeta == 0] = 1  
-            print(covcbeta[covcbeta<0])
 
             # Calculate T statistic image
             tStatc = cbeta/np.sqrt(covcbeta)
