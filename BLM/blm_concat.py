@@ -108,6 +108,11 @@ def main(*args):
         sumYtY = args[3]
         n_s_sv = args[4]
 
+    print(sumXtX.shape)
+    print(sumXtY.shape)
+    print(sumYtY.shape)
+    print(n_s_sv.shape)
+
     # Save nmap
     nmap = nib.Nifti1Image(n_s_sv,
                            nifti.affine,
