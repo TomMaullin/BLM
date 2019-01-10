@@ -153,9 +153,13 @@ def main(*args):
         #Mask[np.where(np.linalg.slogdet(sumXtX)[0]==0)[0]]=0
         blm_det(sumXtX[M_inds,:,:],SVFlag)
         print(M_inds)
-        print(blm_det(sumXtX[M_inds,:,:],SVFlag)==0)
-        print(M_inds[])
+        print('shape')
+        print(M_inds.shape)
+        #print(blm_det(sumXtX[M_inds,:,:],SVFlag)==0)
+        print('M_inds updated')
         print(M_inds[np.where(blm_det(sumXtX[M_inds,:,:],SVFlag))])
+        print('shape')
+        print(M_inds[np.where(blm_det(sumXtX[M_inds,:,:],SVFlag))].shape)
 
         Mask[M_inds[np.where(blm_det(sumXtX[M_inds,:,:],SVFlag))]=0
 
