@@ -78,9 +78,6 @@ def main(*args):
     
     # Obtain n map and verify input
     nmap = verifyInput(Y_files, M_files, Y0)
-    if len(args)==1:
-        nib.save(nmap, os.path.join(OutDir,'tmp',
-                        'blm_vox_n_batch'+ str(batchNo) + '.nii'))
 
     # Obtain Y and a mask for Y. This mask is just for voxels
     # with no studies present.
