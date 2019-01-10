@@ -16,7 +16,7 @@ import time
 np.set_printoptions(threshold=np.nan)
 
 def main(*args):
-    
+
     # Change to blm directory
     os.chdir(os.path.dirname(os.path.realpath(__file__)))    
 
@@ -119,6 +119,10 @@ def main(*args):
                    XtY, delimiter=",") 
         np.savetxt(os.path.join(OutDir,"tmp","YtY" + str(batchNo) + ".csv"), 
                    YtY, delimiter=",") 
+        # Get map of number of scans at voxel.
+        nmap = nib.Nifti1Image(nmap,
+                                 Y0.affine,
+                                 header=Y0.header)
     else:
         # Return XtX, XtY, YtY, nB
         return(XtX, XtY, YtY, nmap)
@@ -131,7 +135,7 @@ def verifyInput(Y_files, M_files, Y0):
     Y0aff = Y0.affine
 
     # Count number of scans contributing to voxels
-    sumVox = np.zeros(d0.shape)
+    nmap = np.zeros(d0.shape)
 
     # Initial checks for NIFTI compatability.
     for i in range(0, len(Y_files)):
@@ -153,7 +157,7 @@ def verifyInput(Y_files, M_files, Y0):
         d = np.multiply(Y.get_data(), M.get_data())
         
         # Count number of scans at each voxel
-        sumVox = sumVox + 1*(np.nan_to_num(d)!=0)
+        nmap = nmap + 1*(np.nan_to_num(d)!=0)
 
         # Check NIFTI images have the same dimensions.
         if not np.array_equal(d.shape, d0.shape):
@@ -166,11 +170,6 @@ def verifyInput(Y_files, M_files, Y0):
             raise ValueError('Input NIFTI "' + Y_file + '" has a ' +
                              'different affine transformation to "' +
                              Y0 + '"')
-
-    # Get map of number of scans at voxel.
-    nmap = nib.Nifti1Image(sumVox,
-                             Y0.affine,
-                             header=Y0.header)
     
     return nmap
 
