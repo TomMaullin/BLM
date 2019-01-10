@@ -440,6 +440,7 @@ def main(*args):
             # zero elements to one. This could be updated to 
             # be done with masking.
             covcbeta[covcbeta == 0] = 1  
+            print(covcbeta[covcbeta<0])
 
             # Calculate T statistic image
             tStatc = cbeta/np.sqrt(covcbeta)
