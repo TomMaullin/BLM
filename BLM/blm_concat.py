@@ -607,10 +607,14 @@ def blm_det(A, SVFlag):
         D[:, diaginds[0], diaginds[1]] = diagA 
 
     # Calculate DAD.
-    A = np.matmul(np.matmul(D, A), D)
+    DAD = np.matmul(np.matmul(D, A), D)
 
     # Calculate determinants.
-    detA = np.linalg.det(A)
+    detDAD = np.linalg.det(DAD)
+    detDD = np.prod(diagA, axis=1)
+    
+    # Calculate determinant of A
+    detA = detDAD/detDD
     print('detA')
     print(detA.shape)
     print(detA[1:20])
