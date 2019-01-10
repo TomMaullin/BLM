@@ -104,7 +104,7 @@ def main(*args):
     else:
         # Read in sums.
         sumXtX = args[1]
-        sumXtY = args[2]
+        sumXtY = args[2].transpose()
         sumYtY = args[3]
         n_s_sv = args[4]
 
