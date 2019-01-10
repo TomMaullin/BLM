@@ -524,7 +524,8 @@ def main(*args):
 
 
     # Clean up files
-    os.remove(os.path.join(OutDir, 'nb.txt'))
+    if len(args)==0:
+        os.remove(os.path.join(OutDir, 'nb.txt'))
     shutil.rmtree(os.path.join(OutDir, 'tmp'))
 
     w.resetwarnings()
