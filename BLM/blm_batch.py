@@ -111,9 +111,7 @@ def main(*args):
     if len(args)==1:
         # Record XtX and XtY
         np.savetxt(os.path.join(OutDir,"tmp","XtX" + str(batchNo) + ".csv"), 
-                   XtX, delimiter=",") 
-        print(XtY.shape)
-        print('batch shape')
+                   XtX, delimiter=",")
         np.savetxt(os.path.join(OutDir,"tmp","XtY" + str(batchNo) + ".csv"), 
                    XtY, delimiter=",") 
         np.savetxt(os.path.join(OutDir,"tmp","YtY" + str(batchNo) + ".csv"), 
@@ -126,8 +124,6 @@ def main(*args):
                         'blm_vox_n_batch'+ str(batchNo) + '.nii'))
     else:
         # Return XtX, XtY, YtY, nB
-        print('batch shape')
-        print(XtY.shape)
         return(XtX, XtY, YtY, nmap)
     w.resetwarnings()
 

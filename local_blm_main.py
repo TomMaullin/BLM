@@ -24,8 +24,6 @@ def main(*args):
     print('Running batch 1/' + str(nB))
     sumXtX, sumXtY, sumYtY, sumnmap = blm_batch.main(1, inputs)
 
-    print('concat shape')
-    print(sumXtY.shape)
     for i in range(1, nB):
         print('Running batch ' + str(i+1) + '/' + str(nB))
         XtX, XtY, YtY, nmap = blm_batch.main(i+1, inputs)
