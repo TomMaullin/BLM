@@ -33,7 +33,7 @@ def main(*args):
 
     # Run concatenation job
     print('Combining batch results...')
-    blm_concat.main(inputs, sumXtX, sumXtY, sumXtY, sumnmap)
+    blm_concat.main(inputs, sumXtX, sumXtY, sumYtY, sumnmap)
 
     print('Distributed analysis complete. Please see "' + OutDir + '" for output.')
 
