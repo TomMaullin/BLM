@@ -112,7 +112,7 @@ def main(*args):
     nmap = nib.Nifti1Image(n_s_sv,
                            nifti.affine,
                            header=nifti.header)
-    nib.save(n_s_sv, os.path.join(OutDir,'blm_vox_n.nii'))
+    nib.save(nmap, os.path.join(OutDir,'blm_vox_n.nii'))
 
     # Dimension bug handling
     if np.ndim(sumXtX) == 0:
