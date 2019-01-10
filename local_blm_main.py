@@ -18,7 +18,7 @@ def main(*args):
         inputs = args[0]
 
     # Run the setup job to obtain the number of batches needed.
-    blm_setup.main(inputs)
+    nB = blm_setup.main(inputs)
 
     # Retrieve Output directory
     OutDir = inputs['outdir']
@@ -27,14 +27,20 @@ def main(*args):
     with open(os.path.join(OutDir, "nb.txt"), 'r') as f:
         nB = int(f.readline())
 
-    # Run batch jobs
-    for i in range(0, nB):
+    # Run batch jobs and concatenate results
+    print('Running batch 1/' + str(nB))
+    sumXtX, sumXtY, sumYtY, sumnmap = blm_batch.main(1, inputs)
+    for i in range(1, nB):
         print('Running batch ' + str(i+1) + '/' + str(nB))
-        blm_batch.main(i+1, inputs)
+        XtX, XtY, YtY, nmap = blm_batch.main(i+1, inputs)
+        sumXtX = sumXtX + XtX
+        sumXtY = sumXtY + XtY
+        sumYtY = sumYtY + YtY
+        sumnmap = sumnmap + nmap
 
     # Run concatenation job
     print('Combining batch results...')
-    blm_concat.main(inputs)
+    blm_concat.main(inputs, sumXtX, sumXtY, sumXtY, sumnmap)
 
     print('Distributed analysis complete. Please see "' + OutDir + '" for output.')
 

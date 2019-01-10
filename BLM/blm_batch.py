@@ -16,9 +16,7 @@ import time
 np.set_printoptions(threshold=np.nan)
 
 def main(*args):
-
-    t1 = time.time()    
-
+    
     # Change to blm directory
     os.chdir(os.path.dirname(os.path.realpath(__file__)))    
 
@@ -80,8 +78,9 @@ def main(*args):
     
     # Obtain n map and verify input
     nmap = verifyInput(Y_files, M_files, Y0)
-    nib.save(nmap, os.path.join(OutDir,'tmp',
-                    'blm_vox_n_batch'+ str(batchNo) + '.nii'))
+    if len(args)==1:
+        nib.save(nmap, os.path.join(OutDir,'tmp',
+                        'blm_vox_n_batch'+ str(batchNo) + '.nii'))
 
     # Obtain Y and a mask for Y. This mask is just for voxels
     # with no studies present.
@@ -112,13 +111,17 @@ def main(*args):
     # number of columns
     XtY = XtY.transpose()
 
-    # Record XtX and XtY
-    np.savetxt(os.path.join(OutDir,"tmp","XtX" + str(batchNo) + ".csv"), 
-               XtX, delimiter=",") 
-    np.savetxt(os.path.join(OutDir,"tmp","XtY" + str(batchNo) + ".csv"), 
-               XtY, delimiter=",") 
-    np.savetxt(os.path.join(OutDir,"tmp","YtY" + str(batchNo) + ".csv"), 
-               YtY, delimiter=",") 
+    if len(args)==1:
+        # Record XtX and XtY
+        np.savetxt(os.path.join(OutDir,"tmp","XtX" + str(batchNo) + ".csv"), 
+                   XtX, delimiter=",") 
+        np.savetxt(os.path.join(OutDir,"tmp","XtY" + str(batchNo) + ".csv"), 
+                   XtY, delimiter=",") 
+        np.savetxt(os.path.join(OutDir,"tmp","YtY" + str(batchNo) + ".csv"), 
+                   YtY, delimiter=",") 
+    else:
+        # Return XtX, XtY, YtY, nB
+        return(XtX, XtY, YtY, nmap)
     w.resetwarnings()
 
 def verifyInput(Y_files, M_files, Y0):
