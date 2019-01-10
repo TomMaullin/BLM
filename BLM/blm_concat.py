@@ -159,9 +159,9 @@ def main(*args):
         print('M_inds updated')
         print(M_inds[np.where(blm_det(sumXtX[M_inds,:,:],SVFlag))])
         print('shape')
-        print(M_inds[np.where(blm_det(sumXtX[M_inds,:,:],SVFlag))].shape)
+        print(M_inds[np.where(blm_det(sumXtX[M_inds,:,:],SVFlag)==0)].shape)
 
-        Mask[M_inds[np.where(blm_det(sumXtX[M_inds,:,:],SVFlag))]]=0
+        Mask[M_inds[np.where(blm_det(sumXtX[M_inds,:,:],SVFlag)==0)]]=0
 
     else:
 
