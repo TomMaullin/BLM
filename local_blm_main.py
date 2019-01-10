@@ -20,13 +20,6 @@ def main(*args):
     # Run the setup job to obtain the number of batches needed.
     nB = blm_setup.main(inputs)
 
-    # Retrieve Output directory
-    OutDir = inputs['outdir']
-
-    # Load nB
-    with open(os.path.join(OutDir, "nb.txt"), 'r') as f:
-        nB = int(f.readline())
-
     # Run batch jobs and concatenate results
     print('Running batch 1/' + str(nB))
     sumXtX, sumXtY, sumYtY, sumnmap = blm_batch.main(1, inputs)
