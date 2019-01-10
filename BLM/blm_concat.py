@@ -142,8 +142,15 @@ def main(*args):
         # Reshape sumXtX to correct n_v by n_p by n_p
         sumXtX = sumXtX.reshape([n_v, n_p, n_p])
 
+
+        # We also remove all voxels where the design has a column of just
+        # zeros.
+        for i in range(0,n_p):
+            Mask[np.where(sumXtX[:,i,i]==0)]=0
+
         # Remove voxels with designs without full rank.
-        Mask[np.where(np.linalg.slogdet(sumXtX)[0]==0)[0]]=0
+        M_inds = np.where(Mask==1)[0]
+        Mask[M_inds[np.where(blm_det(sumXtX[M_inds,:,:],SVFlag)==0)]]=0
 
     else:
 
@@ -173,19 +180,18 @@ def main(*args):
         
         # Calculate masked (x'X)^(-1) values
         sumXtX_m = sumXtX[M_inds,:,:]
-        isumXtX_m = np.linalg.inv(sumXtX_m).reshape([n_v_m, n_p*n_p])
+        isumXtX_m = blm_inverse(sumXtX_m, SVFlag, ouflow=True).reshape([n_v_m, n_p*n_p])
 
         # Make (X'X)^(-1) unmasked
         isumXtX = np.zeros([n_v, n_p*n_p])
         isumXtX[M_inds,:]=isumXtX_m
         isumXtX = isumXtX.reshape([n_v, n_p, n_p])
 
-
     # If we are not using a spatially varying design, inverse in
     # the normal manner.
     else:
         # Calculate inverse of XtX
-        isumXtX = blm_inverse(sumXtX)
+        isumXtX = blm_inverse(sumXtX, SVFlag)
 
     # If we are doing spatially varying we need to reshape XtY.
     if SVFlag:
@@ -458,18 +464,19 @@ def main(*args):
             if not SVFlag:
 
                 # Calculate the inverse
-                icvectiXtXcvec = blm_inverse(cvectiXtXcvec, ouflow=True)
+                icvectiXtXcvec = blm_inverse(cvectiXtXcvec, SVFlag, ouflow=True)
 
             else:
 
-                # Calculate masked (x'X)^(-1) values
+                # Calculate masked (c'(X'X)^(-1)c)^(-1) values
                 cvectiXtXcvec_m = cvectiXtXcvec[M_inds,:,:]
-                icvectiXtXcvec_m = np.linalg.inv(cvectiXtXcvec_m).reshape([n_v_m, q*q])
+                icvectiXtXcvec_m = blm_inverse(cvectiXtXcvec_m, SVFlag, ouflow=True).reshape([n_v_m, q*q])
 
-                # Make (X'X)^(-1) unmasked
+                # Make (c'(X'X)^(-1)c)^(-1) unmasked
                 icvectiXtXcvec = np.zeros([n_v, q*q])
                 icvectiXtXcvec[M_inds,:]=icvectiXtXcvec_m
                 icvectiXtXcvec = icvectiXtXcvec.reshape([n_v, q, q])
+
 
             # Calculate the numerator of the F statistic
             Fnumerator = np.matmul(
@@ -514,17 +521,39 @@ def main(*args):
 
 # This function inverts matrix A. If ouflow is True,
 # special handling is used to account for over/under
-# flow.
-def blm_inverse(A, ouflow=False):
+# flow. In this case, it assumes that A has non-zero
+# diagonals.
+def blm_inverse(A, SVFlag, ouflow=False):
 
 
     # If ouflow is true, we need to precondition A.
     if ouflow:
 
-        # Calculate D, diagonal matrix with diagonal
-        # elements D_ii equal to 1/sqrt(A_ii)
-        D = np.zeros(A.shape)
-        np.fill_diagonal(D, 1/np.sqrt(A.diagonal()))
+        if not SVFlag:
+
+            # Calculate D, diagonal matrix with diagonal
+            # elements D_ii equal to 1/sqrt(A_ii)
+            D = np.zeros(A.shape)
+            np.fill_diagonal(D, 1/np.sqrt(A.diagonal()))
+
+        else:
+
+            # Work out number of matrices and dimension of
+            # matrices. I.e. if we have seven 3 by 3 matrices
+            # to invert n_m = 7, d_m = 3.
+            n_m = A.shape[0]
+            d_m = A.shape[1]
+
+            # Make D to be filled with diagonal elements
+            D = np.broadcast_to(np.eye(d_m), (n_m,d_m,d_m)).copy()
+
+            # Obtain 1/sqrt(diagA)
+            diagA = 1/np.sqrt(A.diagonal(0,1,2))
+            diagA = diagA.reshape(n_m, d_m)
+
+            # Make this back into diagonal matrices
+            diaginds = np.diag_indices(d_m)
+            D[:, diaginds[0], diaginds[1]] = diagA 
 
         # Precondition A.
         A = np.matmul(np.matmul(D, A), D)
@@ -541,6 +570,51 @@ def blm_inverse(A, ouflow=False):
         iA = np.matmul(np.matmul(D, iA), D)
 
     return(iA)
+
+# This function calculates the determinant of matrix A/
+# stack of matrices A, with special handling accounting
+# for over/under flow. 
+def blm_det(A, SVFlag):
+
+
+    # Precondition A.
+    if not SVFlag:
+
+        # Calculate D, diagonal matrix with diagonal
+        # elements D_ii equal to 1/sqrt(A_ii)
+        D = np.zeros(A.shape)
+        np.fill_diagonal(D, 1/np.sqrt(A.diagonal()))
+
+    else:
+
+        # Work out number of matrices and dimension of
+        # matrices. I.e. if we have seven 3 by 3 matrices
+        # to invert n_m = 7, d_m = 3.
+        n_m = A.shape[0]
+        d_m = A.shape[1]
+
+        # Make D to be filled with diagonal elements
+        D = np.broadcast_to(np.eye(d_m), (n_m,d_m,d_m)).copy()
+
+        # Obtain 1/sqrt(diagA)
+        diagA = 1/np.sqrt(A.diagonal(0,1,2))
+        diagA = diagA.reshape(n_m, d_m)
+
+        # Make this back into diagonal matrices
+        diaginds = np.diag_indices(d_m)
+        D[:, diaginds[0], diaginds[1]] = diagA 
+
+    # Calculate DAD.
+    DAD = np.matmul(np.matmul(D, A), D)
+
+    # Calculate determinants.
+    detDAD = np.linalg.det(DAD)
+    detDD = np.prod(diagA, axis=1)
+    
+    # Calculate determinant of A
+    detA = detDAD/detDD
+
+    return(detA)
 
 # This is a small function to help evaluate a string containing
 # a contrast vector
