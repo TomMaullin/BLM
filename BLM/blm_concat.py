@@ -134,7 +134,12 @@ def main(*args):
     # Create Mask
     # ----------------------------------------------------------------------
 
-    Mask = np.zeros([n_v, 1])
+    Mask = np.ones([n_v, 1])
+
+    # Apply user specified thresholding.
+    if ("Relative" in inputs["Missingness"]) or
+       ("relative" in inputs["Missingness"]):
+        print('R')
 
     # If spatially varying remove the designs that aren't of full rank.
     if SVFlag:
@@ -142,11 +147,10 @@ def main(*args):
         # We remove anything with 1 degree of freedom (or less) by default.
         # 1 degree of freedom seems to cause broadcasting errors on a very
         # small percentage of voxels.
-        Mask[n_s_sv.reshape(n_v, 1)>n_p+1]=1
+        Mask[n_s_sv.reshape(n_v, 1)<=n_p+1]=0
 
         # Reshape sumXtX to correct n_v by n_p by n_p
         sumXtX = sumXtX.reshape([n_v, n_p, n_p])
-
 
         # We also remove all voxels where the design has a column of just
         # zeros.
@@ -155,11 +159,13 @@ def main(*args):
 
         # Remove voxels with designs without full rank.
         M_inds = np.where(Mask==1)[0]
-        Mask[M_inds[np.where(blm_det(sumXtX[M_inds,:,:],SVFlag)==0)]]=0
+        Mask[M_inds[np.where(
+            np.absolute(blm_det(sumXtX[M_inds,:,:],SVFlag)) < np.sqrt(sys.float_info.epsilon)
+            )]]=0
 
     else:
 
-        Mask[n_s_sv.reshape(n_v, 1) > 0] = 1
+        Mask[n_s_sv.reshape(n_v, 1) == 0] = 0
 
     # Output final mask map
     maskmap = nib.Nifti1Image(Mask.reshape(

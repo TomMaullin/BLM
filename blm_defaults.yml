@@ -54,7 +54,7 @@ contrasts:
 # For masking: Enter the filepath to the nifti mask you wish to use.
 # Examples:
 missingness:
-  - Relative: 0.20
-  - Absolute: 15
-  - Masking: /well/win/software/packages/fsl/5.0.11/data/standard/MNI152_T1_2mm_brain_mask.nii.gz
+  Relative: 50%
+  Absolute: 15
+  Masking: /well/win/software/packages/fsl/5.0.11/data/standard/MNI152_T1_2mm_brain_mask.nii.gz
 
