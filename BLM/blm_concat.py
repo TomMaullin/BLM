@@ -614,7 +614,7 @@ def blm_det(A, SVFlag):
     print('detA')
     print(detA.shape)
     print(detA[1:20])
-    print(np.prod(D, axis=0).shape)
+    print(np.prod(diagA, axis=0).shape)
 
     return(detA)
 
