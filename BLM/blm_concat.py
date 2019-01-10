@@ -136,9 +136,29 @@ def main(*args):
 
     Mask = np.ones([n_v, 1])
 
-    # Apply user specified thresholding.
+    # Apply user specified missingness thresholding.
     if ("Relative" in inputs["Missingness"]) or ("relative" in inputs["Missingness"]):
-        print('R')
+
+        # Read in relative threshold
+        if "Relative" in inputs["Missingness"]:
+            rmThresh = inputs["Missingness"]["Relative"]
+        else:
+            rmThresh = inputs["Missingness"]["relative"]
+
+        # If it's a percentage it will be a string and must be converted.
+        rmThresh = str(rmThresh)
+        if "%" in rmThresh:
+            rmThresh = float(rmThresh.replace("%", ""))/100
+        else:
+            rmThresh = float(rmThresh)
+
+        print(rmThresh)
+        print(type(rmThresh))
+
+        # Check the Relative threshold is between 0 and 1.
+        if (rmThresh < 0) or (rmThresh > 1):
+            raise ValueError('Relative Missingness threshold is out of range: ' +
+                             '0 < ' + str(rmThresh) + ' < 1 violation')
 
     # If spatially varying remove the designs that aren't of full rank.
     if SVFlag:
