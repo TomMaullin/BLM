@@ -168,8 +168,6 @@ def main(*args):
 
     # Get indices of voxels in mask.
     M_inds = np.where(Mask==1)[0]
-    print('shape')
-    print(M_inds.shape)
 
     # Number of voxels in mask
     n_v_m = M_inds.shape[0]
@@ -615,10 +613,6 @@ def blm_det(A, SVFlag):
     
     # Calculate determinant of A
     detA = detDAD/detDD
-    print('detA')
-    print(detA.shape)
-    print(detA[1:20])
-    print(np.prod(diagA, axis=1).shape)
 
     return(detA)
 
