@@ -161,7 +161,7 @@ def main(*args):
         print('shape')
         print(M_inds[np.where(blm_det(sumXtX[M_inds,:,:],SVFlag))].shape)
 
-        Mask[M_inds[np.where(blm_det(sumXtX[M_inds,:,:],SVFlag))]=0
+        Mask[M_inds[np.where(blm_det(sumXtX[M_inds,:,:],SVFlag))]]=0
 
     else:
 
