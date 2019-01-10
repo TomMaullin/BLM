@@ -152,7 +152,7 @@ def main(*args):
         M_inds = np.where(Mask==1)[0]
         Mask[np.where(np.linalg.slogdet(sumXtX)[0]==0)[0]]=0
 
-        Mask[blm_det(sumXtX[M_inds,:,:],SVFlag)
+        #Mask[blm_det(sumXtX[M_inds,:,:],SVFlag)]
 
     else:
 
