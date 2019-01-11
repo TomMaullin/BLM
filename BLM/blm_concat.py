@@ -152,13 +152,52 @@ def main(*args):
         else:
             rmThresh = float(rmThresh)
 
-        print(rmThresh)
-        print(type(rmThresh))
-
         # Check the Relative threshold is between 0 and 1.
         if (rmThresh < 0) or (rmThresh > 1):
             raise ValueError('Relative Missingness threshold is out of range: ' +
                              '0 < ' + str(rmThresh) + ' < 1 violation')
+
+        # Mask based on threshold.
+        Mask[n_s_sv.reshape(n_v, 1)<rmThresh*n_s]=0
+
+    if ("Absolute" in inputs["Missingness"]) or ("absolute" in inputs["Missingness"]):
+
+        # Read in relative threshold
+        if "Absolute" in inputs["Missingness"]:
+            amThresh = inputs["Missingness"]["Absolute"]
+        else:
+            amThresh = inputs["Missingness"]["absolute"]
+
+        # If it's a percentage it will be a string and must be converted.
+        if isinstance(amThresh, str):
+            amThresh = float(amThresh)
+
+        # Mask based on threshold.
+        Mask[n_s_sv.reshape(n_v, 1)<amThresh]=0
+
+    if ("Masking" in inputs["Missingness"]) or ("masking" in inputs["Missingness"]):
+
+        # Read in threshold mask
+        if "Masking" in inputs["Missingness"]:
+            mmThresh = inputs["Missingness"]["Masking"]
+        else:
+            mmThresh = inputs["Missingness"]["masking"]
+
+        try:
+            # Read in the mask nifti.
+            mmThresh = nib.load(mmThresh)
+
+            # Check whether the mask has the same shape as the other niftis
+            if np.array_equal(mmThresh.shape, NIFTIsize):
+                mmThresh = mmThresh.get_data().reshape([n_v, 1])
+            else:
+                # RESHAPE AND WARN
+        except:
+            raise ValueError('Nifti image ' + mmThresh ' will not load.')
+
+        # Apply mask nifti.
+        Mask[mmThresh==0]=0
+
 
     # If spatially varying remove the designs that aren't of full rank.
     if SVFlag:
