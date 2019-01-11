@@ -15,6 +15,7 @@ import yaml
 import pandas
 import time
 import warnings
+import subprocess
 np.set_printoptions(threshold=np.nan)
 
 def main(*args):
@@ -193,18 +194,27 @@ def main(*args):
             if np.array_equal(mmThresh.shape, NIFTIsize):
                 mmThresh = mmThresh.get_data().reshape([n_v, 1])
             else:
-                # Resample and warn user
-                resamplecmd = "flirt -in " + mmThresh_path + \
-                                   " -ref " + nifti_path + \
-                                   " -out " + os.path.join(OutDir, 'tmp', 
-                                                           'blm_im_resized.nii') + \
-                                   " -applyxfm"
+                # Make flirt resample command
+                resamplecmd = ["flirt", "-in", mmThresh_path,
+                                        "-ref", nifti_path,
+                                        "-out", os.path.join(OutDir, 'tmp', 'blm_im_resized.nii'),
+                                        "-applyxfm"]
 
                 print(resamplecmd)
 
+                # Warn the user about what is happening.
                 warnings.warn('Masking NIFTI ' + mmThresh_path + ' does not have the'\
                               ' same dimensions as the input data and will therefore'\
                               ' be resampled using FLIRT.')
+
+                # Run the command
+                process = subprocess.Popen(resamplecmd, shell=False,
+                                           stdout=subprocess.PIPE)
+                process.communicate()
+
+                # Load the newly resized nifti mask
+                mmThresh = nib.load(os.path.join(OutDir, 'tmp', 'blm_im_resized.nii'))
+                mmThresh = mmThresh.get_data().reshape([n_v, 1])
 
         except:
             raise ValueError('Nifti image ' + mmThresh_path + ' will not load.')
