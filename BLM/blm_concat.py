@@ -14,6 +14,8 @@ import shutil
 import yaml
 import pandas
 import time
+import nilearn
+import warnings
 np.set_printoptions(threshold=np.nan)
 
 def main(*args):
@@ -179,21 +181,27 @@ def main(*args):
 
         # Read in threshold mask
         if "Masking" in inputs["Missingness"]:
-            mmThresh = inputs["Missingness"]["Masking"]
+            mmThresh_path = inputs["Missingness"]["Masking"]
         else:
-            mmThresh = inputs["Missingness"]["masking"]
+            mmThresh_path = inputs["Missingness"]["masking"]
 
         try:
             # Read in the mask nifti.
-            mmThresh = nib.load(mmThresh)
+            mmThresh = nib.load(mmThresh_path)
 
             # Check whether the mask has the same shape as the other niftis
             if np.array_equal(mmThresh.shape, NIFTIsize):
                 mmThresh = mmThresh.get_data().reshape([n_v, 1])
-            #else:
-                # RESHAPE AND WARN
+            else:
+                # Resample and warn user
+                mmThresh = nilearn.image.resample_img(
+                    mmThresh, target_shape=NIFTIsize).get_data().reshape([n_v, 1])
+                warnings.warn('Masking NIFTI ' + mmThresh_path + ' does not have the'\
+                              ' same dimensions as the input data and will therefore'\
+                              ' be resampled using nilearn.')
+
         except:
-            raise ValueError('Nifti image ' + mmThresh ' will not load.')
+            raise ValueError('Nifti image ' + mmThresh_path + ' will not load.')
 
         # Apply mask nifti.
         Mask[mmThresh==0]=0
