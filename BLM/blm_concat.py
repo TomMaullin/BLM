@@ -210,7 +210,9 @@ def main(*args):
                 # Run the command
                 process = subprocess.Popen(resamplecmd, shell=False,
                                            stdout=subprocess.PIPE)
-                process.communicate()
+                out, err = process.communicate()
+                print(out)
+                print(err)
 
                 # Load the newly resized nifti mask
                 mmThresh = nib.load(os.path.join(OutDir, 'tmp', 'blm_im_resized.nii'))
