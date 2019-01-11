@@ -214,8 +214,15 @@ def main(*args):
                 print(out)
                 print(err)
 
+                # Check the NIFTI has been generate, else wait up to 5 minutes.
+                t = time.time()
+                t1 = 0
+                while (not os.path.isfile(os.path.join(OutDir, 'blm_im_resized.nii'))) and (t1 < 300):
+                    t1 = time.time() - t
+
                 # Load the newly resized nifti mask
                 mmThresh = nib.load(os.path.join(OutDir, 'blm_im_resized.nii'))
+
                 mmThresh = mmThresh.get_data().reshape([n_v, 1])
 
         except:
