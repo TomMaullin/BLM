@@ -14,7 +14,6 @@ import shutil
 import yaml
 import pandas
 import time
-import nilearn
 import warnings
 np.set_printoptions(threshold=np.nan)
 
@@ -48,7 +47,8 @@ def main(*args):
     
     # Read in the nifti size and work out number of voxels.
     with open(inputs['Y_files']) as a:
-        nifti = nib.load(a.readline().replace('\n', ''))
+        nifti_path = a.readline().replace('\n', '')
+        nifti = nib.load(nifti_path)
 
     NIFTIsize = nifti.shape
     n_v = int(np.prod(NIFTIsize))
@@ -194,11 +194,17 @@ def main(*args):
                 mmThresh = mmThresh.get_data().reshape([n_v, 1])
             else:
                 # Resample and warn user
-                mmThresh = nilearn.image.resample_img(
-                    mmThresh, target_shape=NIFTIsize).get_data().reshape([n_v, 1])
+                resamplecmd = "flirt -in " + mmThresh_path + \
+                                   " -ref " + nifti_path + \
+                                   " -out " + os.path.join(OutDir, 'tmp', 
+                                                           'blm_im_resized.nii') + \
+                                   " -applyxfm"
+
+                print(resamplecmd)
+
                 warnings.warn('Masking NIFTI ' + mmThresh_path + ' does not have the'\
                               ' same dimensions as the input data and will therefore'\
-                              ' be resampled using nilearn.')
+                              ' be resampled using FLIRT.')
 
         except:
             raise ValueError('Nifti image ' + mmThresh_path + ' will not load.')
