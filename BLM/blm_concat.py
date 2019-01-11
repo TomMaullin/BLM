@@ -197,7 +197,7 @@ def main(*args):
                 # Make flirt resample command
                 resamplecmd = ["flirt", "-in", mmThresh_path,
                                         "-ref", nifti_path,
-                                        "-out", os.path.join(OutDir, 'tmp', 'blm_im_resized.nii'),
+                                        "-out", os.path.join(OutDir, 'blm_im_resized.nii'),
                                         "-applyxfm"]
 
                 print(resamplecmd)
@@ -215,7 +215,7 @@ def main(*args):
                 print(err)
 
                 # Load the newly resized nifti mask
-                mmThresh = nib.load(os.path.join(OutDir, 'tmp', 'blm_im_resized.nii'))
+                mmThresh = nib.load(os.path.join(OutDir, 'blm_im_resized.nii'))
                 mmThresh = mmThresh.get_data().reshape([n_v, 1])
 
         except:
