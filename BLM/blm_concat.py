@@ -190,7 +190,7 @@ def main(*args):
             # Check whether the mask has the same shape as the other niftis
             if np.array_equal(mmThresh.shape, NIFTIsize):
                 mmThresh = mmThresh.get_data().reshape([n_v, 1])
-            else:
+            #else:
                 # RESHAPE AND WARN
         except:
             raise ValueError('Nifti image ' + mmThresh ' will not load.')
