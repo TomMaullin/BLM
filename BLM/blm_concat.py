@@ -211,8 +211,6 @@ def main(*args):
                 process = subprocess.Popen(resamplecmd, shell=False,
                                            stdout=subprocess.PIPE)
                 out, err = process.communicate()
-                print(out)
-                print(err)
 
                 # Check the NIFTI has been generate, else wait up to 5 minutes.
                 t = time.time()
