@@ -14,6 +14,8 @@ import shutil
 import yaml
 import pandas
 import time
+import warnings
+import subprocess
 np.set_printoptions(threshold=np.nan)
 
 def main(*args):
@@ -46,7 +48,8 @@ def main(*args):
     
     # Read in the nifti size and work out number of voxels.
     with open(inputs['Y_files']) as a:
-        nifti = nib.load(a.readline().replace('\n', ''))
+        nifti_path = a.readline().replace('\n', '')
+        nifti = nib.load(nifti_path)
 
     NIFTIsize = nifti.shape
     n_v = int(np.prod(NIFTIsize))
@@ -134,7 +137,98 @@ def main(*args):
     # Create Mask
     # ----------------------------------------------------------------------
 
-    Mask = np.zeros([n_v, 1])
+    Mask = np.ones([n_v, 1])
+
+    # Apply user specified missingness thresholding.
+    if ("Relative" in inputs["Missingness"]) or ("relative" in inputs["Missingness"]):
+
+        # Read in relative threshold
+        if "Relative" in inputs["Missingness"]:
+            rmThresh = inputs["Missingness"]["Relative"]
+        else:
+            rmThresh = inputs["Missingness"]["relative"]
+
+        # If it's a percentage it will be a string and must be converted.
+        rmThresh = str(rmThresh)
+        if "%" in rmThresh:
+            rmThresh = float(rmThresh.replace("%", ""))/100
+        else:
+            rmThresh = float(rmThresh)
+
+        # Check the Relative threshold is between 0 and 1.
+        if (rmThresh < 0) or (rmThresh > 1):
+            raise ValueError('Relative Missingness threshold is out of range: ' +
+                             '0 < ' + str(rmThresh) + ' < 1 violation')
+
+        # Mask based on threshold.
+        Mask[n_s_sv.reshape(n_v, 1)<rmThresh*n_s]=0
+
+    if ("Absolute" in inputs["Missingness"]) or ("absolute" in inputs["Missingness"]):
+
+        # Read in relative threshold
+        if "Absolute" in inputs["Missingness"]:
+            amThresh = inputs["Missingness"]["Absolute"]
+        else:
+            amThresh = inputs["Missingness"]["absolute"]
+
+        # If it's a percentage it will be a string and must be converted.
+        if isinstance(amThresh, str):
+            amThresh = float(amThresh)
+
+        # Mask based on threshold.
+        Mask[n_s_sv.reshape(n_v, 1)<amThresh]=0
+
+    if ("Masking" in inputs["Missingness"]) or ("masking" in inputs["Missingness"]):
+
+        # Read in threshold mask
+        if "Masking" in inputs["Missingness"]:
+            mmThresh_path = inputs["Missingness"]["Masking"]
+        else:
+            mmThresh_path = inputs["Missingness"]["masking"]
+
+        try:
+            # Read in the mask nifti.
+            mmThresh = nib.load(mmThresh_path)
+
+            # Check whether the mask has the same shape as the other niftis
+            if np.array_equal(mmThresh.shape, NIFTIsize):
+                mmThresh = mmThresh.get_data().reshape([n_v, 1])
+            else:
+                # Make flirt resample command
+                resamplecmd = ["flirt", "-in", mmThresh_path,
+                                        "-ref", nifti_path,
+                                        "-out", os.path.join(OutDir, 'tmp', 'blm_im_resized.nii'),
+                                        "-applyxfm"]
+
+                print(resamplecmd)
+
+                # Warn the user about what is happening.
+                warnings.warn('Masking NIFTI ' + mmThresh_path + ' does not have the'\
+                              ' same dimensions as the input data and will therefore'\
+                              ' be resampled using FLIRT.')
+
+                # Run the command
+                process = subprocess.Popen(resamplecmd, shell=False,
+                                           stdout=subprocess.PIPE)
+                out, err = process.communicate()
+
+                # Check the NIFTI has been generate, else wait up to 5 minutes.
+                t = time.time()
+                t1 = 0
+                while (not os.path.isfile(os.path.join(OutDir, 'tmp', 'blm_im_resized.nii.gz'))) and (t1 < 300):
+                    t1 = time.time() - t
+
+                # Load the newly resized nifti mask
+                mmThresh = nib.load(os.path.join(OutDir, 'tmp', 'blm_im_resized.nii.gz'))
+
+                mmThresh = mmThresh.get_data().reshape([n_v, 1])
+
+        except:
+            raise ValueError('Nifti image ' + mmThresh_path + ' will not load.')
+
+        # Apply mask nifti.
+        Mask[mmThresh==0]=0
+
 
     # If spatially varying remove the designs that aren't of full rank.
     if SVFlag:
@@ -142,11 +236,10 @@ def main(*args):
         # We remove anything with 1 degree of freedom (or less) by default.
         # 1 degree of freedom seems to cause broadcasting errors on a very
         # small percentage of voxels.
-        Mask[n_s_sv.reshape(n_v, 1)>n_p+1]=1
+        Mask[n_s_sv.reshape(n_v, 1)<=n_p+1]=0
 
         # Reshape sumXtX to correct n_v by n_p by n_p
         sumXtX = sumXtX.reshape([n_v, n_p, n_p])
-
 
         # We also remove all voxels where the design has a column of just
         # zeros.
@@ -155,11 +248,13 @@ def main(*args):
 
         # Remove voxels with designs without full rank.
         M_inds = np.where(Mask==1)[0]
-        Mask[M_inds[np.where(blm_det(sumXtX[M_inds,:,:],SVFlag)==0)]]=0
+        Mask[M_inds[np.where(
+            np.absolute(blm_det(sumXtX[M_inds,:,:],SVFlag)) < np.sqrt(sys.float_info.epsilon)
+            )]]=0
 
     else:
 
-        Mask[n_s_sv.reshape(n_v, 1) > 0] = 1
+        Mask[n_s_sv.reshape(n_v, 1) == 0] = 0
 
     # Output final mask map
     maskmap = nib.Nifti1Image(Mask.reshape(
