@@ -306,6 +306,12 @@ def main(*args):
     # ----------------------------------------------------------------------    
 
     beta = np.matmul(isumXtX, sumXtY)
+    print(beta.shape)
+    print(sumXtY.shape)
+    print(sumXtX.shape)
+    beta2 = np.linalg.solve(sumXtX, sumXtY)
+    print(beta2.shape)
+    print(beta==beta2)
 
     if SVFlag:
         beta = beta.reshape([n_v, n_p]).transpose()
