@@ -51,6 +51,13 @@ def main(*args):
     except Exception as error:
         raise ValueError('The NIFTI "' + Y_files[0] + '"does not exist')
 
+    # Get the maximum memory a NIFTI could take in storage. 
+    NIFTIsize = sys.getsizeof(np.zeros(Y0.shape,dtype='uint64'))
+
+    if NIFTIsize > MAXMEM:
+        raise ValueError('The NIFTI "' + Y_files[0] + '"is too large')
+
+    # Load affine
     d0 = Y0.get_data()
     Y0aff = Y0.affine
 
@@ -60,6 +67,8 @@ def main(*args):
     # Similar to blksize in SwE, we divide by 8 times the size of a nifti
     # to work out how many blocks we use.
     blksize = np.floor(MAXMEM/8/NIFTIsize);
+    if blksize == 0:
+        raise ValueError('Blocksize too small.')
     
     if len(args)==0:
         with open(os.path.join(OutDir, "nb.txt"), 'w') as f:
