@@ -1,5 +1,7 @@
 rm log$1/*
 
+echo $1
+
 # include parse_yaml function
 . lib/parse_yaml.sh
 
