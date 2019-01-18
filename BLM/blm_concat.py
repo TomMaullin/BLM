@@ -309,6 +309,7 @@ def main(*args):
     print(beta.shape)
     print(sumXtY.shape)
     print(sumXtY[:, np.where(Mask==0)].shape)
+    print(np.where(Mask==0))
     print(sumXtX.shape)
     beta2 = np.linalg.solve(sumXtX, sumXtY)
     print(beta2.shape)
