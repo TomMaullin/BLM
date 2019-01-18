@@ -1,8 +1,6 @@
 #!/bin/bash
 #$ -S /bin/bash
 #$ -q short.qc
-#$ -o log/
-#$ -e log/
 #$ -cwd
 
 
