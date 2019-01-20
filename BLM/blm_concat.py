@@ -623,6 +623,8 @@ def main(*args):
                 # Mask spatially varying n_s
                 n_s_sv_m = n_s_sv.reshape(n_v, 1)
                 n_s_sv_m = n_s_sv_m[M_inds,:]
+                print(fStatc_m.shape)
+                print(n_s_sv_m.shape)
 
                 # Calculate partial R2 masked.
                 partialR2_m = (q*fStatc_m)/(q*fStatc_m + n_s_sv_m - n_p)
@@ -631,8 +633,6 @@ def main(*args):
                 partialR2 = np.zeros([n_v,1])
                 partialR2[M_inds,:] = partialR2_m
 
-                print(fStatc_m.shape)
-                print(n_s_sv_m.shape)
             partialR2 = partialR2.reshape(
                                NIFTIsize[0],
                                NIFTIsize[1],
