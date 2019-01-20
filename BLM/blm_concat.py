@@ -618,7 +618,7 @@ def main(*args):
             else:
 
                 # Mask fStat
-                fStatc_m = fStatc[M_inds,:]
+                fStatc_m = fStatc[M_inds]
 
                 # Mask spatially varying n_s
                 n_s_sv_m = n_s_sv.reshape(n_v, 1)
