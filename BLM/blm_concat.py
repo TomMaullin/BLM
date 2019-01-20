@@ -596,20 +596,56 @@ def main(*args):
 
             # Calculate F statistic.
             fStatc = Fnumerator/Fdenominator
-            fStatc = fStatc.reshape(
-                NIFTIsize[0],
-                NIFTIsize[1],
-                NIFTIsize[2]
-                )
+            fStatVolc = fStatc.reshape(
+                               NIFTIsize[0],
+                               NIFTIsize[1],
+                               NIFTIsize[2]
+                           )
 
             # Output statistic map
-            fStatcmap = nib.Nifti1Image(fStatc,
+            fStatcmap = nib.Nifti1Image(fStatVolc,
                                         nifti.affine,
                                         header=nifti.header)
             nib.save(fStatcmap,
                 os.path.join(OutDir, 
                     'blm_vox_Fstat_c' + str(i+1) + '.nii'))
 
+            # Make Partial R^2 = qF/(qF+n-p)
+            if not SVFlag:
+
+                partialR2 = (q*fStatc)/(q*fStatc + n_s - n_p)
+
+            else:
+
+                # Mask fStat
+                fStatc_m = fStatc[M_inds].reshape(n_v_m, 1)
+
+                # Mask spatially varying n_s
+                n_s_sv_m = n_s_sv.reshape(n_v, 1)
+                n_s_sv_m = n_s_sv_m[M_inds,:]
+                print(fStatc_m.shape)
+                print(n_s_sv_m.shape)
+
+                # Calculate partial R2 masked.
+                partialR2_m = (q*fStatc_m)/(q*fStatc_m + n_s_sv_m - n_p)
+
+                # Unmask partialR2.
+                partialR2 = np.zeros([n_v,1])
+                partialR2[M_inds,:] = partialR2_m
+
+            partialR2 = partialR2.reshape(
+                               NIFTIsize[0],
+                               NIFTIsize[1],
+                               NIFTIsize[2]
+                           )
+
+            # Output statistic map
+            partialR2map = nib.Nifti1Image(partialR2,
+                                        nifti.affine,
+                                        header=nifti.header)
+            nib.save(partialR2map,
+                os.path.join(OutDir, 
+                    'blm_vox_pr2_c' + str(i+1) + '.nii'))
 
 
     # Clean up files
