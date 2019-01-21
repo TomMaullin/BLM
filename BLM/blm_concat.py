@@ -319,6 +319,8 @@ def main(*args):
         # Calculate beta
         beta2 = np.linalg.solve(sumXtX, sumXtY)
 
+    beta = np.matmul(isumXtX, sumXtY)
+
     print(beta==beta2)
 
     if SVFlag:
