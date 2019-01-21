@@ -316,7 +316,7 @@ def main(*args):
 
         # Unmask Beta
         beta2 = np.zeros([n_v, n_p])
-        beta2[M_inds,:] = beta2_m
+        beta2[M_inds,:] = beta2_m.reshape([n_v_m, n_p])
 
     else:
 
