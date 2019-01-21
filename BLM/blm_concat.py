@@ -494,6 +494,7 @@ def main(*args):
 
             if not SVFlag:
 
+                print(cvec.shape)
                 XtXcvec = np.linalg.solve(sumXtX,np.transpose(cvec))
                 cvectiXtXcvec2 = np.matmul(cvec,XtXcvec)
 
