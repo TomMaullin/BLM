@@ -311,7 +311,7 @@ def main(*args):
         # Calculate Beta
         print(sumXtX_m.shape)
         print(sumXtY.shape)
-        beta2_m = np.linalg.solve(sumXtX_m, sumXtY)
+        beta2_m = np.linalg.solve(sumXtX_m, sumXtY_m)
         print(beta2_m.shape)
 
         # Unmask Beta
