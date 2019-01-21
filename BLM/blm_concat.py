@@ -322,6 +322,8 @@ def main(*args):
     beta = np.matmul(isumXtX, sumXtY)
 
     print(beta==beta2)
+    print(beta.shape)
+    print(beta2.shape)
 
     if SVFlag:
         beta = beta.reshape([n_v, n_p]).transpose()
@@ -338,6 +340,16 @@ def main(*args):
                                    nifti.affine,
                                    header=nifti.header)
         nib.save(betaimap, os.path.join(OutDir,'blm_vox_beta_b' + str(i+1) + '.nii'))
+
+        beta2i = beta2[i,:].reshape(int(NIFTIsize[0]),
+                                  int(NIFTIsize[1]),
+                                  int(NIFTIsize[2]))
+
+        # Save beta map.
+        beta2imap = nib.Nifti1Image(beta2i,
+                                   nifti.affine,
+                                   header=nifti.header)
+        nib.save(beta2imap, os.path.join(OutDir,'blm_vox2_beta_b' + str(i+1) + '.nii'))
 
     del betai, betaimap
 
