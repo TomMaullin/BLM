@@ -516,6 +516,8 @@ def main(*args):
 
             else:
 
+                print(cvec.shape)
+
                 XtXcvec = np.linalg.solve(sumXtX,np.transpose(cvec))
                 cvectiXtXcvec2 = np.matmul(cvec,XtXcvec)
 
