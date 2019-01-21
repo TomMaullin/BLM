@@ -297,6 +297,7 @@ def main(*args):
     if SVFlag:
         sumXtY = sumXtY.transpose()
         sumXtY = sumXtY.reshape([n_v, n_p, 1])
+        sumXtY_m = sumXtY[M_inds,:]
     else:
         # If we are doing non-spatially varying we still need to mask XtY
         sumXtY[:, np.where(Mask==0)]=0
