@@ -402,6 +402,7 @@ def main(*args):
     # Calculate beta covariance maps
     # ----------------------------------------------------------------------
     print(resms.shape)
+    iresms = 1/resms*np.identity(n_p,dtype=float) 
     if not SVFlag:
 
         # Output variance for each pair of betas
@@ -410,6 +411,7 @@ def main(*args):
 
                     # Calculate covariance of beta i and beta j.
                     covbetaij = resms*isumXtX[i,j]
+                    covbetaij2 = np.linalg.solve(sumXtX, iresms)[:,i,j]
 
                     # Output covariance map
                     covbetaijmap = nib.Nifti1Image(covbetaij,
@@ -417,7 +419,7 @@ def main(*args):
                                                    header=nifti.header)
                     nib.save(covbetaijmap,
                         os.path.join(OutDir, 
-                            'blm_vox_cov_b' + str(i+1) + ',' + str(j+1) + '.nii'))
+                            'blm_vox2_cov_b' + str(i+1) + ',' + str(j+1) + '.nii'))
 
         del covbetaijmap
 
@@ -433,6 +435,7 @@ def main(*args):
                             NIFTIsize[1],
                             NIFTIsize[2],
                             ))
+                    covbetaij2 = np.linalg.solve(sumXtX, iresms)[:,i,j]
                         
                     # Output covariance map
                     covbetaijmap = nib.Nifti1Image(covbetaij,
@@ -440,7 +443,7 @@ def main(*args):
                                                    header=nifti.header)
                     nib.save(covbetaijmap,
                         os.path.join(OutDir, 
-                            'blm_vox_cov_b' + str(i+1) + ',' + str(j+1) + '.nii'))
+                            'blm_vox2_cov_b' + str(i+1) + ',' + str(j+1) + '.nii'))
 
         del covbetaijmap
 
