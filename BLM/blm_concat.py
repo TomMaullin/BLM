@@ -401,8 +401,6 @@ def main(*args):
     # ----------------------------------------------------------------------
     # Calculate beta covariance maps
     # ----------------------------------------------------------------------
-    print(resms.shape)
-    iresms = 1/resms*np.identity(n_p,dtype=float) 
     if SVFlag:
         
         # Calculate masked (x'X)^(-1) values
@@ -419,7 +417,7 @@ def main(*args):
     else:
         # Calculate inverse of XtX
         isumXtX = blm_inverse(sumXtX, SVFlag)
-        
+
     if not SVFlag:
 
         # Output variance for each pair of betas
@@ -498,6 +496,9 @@ def main(*args):
 
             if not SVFlag:
 
+                XtXcvec = np.linalg.solve(sumXtX,np.transpose(cvec))
+                cvectiXtXcvec2 = np.matmul(cvec,XtXcvec)
+
                 # Calculate c'(X'X)^(-1)c
                 cvectiXtXcvec = np.matmul(
                     np.matmul(cvec, isumXtX),
@@ -516,10 +517,17 @@ def main(*args):
 
             else:
 
+                XtXcvec = np.linalg.solve(sumXtX,np.transpose(cvec))
+                cvectiXtXcvec2 = np.matmul(cvec,XtXcvec)
+
                 # Calculate c'(X'X)^(-1)c
                 cvectiXtXcvec = np.matmul(
                     np.matmul(cvec, isumXtX),
                     np.transpose(cvec))
+
+                print(cvectiXtXcvec.shape)
+                print(cvectiXtXcvec2.shape)
+                print(cvectiXtXcvec==cvectiXtXcvec2)
 
                 # Calculate cov(c\hat{\beta})
                 covcbeta = cvectiXtXcvec*resms.reshape(n_v)
