@@ -403,6 +403,23 @@ def main(*args):
     # ----------------------------------------------------------------------
     print(resms.shape)
     iresms = 1/resms*np.identity(n_p,dtype=float) 
+    if SVFlag:
+        
+        # Calculate masked (x'X)^(-1) values
+        sumXtX_m = sumXtX[M_inds,:,:]
+        isumXtX_m = blm_inverse(sumXtX_m, SVFlag, ouflow=True).reshape([n_v_m, n_p*n_p])
+
+        # Make (X'X)^(-1) unmasked
+        isumXtX = np.zeros([n_v, n_p*n_p])
+        isumXtX[M_inds,:]=isumXtX_m
+        isumXtX = isumXtX.reshape([n_v, n_p, n_p])
+
+    # If we are not using a spatially varying design, inverse in
+    # the normal manner.
+    else:
+        # Calculate inverse of XtX
+        isumXtX = blm_inverse(sumXtX, SVFlag)
+        
     if not SVFlag:
 
         # Output variance for each pair of betas
