@@ -305,14 +305,20 @@ def main(*args):
     # Calculate betahat = (X'X)^(-1)X'Y and output beta maps
     # ----------------------------------------------------------------------    
 
-    beta = np.matmul(isumXtX, sumXtY)
-    print(beta.shape)
-    print(sumXtY.shape)
-    print(sumXtY[:, np.where(Mask==0)].shape)
-    print(np.where(Mask==0))
-    print(sumXtX.shape)
-    beta2 = np.linalg.solve(sumXtX, sumXtY)
-    print(beta2.shape)
+    if SVFlag:
+
+        # Calculate Beta
+        beta2_m = np.linalg.solve(sumXtX_m, sumXtY)
+
+        # Unmask Beta
+        beta2 = np.zeros([n_v, n_p])
+        beta2[M_inds,:] = beta2_m
+
+    else:
+
+        # Calculate beta
+        beta2 = np.linalg.solve(sumXtX, sumXtY)
+
     print(beta==beta2)
 
     if SVFlag:
