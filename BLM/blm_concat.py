@@ -273,69 +273,39 @@ def main(*args):
     n_v_m = M_inds.shape[0]
 
     # ----------------------------------------------------------------------
-    # Calculate (X'X)^(-1)
-    # ----------------------------------------------------------------------
-    # Mask and reshape if we are using a spatially varying design.
-    if SVFlag:
-        
-        # Calculate masked (x'X)^(-1) values
-        sumXtX_m = sumXtX[M_inds,:,:]
-        isumXtX_m = blm_inverse(sumXtX_m, SVFlag, ouflow=True).reshape([n_v_m, n_p*n_p])
-
-        # Make (X'X)^(-1) unmasked
-        isumXtX = np.zeros([n_v, n_p*n_p])
-        isumXtX[M_inds,:]=isumXtX_m
-        isumXtX = isumXtX.reshape([n_v, n_p, n_p])
-
-    # If we are not using a spatially varying design, inverse in
-    # the normal manner.
-    else:
-        # Calculate inverse of XtX
-        isumXtX = blm_inverse(sumXtX, SVFlag)
-
-    # If we are doing spatially varying we need to reshape XtY.
-    if SVFlag:
-        sumXtY = sumXtY.transpose()
-        sumXtY = sumXtY.reshape([n_v, n_p, 1])
-        sumXtY_m = sumXtY[M_inds,:]
-    else:
-        # If we are doing non-spatially varying we still need to mask XtY
-        sumXtY[:, np.where(Mask==0)]=0
-
-    # ----------------------------------------------------------------------
     # Calculate betahat = (X'X)^(-1)X'Y and output beta maps
     # ----------------------------------------------------------------------    
 
     if SVFlag:
 
-        # Calculate Beta
-        print(sumXtX_m.shape)
-        print(sumXtY.shape)
-        beta2_m = np.linalg.solve(sumXtX_m, sumXtY_m)
-        print(beta2_m.shape)
+        # Calculate masked X'X
+        sumXtX_m = sumXtX[M_inds,:,:]
+        isumXtX_m = blm_inverse(sumXtX_m, SVFlag, ouflow=True).reshape([n_v_m, n_p*n_p])
+
+        # Calculate masked X'Y
+        sumXtY = sumXtY.transpose()
+        sumXtY = sumXtY.reshape([n_v, n_p, 1])
+        sumXtY_m = sumXtY[M_inds,:]
+
+        # Calculate masked Beta
+        beta_m = np.linalg.solve(sumXtX_m, sumXtY_m)
 
         # Unmask Beta
-        beta2 = np.zeros([n_v, n_p])
-        beta2[M_inds,:] = beta2_m.reshape([n_v_m, n_p])
-        beta2 = beta2.reshape([n_v, n_p]).transpose()
+        beta = np.zeros([n_v, n_p])
+        beta[M_inds,:] = beta_m.reshape([n_v_m, n_p])
+        beta = beta.reshape([n_v, n_p]).transpose()
 
     else:
 
+        # If we are doing non-spatially varying we still need to mask XtY
+        sumXtY[:, np.where(Mask==0)]=0
+
         # Calculate beta
-        beta2 = np.linalg.solve(sumXtX, sumXtY)
-
-    beta = np.matmul(isumXtX, sumXtY)
-
-    print(beta==beta2)
-    print(beta.shape)
-    print(beta2.shape)
-
-    if SVFlag:
-        beta = beta.reshape([n_v, n_p]).transpose()
+        beta = np.linalg.solve(sumXtX, sumXtY)
 
     # Cycle through betas and output results.
     for i in range(0,beta.shape[0]):
-        
+
         betai = beta[i,:].reshape(int(NIFTIsize[0]),
                                   int(NIFTIsize[1]),
                                   int(NIFTIsize[2]))
@@ -345,16 +315,6 @@ def main(*args):
                                    nifti.affine,
                                    header=nifti.header)
         nib.save(betaimap, os.path.join(OutDir,'blm_vox_beta_b' + str(i+1) + '.nii'))
-
-        beta2i = beta2[i,:].reshape(int(NIFTIsize[0]),
-                                  int(NIFTIsize[1]),
-                                  int(NIFTIsize[2]))
-
-        # Save beta map.
-        beta2imap = nib.Nifti1Image(beta2i,
-                                   nifti.affine,
-                                   header=nifti.header)
-        nib.save(beta2imap, os.path.join(OutDir,'blm_vox2_beta_b' + str(i+1) + '.nii'))
 
     del betai, betaimap
 
@@ -441,6 +401,7 @@ def main(*args):
     # ----------------------------------------------------------------------
     # Calculate beta covariance maps
     # ----------------------------------------------------------------------
+    print(resms.shape)
     if not SVFlag:
 
         # Output variance for each pair of betas
