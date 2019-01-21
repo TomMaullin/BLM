@@ -426,7 +426,6 @@ def main(*args):
 
                     # Calculate covariance of beta i and beta j.
                     covbetaij = resms*isumXtX[i,j]
-                    covbetaij2 = np.linalg.solve(sumXtX, iresms)[:,i,j]
 
                     # Output covariance map
                     covbetaijmap = nib.Nifti1Image(covbetaij,
@@ -450,7 +449,6 @@ def main(*args):
                             NIFTIsize[1],
                             NIFTIsize[2],
                             ))
-                    covbetaij2 = np.linalg.solve(sumXtX, iresms)[:,i,j]
                         
                     # Output covariance map
                     covbetaijmap = nib.Nifti1Image(covbetaij,
