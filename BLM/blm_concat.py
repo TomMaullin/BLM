@@ -308,7 +308,10 @@ def main(*args):
     if SVFlag:
 
         # Calculate Beta
+        print(sumXtX_m.shape)
+        print(sumXtY.shape)
         beta2_m = np.linalg.solve(sumXtX_m, sumXtY)
+        print(beta2_m.shape)
 
         # Unmask Beta
         beta2 = np.zeros([n_v, n_p])
