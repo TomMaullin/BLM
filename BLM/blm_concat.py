@@ -547,27 +547,19 @@ def main(*args):
                     'blm_vox_Fstat_c' + str(i+1) + '.nii'))
 
             # Make Partial R^2 = qF/(qF+n-p)
-            if not SVFlag:
+            # Mask fStat
+            fStatc_m = fStatc[M_inds].reshape(n_v_m, 1)
 
-                partialR2 = (q*fStatc)/(q*fStatc + n_s - n_p)
+            # Mask spatially varying n_s
+            n_s_sv_m = n_s_sv.reshape(n_v, 1)
+            n_s_sv_m = n_s_sv_m[M_inds,:]
 
-            else:
+            # Calculate partial R2 masked.
+            partialR2_m = (q*fStatc_m)/(q*fStatc_m + n_s_sv_m - n_p)
 
-                # Mask fStat
-                fStatc_m = fStatc[M_inds].reshape(n_v_m, 1)
-
-                # Mask spatially varying n_s
-                n_s_sv_m = n_s_sv.reshape(n_v, 1)
-                n_s_sv_m = n_s_sv_m[M_inds,:]
-                print(fStatc_m.shape)
-                print(n_s_sv_m.shape)
-
-                # Calculate partial R2 masked.
-                partialR2_m = (q*fStatc_m)/(q*fStatc_m + n_s_sv_m - n_p)
-
-                # Unmask partialR2.
-                partialR2 = np.zeros([n_v,1])
-                partialR2[M_inds,:] = partialR2_m
+            # Unmask partialR2.
+            partialR2 = np.zeros([n_v,1])
+            partialR2[M_inds,:] = partialR2_m
 
             partialR2 = partialR2.reshape(
                                NIFTIsize[0],
