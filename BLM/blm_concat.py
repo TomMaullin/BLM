@@ -444,7 +444,7 @@ def main(*args):
             # Calculate c'(X'X)^(-1)c
             cvectiXtXcvec = np.matmul(
                 np.matmul(cvec, isumXtX),
-                np.transpose(cvec))
+                np.transpose(cvec)).reshape(n_v)
 
             print(cvectiXtXcvec.shape)
             print(resms.shape)
