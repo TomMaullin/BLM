@@ -270,7 +270,6 @@ def main(*args):
 
     # Calculate masked X'X
     sumXtX_m = sumXtX[M_inds,:,:]
-    isumXtX_m = blm_inverse(sumXtX_m, ouflow=True).reshape([n_v_m, n_p*n_p])
 
     # Calculate masked X'Y
     sumXtY = sumXtY.transpose()
