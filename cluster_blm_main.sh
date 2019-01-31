@@ -1,3 +1,4 @@
+#!/bin/bash
 rm log/*
 
 # include parse_yaml function

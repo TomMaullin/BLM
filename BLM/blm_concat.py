@@ -418,9 +418,8 @@ def main(*args):
 
         # Calculate C\hat{\beta}}
         cbeta = np.matmul(cvec, beta)
-        np.matmul(cvec, isumXtX)#TESTING ERROR
         if cvec.ndim == 1:
-            cvec = cvec.reshape([cvec.shape[0],1])
+            cvec = cvec.reshape([1,cvec.shape[0]])
 
         if inputs['contrasts'][i]['c' + str(i+1)]['statType'] == 'T':
 
