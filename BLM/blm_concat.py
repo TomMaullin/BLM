@@ -626,7 +626,7 @@ def blm_inverse(A, ouflow=False):
     if np.ndim(A) == 1:
         iA = 1/A
     else:
-        iA = np.linalg.solve(A, np.eye(A.shape[0]))
+        iA = np.linalg.solve(A, np.eye(d_m))
 
     if ouflow:
 
