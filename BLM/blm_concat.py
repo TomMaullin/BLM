@@ -447,8 +447,8 @@ def main(*args):
                 np.transpose(cvec))
 
             print(cvectiXtXcvec.shape)
-            print(cvectiXtXcvec2.shape)
-            print(cvectiXtXcvec==cvectiXtXcvec2)
+            #print(cvectiXtXcvec2.shape)
+            #print(cvectiXtXcvec==cvectiXtXcvec2)
 
             # Calculate cov(c\hat{\beta})
             covcbeta = cvectiXtXcvec*resms.reshape(n_v)
