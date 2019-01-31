@@ -439,8 +439,8 @@ def main(*args):
                 os.path.join(OutDir, 
                     'blm_vox_beta_c' + str(i+1) + '.nii'))
 
-            XtXcvec = np.linalg.solve(sumXtX,np.transpose(cvec))
-            cvectiXtXcvec2 = np.matmul(cvec,XtXcvec)
+            #XtXcvec = np.linalg.solve(sumXtX,np.transpose(cvec))
+            #cvectiXtXcvec2 = np.matmul(cvec,XtXcvec)
 
             # Calculate c'(X'X)^(-1)c
             cvectiXtXcvec = np.matmul(
