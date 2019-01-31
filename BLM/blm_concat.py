@@ -400,7 +400,7 @@ def main(*args):
                                                header=nifti.header)
                 nib.save(covbetaijmap,
                     os.path.join(OutDir, 
-                        'blm_vox2_cov_b' + str(i+1) + ',' + str(j+1) + '.nii'))
+                        'blm_vox_cov_b' + str(i+1) + ',' + str(j+1) + '.nii'))
 
     del covbetaijmap
 
@@ -590,7 +590,7 @@ def blm_inverse(A, ouflow=False):
     if np.ndim(A) == 1:
         iA = 1/A
     else:
-        iA = np.linalg.inv(A)
+        iA = np.linalg.solve(A, np.eye(A.shape[0]))
 
     if ouflow:
 
