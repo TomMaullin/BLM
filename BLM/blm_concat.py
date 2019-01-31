@@ -447,6 +447,7 @@ def main(*args):
                 np.transpose(cvec))
 
             print(cvectiXtXcvec.shape)
+            print(resms.shape)
             #print(cvectiXtXcvec2.shape)
             #print(cvectiXtXcvec==cvectiXtXcvec2)
 
