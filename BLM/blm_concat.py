@@ -520,12 +520,13 @@ def main(*args):
                 np.matmul(icvectiXtXcvec, cbeta))
             cbeta_m = cbeta[M_inds,:,:]
             cbetat_m = cbeta_m.transpose(0,2,1)
-            Fnumerator2 = np.matmul(
+            Fnumerator2_m = np.matmul(
                 cbetat_m,
                 np.linalg.solve(cvectiXtXcvec_m, cbeta_m))
             Fnumerator = Fnumerator.reshape(n_v)
-            print(Fnumerator(Fnumerator>0)[1:20])
-            print(Fnumerator2[1:20])
+            Fnumerator_m = Fnumerator[Fnumerator>0]
+            print(Fnumerator_m[1:20])
+            print(Fnumerator2_m[1:20])
 
             # Calculate the denominator of the F statistic
             Fdenominator = (q*resms).reshape(n_v)
