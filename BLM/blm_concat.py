@@ -523,7 +523,8 @@ def main(*args):
 
             # Calculate the denominator of the F statistic
             print(resms.shape)
-            Fdenominator_m = q*resms[M_inds]
+            Fdenominator_m = q*resms.reshape([n_v])
+            Fdenominator_m = Fdenominator_m[M_inds]
             Fdenominator_m = Fdenominator_m.reshape(Fdenominator_m.shape[0])
 
             # Calculate F statistic.
