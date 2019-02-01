@@ -495,6 +495,7 @@ def main(*args):
 
             # Calculate masked (c'(X'X)^(-1)c)^(-1) values
             cvectiXtXcvec_m = cvectiXtXcvec[M_inds,:,:]
+            print(np.linalg.det(cvectiXtXcvec_m)==0)
             icvectiXtXcvec_m = blm_inverse(cvectiXtXcvec_m, ouflow=True).reshape([n_v_m, q*q])
 
             # Make (c'(X'X)^(-1)c)^(-1) unmasked
