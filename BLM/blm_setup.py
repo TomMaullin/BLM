@@ -12,7 +12,7 @@ import os
 import shutil
 import yaml
 import time
-from blm_eval import blm_eval
+from BLM.blm_eval import blm_eval
 
 def main(*args):
 
