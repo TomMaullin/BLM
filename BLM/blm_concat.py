@@ -16,7 +16,7 @@ import pandas
 import time
 import warnings
 import subprocess
-from blm_eval import blm_eval
+from BLM/blm_eval import blm_eval
 np.set_printoptions(threshold=np.nan)
 
 def main(*args):
@@ -29,7 +29,7 @@ def main(*args):
         with open(os.path.join(
                     os.path.dirname(os.path.realpath(__file__)),
                     '..',
-                    'blm_defaults.yml'), 'r') as stream:
+                    'blm_config.yml'), 'r') as stream:
             inputs = yaml.load(stream)
     else:
         # In this case inputs is first argument

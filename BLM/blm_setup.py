@@ -12,7 +12,7 @@ import os
 import shutil
 import yaml
 import time
-from blm_eval import blm_eval
+from BLM/blm_eval import blm_eval
 
 def main(*args):
 
@@ -23,7 +23,7 @@ def main(*args):
 
     if len(args)==0:
         # Load in inputs
-        with open(os.path.join('..','blm_defaults.yml'), 'r') as stream:
+        with open(os.path.join('..','blm_config.yml'), 'r') as stream:
             inputs = yaml.load(stream)
     else:
         # In this case inputs is first argument
