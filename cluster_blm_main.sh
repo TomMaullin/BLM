@@ -5,7 +5,7 @@ rm log$1/*
 . lib/parse_yaml.sh
 
 # read yaml file to get output directory
-eval $(parse_yaml blm_defaults.yml "config_")
+eval $(parse_yaml blm_config.yml "config_")
 mkdir -p $config_outdir
 
 # This file is used to record number of batches
