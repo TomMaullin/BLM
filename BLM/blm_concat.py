@@ -16,6 +16,7 @@ import pandas
 import time
 import warnings
 import subprocess
+from blm_eval import blm_eval
 np.set_printoptions(threshold=np.nan)
 
 def main(*args):
@@ -37,7 +38,6 @@ def main(*args):
     # ----------------------------------------------------------------------
     # Read basic inputs
     # ----------------------------------------------------------------------
-    SVFlag = inputs['SVFlag']
     OutDir = inputs['outdir']
     
     # Get number of parameters
@@ -200,8 +200,6 @@ def main(*args):
                                         "-out", os.path.join(OutDir, 'tmp', 'blm_im_resized.nii'),
                                         "-applyxfm"]
 
-                print(resamplecmd)
-
                 # Warn the user about what is happening.
                 warnings.warn('Masking NIFTI ' + mmThresh_path + ' does not have the'\
                               ' same dimensions as the input data and will therefore'\
@@ -230,31 +228,24 @@ def main(*args):
         Mask[mmThresh==0]=0
 
 
-    # If spatially varying remove the designs that aren't of full rank.
-    if SVFlag:
+    # We remove anything with 1 degree of freedom (or less) by default.
+    # 1 degree of freedom seems to cause broadcasting errors on a very
+    # small percentage of voxels.
+    Mask[n_s_sv.reshape(n_v, 1)<=n_p+1]=0
 
-        # We remove anything with 1 degree of freedom (or less) by default.
-        # 1 degree of freedom seems to cause broadcasting errors on a very
-        # small percentage of voxels.
-        Mask[n_s_sv.reshape(n_v, 1)<=n_p+1]=0
+    # Reshape sumXtX to correct n_v by n_p by n_p
+    sumXtX = sumXtX.reshape([n_v, n_p, n_p])
 
-        # Reshape sumXtX to correct n_v by n_p by n_p
-        sumXtX = sumXtX.reshape([n_v, n_p, n_p])
+    # We also remove all voxels where the design has a column of just
+    # zeros.
+    for i in range(0,n_p):
+        Mask[np.where(sumXtX[:,i,i]==0)]=0
 
-        # We also remove all voxels where the design has a column of just
-        # zeros.
-        for i in range(0,n_p):
-            Mask[np.where(sumXtX[:,i,i]==0)]=0
-
-        # Remove voxels with designs without full rank.
-        M_inds = np.where(Mask==1)[0]
-        Mask[M_inds[np.where(
-            np.absolute(blm_det(sumXtX[M_inds,:,:],SVFlag)) < np.sqrt(sys.float_info.epsilon)
-            )]]=0
-
-    else:
-
-        Mask[n_s_sv.reshape(n_v, 1) == 0] = 0
+    # Remove voxels with designs without full rank.
+    M_inds = np.where(Mask==1)[0]
+    Mask[M_inds[np.where(
+        np.absolute(blm_det(sumXtX[M_inds,:,:])) < np.sqrt(sys.float_info.epsilon)
+        )]]=0
 
     # Output final mask map
     maskmap = nib.Nifti1Image(Mask.reshape(
@@ -273,46 +264,29 @@ def main(*args):
     n_v_m = M_inds.shape[0]
 
     # ----------------------------------------------------------------------
-    # Calculate (X'X)^(-1)
-    # ----------------------------------------------------------------------
-    # Mask and reshape if we are using a spatially varying design.
-    if SVFlag:
-        
-        # Calculate masked (x'X)^(-1) values
-        sumXtX_m = sumXtX[M_inds,:,:]
-        isumXtX_m = blm_inverse(sumXtX_m, SVFlag, ouflow=True).reshape([n_v_m, n_p*n_p])
-
-        # Make (X'X)^(-1) unmasked
-        isumXtX = np.zeros([n_v, n_p*n_p])
-        isumXtX[M_inds,:]=isumXtX_m
-        isumXtX = isumXtX.reshape([n_v, n_p, n_p])
-
-    # If we are not using a spatially varying design, inverse in
-    # the normal manner.
-    else:
-        # Calculate inverse of XtX
-        isumXtX = blm_inverse(sumXtX, SVFlag)
-
-    # If we are doing spatially varying we need to reshape XtY.
-    if SVFlag:
-        sumXtY = sumXtY.transpose()
-        sumXtY = sumXtY.reshape([n_v, n_p, 1])
-    else:
-        # If we are doing non-spatially varying we still need to mask XtY
-        sumXtY[:, np.where(Mask==0)]=0
-
-    # ----------------------------------------------------------------------
     # Calculate betahat = (X'X)^(-1)X'Y and output beta maps
     # ----------------------------------------------------------------------    
 
-    beta = np.matmul(isumXtX, sumXtY)
+    # Calculate masked X'X
+    sumXtX_m = sumXtX[M_inds,:,:]
 
-    if SVFlag:
-        beta = beta.reshape([n_v, n_p]).transpose()
+    # Calculate masked X'Y
+    sumXtY = sumXtY.transpose()
+    sumXtY = sumXtY.reshape([n_v, n_p, 1])
+    sumXtY_m = sumXtY[M_inds,:]
+
+    # Calculate masked Beta
+    beta_m = np.linalg.solve(sumXtX_m, sumXtY_m)
+
+    # Unmask Beta
+    beta = np.zeros([n_v, n_p])
+    beta[M_inds,:] = beta_m.reshape([n_v_m, n_p])
+    beta = beta.reshape([n_v, n_p]).transpose()
+
 
     # Cycle through betas and output results.
     for i in range(0,beta.shape[0]):
-        
+
         betai = beta[i,:].reshape(int(NIFTIsize[0]),
                                   int(NIFTIsize[1]),
                                   int(NIFTIsize[2]))
@@ -370,34 +344,24 @@ def main(*args):
     # Calculate residual mean squares = e'e/(n_s - n_p)
     # ----------------------------------------------------------------------
 
-    # Get residual mean squares by dividing by degrees of
-    # freedom
-    if not SVFlag:
+    # Mask spatially varying n_s
+    n_s_sv_m = n_s_sv.reshape(n_v, 1)
+    n_s_sv_m = n_s_sv_m[M_inds,:]
 
-        # In non spatially varying the degrees of freedom
-        # are fixed across voxels
-        resms = ete/(n_s-n_p)
+    # Mask ete
+    ete_m = ete.reshape(n_v, 1)
+    ete_m = ete_m[M_inds,:]
 
-    else:
+    # In spatially varying the degrees of freedom
+    # varies across voxels
+    resms_m = ete_m/(n_s_sv_m-n_p)
 
-        # Mask spatially varying n_s
-        n_s_sv_m = n_s_sv.reshape(n_v, 1)
-        n_s_sv_m = n_s_sv_m[M_inds,:]
-
-        # Mask ete
-        ete_m = ete.reshape(n_v, 1)
-        ete_m = ete_m[M_inds,:]
-
-        # In spatially varying the degrees of freedom
-        # varies across voxels
-        resms_m = ete_m/(n_s_sv_m-n_p)
-
-        # Unmask resms
-        resms = np.zeros([n_v,1])
-        resms[M_inds,:] = resms_m
-        resms = resms.reshape(NIFTIsize[0], 
-                              NIFTIsize[1],
-                              NIFTIsize[2])
+    # Unmask resms
+    resms = np.zeros([n_v,1])
+    resms[M_inds,:] = resms_m
+    resms = resms.reshape(NIFTIsize[0], 
+                          NIFTIsize[1],
+                          NIFTIsize[2])
 
     # Output ResSS.
     msmap = nib.Nifti1Image(resms,
@@ -408,47 +372,36 @@ def main(*args):
     # ----------------------------------------------------------------------
     # Calculate beta covariance maps
     # ----------------------------------------------------------------------
-    if not SVFlag:
+        
+    # Calculate masked (x'X)^(-1) values
+    sumXtX_m = sumXtX[M_inds,:,:]
+    isumXtX_m = blm_inverse(sumXtX_m, ouflow=True).reshape([n_v_m, n_p*n_p])
 
-        # Output variance for each pair of betas
-        for i in range(0,n_p):
-            for j in range(0,n_p):
+    # Make (X'X)^(-1) unmasked
+    isumXtX = np.zeros([n_v, n_p*n_p])
+    isumXtX[M_inds,:]=isumXtX_m
+    isumXtX = isumXtX.reshape([n_v, n_p, n_p])
 
-                    # Calculate covariance of beta i and beta j.
-                    covbetaij = resms*isumXtX[i,j]
+    # Output variance for each pair of betas
+    for i in range(0,n_p):
+        for j in range(0,n_p):
 
-                    # Output covariance map
-                    covbetaijmap = nib.Nifti1Image(covbetaij,
-                                                   nifti.affine,
-                                                   header=nifti.header)
-                    nib.save(covbetaijmap,
-                        os.path.join(OutDir, 
-                            'blm_vox_cov_b' + str(i+1) + ',' + str(j+1) + '.nii'))
+                covbetaij = np.multiply(resms,
+                    isumXtX[:,i,j].reshape(
+                        NIFTIsize[0],
+                        NIFTIsize[1],
+                        NIFTIsize[2],
+                        ))
+                    
+                # Output covariance map
+                covbetaijmap = nib.Nifti1Image(covbetaij,
+                                               nifti.affine,
+                                               header=nifti.header)
+                nib.save(covbetaijmap,
+                    os.path.join(OutDir, 
+                        'blm_vox_cov_b' + str(i+1) + ',' + str(j+1) + '.nii'))
 
-        del covbetaijmap
-
-    else:
-
-        # Output variance for each pair of betas
-        for i in range(0,n_p):
-            for j in range(0,n_p):
-
-                    covbetaij = np.multiply(resms,
-                        isumXtX[:,i,j].reshape(
-                            NIFTIsize[0],
-                            NIFTIsize[1],
-                            NIFTIsize[2],
-                            ))
-                        
-                    # Output covariance map
-                    covbetaijmap = nib.Nifti1Image(covbetaij,
-                                                   nifti.affine,
-                                                   header=nifti.header)
-                    nib.save(covbetaijmap,
-                        os.path.join(OutDir, 
-                            'blm_vox_cov_b' + str(i+1) + ',' + str(j+1) + '.nii'))
-
-        del covbetaijmap
+    del covbetaijmap
 
     # ----------------------------------------------------------------------
     # Calculate COPEs, statistic maps and covariance maps.
@@ -464,6 +417,8 @@ def main(*args):
 
         # Calculate C\hat{\beta}}
         cbeta = np.matmul(cvec, beta)
+        if cvec.ndim == 1:
+            cvec = cvec.reshape([1,cvec.shape[0]])
 
         if inputs['contrasts'][i]['c' + str(i+1)]['statType'] == 'T':
 
@@ -482,47 +437,26 @@ def main(*args):
                 os.path.join(OutDir, 
                     'blm_vox_beta_c' + str(i+1) + '.nii'))
 
-            if not SVFlag:
+            # Calculate c'(X'X)^(-1)c
+            cvectiXtXcvec = np.matmul(
+                np.matmul(cvec, isumXtX),
+                np.transpose(cvec)).reshape(n_v)
 
-                # Calculate c'(X'X)^(-1)c
-                cvectiXtXcvec = np.matmul(
-                    np.matmul(cvec, isumXtX),
-                    np.transpose(cvec))
+            # Calculate cov(c\hat{\beta})
+            covcbeta = cvectiXtXcvec*resms.reshape(n_v)
+            covcbeta = covcbeta.reshape(
+                NIFTIsize[0],
+                NIFTIsize[1],
+                NIFTIsize[2]
+                )
 
-                # Calculate cov(c\hat{\beta})
-                covcbeta = cvectiXtXcvec*resms
-
-                # Output covariance map
-                covcbetamap = nib.Nifti1Image(covcbeta,
-                                              nifti.affine,
-                                              header=nifti.header)
-                nib.save(covcbetamap,
-                    os.path.join(OutDir, 
-                        'blm_vox_cov_c' + str(i+1) + '.nii'))
-
-            else:
-
-                # Calculate c'(X'X)^(-1)c
-                cvectiXtXcvec = np.matmul(
-                    np.matmul(cvec, isumXtX),
-                    np.transpose(cvec))
-
-                # Calculate cov(c\hat{\beta})
-                covcbeta = cvectiXtXcvec*resms.reshape(n_v)
-
-                covcbeta = covcbeta.reshape(
-                    NIFTIsize[0],
-                    NIFTIsize[1],
-                    NIFTIsize[2]
-                    )
-
-                # Output covariance map
-                covcbetamap = nib.Nifti1Image(covcbeta,
-                                              nifti.affine,
-                                              header=nifti.header)
-                nib.save(covcbetamap,
-                    os.path.join(OutDir, 
-                        'blm_vox_cov_c' + str(i+1) + '.nii'))
+            # Output covariance map
+            covcbetamap = nib.Nifti1Image(covcbeta,
+                                          nifti.affine,
+                                          header=nifti.header)
+            nib.save(covcbetamap,
+                os.path.join(OutDir, 
+                    'blm_vox_cov_c' + str(i+1) + '.nii'))
 
 
             # To avoid division by zero errors we set the 
@@ -559,43 +493,34 @@ def main(*args):
                 cbeta.shape[1],
                 1)
             cbeta = cbeta.transpose(1, 0, 2)
-        
-            # Not spatially varying
-            if not SVFlag:
 
-                # Calculate the inverse
-                icvectiXtXcvec = blm_inverse(cvectiXtXcvec, SVFlag, ouflow=True)
+            # Calculate masked (c'(X'X)^(-1)c)^(-1) values
+            cvectiXtXcvec_m = cvectiXtXcvec[M_inds,:,:]
+            icvectiXtXcvec_m = blm_inverse(cvectiXtXcvec_m, ouflow=True).reshape([n_v_m, q*q])
 
-            else:
-
-                # Calculate masked (c'(X'X)^(-1)c)^(-1) values
-                cvectiXtXcvec_m = cvectiXtXcvec[M_inds,:,:]
-                icvectiXtXcvec_m = blm_inverse(cvectiXtXcvec_m, SVFlag, ouflow=True).reshape([n_v_m, q*q])
-
-                # Make (c'(X'X)^(-1)c)^(-1) unmasked
-                icvectiXtXcvec = np.zeros([n_v, q*q])
-                icvectiXtXcvec[M_inds,:]=icvectiXtXcvec_m
-                icvectiXtXcvec = icvectiXtXcvec.reshape([n_v, q, q])
+            # Make (c'(X'X)^(-1)c)^(-1) unmasked
+            icvectiXtXcvec = np.zeros([n_v, q*q])
+            icvectiXtXcvec[M_inds,:]=icvectiXtXcvec_m
+            icvectiXtXcvec = icvectiXtXcvec.reshape([n_v, q, q])
 
 
             # Calculate the numerator of the F statistic
-            Fnumerator = np.matmul(
-                cbeta.transpose(0, 2, 1),
-                np.matmul(icvectiXtXcvec, cbeta))
-            # Fnumerator2 = np.matmul(
-            #     cbeta.transpose(0, 2, 1),
-            #     np.linalg.solve(cvectiXtXcvec, cbeta))
-            Fnumerator = Fnumerator.reshape(n_v)
+            cbeta_m = cbeta[M_inds,:,:]
+            cbetat_m = cbeta_m.transpose(0,2,1)
+            Fnumerator_m = np.matmul(
+                cbetat_m,
+                np.linalg.solve(cvectiXtXcvec_m, cbeta_m))
+            Fnumerator_m = Fnumerator_m.reshape(Fnumerator_m.shape[0])
 
             # Calculate the denominator of the F statistic
-            Fdenominator = (q*resms).reshape(n_v)
-            # Remove zeros in Fdenominator to avoid divide by 
-            # zero errors. This should really be done with 
-            # masking
-            Fdenominator[Fdenominator == 0] = 1
+            Fdenominator_m = q*resms.reshape([n_v])
+            Fdenominator_m = Fdenominator_m[M_inds]
+            Fdenominator_m = Fdenominator_m.reshape(Fdenominator_m.shape[0])
 
             # Calculate F statistic.
-            fStatc = Fnumerator/Fdenominator
+            fStatc_m = Fnumerator_m/Fdenominator_m
+            fStatc = np.zeros([n_v])
+            fStatc[M_inds]=fStatc_m
             fStatVolc = fStatc.reshape(
                                NIFTIsize[0],
                                NIFTIsize[1],
@@ -611,27 +536,19 @@ def main(*args):
                     'blm_vox_Fstat_c' + str(i+1) + '.nii'))
 
             # Make Partial R^2 = qF/(qF+n-p)
-            if not SVFlag:
+            # Mask fStat
+            fStatc_m = fStatc[M_inds].reshape(n_v_m, 1)
 
-                partialR2 = (q*fStatc)/(q*fStatc + n_s - n_p)
+            # Mask spatially varying n_s
+            n_s_sv_m = n_s_sv.reshape(n_v, 1)
+            n_s_sv_m = n_s_sv_m[M_inds,:]
 
-            else:
+            # Calculate partial R2 masked.
+            partialR2_m = (q*fStatc_m)/(q*fStatc_m + n_s_sv_m - n_p)
 
-                # Mask fStat
-                fStatc_m = fStatc[M_inds].reshape(n_v_m, 1)
-
-                # Mask spatially varying n_s
-                n_s_sv_m = n_s_sv.reshape(n_v, 1)
-                n_s_sv_m = n_s_sv_m[M_inds,:]
-                print(fStatc_m.shape)
-                print(n_s_sv_m.shape)
-
-                # Calculate partial R2 masked.
-                partialR2_m = (q*fStatc_m)/(q*fStatc_m + n_s_sv_m - n_p)
-
-                # Unmask partialR2.
-                partialR2 = np.zeros([n_v,1])
-                partialR2[M_inds,:] = partialR2_m
+            # Unmask partialR2.
+            partialR2 = np.zeros([n_v,1])
+            partialR2[M_inds,:] = partialR2_m
 
             partialR2 = partialR2.reshape(
                                NIFTIsize[0],
@@ -660,69 +577,11 @@ def main(*args):
 # special handling is used to account for over/under
 # flow. In this case, it assumes that A has non-zero
 # diagonals.
-def blm_inverse(A, SVFlag, ouflow=False):
+def blm_inverse(A, ouflow=False):
 
 
     # If ouflow is true, we need to precondition A.
     if ouflow:
-
-        if not SVFlag:
-
-            # Calculate D, diagonal matrix with diagonal
-            # elements D_ii equal to 1/sqrt(A_ii)
-            D = np.zeros(A.shape)
-            np.fill_diagonal(D, 1/np.sqrt(A.diagonal()))
-
-        else:
-
-            # Work out number of matrices and dimension of
-            # matrices. I.e. if we have seven 3 by 3 matrices
-            # to invert n_m = 7, d_m = 3.
-            n_m = A.shape[0]
-            d_m = A.shape[1]
-
-            # Make D to be filled with diagonal elements
-            D = np.broadcast_to(np.eye(d_m), (n_m,d_m,d_m)).copy()
-
-            # Obtain 1/sqrt(diagA)
-            diagA = 1/np.sqrt(A.diagonal(0,1,2))
-            diagA = diagA.reshape(n_m, d_m)
-
-            # Make this back into diagonal matrices
-            diaginds = np.diag_indices(d_m)
-            D[:, diaginds[0], diaginds[1]] = diagA 
-
-        # Precondition A.
-        A = np.matmul(np.matmul(D, A), D)
-
-    # np linalg inverse doesn't handle dim=[1,1]
-    if np.ndim(A) == 1:
-        iA = 1/A
-    else:
-        iA = np.linalg.inv(A)
-
-    if ouflow:
-
-        # Undo preconditioning.
-        iA = np.matmul(np.matmul(D, iA), D)
-
-    return(iA)
-
-# This function calculates the determinant of matrix A/
-# stack of matrices A, with special handling accounting
-# for over/under flow. 
-def blm_det(A, SVFlag):
-
-
-    # Precondition A.
-    if not SVFlag:
-
-        # Calculate D, diagonal matrix with diagonal
-        # elements D_ii equal to 1/sqrt(A_ii)
-        D = np.zeros(A.shape)
-        np.fill_diagonal(D, 1/np.sqrt(A.diagonal()))
-
-    else:
 
         # Work out number of matrices and dimension of
         # matrices. I.e. if we have seven 3 by 3 matrices
@@ -741,6 +600,46 @@ def blm_det(A, SVFlag):
         diaginds = np.diag_indices(d_m)
         D[:, diaginds[0], diaginds[1]] = diagA 
 
+        # Precondition A.
+        A = np.matmul(np.matmul(D, A), D)
+
+    # np linalg inverse doesn't handle dim=[1,1]
+    if np.ndim(A) == 1:
+        iA = 1/A
+    else:
+        iA = np.linalg.solve(A, np.eye(d_m).reshape(1,d_m,d_m))
+
+    if ouflow:
+
+        # Undo preconditioning.
+        iA = np.matmul(np.matmul(D, iA), D)
+
+    return(iA)
+
+# This function calculates the determinant of matrix A/
+# stack of matrices A, with special handling accounting
+# for over/under flow. 
+def blm_det(A):
+
+
+    # Precondition A.
+    # Work out number of matrices and dimension of
+    # matrices. I.e. if we have seven 3 by 3 matrices
+    # to invert n_m = 7, d_m = 3.
+    n_m = A.shape[0]
+    d_m = A.shape[1]
+
+    # Make D to be filled with diagonal elements
+    D = np.broadcast_to(np.eye(d_m), (n_m,d_m,d_m)).copy()
+
+    # Obtain 1/sqrt(diagA)
+    diagA = 1/np.sqrt(A.diagonal(0,1,2))
+    diagA = diagA.reshape(n_m, d_m)
+
+    # Make this back into diagonal matrices
+    diaginds = np.diag_indices(d_m)
+    D[:, diaginds[0], diaginds[1]] = diagA 
+
     # Calculate DAD.
     DAD = np.matmul(np.matmul(D, A), D)
 
@@ -752,24 +651,6 @@ def blm_det(A, SVFlag):
     detA = detDAD/detDD
 
     return(detA)
-
-# This is a small function to help evaluate a string containing
-# a contrast vector
-def blm_eval(c):
-
-    c = str(c)
-    c = c.replace("'", "")
-    c = c.replace('][', '], [').replace('],[', '], [').replace('] [', '], [')
-    c = c.replace('[ [', '[[').replace('] ]', ']]')
-    cs = c.split(' ')
-    cf = ''
-    for i in range(0,len(cs)):
-        cs[i]=cs[i].replace(',', '')
-        cf=cf + cs[i]
-        if i < (len(cs)-1):
-            cf = cf + ', '
-        
-    return(eval(cf))
 
 if __name__ == "__main__":
     main()

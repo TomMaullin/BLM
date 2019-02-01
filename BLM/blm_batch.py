@@ -53,7 +53,6 @@ def main(*args):
     X = pandas.io.parsers.read_csv(
         inputs['X'], sep=',', header=None).values
 
-    SVFlag = inputs['SVFlag']
     OutDir = inputs['outdir']
 
     # Load in one nifti to check NIFTI size
@@ -83,26 +82,22 @@ def main(*args):
     # with no studies present.
     Y, Mask = obtainY(Y_files, M_files)
 
-    # For spatially varying,
-    if SVFlag:
-        MX = blkMX(X, Y)
+    # Work out voxel specific designs
+    MX = blkMX(X, Y)
     
     # Get X transpose Y, X transpose X and Y transpose Y.
     XtY = blkXtY(X, Y, Mask)
     YtY = blkYtY(Y, Mask)
-    
-    if not SVFlag:
-        XtX = blkXtX(X)
-    else:
-        # In a spatially varying design XtX has dimensions n_voxels
-        # by n_parameters by n_parameters. We reshape to n_voxels by
-        # n_parameters^2 so that we can save as a csv.
-        XtX_m = blkXtX(MX)
-        XtX_m = XtX_m.reshape([XtX_m.shape[0], XtX_m.shape[1]*XtX_m.shape[2]])
 
-        # We then need to unmask XtX as we now are saving XtX.
-        XtX = np.zeros([Mask.shape[0],XtX_m.shape[1]])
-        XtX[np.flatnonzero(Mask),:] = XtX_m[:]
+    # In a spatially varying design XtX has dimensions n_voxels
+    # by n_parameters by n_parameters. We reshape to n_voxels by
+    # n_parameters^2 so that we can save as a csv.
+    XtX_m = blkXtX(MX)
+    XtX_m = XtX_m.reshape([XtX_m.shape[0], XtX_m.shape[1]*XtX_m.shape[2]])
+
+    # We then need to unmask XtX as we now are saving XtX.
+    XtX = np.zeros([Mask.shape[0],XtX_m.shape[1]])
+    XtX[np.flatnonzero(Mask),:] = XtX_m[:]
 
     # Pandas reads and writes files much more quickly with nrows <<
     # number of columns
