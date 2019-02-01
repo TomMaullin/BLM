@@ -495,7 +495,6 @@ def main(*args):
 
             # Calculate masked (c'(X'X)^(-1)c)^(-1) values
             cvectiXtXcvec_m = cvectiXtXcvec[M_inds,:,:]
-            print(np.linalg.det(cvectiXtXcvec_m)==0)
             icvectiXtXcvec_m = blm_inverse(cvectiXtXcvec_m, ouflow=True).reshape([n_v_m, q*q])
 
             # Make (c'(X'X)^(-1)c)^(-1) unmasked
@@ -518,8 +517,6 @@ def main(*args):
             Fdenominator_m = Fdenominator_m.reshape(Fdenominator_m.shape[0])
 
             # Calculate F statistic.
-            print(Fnumerator_m.shape)
-            print(Fdenominator_m.shape)
             fStatc_m = Fnumerator_m/Fdenominator_m
             fStatc = np.zeros([n_v])
             fStatc[M_inds]=fStatc_m
@@ -609,9 +606,6 @@ def blm_inverse(A, ouflow=False):
     if np.ndim(A) == 1:
         iA = 1/A
     else:
-        print(A)
-        print(np.eye(d_m))
-        iA2 = np.linalg.inv(A)
         iA = np.linalg.solve(A, np.eye(d_m).reshape(1,d_m,d_m))
 
     if ouflow:
