@@ -166,10 +166,10 @@ def main(*args):
     if ("MinN" in inputs["Missingness"]) or ("minn" in inputs["Missingness"]):
 
         # Read in relative threshold
-        if "Absolute" in inputs["minn"]:
-            amThresh = inputs["minn"]["Absolute"]
+        if "minn" in inputs["Missingness"]:
+            amThresh = inputs["Missingness"]["minn"]
         else:
-            amThresh = inputs["MinN"]["absolute"]
+            amThresh = inputs["Missingness"]["MinN"]
 
         # If it's a percentage it will be a string and must be converted.
         if isinstance(amThresh, str):
