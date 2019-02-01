@@ -518,10 +518,14 @@ def main(*args):
             Fnumerator = np.matmul(
                 cbeta.transpose(0, 2, 1),
                 np.matmul(icvectiXtXcvec, cbeta))
-            # Fnumerator2 = np.matmul(
-            #     cbeta.transpose(0, 2, 1),
-            #     np.linalg.solve(cvectiXtXcvec, cbeta))
+            cbeta_m = cbeta[M_inds,:,:]
+            cbetat_m = cbeta_m.transpose(0,2,1)
+            Fnumerator2 = np.matmul(
+                cbetat_m,
+                np.linalg.solve(cvectiXtXcvec_m, cbeta_m))
             Fnumerator = Fnumerator.reshape(n_v)
+            print(Fnumerator(Fnumerator>0)[1:20])
+            print(Fnumerator2[1:20])
 
             # Calculate the denominator of the F statistic
             Fdenominator = (q*resms).reshape(n_v)
@@ -618,8 +622,6 @@ def blm_inverse(A, ouflow=False):
     if np.ndim(A) == 1:
         iA = 1/A
     else:
-        print(A.shape)
-        print(np.eye(d_m).shape)
         iA = np.linalg.solve(A, np.eye(d_m).reshape(1,d_m,d_m))
 
     if ouflow:
