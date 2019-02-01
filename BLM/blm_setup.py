@@ -86,7 +86,7 @@ def main(*args):
             q = cvec.shape[0]
 
             if np.linalg.matrix_rank(cvec)<q:
-                raise ValueError('F contrast ' + str(cvec) + ' is not of correct rank.')
+                raise ValueError('F contrast: \n' + str(cvec) + '\n is not of correct rank.')
 
 
     if len(args)==0:
