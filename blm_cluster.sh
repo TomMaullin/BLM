@@ -14,7 +14,9 @@ if [ -f $config_outdir/nb.txt ] ; then
 fi
 touch $config_outdir/nb.txt 
 
-qsub -o log$1/ -e log$1/ -N setup -V lib/cluster_blm_setup.sh
+# Run setup and obtain the setup job's id
+jobID=`qsub -o log$1/ -e log$1/ -N setup -V lib/cluster_blm_setup.sh`
+jobID=`echo $jobID | awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}'`
 
 echo "Setting up distributed analysis..."
 
