@@ -16,6 +16,7 @@ import pandas
 import time
 import warnings
 import subprocess
+from blm_eval import blm_eval
 np.set_printoptions(threshold=np.nan)
 
 def main(*args):
@@ -650,24 +651,6 @@ def blm_det(A):
     detA = detDAD/detDD
 
     return(detA)
-
-# This is a small function to help evaluate a string containing
-# a contrast vector
-def blm_eval(c):
-
-    c = str(c)
-    c = c.replace("'", "")
-    c = c.replace('][', '], [').replace('],[', '], [').replace('] [', '], [')
-    c = c.replace('[ [', '[[').replace('] ]', ']]')
-    cs = c.split(' ')
-    cf = ''
-    for i in range(0,len(cs)):
-        cs[i]=cs[i].replace(',', '')
-        cf=cf + cs[i]
-        if i < (len(cs)-1):
-            cf = cf + ', '
-        
-    return(eval(cf))
 
 if __name__ == "__main__":
     main()

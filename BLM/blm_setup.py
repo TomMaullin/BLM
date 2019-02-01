@@ -12,6 +12,7 @@ import os
 import shutil
 import yaml
 import time
+from blm_eval import blm_eval
 
 def main(*args):
 
@@ -69,7 +70,25 @@ def main(*args):
     blksize = np.floor(MAXMEM/8/NIFTIsize);
     if blksize == 0:
         raise ValueError('Blocksize too small.')
-    
+
+    # Check F contrast ranks 
+    n_c = len(inputs['contrasts'])
+    for i in range(0,n_c):
+
+        if inputs['contrasts'][i]['c' + str(i+1)]['statType'] == 'F':
+
+            # Read in contrast vector
+            # Get number of parameters
+            cvec = blm_eval(inputs['contrasts'][i]['c' + str(i+1)]['vector'])
+            cvec = np.array(cvec)
+                
+            # Get dimension of cvector
+            q = cvec.shape[0]
+
+            if np.linalg.matrix_rank(cvec)<q:
+                raise ValueError('F contrast ' + str(cvec) + ' is not of correct rank.')
+
+
     if len(args)==0:
         with open(os.path.join(OutDir, "nb.txt"), 'w') as f:
             print(int(np.ceil(len(Y_files)/int(blksize))), file=f)
