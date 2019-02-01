@@ -15,6 +15,3 @@ def blm_eval(c):
             cf = cf + ', '
         
     return(eval(cf))
-
-if __name__ == "__main__":
-    main()
