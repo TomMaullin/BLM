@@ -515,31 +515,20 @@ def main(*args):
 
 
             # Calculate the numerator of the F statistic
-            Fnumerator = np.matmul(
-                cbeta.transpose(0, 2, 1),
-                np.matmul(icvectiXtXcvec, cbeta))
             cbeta_m = cbeta[M_inds,:,:]
             cbetat_m = cbeta_m.transpose(0,2,1)
-            Fnumerator2_m = np.matmul(
+            Fnumerator_m = np.matmul(
                 cbetat_m,
                 np.linalg.solve(cvectiXtXcvec_m, cbeta_m))
-            Fnumerator = Fnumerator.reshape(n_v)
-            Fnumerator2 = np.zeros([n_v])
-            Fnumerator2[M_inds] = Fnumerator2_m.reshape(Fnumerator2_m.shape[0])
-            Fnumerator2_m = Fnumerator2[Fnumerator2>0]
-            Fnumerator_m = Fnumerator[Fnumerator>0]
-            print(Fnumerator_m[1:200])
-            print(Fnumerator2_m[1:200])
 
             # Calculate the denominator of the F statistic
-            Fdenominator = (q*resms).reshape(n_v)
-            # Remove zeros in Fdenominator to avoid divide by 
-            # zero errors. This should really be done with 
-            # masking
-            Fdenominator[Fdenominator == 0] = 1
+            Fdenominator_m = q*resms[M_inds]
+            Fdenominator_m = Fdenominator_m.reshape(Fdenominator_m.shape[0])
 
             # Calculate F statistic.
-            fStatc = Fnumerator/Fdenominator
+            fStatc_m = Fnumerator_m/Fdenominator_m
+            fStatc = np.zeros([n_v])
+            fStatc[M_inds]=fStatc
             fStatVolc = fStatc.reshape(
                                NIFTIsize[0],
                                NIFTIsize[1],
