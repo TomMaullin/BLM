@@ -521,7 +521,7 @@ def main(*args):
             print(Fdenominator_m.shape)
             fStatc_m = Fnumerator_m/Fdenominator_m
             fStatc = np.zeros([n_v])
-            fStatc[M_inds]=fStatc
+            fStatc[M_inds]=fStatc_m
             fStatVolc = fStatc.reshape(
                                NIFTIsize[0],
                                NIFTIsize[1],
