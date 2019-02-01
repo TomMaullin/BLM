@@ -522,6 +522,7 @@ def main(*args):
                 np.linalg.solve(cvectiXtXcvec_m, cbeta_m))
 
             # Calculate the denominator of the F statistic
+            print(resms.shape)
             Fdenominator_m = q*resms[M_inds]
             Fdenominator_m = Fdenominator_m.reshape(Fdenominator_m.shape[0])
 
