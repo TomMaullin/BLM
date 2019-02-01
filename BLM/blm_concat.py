@@ -525,7 +525,7 @@ def main(*args):
                 np.linalg.solve(cvectiXtXcvec_m, cbeta_m))
             Fnumerator = Fnumerator.reshape(n_v)
             Fnumerator2 = np.zeros([n_v])
-            Fnumerator2[M_inds] = Fnumerator2_m.reshape(Fnumerator2.shape[0])
+            Fnumerator2[M_inds] = Fnumerator2_m.reshape(Fnumerator2_m.shape[0])
             Fnumerator2_m = Fnumerator2[Fnumerator2>0]
             Fnumerator_m = Fnumerator[Fnumerator>0]
             print(Fnumerator_m[1:200])
