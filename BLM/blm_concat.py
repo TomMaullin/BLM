@@ -199,8 +199,6 @@ def main(*args):
                                         "-out", os.path.join(OutDir, 'tmp', 'blm_im_resized.nii'),
                                         "-applyxfm"]
 
-                print(resamplecmd)
-
                 # Warn the user about what is happening.
                 warnings.warn('Masking NIFTI ' + mmThresh_path + ' does not have the'\
                               ' same dimensions as the input data and will therefore'\
@@ -438,22 +436,13 @@ def main(*args):
                 os.path.join(OutDir, 
                     'blm_vox_beta_c' + str(i+1) + '.nii'))
 
-            #XtXcvec = np.linalg.solve(sumXtX,np.transpose(cvec))
-            #cvectiXtXcvec2 = np.matmul(cvec,XtXcvec)
-
             # Calculate c'(X'X)^(-1)c
             cvectiXtXcvec = np.matmul(
                 np.matmul(cvec, isumXtX),
                 np.transpose(cvec)).reshape(n_v)
 
-            print(cvectiXtXcvec.shape)
-            print(resms.shape)
-            #print(cvectiXtXcvec2.shape)
-            #print(cvectiXtXcvec==cvectiXtXcvec2)
-
             # Calculate cov(c\hat{\beta})
             covcbeta = cvectiXtXcvec*resms.reshape(n_v)
-
             covcbeta = covcbeta.reshape(
                 NIFTIsize[0],
                 NIFTIsize[1],
@@ -522,12 +511,13 @@ def main(*args):
                 np.linalg.solve(cvectiXtXcvec_m, cbeta_m))
 
             # Calculate the denominator of the F statistic
-            print(resms.shape)
             Fdenominator_m = q*resms.reshape([n_v])
             Fdenominator_m = Fdenominator_m[M_inds]
             Fdenominator_m = Fdenominator_m.reshape(Fdenominator_m.shape[0])
 
             # Calculate F statistic.
+            print(Fnumerator_m.shape)
+            print(Fdenominator_m.shape)
             fStatc_m = Fnumerator_m/Fdenominator_m
             fStatc = np.zeros([n_v])
             fStatc[M_inds]=fStatc
