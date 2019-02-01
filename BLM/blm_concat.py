@@ -140,13 +140,13 @@ def main(*args):
     Mask = np.ones([n_v, 1])
 
     # Apply user specified missingness thresholding.
-    if ("Relative" in inputs["Missingness"]) or ("relative" in inputs["Missingness"]):
+    if ("MinPercent" in inputs["Missingness"]) or ("minpercent" in inputs["Missingness"]):
 
         # Read in relative threshold
-        if "Relative" in inputs["Missingness"]:
-            rmThresh = inputs["Missingness"]["Relative"]
+        if "MinPercent" in inputs["Missingness"]:
+            rmThresh = inputs["Missingness"]["MinPercent"]
         else:
-            rmThresh = inputs["Missingness"]["relative"]
+            rmThresh = inputs["Missingness"]["minpercent"]
 
         # If it's a percentage it will be a string and must be converted.
         rmThresh = str(rmThresh)
@@ -157,19 +157,19 @@ def main(*args):
 
         # Check the Relative threshold is between 0 and 1.
         if (rmThresh < 0) or (rmThresh > 1):
-            raise ValueError('Relative Missingness threshold is out of range: ' +
+            raise ValueError('Minumum percentage missingness threshold is out of range: ' +
                              '0 < ' + str(rmThresh) + ' < 1 violation')
 
         # Mask based on threshold.
         Mask[n_s_sv.reshape(n_v, 1)<rmThresh*n_s]=0
 
-    if ("Absolute" in inputs["Missingness"]) or ("absolute" in inputs["Missingness"]):
+    if ("MinN" in inputs["Missingness"]) or ("minn" in inputs["Missingness"]):
 
         # Read in relative threshold
-        if "Absolute" in inputs["Missingness"]:
-            amThresh = inputs["Missingness"]["Absolute"]
+        if "Absolute" in inputs["minn"]:
+            amThresh = inputs["minn"]["Absolute"]
         else:
-            amThresh = inputs["Missingness"]["absolute"]
+            amThresh = inputs["MinN"]["absolute"]
 
         # If it's a percentage it will be a string and must be converted.
         if isinstance(amThresh, str):
