@@ -16,7 +16,7 @@ import pandas
 import time
 import warnings
 import subprocess
-from BLM/blm_eval import blm_eval
+from BLM import blm_eval
 np.set_printoptions(threshold=np.nan)
 
 def main(*args):
