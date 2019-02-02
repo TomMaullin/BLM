@@ -95,12 +95,12 @@ def main(*args):
     # Reduce Y_files to only Y files for this block
     Y_files = Y_files[(blksize*(batchNo-1)):min((blksize*batchNo),len(Y_files))]
     
-    # Obtain n map and verify input
-    nmap = verifyInput(Y_files, M_files, Y0)
+    # Verify input
+    verifyInput(Y_files, M_files, Y0)
 
-    # Obtain Y and a mask for Y. This mask is just for voxels
+    # Obtain Y, mask for Y and nmap. This mask is just for voxels
     # with no studies present.
-    Y, Mask = obtainY(Y_files, M_files, MperY)
+    Y, Mask, nmap = obtainY(Y_files, M_files, MperY)
 
     # Work out voxel specific designs
     MX = blkMX(X, Y)
@@ -148,10 +148,7 @@ def verifyInput(Y_files, M_files, Y0):
     d0 = Y0.get_data()
     Y0aff = Y0.affine
 
-    # Count number of scans contributing to voxels
-    nmap = np.zeros(d0.shape)
-
-    # Initial checks for NIFTI compatability.
+    # Initial checks for NIFTI compatability for Y.
     for i in range(0, len(Y_files)):
 
         Y_file = Y_files[i]
@@ -162,19 +159,8 @@ def verifyInput(Y_files, M_files, Y0):
         except Exception as error:
             raise ValueError('The NIFTI "' + Y_file + '"does not exist')
 
-        try:
-            M = nib.load(M_file)
-        except Exception as error:
-            raise ValueError('The NIFTI "' + M_file + '"does not exist')
-
-
-        d = np.multiply(Y.get_data(), M.get_data())
-        
-        # Count number of scans at each voxel
-        nmap = nmap + 1*(np.nan_to_num(d)!=0)
-
         # Check NIFTI images have the same dimensions.
-        if not np.array_equal(d.shape, d0.shape):
+        if not np.array_equal(Y0.shape, Y.shape):
             raise ValueError('Input NIFTI "' + Y_file + '" has ' +
                              'different dimensions to "' +
                              Y0 + '"')
@@ -184,8 +170,26 @@ def verifyInput(Y_files, M_files, Y0):
             raise ValueError('Input NIFTI "' + Y_file + '" has a ' +
                              'different affine transformation to "' +
                              Y0 + '"')
-    
-    return nmap
+
+    # Initial checks for NIFTI compatability for M.
+    for i in range(0, len(M_files)):
+
+        try:
+            M = nib.load(M_file)
+        except Exception as error:
+            raise ValueError('The NIFTI "' + M_file + '"does not exist')
+
+        # Check NIFTI images have the same dimensions.
+        if not np.array_equal(Y0.shape, M.shape):
+            raise ValueError('Input NIFTI "' + M_file + '" has ' +
+                             'different dimensions to "' +
+                             Y0 + '"')
+
+        # Check NIFTI images are in the same space.
+        if not np.array_equal(M.affine, Y0aff):
+            raise ValueError('Input NIFTI "' + M_file + '" has a ' +
+                             'different affine transformation to "' +
+                             Y0 + '"')
 
 def blkMX(X,Y):
 
@@ -214,6 +218,9 @@ def obtainY(Y_files, M_files, MperY):
 
     # Number of scans in block
     nscan = len(Y_files)
+
+    # Count number of scans contributing to voxels
+    nmap = np.zeros(d.shape)
 
     # Make an overall mask for the block if 
     # there's not a mask per individual
@@ -256,6 +263,9 @@ def obtainY(Y_files, M_files, MperY):
         # NaN check
         d = np.nan_to_num(d)
 
+        # Count number of scans at each voxel
+        nmap = nmap + 1*(np.nan_to_num(d)!=0)
+
         # Constructing Y matrix
         Y[i, :] = d.reshape([1, nvox])
     
@@ -264,7 +274,7 @@ def obtainY(Y_files, M_files, MperY):
     
     Y = Y[:, np.where(np.count_nonzero(Y, axis=0)>0)[0]]
 
-    return Y, Mask
+    return Y, Mask, nmap
 
 # Note: this techniqcally calculates sum(Y.Y) for each voxel,
 # not Y transpose Y for all voxels
