@@ -92,6 +92,12 @@ def main(*args):
         MperY = False
         M_files = None
 
+    # Mask threshold for Y (if given)
+    if 'M_thresh' in inputs:
+        M_t = float(inputs['M_thresh'])
+    else:
+        M_t = None
+
     # Reduce Y_files to only Y files for this block
     Y_files = Y_files[(blksize*(batchNo-1)):min((blksize*batchNo),len(Y_files))]
     
@@ -100,7 +106,7 @@ def main(*args):
 
     # Obtain Y, mask for Y and nmap. This mask is just for voxels
     # with no studies present.
-    Y, Mask, nmap = obtainY(Y_files, M_files, MperY)
+    Y, Mask, nmap = obtainY(Y_files, M_files, MperY, M_t)
 
     # Work out voxel specific designs
     MX = blkMX(X, Y)
@@ -209,7 +215,7 @@ def blkMX(X,Y):
 
     return MX
 
-def obtainY(Y_files, M_files, MperY):
+def obtainY(Y_files, M_files, MperY, M_t):
 
     # Load in one nifti to check NIFTI size
     Y0 = nib.load(Y_files[0])
@@ -244,7 +250,6 @@ def obtainY(Y_files, M_files, MperY):
 
         # Read in each individual NIFTI.
         Y_indiv = nib.load(Y_files[i])
-        print(Y_indiv.shape)
 
         # Mask Y if necesart
         if M_files is not None:
@@ -275,6 +280,12 @@ def obtainY(Y_files, M_files, MperY):
     Mask[np.where(np.count_nonzero(Y, axis=0)>0)[0]] = 1
     
     Y = Y[:, np.where(np.count_nonzero(Y, axis=0)>0)[0]]
+
+    # Threshold Y by M_t if necessary
+    if M_t is not None:
+        print(Y.shape)
+        Y[np.where(Y>=M_t)]=0
+        print(Y.shape)
 
     return Y, Mask, nmap
 
