@@ -283,7 +283,9 @@ def obtainY(Y_files, M_files, MperY, M_t):
     Mask = np.zeros([nvox])
     Mask[np.where(np.count_nonzero(Y, axis=0)>0)[0]] = 1
     
+    print(Y.shape)
     Y = Y[:, np.where(np.count_nonzero(Y, axis=0)>0)[0]]
+    print(Y.shape)
 
     return Y, Mask, nmap
 
