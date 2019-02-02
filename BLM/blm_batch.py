@@ -215,6 +215,20 @@ def obtainY(Y_files, M_files, MperY):
     # Number of scans in block
     nscan = len(Y_files)
 
+    # Make an overall mask for the block if 
+    # there's not a mask per individual
+    if not MperY:
+
+        if not M_files is None:
+
+            M_overall = np.ones(d.shape)
+
+            # Create intersect of all masks
+            for M_file in M_files:
+
+                M = nib.load(M_file).get_data()
+                M_overall = np.multiply(M_overall, M)
+
     # Read in Y
     Y = np.zeros([nscan, nvox])
     for i in range(0, len(Y_files)):
@@ -223,15 +237,21 @@ def obtainY(Y_files, M_files, MperY):
         Y_indiv = nib.load(Y_files[i])
         print(Y_indiv.shape)
 
-        # If theres a mask for each individual load it
-        if MperY:
-            M_indiv = nib.load(M_files[i])
-        # Else apply group mask to each individual
-        else:
-            M_indiv = M_overall
-        d = np.multiply(
-            Y_indiv.get_data(),
-            M_indiv.get_data())
+        # Mask Y if necesart
+        if M_files is not None:
+            # If theres a mask for each individual load it
+            if MperY:
+                M_indiv = nib.load(M_files[i])
+            # Else apply group mask to each individual
+            else:
+                M_indiv = M_overall
+
+            d = np.multiply(
+                Y_indiv.get_data(),
+                M_indiv.get_data())
+        else: 
+            #Just load in Y
+            d = Y_indiv.get_data()
 
         # NaN check
         d = np.nan_to_num(d)
