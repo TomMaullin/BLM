@@ -267,6 +267,10 @@ def obtainY(Y_files, M_files, MperY, M_t):
             #Just load in Y
             d = Y_indiv.get_data()
 
+        # If theres an initial threshold for the data apply it.
+        if M_t is not None:
+            d[d<M_t]=0
+
         # NaN check
         d = np.nan_to_num(d)
 
@@ -280,12 +284,6 @@ def obtainY(Y_files, M_files, MperY, M_t):
     Mask[np.where(np.count_nonzero(Y, axis=0)>0)[0]] = 1
     
     Y = Y[:, np.where(np.count_nonzero(Y, axis=0)>0)[0]]
-
-    # Threshold Y by M_t if necessary
-    if M_t is not None:
-        print(Y.shape)
-        Y[np.where(Y>=M_t)]=0
-        print(Y.shape)
 
     return Y, Mask, nmap
 
