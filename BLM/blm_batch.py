@@ -250,14 +250,14 @@ def obtainY(Y_files, M_files, MperY):
         if M_files is not None:
             # If theres a mask for each individual load it
             if MperY:
-                M_indiv = nib.load(M_files[i])
+                M_indiv = nib.load(M_files[i]).get_data()
             # Else apply group mask to each individual
             else:
                 M_indiv = M_overall
 
             d = np.multiply(
                 Y_indiv.get_data(),
-                M_indiv.get_data())
+                M_indiv)
         else: 
             #Just load in Y
             d = Y_indiv.get_data()
