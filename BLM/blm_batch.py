@@ -172,24 +172,25 @@ def verifyInput(Y_files, M_files, Y0):
                              Y0 + '"')
 
     # Initial checks for NIFTI compatability for M.
-    for i in range(0, len(M_files)):
+    if M_files is not None:
+        for i in range(0, len(M_files)):
 
-        try:
-            M = nib.load(M_file)
-        except Exception as error:
-            raise ValueError('The NIFTI "' + M_file + '"does not exist')
+            try:
+                M = nib.load(M_file)
+            except Exception as error:
+                raise ValueError('The NIFTI "' + M_file + '"does not exist')
 
-        # Check NIFTI images have the same dimensions.
-        if not np.array_equal(Y0.shape, M.shape):
-            raise ValueError('Input NIFTI "' + M_file + '" has ' +
-                             'different dimensions to "' +
-                             Y0 + '"')
+            # Check NIFTI images have the same dimensions.
+            if not np.array_equal(Y0.shape, M.shape):
+                raise ValueError('Input NIFTI "' + M_file + '" has ' +
+                                 'different dimensions to "' +
+                                 Y0 + '"')
 
-        # Check NIFTI images are in the same space.
-        if not np.array_equal(M.affine, Y0aff):
-            raise ValueError('Input NIFTI "' + M_file + '" has a ' +
-                             'different affine transformation to "' +
-                             Y0 + '"')
+            # Check NIFTI images are in the same space.
+            if not np.array_equal(M.affine, Y0aff):
+                raise ValueError('Input NIFTI "' + M_file + '" has a ' +
+                                 'different affine transformation to "' +
+                                 Y0 + '"')
 
 def blkMX(X,Y):
 
