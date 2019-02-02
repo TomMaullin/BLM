@@ -30,7 +30,8 @@ def main(*args):
         # In this case inputs is first argument
         inputs = args[1]
 
-    MAXMEM = eval(inputs['MAXMEM'])
+    MAXMEM = eval(inputs['MAXMEM'])    
+    OutDir = inputs['outdir']
 
     # Y volumes
     with open(inputs['Y_files']) as a:
@@ -40,20 +41,6 @@ def main(*args):
         for line in a.readlines():
 
             Y_files.append(line.replace('\n', ''))
-
-    # Mask volumes
-    with open(inputs['M_files']) as a:
-
-        M_files = []
-        i = 0
-        for line in a.readlines():
-
-            M_files.append(line.replace('\n', ''))
-
-    X = pandas.io.parsers.read_csv(
-        inputs['X'], sep=',', header=None).values
-
-    OutDir = inputs['outdir']
 
     # Load in one nifti to check NIFTI size
     try:
@@ -70,17 +57,50 @@ def main(*args):
     # to work out how many blocks we use.
     blksize = int(np.floor(MAXMEM/8/NIFTIsize));
 
-    # Reduce Y_files to only Y_files for this block.
+    # Reduce X to X for this block.
+    X = pandas.io.parsers.read_csv(
+        inputs['X'], sep=',', header=None).values
     X = X[(blksize*(batchNo-1)):min((blksize*batchNo),len(Y_files))]
+
+    # Mask volumes (if they are given)
+    if 'M_files' in inputs:
+
+        with open(inputs['M_files']) as a:
+
+            M_files = []
+            i = 0
+            for line in a.readlines():
+
+                M_files.append(line.replace('\n', ''))
+
+        # If we have a mask for each Y, reduce the list to just for this block
+        if len(M_files) == len(Y_files):
+
+            # In this case we have a mask per Y volume
+            M_files = M_files[(blksize*(batchNo-1)):min((blksize*batchNo),len(M_files))]
+            MperY = True
+
+        else:
+
+            # Otherwise we have a mask/set of masks to apply to every Y.
+            MperY = False
+
+    # Otherwise we have no masks
+    else:
+
+        # There is not a mask for each Y as there are no masks at all!
+        MperY = False
+        M_files = None
+
+    # Reduce Y_files to only Y files for this block
     Y_files = Y_files[(blksize*(batchNo-1)):min((blksize*batchNo),len(Y_files))]
-    M_files = M_files[(blksize*(batchNo-1)):min((blksize*batchNo),len(M_files))]
     
     # Obtain n map and verify input
     nmap = verifyInput(Y_files, M_files, Y0)
 
     # Obtain Y and a mask for Y. This mask is just for voxels
     # with no studies present.
-    Y, Mask = obtainY(Y_files, M_files)
+    Y, Mask = obtainY(Y_files, M_files, MperY)
 
     # Work out voxel specific designs
     MX = blkMX(X, Y)
@@ -183,7 +203,7 @@ def blkMX(X,Y):
 
     return MX
 
-def obtainY(Y_files, M_files):
+def obtainY(Y_files, M_files, MperY):
 
     # Load in one nifti to check NIFTI size
     Y0 = nib.load(Y_files[0])
@@ -201,7 +221,14 @@ def obtainY(Y_files, M_files):
 
         # Read in each individual NIFTI.
         Y_indiv = nib.load(Y_files[i])
-        M_indiv = nib.load(M_files[i])
+        print(Y_indiv.shape)
+
+        # If theres a mask for each individual load it
+        if MperY:
+            M_indiv = nib.load(M_files[i])
+        # Else apply group mask to each individual
+        else:
+            M_indiv = M_overall
         d = np.multiply(
             Y_indiv.get_data(),
             M_indiv.get_data())
