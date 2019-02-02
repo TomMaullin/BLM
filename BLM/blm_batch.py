@@ -152,7 +152,6 @@ def verifyInput(Y_files, M_files, Y0):
     for i in range(0, len(Y_files)):
 
         Y_file = Y_files[i]
-        M_file = M_files[i]
 
         try:
             Y = nib.load(Y_file)
@@ -174,6 +173,8 @@ def verifyInput(Y_files, M_files, Y0):
     # Initial checks for NIFTI compatability for M.
     if M_files is not None:
         for i in range(0, len(M_files)):
+
+            M_file = M_files[i]
 
             try:
                 M = nib.load(M_file)
