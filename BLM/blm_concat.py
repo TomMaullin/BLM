@@ -139,93 +139,96 @@ def main(*args):
 
     Mask = np.ones([n_v, 1])
 
-    # Apply user specified missingness thresholding.
-    if ("MinPercent" in inputs["Missingness"]) or ("minpercent" in inputs["Missingness"]):
+    # Check for user specified missingness thresholds.
+    if 'Missingness' in inputs:
 
-        # Read in relative threshold
-        if "MinPercent" in inputs["Missingness"]:
-            rmThresh = inputs["Missingness"]["MinPercent"]
-        else:
-            rmThresh = inputs["Missingness"]["minpercent"]
+        # Apply user specified missingness thresholding.
+        if ("MinPercent" in inputs["Missingness"]) or ("minpercent" in inputs["Missingness"]):
 
-        # If it's a percentage it will be a string and must be converted.
-        rmThresh = str(rmThresh)
-        if "%" in rmThresh:
-            rmThresh = float(rmThresh.replace("%", ""))/100
-        else:
-            rmThresh = float(rmThresh)
-
-        # Check the Relative threshold is between 0 and 1.
-        if (rmThresh < 0) or (rmThresh > 1):
-            raise ValueError('Minumum percentage missingness threshold is out of range: ' +
-                             '0 < ' + str(rmThresh) + ' < 1 violation')
-
-        # Mask based on threshold.
-        Mask[n_s_sv.reshape(n_v, 1)<rmThresh*n_s]=0
-
-    if ("MinN" in inputs["Missingness"]) or ("minn" in inputs["Missingness"]):
-
-        # Read in relative threshold
-        if "minn" in inputs["Missingness"]:
-            amThresh = inputs["Missingness"]["minn"]
-        else:
-            amThresh = inputs["Missingness"]["MinN"]
-
-        # If it's a percentage it will be a string and must be converted.
-        if isinstance(amThresh, str):
-            amThresh = float(amThresh)
-
-        # Mask based on threshold.
-        Mask[n_s_sv.reshape(n_v, 1)<amThresh]=0
-
-    if ("Masking" in inputs["Missingness"]) or ("masking" in inputs["Missingness"]):
-
-        # Read in threshold mask
-        if "Masking" in inputs["Missingness"]:
-            mmThresh_path = inputs["Missingness"]["Masking"]
-        else:
-            mmThresh_path = inputs["Missingness"]["masking"]
-
-        try:
-            # Read in the mask nifti.
-            mmThresh = nib.load(mmThresh_path)
-
-            # Check whether the mask has the same shape as the other niftis
-            if np.array_equal(mmThresh.shape, NIFTIsize):
-                mmThresh = mmThresh.get_data().reshape([n_v, 1])
+            # Read in relative threshold
+            if "MinPercent" in inputs["Missingness"]:
+                rmThresh = inputs["Missingness"]["MinPercent"]
             else:
-                # Make flirt resample command
-                resamplecmd = ["flirt", "-in", mmThresh_path,
-                                        "-ref", nifti_path,
-                                        "-out", os.path.join(OutDir, 'tmp', 'blm_im_resized.nii'),
-                                        "-applyxfm"]
+                rmThresh = inputs["Missingness"]["minpercent"]
 
-                # Warn the user about what is happening.
-                warnings.warn('Masking NIFTI ' + mmThresh_path + ' does not have the'\
-                              ' same dimensions as the input data and will therefore'\
-                              ' be resampled using FLIRT.')
+            # If it's a percentage it will be a string and must be converted.
+            rmThresh = str(rmThresh)
+            if "%" in rmThresh:
+                rmThresh = float(rmThresh.replace("%", ""))/100
+            else:
+                rmThresh = float(rmThresh)
 
-                # Run the command
-                process = subprocess.Popen(resamplecmd, shell=False,
-                                           stdout=subprocess.PIPE)
-                out, err = process.communicate()
+            # Check the Relative threshold is between 0 and 1.
+            if (rmThresh < 0) or (rmThresh > 1):
+                raise ValueError('Minumum percentage missingness threshold is out of range: ' +
+                                 '0 < ' + str(rmThresh) + ' < 1 violation')
 
-                # Check the NIFTI has been generate, else wait up to 5 minutes.
-                t = time.time()
-                t1 = 0
-                while (not os.path.isfile(os.path.join(OutDir, 'tmp', 'blm_im_resized.nii.gz'))) and (t1 < 300):
-                    t1 = time.time() - t
+            # Mask based on threshold.
+            Mask[n_s_sv.reshape(n_v, 1)<rmThresh*n_s]=0
 
-                # Load the newly resized nifti mask
-                mmThresh = nib.load(os.path.join(OutDir, 'tmp', 'blm_im_resized.nii.gz'))
+        if ("MinN" in inputs["Missingness"]) or ("minn" in inputs["Missingness"]):
 
-                mmThresh = mmThresh.get_data().reshape([n_v, 1])
+            # Read in relative threshold
+            if "minn" in inputs["Missingness"]:
+                amThresh = inputs["Missingness"]["minn"]
+            else:
+                amThresh = inputs["Missingness"]["MinN"]
 
-        except:
-            raise ValueError('Nifti image ' + mmThresh_path + ' will not load.')
+            # If it's a percentage it will be a string and must be converted.
+            if isinstance(amThresh, str):
+                amThresh = float(amThresh)
 
-        # Apply mask nifti.
-        Mask[mmThresh==0]=0
+            # Mask based on threshold.
+            Mask[n_s_sv.reshape(n_v, 1)<amThresh]=0
+
+        if ("Masking" in inputs["Missingness"]) or ("masking" in inputs["Missingness"]):
+
+            # Read in threshold mask
+            if "Masking" in inputs["Missingness"]:
+                mmThresh_path = inputs["Missingness"]["Masking"]
+            else:
+                mmThresh_path = inputs["Missingness"]["masking"]
+
+            try:
+                # Read in the mask nifti.
+                mmThresh = nib.load(mmThresh_path)
+
+                # Check whether the mask has the same shape as the other niftis
+                if np.array_equal(mmThresh.shape, NIFTIsize):
+                    mmThresh = mmThresh.get_data().reshape([n_v, 1])
+                else:
+                    # Make flirt resample command
+                    resamplecmd = ["flirt", "-in", mmThresh_path,
+                                            "-ref", nifti_path,
+                                            "-out", os.path.join(OutDir, 'tmp', 'blm_im_resized.nii'),
+                                            "-applyxfm"]
+
+                    # Warn the user about what is happening.
+                    warnings.warn('Masking NIFTI ' + mmThresh_path + ' does not have the'\
+                                  ' same dimensions as the input data and will therefore'\
+                                  ' be resampled using FLIRT.')
+
+                    # Run the command
+                    process = subprocess.Popen(resamplecmd, shell=False,
+                                               stdout=subprocess.PIPE)
+                    out, err = process.communicate()
+
+                    # Check the NIFTI has been generate, else wait up to 5 minutes.
+                    t = time.time()
+                    t1 = 0
+                    while (not os.path.isfile(os.path.join(OutDir, 'tmp', 'blm_im_resized.nii.gz'))) and (t1 < 300):
+                        t1 = time.time() - t
+
+                    # Load the newly resized nifti mask
+                    mmThresh = nib.load(os.path.join(OutDir, 'tmp', 'blm_im_resized.nii.gz'))
+
+                    mmThresh = mmThresh.get_data().reshape([n_v, 1])
+
+            except:
+                raise ValueError('Nifti image ' + mmThresh_path + ' will not load.')
+
+            # Apply mask nifti.
+            Mask[mmThresh==0]=0
 
 
     # We remove anything with 1 degree of freedom (or less) by default.

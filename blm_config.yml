@@ -1,11 +1,14 @@
 # Maximum Memory for computing in bytes - current default of 2**29 bytes matches that of SPM.
 MAXMEM: 2**32
 
-# Enter a list of Y files. (This is a temporary way of entering this data and will change once we know more about the data).
+# Enter a list of Y files.
 Y_files: /users/nichols/inf852/tmp2/Y_200.txt
 
-# Enter a list of Mask files. (This is a temporary way of entering this data and will change once we know more about the data).
+# Enter a list of Mask files.
 M_files: /users/nichols/inf852/tmp2/M_200.txt
+
+# Enter a masking threshold on Y.
+M_thresh: 0.1
 
 # Design matrix and number of parameters.
 X: /users/nichols/inf852/tmp2/X_200.csv

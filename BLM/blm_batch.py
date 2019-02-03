@@ -30,7 +30,8 @@ def main(*args):
         # In this case inputs is first argument
         inputs = args[1]
 
-    MAXMEM = eval(inputs['MAXMEM'])
+    MAXMEM = eval(inputs['MAXMEM'])    
+    OutDir = inputs['outdir']
 
     # Y volumes
     with open(inputs['Y_files']) as a:
@@ -40,20 +41,6 @@ def main(*args):
         for line in a.readlines():
 
             Y_files.append(line.replace('\n', ''))
-
-    # Mask volumes
-    with open(inputs['M_files']) as a:
-
-        M_files = []
-        i = 0
-        for line in a.readlines():
-
-            M_files.append(line.replace('\n', ''))
-
-    X = pandas.io.parsers.read_csv(
-        inputs['X'], sep=',', header=None).values
-
-    OutDir = inputs['outdir']
 
     # Load in one nifti to check NIFTI size
     try:
@@ -70,17 +57,56 @@ def main(*args):
     # to work out how many blocks we use.
     blksize = int(np.floor(MAXMEM/8/NIFTIsize));
 
-    # Reduce Y_files to only Y_files for this block.
+    # Reduce X to X for this block.
+    X = pandas.io.parsers.read_csv(
+        inputs['X'], sep=',', header=None).values
     X = X[(blksize*(batchNo-1)):min((blksize*batchNo),len(Y_files))]
-    Y_files = Y_files[(blksize*(batchNo-1)):min((blksize*batchNo),len(Y_files))]
-    M_files = M_files[(blksize*(batchNo-1)):min((blksize*batchNo),len(M_files))]
-    
-    # Obtain n map and verify input
-    nmap = verifyInput(Y_files, M_files, Y0)
 
-    # Obtain Y and a mask for Y. This mask is just for voxels
+    # Mask volumes (if they are given)
+    if 'M_files' in inputs:
+
+        with open(inputs['M_files']) as a:
+
+            M_files = []
+            i = 0
+            for line in a.readlines():
+
+                M_files.append(line.replace('\n', ''))
+
+        # If we have a mask for each Y, reduce the list to just for this block
+        if len(M_files) == len(Y_files):
+
+            # In this case we have a mask per Y volume
+            M_files = M_files[(blksize*(batchNo-1)):min((blksize*batchNo),len(M_files))]
+            MperY = True
+
+        else:
+
+            # Otherwise we have a mask/set of masks to apply to every Y.
+            MperY = False
+
+    # Otherwise we have no masks
+    else:
+
+        # There is not a mask for each Y as there are no masks at all!
+        MperY = False
+        M_files = None
+
+    # Mask threshold for Y (if given)
+    if 'M_thresh' in inputs:
+        M_t = float(inputs['M_thresh'])
+    else:
+        M_t = None
+
+    # Reduce Y_files to only Y files for this block
+    Y_files = Y_files[(blksize*(batchNo-1)):min((blksize*batchNo),len(Y_files))]
+    
+    # Verify input
+    verifyInput(Y_files, M_files, Y0)
+
+    # Obtain Y, mask for Y and nmap. This mask is just for voxels
     # with no studies present.
-    Y, Mask = obtainY(Y_files, M_files)
+    Y, Mask, nmap = obtainY(Y_files, M_files, MperY, M_t)
 
     # Work out voxel specific designs
     MX = blkMX(X, Y)
@@ -128,33 +154,18 @@ def verifyInput(Y_files, M_files, Y0):
     d0 = Y0.get_data()
     Y0aff = Y0.affine
 
-    # Count number of scans contributing to voxels
-    nmap = np.zeros(d0.shape)
-
-    # Initial checks for NIFTI compatability.
+    # Initial checks for NIFTI compatability for Y.
     for i in range(0, len(Y_files)):
 
         Y_file = Y_files[i]
-        M_file = M_files[i]
 
         try:
             Y = nib.load(Y_file)
         except Exception as error:
             raise ValueError('The NIFTI "' + Y_file + '"does not exist')
 
-        try:
-            M = nib.load(M_file)
-        except Exception as error:
-            raise ValueError('The NIFTI "' + M_file + '"does not exist')
-
-
-        d = np.multiply(Y.get_data(), M.get_data())
-        
-        # Count number of scans at each voxel
-        nmap = nmap + 1*(np.nan_to_num(d)!=0)
-
         # Check NIFTI images have the same dimensions.
-        if not np.array_equal(d.shape, d0.shape):
+        if not np.array_equal(Y0.shape, Y.shape):
             raise ValueError('Input NIFTI "' + Y_file + '" has ' +
                              'different dimensions to "' +
                              Y0 + '"')
@@ -164,8 +175,29 @@ def verifyInput(Y_files, M_files, Y0):
             raise ValueError('Input NIFTI "' + Y_file + '" has a ' +
                              'different affine transformation to "' +
                              Y0 + '"')
-    
-    return nmap
+
+    # Initial checks for NIFTI compatability for M.
+    if M_files is not None:
+        for i in range(0, len(M_files)):
+
+            M_file = M_files[i]
+
+            try:
+                M = nib.load(M_file)
+            except Exception as error:
+                raise ValueError('The NIFTI "' + M_file + '"does not exist')
+
+            # Check NIFTI images have the same dimensions.
+            if not np.array_equal(Y0.shape, M.shape):
+                raise ValueError('Input NIFTI "' + M_file + '" has ' +
+                                 'different dimensions to "' +
+                                 Y0 + '"')
+
+            # Check NIFTI images are in the same space.
+            if not np.array_equal(M.affine, Y0aff):
+                raise ValueError('Input NIFTI "' + M_file + '" has a ' +
+                                 'different affine transformation to "' +
+                                 Y0 + '"')
 
 def blkMX(X,Y):
 
@@ -183,7 +215,7 @@ def blkMX(X,Y):
 
     return MX
 
-def obtainY(Y_files, M_files):
+def obtainY(Y_files, M_files, MperY, M_t):
 
     # Load in one nifti to check NIFTI size
     Y0 = nib.load(Y_files[0])
@@ -195,19 +227,55 @@ def obtainY(Y_files, M_files):
     # Number of scans in block
     nscan = len(Y_files)
 
+    # Count number of scans contributing to voxels
+    nmap = np.zeros(d.shape)
+
+    # Make an overall mask for the block if 
+    # there's not a mask per individual
+    if not MperY:
+
+        if not M_files is None:
+
+            M_overall = np.ones(d.shape)
+
+            # Create intersect of all masks
+            for M_file in M_files:
+
+                M = nib.load(M_file).get_data()
+                M_overall = np.multiply(M_overall, M)
+
     # Read in Y
     Y = np.zeros([nscan, nvox])
     for i in range(0, len(Y_files)):
 
         # Read in each individual NIFTI.
         Y_indiv = nib.load(Y_files[i])
-        M_indiv = nib.load(M_files[i])
-        d = np.multiply(
-            Y_indiv.get_data(),
-            M_indiv.get_data())
+
+        # Mask Y if necesart
+        if M_files is not None:
+            # If theres a mask for each individual load it
+            if MperY:
+                M_indiv = nib.load(M_files[i]).get_data()
+            # Else apply group mask to each individual
+            else:
+                M_indiv = M_overall
+
+            d = np.multiply(
+                Y_indiv.get_data(),
+                M_indiv)
+        else: 
+            #Just load in Y
+            d = Y_indiv.get_data()
+
+        # If theres an initial threshold for the data apply it.
+        if M_t is not None:
+            d[d<M_t]=0
 
         # NaN check
         d = np.nan_to_num(d)
+
+        # Count number of scans at each voxel
+        nmap = nmap + 1*(np.nan_to_num(d)!=0)
 
         # Constructing Y matrix
         Y[i, :] = d.reshape([1, nvox])
@@ -217,7 +285,7 @@ def obtainY(Y_files, M_files):
     
     Y = Y[:, np.where(np.count_nonzero(Y, axis=0)>0)[0]]
 
-    return Y, Mask
+    return Y, Mask, nmap
 
 # Note: this techniqcally calculates sum(Y.Y) for each voxel,
 # not Y transpose Y for all voxels
