@@ -315,6 +315,9 @@ def main(*args):
     # residual calculation
     beta_rs = np.zeros([n_v_m, n_p, 1])
     beta_rs_t = np.zeros([n_v_m, 1, n_p])
+    print(beta_m.shape)
+    print(beta_rs.shape)
+    print(beta.shape)
     for i in range(0,beta.shape[0]):
 
        beta_rs[:, i, 0] = beta_m[i,:]
