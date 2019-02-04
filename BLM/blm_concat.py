@@ -377,6 +377,8 @@ def main(*args):
         for j in range(0,n_p):
 
                 # Calculate masked cov beta ij
+                print(resms_m.shape)
+                print(isumXtX_m.shape)
                 covbetaij_m = np.multiply(resms_m,isumXtX_m[:,i,j])
 
                 # Unmask cov beta ij
