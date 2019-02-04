@@ -464,6 +464,8 @@ def main(*args):
                     'blm_vox_cov_c' + str(i+1) + '.nii'))
 
             # Calculate masked T statistic image
+            print(cbeta_m.shape)
+            print(covcbeta_m.shape)
             tStatc_m = cbeta_m/np.sqrt(covcbeta_m)
 
             # Unmask T stat
