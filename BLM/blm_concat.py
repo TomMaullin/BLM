@@ -377,8 +377,6 @@ def main(*args):
         for j in range(0,n_p):
 
                 # Calculate masked cov beta ij
-                print(resms_m.reshape([resms_m.shape[0]]).shape)
-                print(isumXtX_m[:,i,j].shape)
                 covbetaij_m = np.multiply(
                     resms_m.reshape([resms_m.shape[0]]),
                     isumXtX_m[:,i,j])
@@ -406,6 +404,7 @@ def main(*args):
     # Calculate COPEs, statistic maps and covariance maps.
     # ----------------------------------------------------------------------
     n_c = len(inputs['contrasts'])
+    print(n_c)
 
     for i in range(0,n_c):
 
@@ -466,11 +465,11 @@ def main(*args):
             # Calculate masked T statistic image
             print(cbeta_m.shape)
             print(covcbeta_m.shape)
-            tStatc_m = cbeta_m/np.sqrt(covcbeta_m)
+            tStatc_m = cbeta_m.reshape(n_v_m)/np.sqrt(covcbeta_m)
 
             # Unmask T stat
-            tStatc = np.zeros([n_v,1])
-            tStatc[M_inds,:] = tStatc_m
+            tStatc = np.zeros([n_v])
+            tStatc[M_inds] = tStatc_m
             tStatc = tStatc.reshape(
                 NIFTIsize[0],
                 NIFTIsize[1],
