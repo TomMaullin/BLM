@@ -551,8 +551,8 @@ def main(*args):
             partialR2_m = (q*fStatc_m)/(q*fStatc_m + n_s_sv_m - n_p)
 
             # Unmask partialR2.
-            partialR2 = np.zeros([n_v,1])
-            partialR2[M_inds,:] = partialR2_m
+            partialR2 = np.zeros([n_v])
+            partialR2[M_inds] = partialR2_m
 
             partialR2 = partialR2.reshape(
                                NIFTIsize[0],
