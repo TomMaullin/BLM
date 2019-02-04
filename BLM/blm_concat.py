@@ -301,6 +301,9 @@ def main(*args):
     # Number of voxels in ring
     n_v_r = R_inds.shape[0]
 
+    # Number of voxels in inner mask
+    n_v_i = I_inds.shape[0]
+
     # ----------------------------------------------------------------------
     # Calculate betahat = (X'X)^(-1)X'Y and output beta maps
     # ----------------------------------------------------------------------    
@@ -327,10 +330,10 @@ def main(*args):
     # X'Y for these studies.
     if I_inds.size!=0:
         sumXtX_i = sumXtX[I_inds[0],:,:]
-        sumXtY_i = sumXtY[I_inds[0],:]
+        sumXtY_i = sumXtY[I_inds,:]
 
         # Calculate beta
-        beta_i = np.linalg.solve(sumXtX_i, sumXtY_i).reshape([n_p])
+        beta_i = np.linalg.solve(sumXtX_i, sumXtY_i).reshape([n_v_i,n_p])
         beta[I_inds,:] = beta_i
 
     beta = beta.reshape([n_v, n_p]).transpose()
