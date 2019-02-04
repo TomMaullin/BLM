@@ -116,6 +116,7 @@ def main(*args):
                            nifti.affine,
                            header=nifti.header)
     nib.save(nmap, os.path.join(OutDir,'blm_vox_n.nii'))
+    del nmap
 
     # Dimension bug handling
     if np.ndim(sumXtX) == 0:
@@ -259,9 +260,11 @@ def main(*args):
                               nifti.affine,
                               header=nifti.header)
     nib.save(maskmap, os.path.join(OutDir,'blm_vox_mask.nii'))
+    del maskmap
 
     # Get indices of voxels in mask.
     M_inds = np.where(Mask==1)[0]
+    del Mask
 
     # Number of voxels in mask
     n_v_m = M_inds.shape[0]
@@ -299,6 +302,7 @@ def main(*args):
                                    nifti.affine,
                                    header=nifti.header)
         nib.save(betaimap, os.path.join(OutDir,'blm_vox_beta_b' + str(i+1) + '.nii'))
+        del betai, betaimap
 
     del betai, betaimap, sumXtY, sumXtY_m, sumXtX
 
@@ -364,6 +368,7 @@ def main(*args):
                             nifti.affine,
                             header=nifti.header)
     nib.save(msmap, os.path.join(OutDir,'blm_vox_resms.nii'))
+    del msmap, resms
 
     # ----------------------------------------------------------------------
     # Calculate beta covariance maps
@@ -397,6 +402,7 @@ def main(*args):
                 nib.save(covbetaijmap,
                     os.path.join(OutDir, 
                         'blm_vox_cov_b' + str(i+1) + ',' + str(j+1) + '.nii'))
+                del covbetaij, covbetaijmap
 
     del covbetaijmap
 
@@ -435,6 +441,7 @@ def main(*args):
             nib.save(cbetamap,
                 os.path.join(OutDir, 
                     'blm_vox_beta_c' + str(i+1) + '.nii'))
+            del cbeta, cbetamap
 
             # Calculate c'(X'X)^(-1)c
             cvectiXtXcvec_m = np.matmul(
@@ -460,6 +467,7 @@ def main(*args):
             nib.save(covcbetamap,
                 os.path.join(OutDir, 
                     'blm_vox_cov_c' + str(i+1) + '.nii'))
+            del covcbeta, covbetamap
 
             # Calculate masked T statistic image
             tStatc_m = cbeta_m.reshape(n_v_m)/np.sqrt(covcbeta_m)
@@ -480,6 +488,7 @@ def main(*args):
             nib.save(tStatcmap,
                 os.path.join(OutDir, 
                     'blm_vox_Tstat_c' + str(i+1) + '.nii'))
+            del tStatc, tStatcmap
 
         if inputs['contrasts'][i]['c' + str(i+1)]['statType'] == 'F':
                 
@@ -520,19 +529,20 @@ def main(*args):
             fStatc_m = Fnumerator_m/Fdenominator_m
             fStatc = np.zeros([n_v])
             fStatc[M_inds]=fStatc_m
-            fStatVolc = fStatc.reshape(
+            fStatc = fStatc.reshape(
                                NIFTIsize[0],
                                NIFTIsize[1],
                                NIFTIsize[2]
                            )
 
             # Output statistic map
-            fStatcmap = nib.Nifti1Image(fStatVolc,
+            fStatcmap = nib.Nifti1Image(fStatc,
                                         nifti.affine,
                                         header=nifti.header)
             nib.save(fStatcmap,
                 os.path.join(OutDir, 
                     'blm_vox_Fstat_c' + str(i+1) + '.nii'))
+            del fStatc, fStatcmap
 
             # Make Partial R^2 = qF/(qF+n-p)
             # Mask fStat
@@ -562,6 +572,7 @@ def main(*args):
             nib.save(partialR2map,
                 os.path.join(OutDir, 
                     'blm_vox_pr2_c' + str(i+1) + '.nii'))
+            del partialR2, partialR2map
 
 
     # Clean up files
