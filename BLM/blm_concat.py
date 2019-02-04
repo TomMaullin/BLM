@@ -497,12 +497,7 @@ def main(*args):
 
             # Cbeta needs to be nvox by 1 by npar for stacked
             # multiply.
-            print(cbeta_m.shape)
-            cbeta_m = cbeta_m.reshape(
-                cbeta_m.shape[0],
-                cbeta_m.shape[1],
-                1)
-            cbeta_m = cbeta_m.transpose(1, 0, 2)
+            cbetat_m = cbeta_m.transpose(0,2,1)
 
             # Calculate masked (c'(X'X)^(-1)c)^(-1) values
             icvectiXtXcvec_m = blm_inverse(cvectiXtXcvec_m, ouflow=True).reshape([n_v_m, q*q])
@@ -514,12 +509,11 @@ def main(*args):
 
 
             # Calculate the numerator of the F statistic
-            cbetat_m = cbeta_m.transpose(0,2,1)
             print(cvectiXtXcvec_m.shape)
-            print(cbeta_m.shape)
+            print(cbetat_m.shape)
             Fnumerator_m = np.matmul(
-                cbetat_m,
-                np.linalg.solve(cvectiXtXcvec_m, cbeta_m))
+                cbeta_m,
+                np.linalg.solve(cvectiXtXcvec_m, cbetat_m))
             Fnumerator_m = Fnumerator_m.reshape(Fnumerator_m.shape[0])
 
             # Calculate the denominator of the F statistic
