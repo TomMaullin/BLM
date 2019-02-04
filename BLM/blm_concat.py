@@ -385,7 +385,7 @@ def main(*args):
 
                 # Unmask cov beta ij
                 covbetaij = np.zeros([n_v])
-                covbetaij[M_inds,:] = covbetaij_m
+                covbetaij[M_inds] = covbetaij_m
                 covbetaij = covbetaij.reshape(
                                         NIFTIsize[0],
                                         NIFTIsize[1],
