@@ -541,10 +541,6 @@ def main(*args):
                     'blm_vox_Fstat_c' + str(i+1) + '.nii'))
             del fStatc, fStatcmap
 
-            # Make Partial R^2 = qF/(qF+n-p)
-            # Mask fStat
-            fStatc_m = fStatc[M_inds].reshape(n_v_m, 1)
-
             # Mask spatially varying n_s
             n_s_sv_m = n_s_sv.reshape(n_v, 1)
             n_s_sv_m = n_s_sv_m[M_inds,:]
