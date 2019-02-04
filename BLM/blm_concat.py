@@ -339,7 +339,7 @@ def main(*args):
     # Cycle through betas and output results.
     for k in range(0,beta.shape[0]):
 
-        betai = beta[k,:].reshape(int(NIFTIsize[0]),
+        betak = beta[k,:].reshape(int(NIFTIsize[0]),
                                   int(NIFTIsize[1]),
                                   int(NIFTIsize[2]))
 
