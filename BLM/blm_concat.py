@@ -546,6 +546,8 @@ def main(*args):
             n_s_sv_m = n_s_sv_m[M_inds,:]
 
             # Calculate partial R2 masked.
+            print(fStatc_m.shape)
+            print(n_s_sv_m.shape)
             partialR2_m = (q*fStatc_m)/(q*fStatc_m + n_s_sv_m - n_p)
 
             # Unmask partialR2.
