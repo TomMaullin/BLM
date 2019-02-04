@@ -416,13 +416,15 @@ def main(*args):
         cvec = np.array(cvec)
 
         # Calculate C\hat{\beta}}
-        cbeta = np.matmul(cvec, beta)
+        cbeta_m = np.matmul(cvec, beta_m)
         if cvec.ndim == 1:
             cvec = cvec.reshape([1,cvec.shape[0]])
 
         if inputs['contrasts'][i]['c' + str(i+1)]['statType'] == 'T':
 
             # A T contrast has only one row so we can output cbeta here
+            cbeta = np.zeros([n_v,1])
+            cbeta[M_inds,:] = cbeta_m
             cbeta = cbeta.reshape(
                         NIFTIsize[0],
                         NIFTIsize[1],
@@ -462,14 +464,17 @@ def main(*args):
                 os.path.join(OutDir, 
                     'blm_vox_cov_c' + str(i+1) + '.nii'))
 
+            # Calculate masked T statistic image
+            tStatc_m = cbeta_m/np.sqrt(covcbeta_m)
 
-            # To avoid division by zero errors we set the 
-            # zero elements to one. This could be updated to 
-            # be done with masking.
-            covcbeta[covcbeta == 0] = 1  
-
-            # Calculate T statistic image
-            tStatc = cbeta/np.sqrt(covcbeta)
+            # Unmask T stat
+            tStatc = np.zeros([n_v,1])
+            tStatc[M_inds,:] = tStatc_m
+            tStatc = tStatc.reshape(
+                NIFTIsize[0],
+                NIFTIsize[1],
+                NIFTIsize[2]
+                )
 
             # Output statistic map
             tStatcmap = nib.Nifti1Image(tStatc,
