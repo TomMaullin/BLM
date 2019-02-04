@@ -497,6 +497,7 @@ def main(*args):
 
             # Cbeta needs to be nvox by 1 by npar for stacked
             # multiply.
+            print(cbeta_m.shape)
             cbeta_m = cbeta_m.reshape(
                 cbeta_m.shape[0],
                 cbeta_m.shape[1],
