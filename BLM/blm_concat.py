@@ -384,7 +384,7 @@ def main(*args):
                     isumXtX_m[:,i,j])
 
                 # Unmask cov beta ij
-                covbetaij = np.zeros([n_v, 1])
+                covbetaij = np.zeros([n_v])
                 covbetaij[M_inds,:] = covbetaij_m
                 covbetaij = covbetaij.reshape(
                                         NIFTIsize[0],
