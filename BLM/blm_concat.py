@@ -444,7 +444,7 @@ def main(*args):
                 np.transpose(cvec)).reshape(n_v_m)
 
             # Calculate masked cov(c\hat{\beta})
-            covcbeta_m = cvectiXtXcvec_m*resms_m.reshape(n_v_s)
+            covcbeta_m = cvectiXtXcvec_m*resms_m.reshape(n_v_m)
 
             # Unmask to output
             covcbeta = np.zeros([n_v,1])
