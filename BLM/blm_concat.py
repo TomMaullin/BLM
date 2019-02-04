@@ -542,8 +542,8 @@ def main(*args):
             del fStatc, fStatcmap
 
             # Mask spatially varying n_s
-            n_s_sv_m = n_s_sv.reshape(n_v, 1)
-            n_s_sv_m = n_s_sv_m[M_inds,:]
+            n_s_sv_m = n_s_sv.reshape(n_v)
+            n_s_sv_m = n_s_sv_m[M_inds]
 
             # Calculate partial R2 masked.
             print(fStatc_m.shape)
