@@ -329,12 +329,16 @@ def main(*args):
     # If we have indices where all studies are present, work out X'X and
     # X'Y for these studies.
     if I_inds.size!=0:
+        
+        # X'X must be 1 by np by np for broadcasting
         sumXtX_i = sumXtX[I_inds[0],:,:]
+        sumXtX_i = sumXtX.reshape([1, n_p, n_p])
+
         sumXtY_i = sumXtY[I_inds,:]
 
         # Calculate beta
-        beta_i = np.linalg.solve(sumXtX_i, sumXtY_i).reshape([n_v_i,n_p])
-        beta[I_inds,:] = beta_i
+        beta_i = np.linalg.solve(sumXtX_i, sumXtY_i)
+        beta[I_inds,:] = beta_i.reshape([n_v_i,n_p])
 
     beta = beta.reshape([n_v, n_p]).transpose()
 
