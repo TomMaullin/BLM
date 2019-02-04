@@ -447,8 +447,8 @@ def main(*args):
             covcbeta_m = cvectiXtXcvec_m*resms_m.reshape(n_v_m)
 
             # Unmask to output
-            covcbeta = np.zeros([n_v,1])
-            covcbeta[M_inds,:] = covcbeta_m
+            covcbeta = np.zeros([n_v])
+            covcbeta[M_inds] = covcbeta_m
             covcbeta = covcbeta.reshape(
                 NIFTIsize[0],
                 NIFTIsize[1],
