@@ -264,7 +264,11 @@ def main(*args):
     del maskmap
 
     # Get indices of voxels in mask.
+    print(M_inds.shape)
     M_inds = np.where((Mask==1)*(n_s_sv<n_s))[0]
+    print(M_inds.shape)
+    print(n_s)
+    print(n_s_sv)
     del Mask
 
     # Number of voxels in mask
