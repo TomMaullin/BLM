@@ -313,31 +313,23 @@ def main(*args):
 
     # Reshape beta along smallest axis for quicker
     # residual calculation
-    beta_rs = np.zeros([n_v_m, n_p, 1])
-    beta_rs_t = np.zeros([n_v_m, 1, n_p])
-    print(beta_m.shape)
-    print(beta_rs.shape)
-    print(beta.shape)
-    for i in range(0,beta.shape[0]):
-
-       beta_rs[:, i, 0] = beta_m[i,:]
-       beta_rs_t[:, 0, i] = beta_m[i,:]
+    beta_m_t = beta_m.transpose(0,2,1)
 
     # Calculate Beta transpose times XtX and delete the
     # now redudundant matrices.
-    betatXtX = np.matmul(beta_rs_t, sumXtX_m)
-    del beta_rs_t
+    betatXtX_m = np.matmul(beta_m_t, sumXtX_m)
+    del beta_m_t
 
     # Multiply BetatXtX by Beta and delete the reduundant
     # matrices.
-    betatXtXbeta = np.matmul(betatXtX, beta_rs)
-    del betatXtX, beta_rs
+    betatXtXbeta_m = np.matmul(betatXtX_m, beta_m)
+    del betatXtX, beta_m
 
     # Reshape betat XtX beta
-    betatXtXbeta = np.reshape(betatXtXbeta, [n_v_m,1])
+    betatXtXbeta_m = np.reshape(betatXtXbeta_m, [n_v_m,1])
 
     # Residual sum of squares
-    ete_m = sumYtY[M_inds] - betatXtXbeta
+    ete_m = sumYtY[M_inds] - betatXtXbeta_m
 
     # Unmask ete
     ete = np.zeros([n_v, 1])
@@ -346,7 +338,7 @@ def main(*args):
                       int(NIFTIsize[1]),
                       int(NIFTIsize[2]))
 
-    del sumYtY, betatXtXbeta, ete
+    del sumYtY, betatXtXbeta_m, ete
 
     # ----------------------------------------------------------------------
     # Calculate residual mean squares = e'e/(n_s - n_p)
