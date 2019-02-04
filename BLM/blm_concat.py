@@ -350,7 +350,7 @@ def main(*args):
     # ----------------------------------------------------------------------
 
     # Mask spatially varying n_s
-    n_s_sv_m = n_s_sv_m[M_inds,:]
+    n_s_sv_m = n_s_sv[M_inds,:]
 
     # In spatially varying the degrees of freedom
     # varies across voxels
