@@ -323,7 +323,7 @@ def main(*args):
     # Multiply BetatXtX by Beta and delete the reduundant
     # matrices.
     betatXtXbeta_m = np.matmul(betatXtX_m, beta_m)
-    del betatXtX_m, beta_m
+    del betatXtX_m
 
     # Reshape betat XtX beta
     betatXtXbeta_m = np.reshape(betatXtXbeta_m, [n_v_m,1])
