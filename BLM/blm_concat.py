@@ -512,8 +512,8 @@ def main(*args):
             print(cvectiXtXcvec_m.shape)
             print(cbetat_m.shape)
             Fnumerator_m = np.matmul(
-                cbeta_m,
-                np.linalg.solve(cvectiXtXcvec_m, cbetat_m))
+                cbetat_m,
+                np.linalg.solve(cvectiXtXcvec_m, cbeta_m))
             Fnumerator_m = Fnumerator_m.reshape(Fnumerator_m.shape[0])
 
             # Calculate the denominator of the F statistic
