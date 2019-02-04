@@ -304,7 +304,7 @@ def main(*args):
         nib.save(betaimap, os.path.join(OutDir,'blm_vox_beta_b' + str(i+1) + '.nii'))
         del betai, betaimap
 
-    del betai, betaimap, sumXtY, sumXtY_m, sumXtX
+    del sumXtY, sumXtY_m, sumXtX
 
     if np.ndim(beta) == 0:
         beta = np.array([[beta]])
