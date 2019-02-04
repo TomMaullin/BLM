@@ -305,15 +305,6 @@ def main(*args):
     # Calculate betahat = (X'X)^(-1)X'Y and output beta maps
     # ----------------------------------------------------------------------    
 
-    # If we have indices where all studies are present, work out X'X and
-    # X'Y for these studies.
-    if I_inds.size!=0:
-        sumXtX_i = sumXtX[I_inds[0],:,:]
-        sumXtY_i = sumXtY[I_inds[0],:,:].transpose()
-
-        # Calculate beta
-        beta_i = np.linalg.solve(sumXtX_i, sumXtY_i).reshape([n_p])
-
     # Calculate masked X'X for ring
     sumXtX_r = sumXtX[R_inds,:,:]
 
@@ -331,8 +322,15 @@ def main(*args):
     # Outer ring values
     beta[R_inds,:] = beta_r.reshape([n_v_r, n_p])
 
-    # Inner values
+
+    # If we have indices where all studies are present, work out X'X and
+    # X'Y for these studies.
     if I_inds.size!=0:
+        sumXtX_i = sumXtX[I_inds[0],:,:]
+        sumXtY_i = sumXtY[I_inds[0],:]
+
+        # Calculate beta
+        beta_i = np.linalg.solve(sumXtX_i, sumXtY_i).reshape([n_p])
         beta[I_inds,:] = beta_i
 
     beta = beta.reshape([n_v, n_p]).transpose()
