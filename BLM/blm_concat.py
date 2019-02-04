@@ -116,6 +116,7 @@ def main(*args):
                            nifti.affine,
                            header=nifti.header)
     nib.save(nmap, os.path.join(OutDir,'blm_vox_n.nii'))
+    n_s_sv = n_s_sv.reshape(n_v, 1)
     del nmap
 
     # Dimension bug handling
@@ -165,7 +166,7 @@ def main(*args):
                                  '0 < ' + str(rmThresh) + ' < 1 violation')
 
             # Mask based on threshold.
-            Mask[n_s_sv.reshape(n_v, 1)<rmThresh*n_s]=0
+            Mask[n_s_sv<rmThresh*n_s]=0
 
         if ("MinN" in inputs["Missingness"]) or ("minn" in inputs["Missingness"]):
 
@@ -180,7 +181,7 @@ def main(*args):
                 amThresh = float(amThresh)
 
             # Mask based on threshold.
-            Mask[n_s_sv.reshape(n_v, 1)<amThresh]=0
+            Mask[n_s_sv<amThresh]=0
 
         if ("Masking" in inputs["Missingness"]) or ("masking" in inputs["Missingness"]):
 
@@ -235,7 +236,7 @@ def main(*args):
     # We remove anything with 1 degree of freedom (or less) by default.
     # 1 degree of freedom seems to cause broadcasting errors on a very
     # small percentage of voxels.
-    Mask[n_s_sv.reshape(n_v, 1)<=n_p+1]=0
+    Mask[n_s_sv<=n_p+1]=0
 
     # Reshape sumXtX to correct n_v by n_p by n_p
     sumXtX = sumXtX.reshape([n_v, n_p, n_p])
@@ -263,7 +264,7 @@ def main(*args):
     del maskmap
 
     # Get indices of voxels in mask.
-    M_inds = np.where((Mask==1)*(n_s_sv < n_s))[0]
+    M_inds = np.where((Mask==1)*(n_s_sv<n_s))[0]
     del Mask
 
     # Number of voxels in mask
@@ -349,7 +350,6 @@ def main(*args):
     # ----------------------------------------------------------------------
 
     # Mask spatially varying n_s
-    n_s_sv_m = n_s_sv.reshape(n_v, 1)
     n_s_sv_m = n_s_sv_m[M_inds,:]
 
     # In spatially varying the degrees of freedom
@@ -542,8 +542,7 @@ def main(*args):
             del fStatc, fStatcmap
 
             # Mask spatially varying n_s
-            n_s_sv_m = n_s_sv.reshape(n_v)
-            n_s_sv_m = n_s_sv_m[M_inds]
+            n_s_sv_m = n_s_sv_m.reshape([n_v_m])
 
             # Calculate partial R2 masked.
             partialR2_m = (q*fStatc_m)/(q*fStatc_m + n_s_sv_m - n_p)
