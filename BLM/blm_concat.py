@@ -19,6 +19,27 @@ import subprocess
 from BLM.blm_eval import blm_eval
 np.set_printoptions(threshold=np.nan)
 
+# Developer notes:
+# --------------------------------------------------------------------------
+# In the following code I have used the following subscripts to indicate:
+#
+# _r - This means this is an array of values corresponding to voxels which
+#      are present in between k and n_s-1 studies (inclusive), where k is
+#      decided by the user specified thresholds. These voxels will typically
+#      be on the edge of the brain and look like a "ring" around the brain,
+#      hence "_r" for ring.
+# 
+# _i - This means that this is an array of values corresponding to voxels 
+#      which are present in all n_s studies. These will usually look like
+#      a smaller mask place inside the whole study mask. Hence "_i" for 
+#      inner.
+#
+# _sv - This means this variable is spatially varying (There is a reading
+#       per voxel). 
+#
+# --------------------------------------------------------------------------
+# Author: Tom Maullin (04/02/2019)
+
 def main(*args):
 
     # ----------------------------------------------------------------------
@@ -260,56 +281,78 @@ def main(*args):
                                     ),
                               nifti.affine,
                               header=nifti.header)
-    nib.save(maskmap, os.path.join(OutDir,'blm_vox_mask.nii'))
+    nib.save(maskmap, os.path.join(OutDir,'blm_vox_rask.nii'))
     del maskmap
 
-    # Get indices of voxels in mask.
-    print(M_inds.shape)
-    M_inds = np.where((Mask==1)*(n_s_sv<n_s))[0]
-    print(M_inds.shape)
+    # Get indices of voxels in ring around brain where there are
+    # missing studies.
+    R_inds = np.where((Mask==1)*(n_s_sv<n_s))[0]
+
+    # Get indices of the "inner" volume where all studies had information
+    # present. I.e. the voxels (usually near the middle of the brain) where
+    # every voxel has a reading for every study.
+    I_inds = np.where(n_s_sv==n_s)[0]
+    print(R_inds.shape)
+    print(I_inds.shape)
     print(n_s)
     print(n_s_sv)
     del Mask
 
-    # Number of voxels in mask
-    n_v_m = M_inds.shape[0]
+    # Number of voxels in ring
+    n_v_r = R_inds.shape[0]
 
     # ----------------------------------------------------------------------
     # Calculate betahat = (X'X)^(-1)X'Y and output beta maps
     # ----------------------------------------------------------------------    
 
-    # Calculate masked X'X
-    sumXtX_m = sumXtX[M_inds,:,:]
+    # If we have indices where all studies are present, work out X'X and
+    # X'Y for these studies.
+    if I_inds.size!=0:
+        sumXtX_i = sumXtX[I_inds[0],:,:]
+        sumXtY_i = sumXtY[I_inds[0],:,:].transpose()
 
-    # Calculate masked X'Y
+        # Calculate beta
+        beta_i = np.linalg.solve(sumXtX_i, sumXtY_i).reshape([n_p])
+
+    # Calculate masked X'X for ring
+    sumXtX_r = sumXtX[R_inds,:,:]
+
+    # Calculate masked X'Y for ring
     sumXtY = sumXtY.transpose()
     sumXtY = sumXtY.reshape([n_v, n_p, 1])
-    sumXtY_m = sumXtY[M_inds,:]
+    sumXtY_r = sumXtY[R_inds,:]
 
-    # Calculate masked Beta
-    beta_m = np.linalg.solve(sumXtX_m, sumXtY_m)
+    # Calculate masked Beta for ring
+    beta_r = np.linalg.solve(sumXtX_r, sumXtY_r)
 
     # Unmask Beta
     beta = np.zeros([n_v, n_p])
-    beta[M_inds,:] = beta_m.reshape([n_v_m, n_p])
+
+    # Outer ring values
+    beta[R_inds,:] = beta_r.reshape([n_v_r, n_p])
+
+    # Inner values
+    if I_inds.size!=0:
+        beta[I_inds,:] = beta_i
+
     beta = beta.reshape([n_v, n_p]).transpose()
 
 
     # Cycle through betas and output results.
-    for i in range(0,beta.shape[0]):
+    for k in range(0,beta.shape[0]):
 
-        betai = beta[i,:].reshape(int(NIFTIsize[0]),
+        betai = beta[k,:].reshape(int(NIFTIsize[0]),
                                   int(NIFTIsize[1]),
                                   int(NIFTIsize[2]))
 
         # Save beta map.
-        betaimap = nib.Nifti1Image(betai,
+        betakmap = nib.Nifti1Image(betak,
                                    nifti.affine,
                                    header=nifti.header)
-        nib.save(betaimap, os.path.join(OutDir,'blm_vox_beta_b' + str(i+1) + '.nii'))
-        del betai, betaimap
+        nib.save(betakmap, os.path.join(OutDir,'blm_vox_beta_b' + str(k+1) + '.nii'))
+        del betak, betakmap
 
-    del sumXtY, sumXtY_m, sumXtX
+    del sumXtY, sumXtY_r, sumXtX
 
     if np.ndim(beta) == 0:
         beta = np.array([[beta]])
@@ -322,47 +365,47 @@ def main(*args):
 
     # Reshape beta along smallest axis for quicker
     # residual calculation
-    beta_m_t = beta_m.transpose(0,2,1)
+    beta_r_t = beta_r.transpose(0,2,1)
 
     # Calculate Beta transpose times XtX and delete the
     # now redudundant matrices.
-    betatXtX_m = np.matmul(beta_m_t, sumXtX_m)
-    del beta_m_t
+    betatXtX_r = np.matmul(beta_r_t, sumXtX_r)
+    del beta_r_t
 
     # Multiply BetatXtX by Beta and delete the reduundant
     # matrices.
-    betatXtXbeta_m = np.matmul(betatXtX_m, beta_m)
-    del betatXtX_m
+    betatXtXbeta_r = np.matmul(betatXtX_r, beta_r)
+    del betatXtX_r
 
     # Reshape betat XtX beta
-    betatXtXbeta_m = np.reshape(betatXtXbeta_m, [n_v_m,1])
+    betatXtXbeta_r = np.reshape(betatXtXbeta_r, [n_v_r,1])
 
     # Residual sum of squares
-    ete_m = sumYtY[M_inds] - betatXtXbeta_m
+    ete_r = sumYtY[R_inds] - betatXtXbeta_r
 
     # Unmask ete
     ete = np.zeros([n_v, 1])
-    ete[M_inds]=ete_m
+    ete[R_inds]=ete_r
     ete = ete.reshape(int(NIFTIsize[0]),
                       int(NIFTIsize[1]),
                       int(NIFTIsize[2]))
 
-    del sumYtY, betatXtXbeta_m, ete
+    del sumYtY, betatXtXbeta_r, ete
 
     # ----------------------------------------------------------------------
     # Calculate residual mean squares = e'e/(n_s - n_p)
     # ----------------------------------------------------------------------
 
     # Mask spatially varying n_s
-    n_s_sv_m = n_s_sv[M_inds,:]
+    n_s_sv_r = n_s_sv[R_inds,:]
 
     # In spatially varying the degrees of freedom
     # varies across voxels
-    resms_m = ete_m/(n_s_sv_m-n_p)
+    resms_r = ete_r/(n_s_sv_r-n_p)
 
     # Unmask resms
     resms = np.zeros([n_v,1])
-    resms[M_inds,:] = resms_m
+    resms[R_inds,:] = resms_r
     resms = resms.reshape(NIFTIsize[0], 
                           NIFTIsize[1],
                           NIFTIsize[2])
@@ -378,21 +421,21 @@ def main(*args):
     # Calculate beta covariance maps
     # ----------------------------------------------------------------------
         
-    # Calculate masked (x'X)^(-1) values
-    isumXtX_m = blm_inverse(sumXtX_m, ouflow=True)
+    # Calculate masked (x'X)^(-1) values for ring
+    isumXtX_r = blm_inverse(sumXtX_r, ouflow=True)
 
     # Output variance for each pair of betas
     for i in range(0,n_p):
         for j in range(0,n_p):
 
-                # Calculate masked cov beta ij
-                covbetaij_m = np.multiply(
-                    resms_m.reshape([resms_m.shape[0]]),
-                    isumXtX_m[:,i,j])
+                # Calculate masked cov beta ij for ring
+                covbetaij_r = np.multiply(
+                    resms_r.reshape([resms_r.shape[0]]),
+                    isumXtX_r[:,i,j])
 
                 # Unmask cov beta ij
                 covbetaij = np.zeros([n_v])
-                covbetaij[M_inds] = covbetaij_m
+                covbetaij[R_inds] = covbetaij_r
                 covbetaij = covbetaij.reshape(
                                         NIFTIsize[0],
                                         NIFTIsize[1],
@@ -421,7 +464,7 @@ def main(*args):
         cvec = np.array(cvec)
 
         # Calculate C\hat{\beta}}
-        cbeta_m = np.matmul(cvec, beta_m)
+        cbeta_r = np.matmul(cvec, beta_r)
         if cvec.ndim == 1:
             cvec = cvec.reshape([1,cvec.shape[0]])
 
@@ -429,7 +472,7 @@ def main(*args):
 
             # A T contrast has only one row so we can output cbeta here
             cbeta = np.zeros([n_v,1])
-            cbeta[M_inds,:] = cbeta_m
+            cbeta[R_inds,:] = cbeta_r
             cbeta = cbeta.reshape(
                         NIFTIsize[0],
                         NIFTIsize[1],
@@ -446,16 +489,16 @@ def main(*args):
             del cbeta, cbetamap
 
             # Calculate c'(X'X)^(-1)c
-            cvectiXtXcvec_m = np.matmul(
-                np.matmul(cvec, isumXtX_m),
-                np.transpose(cvec)).reshape(n_v_m)
+            cvectiXtXcvec_r = np.matmul(
+                np.matmul(cvec, isumXtX_r),
+                np.transpose(cvec)).reshape(n_v_r)
 
-            # Calculate masked cov(c\hat{\beta})
-            covcbeta_m = cvectiXtXcvec_m*resms_m.reshape(n_v_m)
+            # Calculate masked cov(c\hat{\beta}) for ring
+            covcbeta_r = cvectiXtXcvec_r*resms_r.reshape(n_v_r)
 
             # Unmask to output
             covcbeta = np.zeros([n_v])
-            covcbeta[M_inds] = covcbeta_m
+            covcbeta[R_inds] = covcbeta_r
             covcbeta = covcbeta.reshape(
                 NIFTIsize[0],
                 NIFTIsize[1],
@@ -471,12 +514,12 @@ def main(*args):
                     'blm_vox_cov_c' + str(i+1) + '.nii'))
             del covcbeta, covcbetamap
 
-            # Calculate masked T statistic image
-            tStatc_m = cbeta_m.reshape(n_v_m)/np.sqrt(covcbeta_m)
+            # Calculate masked T statistic image for ring
+            tStatc_r = cbeta_r.reshape(n_v_r)/np.sqrt(covcbeta_r)
 
             # Unmask T stat
             tStatc = np.zeros([n_v])
-            tStatc[M_inds] = tStatc_m
+            tStatc[R_inds] = tStatc_r
             tStatc = tStatc.reshape(
                 NIFTIsize[0],
                 NIFTIsize[1],
@@ -499,37 +542,37 @@ def main(*args):
 
             # Calculate c'(X'X)^(-1)c
             # (Note C is read in the other way around for F)
-            cvectiXtXcvec_m = np.matmul(
-                np.matmul(cvec, isumXtX_m),
+            cvectiXtXcvec_r = np.matmul(
+                np.matmul(cvec, isumXtX_r),
                 np.transpose(cvec))
 
             # Cbeta needs to be nvox by 1 by npar for stacked
             # multiply.
-            cbetat_m = cbeta_m.transpose(0,2,1)
+            cbetat_r = cbeta_r.transpose(0,2,1)
 
-            # Calculate masked (c'(X'X)^(-1)c)^(-1) values
-            icvectiXtXcvec_m = blm_inverse(cvectiXtXcvec_m, ouflow=True).reshape([n_v_m, q*q])
+            # Calculate masked (c'(X'X)^(-1)c)^(-1) values for ring
+            icvectiXtXcvec_r = blm_inverse(cvectiXtXcvec_r, ouflow=True).reshape([n_v_r, q*q])
 
             # Make (c'(X'X)^(-1)c)^(-1) unmasked
             icvectiXtXcvec = np.zeros([n_v, q*q])
-            icvectiXtXcvec[M_inds,:]=icvectiXtXcvec_m
+            icvectiXtXcvec[R_inds,:]=icvectiXtXcvec_r
             icvectiXtXcvec = icvectiXtXcvec.reshape([n_v, q, q])
 
 
             # Calculate the numerator of the F statistic
-            Fnumerator_m = np.matmul(
-                cbetat_m,
-                np.linalg.solve(cvectiXtXcvec_m, cbeta_m))
-            Fnumerator_m = Fnumerator_m.reshape(Fnumerator_m.shape[0])
+            Fnumerator_r = np.matmul(
+                cbetat_r,
+                np.linalg.solve(cvectiXtXcvec_r, cbeta_r))
+            Fnumerator_r = Fnumerator_r.reshape(Fnumerator_r.shape[0])
 
             # Calculate the denominator of the F statistic
-            Fdenominator_m = q*resms_m.reshape([n_v_m])
-            Fdenominator_m = Fdenominator_m.reshape(Fdenominator_m.shape[0])
+            Fdenominator_r = q*resms_r.reshape([n_v_r])
+            Fdenominator_r = Fdenominator_r.reshape(Fdenominator_r.shape[0])
 
             # Calculate F statistic.
-            fStatc_m = Fnumerator_m/Fdenominator_m
+            fStatc_r = Fnumerator_r/Fdenominator_r
             fStatc = np.zeros([n_v])
-            fStatc[M_inds]=fStatc_m
+            fStatc[R_inds]=fStatc_r
             fStatc = fStatc.reshape(
                                NIFTIsize[0],
                                NIFTIsize[1],
@@ -546,14 +589,14 @@ def main(*args):
             del fStatc, fStatcmap
 
             # Mask spatially varying n_s
-            n_s_sv_m = n_s_sv_m.reshape([n_v_m])
+            n_s_sv_r = n_s_sv_r.reshape([n_v_r])
 
-            # Calculate partial R2 masked.
-            partialR2_m = (q*fStatc_m)/(q*fStatc_m + n_s_sv_m - n_p)
+            # Calculate partial R2 masked for ring.
+            partialR2_r = (q*fStatc_r)/(q*fStatc_r + n_s_sv_r - n_p)
 
             # Unmask partialR2.
             partialR2 = np.zeros([n_v])
-            partialR2[M_inds] = partialR2_m
+            partialR2[R_inds] = partialR2_r
 
             partialR2 = partialR2.reshape(
                                NIFTIsize[0],
@@ -591,19 +634,19 @@ def blm_inverse(A, ouflow=False):
 
         # Work out number of matrices and dimension of
         # matrices. I.e. if we have seven 3 by 3 matrices
-        # to invert n_m = 7, d_m = 3.
-        n_m = A.shape[0]
-        d_m = A.shape[1]
+        # to invert n_r = 7, d_r = 3.
+        n_r = A.shape[0]
+        d_r = A.shape[1]
 
         # Make D to be filled with diagonal elements
-        D = np.broadcast_to(np.eye(d_m), (n_m,d_m,d_m)).copy()
+        D = np.broadcast_to(np.eye(d_r), (n_r,d_r,d_r)).copy()
 
         # Obtain 1/sqrt(diagA)
         diagA = 1/np.sqrt(A.diagonal(0,1,2))
-        diagA = diagA.reshape(n_m, d_m)
+        diagA = diagA.reshape(n_r, d_r)
 
         # Make this back into diagonal matrices
-        diaginds = np.diag_indices(d_m)
+        diaginds = np.diag_indices(d_r)
         D[:, diaginds[0], diaginds[1]] = diagA 
 
         # Precondition A.
@@ -613,7 +656,7 @@ def blm_inverse(A, ouflow=False):
     if np.ndim(A) == 1:
         iA = 1/A
     else:
-        iA = np.linalg.solve(A, np.eye(d_m).reshape(1,d_m,d_m))
+        iA = np.linalg.solve(A, np.eye(d_r).reshape(1,d_r,d_r))
 
     if ouflow:
 
@@ -631,19 +674,19 @@ def blm_det(A):
     # Precondition A.
     # Work out number of matrices and dimension of
     # matrices. I.e. if we have seven 3 by 3 matrices
-    # to invert n_m = 7, d_m = 3.
-    n_m = A.shape[0]
-    d_m = A.shape[1]
+    # to invert n_r = 7, d_r = 3.
+    n_r = A.shape[0]
+    d_r = A.shape[1]
 
     # Make D to be filled with diagonal elements
-    D = np.broadcast_to(np.eye(d_m), (n_m,d_m,d_m)).copy()
+    D = np.broadcast_to(np.eye(d_r), (n_r,d_r,d_r)).copy()
 
     # Obtain 1/sqrt(diagA)
     diagA = 1/np.sqrt(A.diagonal(0,1,2))
-    diagA = diagA.reshape(n_m, d_m)
+    diagA = diagA.reshape(n_r, d_r)
 
     # Make this back into diagonal matrices
-    diaginds = np.diag_indices(d_m)
+    diaginds = np.diag_indices(d_r)
     D[:, diaginds[0], diaginds[1]] = diagA 
 
     # Calculate DAD.
@@ -658,5 +701,5 @@ def blm_det(A):
 
     return(detA)
 
-if __name__ == "__main__":
+if __name__ == "__rain__":
     main()
