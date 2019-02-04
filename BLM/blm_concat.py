@@ -519,7 +519,7 @@ def main(*args):
             Fnumerator_m = Fnumerator_m.reshape(Fnumerator_m.shape[0])
 
             # Calculate the denominator of the F statistic
-            Fdenominator_m = q*resms_m.reshape([n_v])
+            Fdenominator_m = q*resms_m.reshape([n_v_m])
             Fdenominator_m = Fdenominator_m.reshape(Fdenominator_m.shape[0])
 
             # Calculate F statistic.
