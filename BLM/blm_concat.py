@@ -404,7 +404,6 @@ def main(*args):
     # Calculate COPEs, statistic maps and covariance maps.
     # ----------------------------------------------------------------------
     n_c = len(inputs['contrasts'])
-    print(n_c)
 
     for i in range(0,n_c):
 
@@ -463,8 +462,6 @@ def main(*args):
                     'blm_vox_cov_c' + str(i+1) + '.nii'))
 
             # Calculate masked T statistic image
-            print(cbeta_m.shape)
-            print(covcbeta_m.shape)
             tStatc_m = cbeta_m.reshape(n_v_m)/np.sqrt(covcbeta_m)
 
             # Unmask T stat
@@ -509,8 +506,6 @@ def main(*args):
 
 
             # Calculate the numerator of the F statistic
-            print(cvectiXtXcvec_m.shape)
-            print(cbetat_m.shape)
             Fnumerator_m = np.matmul(
                 cbetat_m,
                 np.linalg.solve(cvectiXtXcvec_m, cbeta_m))
