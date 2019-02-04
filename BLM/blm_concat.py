@@ -404,8 +404,6 @@ def main(*args):
                         'blm_vox_cov_b' + str(i+1) + ',' + str(j+1) + '.nii'))
                 del covbetaij, covbetaijmap
 
-    del covbetaijmap
-
     # ----------------------------------------------------------------------
     # Calculate COPEs, statistic maps and covariance maps.
     # ----------------------------------------------------------------------
