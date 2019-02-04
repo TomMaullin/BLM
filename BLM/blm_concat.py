@@ -465,7 +465,7 @@ def main(*args):
             nib.save(covcbetamap,
                 os.path.join(OutDir, 
                     'blm_vox_cov_c' + str(i+1) + '.nii'))
-            del covcbeta, covbetamap
+            del covcbeta, covcbetamap
 
             # Calculate masked T statistic image
             tStatc_m = cbeta_m.reshape(n_v_m)/np.sqrt(covcbeta_m)
