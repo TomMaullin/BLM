@@ -580,14 +580,22 @@ def main(*args):
             # Make (c'(X'X)^(-1)c)^(-1) unmasked
             icvectiXtXcvec = np.zeros([n_v, q*q])
             icvectiXtXcvec[R_inds,:]=icvectiXtXcvec_r
+            icvectiXtXcvec[I_inds,:]=icvectiXtXcvec_i
             icvectiXtXcvec = icvectiXtXcvec.reshape([n_v, q, q])
 
 
-            # Calculate the numerator of the F statistic
+            # Calculate the numerator of the F statistic for the ring
             Fnumerator_r = np.matmul(
                 cbetat_r,
                 np.linalg.solve(cvectiXtXcvec_r, cbeta_r))
+            # Calculate the numerator of the F statistic for the inner 
+            Fnumerator_i = np.matmul(
+                cbetat_i,
+                np.linalg.solve(cvectiXtXcvec_i, cbeta_i))
+
+            print(Fnumerator_r.shape[0])
             Fnumerator_r = Fnumerator_r.reshape(Fnumerator_r.shape[0])
+            Fnumerator_i = Fnumerator_i.reshape(Fnumerator_i.shape[0])
 
             # Calculate the denominator of the F statistic
             Fdenominator_r = q*resms_r.reshape([n_v_r])
