@@ -332,7 +332,7 @@ def main(*args):
         
         # X'X must be 1 by np by np for broadcasting
         sumXtX_i = sumXtX[I_inds[0],:,:]
-        sumXtX_i = sumXtX.reshape([1, n_p, n_p])
+        sumXtX_i = sumXtX_i.reshape([1, n_p, n_p])
 
         sumXtY_i = sumXtY[I_inds,:]
 
