@@ -281,7 +281,7 @@ def main(*args):
                                     ),
                               nifti.affine,
                               header=nifti.header)
-    nib.save(maskmap, os.path.join(OutDir,'blm_vox_rask.nii'))
+    nib.save(maskmap, os.path.join(OutDir,'blm_vox_mask.nii'))
     del maskmap
 
     # Get indices of voxels in ring around brain where there are
