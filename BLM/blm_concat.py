@@ -294,6 +294,9 @@ def main(*args):
     I_inds = np.where((Mask==1)*(n_s_sv==n_s))[0]
     del Mask
 
+    print(I_inds.shape)
+    print(M_inds.shape)
+
     # Number of voxels in ring
     n_v_r = R_inds.shape[0]
 
@@ -353,7 +356,7 @@ def main(*args):
         nib.save(betakmap, os.path.join(OutDir,'blm_vox_beta_b' + str(k+1) + '.nii'))
         del betak, betakmap
 
-    del sumXtY, sumXtY_r, sumXtX
+    del sumXtY, sumXtY_r, sumXtX, sumXtY_i
 
     if np.ndim(beta) == 0:
         beta = np.array([[beta]])
@@ -552,7 +555,7 @@ def main(*args):
             nib.save(tStatcmap,
                 os.path.join(OutDir, 
                     'blm_vox_Tstat_c' + str(i+1) + '.nii'))
-            del tStatc, tStatcmap
+            del tStatc, tStatcmap, tStatc_i, tStatc_r
 
         if inputs['contrasts'][i]['c' + str(i+1)]['statType'] == 'F':
                 
