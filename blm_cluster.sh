@@ -13,10 +13,7 @@ if [ -f $config_outdir/nb.txt ] ; then
 fi
 touch $config_outdir/nb.txt 
 
-# Write the setup command
-blm_setup=$(fslpython -c 'from BLM import blm_setup; blm_setup.main()')
-
-jID=`fsl_sub -l log/ -N setup $blm_setup`
+jID=`fsl_sub -l log/ -N setup "fslpython -c \"from BLM import blm_setup; blm_setup.main()\""`
 setupID=`echo $jID | awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}'`
 qstat
 
