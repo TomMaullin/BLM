@@ -533,7 +533,7 @@ def main(*args):
 
             # Calculate masked T statistic image for ring
             tStatc_r = cbeta_r.reshape(n_v_r)/np.sqrt(covcbeta_r)
-            tStatc_r = cbeta_i.reshape(n_v_i)/np.sqrt(covcbeta_i)
+            tStatc_i = cbeta_i.reshape(n_v_i)/np.sqrt(covcbeta_i)
 
             # Unmask T stat
             tStatc = np.zeros([n_v])
