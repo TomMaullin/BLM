@@ -428,6 +428,7 @@ def main(*args):
         
     # Calculate masked (x'X)^(-1) values for ring
     isumXtX_r = blm_inverse(sumXtX_r, ouflow=True)
+    isumXtX_i = blm_inverse(sumXtX_i, ouflow=True)
 
     # Output variance for each pair of betas
     for i in range(0,n_p):
@@ -437,10 +438,14 @@ def main(*args):
                 covbetaij_r = np.multiply(
                     resms_r.reshape([resms_r.shape[0]]),
                     isumXtX_r[:,i,j])
+                covbetaij_i = np.multiply(
+                    resms_i.reshape([resms_i.shape[0]]),
+                    isumXtX_i[:,i,j])
 
                 # Unmask cov beta ij
                 covbetaij = np.zeros([n_v])
                 covbetaij[R_inds] = covbetaij_r
+                covbetaij[I_inds] = covbetaij_i
                 covbetaij = covbetaij.reshape(
                                         NIFTIsize[0],
                                         NIFTIsize[1],
