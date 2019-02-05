@@ -377,13 +377,13 @@ def main(*args):
     # now redudundant matrices.
     betatXtX_r = np.matmul(beta_r_t, sumXtX_r)
     betatXtX_i = np.matmul(beta_i_t, sumXtX_i)
-    del beta_r_t beta_r_i
+    del beta_r_t, beta_r_i
 
     # Multiply BetatXtX by Beta and delete the reduundant
     # matrices.
     betatXtXbeta_r = np.matmul(betatXtX_r, beta_r)
     betatXtXbeta_i = np.matmul(betatXtX_i, beta_i)
-    del betatXtX_r betatXtX_i
+    del betatXtX_r, betatXtX_i
 
     # Reshape betat XtX beta
     betatXtXbeta_r = np.reshape(betatXtXbeta_r, [n_v_r,1])
