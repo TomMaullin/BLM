@@ -291,7 +291,7 @@ def main(*args):
     # Get indices of the "inner" volume where all studies had information
     # present. I.e. the voxels (usually near the middle of the brain) where
     # every voxel has a reading for every study.
-    I_inds = np.where(n_s_sv==n_s)[0]
+    I_inds = np.where((Mask==1)*(n_s_sv==n_s))[0]
     print(R_inds.shape)
     print(I_inds.shape)
     print(n_s)
