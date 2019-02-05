@@ -377,7 +377,7 @@ def main(*args):
     # now redudundant matrices.
     betatXtX_r = np.matmul(beta_r_t, sumXtX_r)
     betatXtX_i = np.matmul(beta_i_t, sumXtX_i)
-    del beta_r_t, beta_r_i
+    del beta_r_t, beta_i_t
 
     # Multiply BetatXtX by Beta and delete the reduundant
     # matrices.
