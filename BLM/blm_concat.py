@@ -284,9 +284,6 @@ def main(*args):
     nib.save(maskmap, os.path.join(OutDir,'blm_vox_rask.nii'))
     del maskmap
 
-    # Get final indices in mask
-    M_inds = np.where(Mask==1)[0]
-
     # Get indices of voxels in ring around brain where there are
     # missing studies.
     R_inds = np.where((Mask==1)*(n_s_sv<n_s))[0]
@@ -296,9 +293,6 @@ def main(*args):
     # every voxel has a reading for every study.
     I_inds = np.where((Mask==1)*(n_s_sv==n_s))[0]
     del Mask
-
-    # Number of voxels in mask
-    n_v_m = M_inds.shape[0]
 
     # Number of voxels in ring
     n_v_r = R_inds.shape[0]
@@ -508,13 +502,20 @@ def main(*args):
             cvectiXtXcvec_r = np.matmul(
                 np.matmul(cvec, isumXtX_r),
                 np.transpose(cvec)).reshape(n_v_r)
+            cvectiXtXcvec_i = np.matmul(
+                np.matmul(cvec, isumXtX_i),
+                np.transpose(cvec))
 
             # Calculate masked cov(c\hat{\beta}) for ring
             covcbeta_r = cvectiXtXcvec_r*resms_r.reshape(n_v_r)
 
+            # Calculate masked cov(c\hat{\beta}) for inner
+            covcbeta_i = cvectiXtXcvec_r*resms_i
+
             # Unmask to output
             covcbeta = np.zeros([n_v])
             covcbeta[R_inds] = covcbeta_r
+            covcbeta[I_inds] = covcbeta_i
             covcbeta = covcbeta.reshape(
                 NIFTIsize[0],
                 NIFTIsize[1],
@@ -532,10 +533,12 @@ def main(*args):
 
             # Calculate masked T statistic image for ring
             tStatc_r = cbeta_r.reshape(n_v_r)/np.sqrt(covcbeta_r)
+            tStatc_r = cbeta_i.reshape(n_v_i)/np.sqrt(covcbeta_i)
 
             # Unmask T stat
             tStatc = np.zeros([n_v])
             tStatc[R_inds] = tStatc_r
+            tStatc[I_inds] = tStatc_i
             tStatc = tStatc.reshape(
                 NIFTIsize[0],
                 NIFTIsize[1],
