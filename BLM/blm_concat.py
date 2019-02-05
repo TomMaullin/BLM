@@ -475,6 +475,7 @@ def main(*args):
 
         # Calculate C\hat{\beta}}
         cbeta_r = np.matmul(cvec, beta_r)
+        cbeta_i = np.matmul(cvec, beta_i)
         if cvec.ndim == 1:
             cvec = cvec.reshape([1,cvec.shape[0]])
 
@@ -483,6 +484,7 @@ def main(*args):
             # A T contrast has only one row so we can output cbeta here
             cbeta = np.zeros([n_v,1])
             cbeta[R_inds,:] = cbeta_r
+            cbeta[I_inds,:] = cbeta_i
             cbeta = cbeta.reshape(
                         NIFTIsize[0],
                         NIFTIsize[1],
