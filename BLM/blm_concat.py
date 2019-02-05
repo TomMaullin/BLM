@@ -318,8 +318,6 @@ def main(*args):
     # Unmask Beta
     beta = np.zeros([n_v, n_p])
 
-    print(beta_r.shape)
-
     # Outer ring values
     beta[R_inds,:] = beta_r.reshape([n_v_r, n_p])
 
@@ -599,12 +597,9 @@ def main(*args):
 
             # Calculate the denominator of the F statistic for ring
             Fdenominator_r = q*resms_r.reshape([n_v_r])
-            print(Fdenominator_r.shape)
-            Fdenominator_r = Fdenominator_r.reshape(Fdenominator_r.shape[0])
 
             # Calculate the denominator of the F statistic for inner
             Fdenominator_i = q*resms_i.reshape([n_v_i])
-            Fdenominator_i = Fdenominator_i.reshape(Fdenominator_i.shape[0])
 
             # Calculate F statistic.
             fStatc_r = Fnumerator_r/Fdenominator_r
@@ -630,7 +625,6 @@ def main(*args):
             del fStatc, fStatcmap
 
             # Mask spatially varying n_s
-            print(n_s_sv_r.shape)
             n_s_sv_r = n_s_sv_r.reshape([n_v_r])
 
             # Calculate partial R2 masked for ring.
@@ -640,6 +634,7 @@ def main(*args):
             # Unmask partialR2.
             partialR2 = np.zeros([n_v])
             partialR2[R_inds] = partialR2_r
+            partialR2[I_inds] = partialR2_i
 
             partialR2 = partialR2.reshape(
                                NIFTIsize[0],
