@@ -373,6 +373,7 @@ def main(*args):
     # now redudundant matrices.
     betatXtX_r = np.matmul(beta_r_t, sumXtX_r)
     betatXtX_i = np.matmul(beta_i_t, sumXtX_i)
+    print(sumXtX_i.shape)
     del beta_r_t, beta_i_t
 
     # Multiply BetatXtX by Beta and delete the reduundant
@@ -503,6 +504,7 @@ def main(*args):
             cvectiXtXcvec_i = np.matmul(
                 np.matmul(cvec, isumXtX_i),
                 np.transpose(cvec))
+            print(cvectiXtXcvec_i.shape)
 
             # Calculate masked cov(c\hat{\beta}) for ring
             covcbeta_r = cvectiXtXcvec_r*resms_r.reshape(n_v_r)
