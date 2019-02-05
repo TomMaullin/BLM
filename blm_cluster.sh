@@ -1,5 +1,4 @@
 #!/bin/bash
-rm log$1/*
 
 # include parse_yaml function
 . lib/parse_yaml.sh
@@ -14,7 +13,11 @@ if [ -f $config_outdir/nb.txt ] ; then
 fi
 touch $config_outdir/nb.txt 
 
-qsub -o log$1/ -e log$1/ -N setup -V lib/cluster_blm_setup.sh
+jID=`fsl_sub -l log/ -N setup "lib/cluster_blm_setup.sh"`
+setupID=`echo $jID | awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}'`
+qstat
+
+echo $setupID
 
 echo "Setting up distributed analysis..."
 
