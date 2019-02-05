@@ -632,7 +632,6 @@ def main(*args):
             # Mask spatially varying n_s
             print(n_s_sv_r.shape)
             n_s_sv_r = n_s_sv_r.reshape([n_v_r])
-            n_s_sv_i = n_s_sv_i.reshape([n_v_r])
 
             # Calculate partial R2 masked for ring.
             partialR2_r = (q*fStatc_r)/(q*fStatc_r + n_s_sv_r - n_p)
