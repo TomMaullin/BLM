@@ -510,7 +510,7 @@ def main(*args):
             covcbeta_r = cvectiXtXcvec_r*resms_r.reshape(n_v_r)
 
             # Calculate masked cov(c\hat{\beta}) for inner
-            covcbeta_i = cvectiXtXcvec_i*resms_i
+            covcbeta_i = cvectiXtXcvec_i*resms_i.reshape(n_v_i)
 
             # Unmask to output
             covcbeta = np.zeros([n_v])
