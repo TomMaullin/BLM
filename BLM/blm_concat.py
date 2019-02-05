@@ -284,6 +284,9 @@ def main(*args):
     nib.save(maskmap, os.path.join(OutDir,'blm_vox_rask.nii'))
     del maskmap
 
+    # Get final indices in mask
+    M_inds = np.where(Mask==1)[0]
+
     # Get indices of voxels in ring around brain where there are
     # missing studies.
     R_inds = np.where((Mask==1)*(n_s_sv<n_s))[0]
@@ -292,11 +295,10 @@ def main(*args):
     # present. I.e. the voxels (usually near the middle of the brain) where
     # every voxel has a reading for every study.
     I_inds = np.where((Mask==1)*(n_s_sv==n_s))[0]
-    print(R_inds.shape)
-    print(I_inds.shape)
-    print(n_s)
-    print(n_s_sv)
     del Mask
+
+    # Number of voxels in mask
+    n_v_m = M_inds.shape[0]
 
     # Number of voxels in ring
     n_v_r = R_inds.shape[0]
@@ -321,6 +323,8 @@ def main(*args):
 
     # Unmask Beta
     beta = np.zeros([n_v, n_p])
+
+    print(beta_r.shape)
 
     # Outer ring values
     beta[R_inds,:] = beta_r.reshape([n_v_r, n_p])
