@@ -294,9 +294,6 @@ def main(*args):
     I_inds = np.where((Mask==1)*(n_s_sv==n_s))[0]
     del Mask
 
-    print(I_inds.shape)
-    print(M_inds.shape)
-
     # Number of voxels in ring
     n_v_r = R_inds.shape[0]
 
@@ -376,7 +373,6 @@ def main(*args):
     # now redudundant matrices.
     betatXtX_r = np.matmul(beta_r_t, sumXtX_r)
     betatXtX_i = np.matmul(beta_i_t, sumXtX_i)
-    print(sumXtX_i.shape)
     del beta_r_t, beta_i_t
 
     # Multiply BetatXtX by Beta and delete the reduundant
@@ -507,7 +503,6 @@ def main(*args):
             cvectiXtXcvec_i = np.matmul(
                 np.matmul(cvec, isumXtX_i),
                 np.transpose(cvec))
-            print(cvectiXtXcvec_i.shape)
 
             # Calculate masked cov(c\hat{\beta}) for ring
             covcbeta_r = cvectiXtXcvec_r*resms_r.reshape(n_v_r)
@@ -596,7 +591,6 @@ def main(*args):
                 cbetat_i,
                 np.linalg.solve(cvectiXtXcvec_i, cbeta_i))
 
-            print(Fnumerator_r.shape)
             Fnumerator_r = Fnumerator_r.reshape(Fnumerator_r.shape[0])
             Fnumerator_i = Fnumerator_i.reshape(Fnumerator_i.shape[0])
 
