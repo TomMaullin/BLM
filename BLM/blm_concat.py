@@ -510,7 +510,7 @@ def main(*args):
             covcbeta_r = cvectiXtXcvec_r*resms_r.reshape(n_v_r)
 
             # Calculate masked cov(c\hat{\beta}) for inner
-            covcbeta_i = cvectiXtXcvec_r*resms_i
+            covcbeta_i = cvectiXtXcvec_i*resms_i
 
             # Unmask to output
             covcbeta = np.zeros([n_v])
@@ -564,13 +564,18 @@ def main(*args):
             cvectiXtXcvec_r = np.matmul(
                 np.matmul(cvec, isumXtX_r),
                 np.transpose(cvec))
+            cvectiXtXcvec_i = np.matmul(
+                np.matmul(cvec, isumXtX_i),
+                np.transpose(cvec))
 
             # Cbeta needs to be nvox by 1 by npar for stacked
             # multiply.
             cbetat_r = cbeta_r.transpose(0,2,1)
+            cbetat_i = cbeta_i.transpose(0,2,1)
 
             # Calculate masked (c'(X'X)^(-1)c)^(-1) values for ring
             icvectiXtXcvec_r = blm_inverse(cvectiXtXcvec_r, ouflow=True).reshape([n_v_r, q*q])
+            icvectiXtXcvec_i = blm_inverse(cvectiXtXcvec_i, ouflow=True).reshape([1, q*q])
 
             # Make (c'(X'X)^(-1)c)^(-1) unmasked
             icvectiXtXcvec = np.zeros([n_v, q*q])
