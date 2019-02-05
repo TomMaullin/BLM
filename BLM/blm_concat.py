@@ -371,31 +371,29 @@ def main(*args):
     # Reshape beta along smallest axis for quicker
     # residual calculation
     beta_r_t = beta_r.transpose(0,2,1)
+    beta_i_t = beta_i.transpose(0,2,1)
 
     # Calculate Beta transpose times XtX and delete the
     # now redudundant matrices.
     betatXtX_r = np.matmul(beta_r_t, sumXtX_r)
-    del beta_r_t
+    betatXtX_i = np.matmul(beta_i_t, sumXtX_i)
+    del beta_r_t beta_r_i
 
     # Multiply BetatXtX by Beta and delete the reduundant
     # matrices.
     betatXtXbeta_r = np.matmul(betatXtX_r, beta_r)
-    del betatXtX_r
+    betatXtXbeta_i = np.matmul(betatXtX_i, beta_i)
+    del betatXtX_r betatXtX_i
 
     # Reshape betat XtX beta
     betatXtXbeta_r = np.reshape(betatXtXbeta_r, [n_v_r,1])
+    betatXtXbeta_i = np.reshape(betatXtXbeta_i, [n_v_i,1])
 
     # Residual sum of squares
     ete_r = sumYtY[R_inds] - betatXtXbeta_r
+    ete_i = sumYtY[I_inds] - betatXtXbeta_i
 
-    # Unmask ete
-    ete = np.zeros([n_v, 1])
-    ete[R_inds]=ete_r
-    ete = ete.reshape(int(NIFTIsize[0]),
-                      int(NIFTIsize[1]),
-                      int(NIFTIsize[2]))
-
-    del sumYtY, betatXtXbeta_r, ete
+    del sumYtY, betatXtXbeta_r, betatXtXbeta_i
 
     # ----------------------------------------------------------------------
     # Calculate residual mean squares = e'e/(n_s - n_p)
@@ -407,10 +405,12 @@ def main(*args):
     # In spatially varying the degrees of freedom
     # varies across voxels
     resms_r = ete_r/(n_s_sv_r-n_p)
+    resms_i = ete_i/(n_s-n_p)
 
     # Unmask resms
     resms = np.zeros([n_v,1])
     resms[R_inds,:] = resms_r
+    resms[I_inds,:] = resms_i
     resms = resms.reshape(NIFTIsize[0], 
                           NIFTIsize[1],
                           NIFTIsize[2])
