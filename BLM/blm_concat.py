@@ -593,18 +593,27 @@ def main(*args):
                 cbetat_i,
                 np.linalg.solve(cvectiXtXcvec_i, cbeta_i))
 
-            print(Fnumerator_r.shape[0])
+            print(Fnumerator_r.shape)
             Fnumerator_r = Fnumerator_r.reshape(Fnumerator_r.shape[0])
             Fnumerator_i = Fnumerator_i.reshape(Fnumerator_i.shape[0])
 
-            # Calculate the denominator of the F statistic
+            # Calculate the denominator of the F statistic for ring
             Fdenominator_r = q*resms_r.reshape([n_v_r])
+            print(Fdenominator_r.shape)
             Fdenominator_r = Fdenominator_r.reshape(Fdenominator_r.shape[0])
+
+            # Calculate the denominator of the F statistic for inner
+            Fdenominator_i = q*resms_i.reshape([n_v_i])
+            Fdenominator_i = Fdenominator_i.reshape(Fdenominator_i.shape[0])
 
             # Calculate F statistic.
             fStatc_r = Fnumerator_r/Fdenominator_r
+            fStatc_i = Fnumerator_i/Fdenominator_i
+
+            # Save F statistic
             fStatc = np.zeros([n_v])
             fStatc[R_inds]=fStatc_r
+            fStatc[I_inds]=fStatc_i
             fStatc = fStatc.reshape(
                                NIFTIsize[0],
                                NIFTIsize[1],
@@ -621,10 +630,13 @@ def main(*args):
             del fStatc, fStatcmap
 
             # Mask spatially varying n_s
+            print(n_s_sv_r.shape)
             n_s_sv_r = n_s_sv_r.reshape([n_v_r])
+            n_s_sv_i = n_s_sv_i.reshape([n_v_r])
 
             # Calculate partial R2 masked for ring.
             partialR2_r = (q*fStatc_r)/(q*fStatc_r + n_s_sv_r - n_p)
+            partialR2_i = (q*fStatc_i)/(q*fStatc_i + n_s - n_p)
 
             # Unmask partialR2.
             partialR2 = np.zeros([n_v])
