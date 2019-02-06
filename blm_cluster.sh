@@ -50,7 +50,11 @@ done
 echo "Submitting analysis jobs..."
 i=1
 while [ "$i" -le "$nb" ]; do
-  qsub -o log$1/ -e log$1/ -N batch$i -V -hold_jid setup lib/cluster_blm_batch.sh $i
+  jID=`fsl_sub -l log/ -N setup bash ./lib/cluster_blm_batch.sh $i`
+  batchIDs="$batchIDs `echo $jID | awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}'`"
+  qstat
+  echo $batchIDs
+  #qsub -o log$1/ -e log$1/ -N batch$i -V -hold_jid setup lib/cluster_blm_batch.sh $i
   i=$(($i + 1))
 done
 
