@@ -73,7 +73,7 @@ do
 
   i=1
   while [ "$i" -le "$nb" ]; do
-    jID=`fsl_sub -j $setupID -l log/ -N batch_cfg$cfgno\_$i bash ./lib/cluster_blm_batch.sh $i $1`
+    jID=`fsl_sub -j $setupID -l log/ -N batch_cfg${cfgno}_${i} bash ./lib/cluster_blm_batch.sh $i $1`
     batchIDs="`echo $jID | awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}'`,$batchIDs"
     qstat
     #qsub -o log$1/ -e log$1/ -N batch$i -V -hold_jid setup lib/cluster_blm_batch.sh $i
