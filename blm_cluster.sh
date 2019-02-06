@@ -83,6 +83,7 @@ do
   #qsub -o log$1/ -e log$1/ -N results -V -hold_jid "batch*" lib/cluster_blm_concat.sh
   jID=`fsl_sub -j $batchIDs -l log/ -N results_cfg$cfgno bash ./lib/cluster_blm_concat.sh $cfg`
   resultsID=`echo $jID | awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}'`
+  batchIDs=''
 
   echo "Submitting results job..."
   echo "(For configuration: $cfg)"
