@@ -29,7 +29,7 @@ do
   # Make a copy of the inputs file, if the user touches the cfg file this will not mess
   # with anything now.
   inputs=$config_outdir/inputs.yml
-  cp cfg inputs
+  cp $cfg $inputs
 
   jID=`fsl_sub -l log/ -N setup_cfg$cfgno bash ./lib/cluster_blm_setup.sh $inputs`
   setupID=`echo $jID | awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}'`
