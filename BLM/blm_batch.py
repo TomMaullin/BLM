@@ -28,7 +28,7 @@ def main(*args):
             inputs = yaml.load(stream)
     else:
         # In this case inputs is first argument
-        inputs = args[1]
+        inputs = yaml.load(args[1])
 
     MAXMEM = eval(inputs['MAXMEM'])    
     OutDir = inputs['outdir']

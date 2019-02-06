@@ -13,7 +13,7 @@ if [ -f $config_outdir/nb.txt ] ; then
 fi
 touch $config_outdir/nb.txt 
 
-jID=`fsl_sub -l log/ -N setup bash ./lib/cluster_blm_setup.sh`
+jID=`fsl_sub -l log/ -N setup bash ./lib/cluster_blm_setup.sh $1`
 setupID=`echo $jID | awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}'`
 qstat
 
@@ -50,7 +50,7 @@ done
 echo "Submitting analysis jobs..."
 i=1
 while [ "$i" -le "$nb" ]; do
-  jID=`fsl_sub -j $setupID -l log/ -N batch$i bash ./lib/cluster_blm_batch.sh $i`
+  jID=`fsl_sub -j $setupID -l log/ -N batch$i bash ./lib/cluster_blm_batch.sh $i $1`
   batchIDs="`echo $jID | awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}'`,$batchIDs"
   qstat
   echo $batchIDs
@@ -59,7 +59,7 @@ while [ "$i" -le "$nb" ]; do
 done
 
 #qsub -o log$1/ -e log$1/ -N results -V -hold_jid "batch*" lib/cluster_blm_concat.sh
-jID=`fsl_sub -j $batchIDs -l log/ -N results bash ./lib/cluster_blm_concat.sh`
+jID=`fsl_sub -j $batchIDs -l log/ -N results bash ./lib/cluster_blm_concat.sh $1`
 resultsID=`echo $jID | awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}'`
 qstat
 

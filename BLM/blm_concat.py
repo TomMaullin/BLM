@@ -54,7 +54,7 @@ def main(*args):
             inputs = yaml.load(stream)
     else:
         # In this case inputs is first argument
-        inputs = args[0]
+        inputs = yaml.load(args[0])
 
     # ----------------------------------------------------------------------
     # Read basic inputs
