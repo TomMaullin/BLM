@@ -22,13 +22,18 @@ def main(*args):
 
     batchNo = args[0]
 
-    if len(args)==1:
+    if len(args)==1 or (not args[1]):
         # Load in inputs
         with open(os.path.join(os.getcwd(),'..','blm_config.yml'), 'r') as stream:
             inputs = yaml.load(stream)
     else:
-        # In this case inputs is first argument
-        inputs = args[1]
+        if type(args[1]) is str:
+            # In this case inputs file is first argument
+            with open(os.path.join(args[1]), 'r') as stream:
+                inputs = yaml.load(stream)
+        else:  
+            # In this case inputs structure is first argument.
+            inputs = args[1]
 
     MAXMEM = eval(inputs['MAXMEM'])    
     OutDir = inputs['outdir']
@@ -129,7 +134,7 @@ def main(*args):
     # number of columns
     XtY = XtY.transpose()
 
-    if len(args)==1:
+    if (len(args)==1) or (type(args[1]) is str):
         # Record XtX and XtY
         np.savetxt(os.path.join(OutDir,"tmp","XtX" + str(batchNo) + ".csv"), 
                    XtX, delimiter=",")

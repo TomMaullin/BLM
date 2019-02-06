@@ -45,7 +45,7 @@ def main(*args):
     # ----------------------------------------------------------------------
     # Check inputs
     # ----------------------------------------------------------------------
-    if len(args)==0:
+    if len(args)==0 or (not args[0]):
         # Load in inputs
         with open(os.path.join(
                     os.path.dirname(os.path.realpath(__file__)),
@@ -53,8 +53,13 @@ def main(*args):
                     'blm_config.yml'), 'r') as stream:
             inputs = yaml.load(stream)
     else:
-        # In this case inputs is first argument
-        inputs = args[0]
+        if type(args[0]) is str:
+            # In this case inputs file is first argument
+            with open(os.path.join(args[0]), 'r') as stream:
+                inputs = yaml.load(stream)
+        else:  
+            # In this case inputs structure is first argument.
+            inputs = args[0]
 
     # ----------------------------------------------------------------------
     # Read basic inputs
@@ -78,7 +83,7 @@ def main(*args):
     # ----------------------------------------------------------------------
     # Load X'X, X'Y, Y'Y and n_s
     # ----------------------------------------------------------------------
-    if len(args)==0:
+    if (len(args)==0) or (type(args[0]) is str):
         # Read the matrices from the first batch. Note XtY is transposed as pandas
         # handles lots of rows much faster than lots of columns.
         sumXtX = pandas.io.parsers.read_csv(os.path.join(OutDir,"tmp","XtX1.csv"), 

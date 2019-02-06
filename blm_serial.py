@@ -15,7 +15,7 @@ def main(*args):
             inputs = yaml.load(stream)
     else:
         # In this case inputs is first argument
-        inputs = args[0]
+        inputs = yaml.load(args[0])
 
     # Run the setup job to obtain the number of batches needed.
     nB = blm_setup.main(inputs)
