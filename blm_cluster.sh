@@ -3,8 +3,14 @@
 # include parse_yaml function
 . lib/parse_yaml.sh
 
+if [ "$1" == "" ] ; then
+  cfg="blm_config.yml"
+else
+  cfg=$1
+fi
+
 # read yaml file to get output directory
-eval $(parse_yaml blm_config.yml "config_")
+eval $(parse_yaml $cfg "config_")
 mkdir -p $config_outdir
 
 # This file is used to record number of batches
