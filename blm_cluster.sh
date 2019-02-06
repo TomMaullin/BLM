@@ -1,16 +1,5 @@
 #!/bin/bash
 
-# remove previous logs
-if [ "-f ./log/setup*" ] ; then
-    rm ./log/setup*
-fi
-if [ "-f ./log/batch*" ] ; then
-    rm ./log/batch*
-fi
-if [ "-f ./log/results*" ] ; then
-    rm ./log/results*
-fi
-
 # include parse_yaml function
 . lib/parse_yaml.sh
 
@@ -46,7 +35,7 @@ do
   i=$(($i + 1))
 
   if [ $i -gt 30 ]; then
-    errorlog=$(ls log/setup.e* | head -1)
+    errorlog="log/setup.e$setupID"
     if [ -s $errorlog ]; then
       echo "Setup has errored"
       exit
