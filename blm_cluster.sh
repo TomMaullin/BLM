@@ -7,7 +7,7 @@
 # Else just assume blm_config is the correct configuration
 cfgno=1
 if [ "$1" == "" ] ; then
-  cfgs="blm_config.yml"
+  cfgs=$(realpath "blm_config.yml")
 else
   cfgs=$@
 fi
@@ -15,6 +15,7 @@ fi
 for cfg in $cfgs
 do
 
+  cfg=$(realpath $cfg)
   # read yaml file to get output directory
   eval $(parse_yaml $cfg "config_")
   mkdir -p $config_outdir
@@ -38,6 +39,7 @@ cfgno=1
 for cfg in $cfgs
 do
 
+  cfg=$(realpath $cfg)
   # read yaml file to get output directory
   eval $(parse_yaml $cfg "config_")
 
