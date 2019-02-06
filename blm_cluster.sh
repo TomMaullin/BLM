@@ -1,13 +1,13 @@
 #!/bin/bash
 
 # remove previous logs
-if [ -f ./log/setup* ] ; then
+if [ "-f ./log/setup*" ] ; then
     rm ./log/setup*
 fi
-if [ -f ./log/batch* ] ; then
-    rm ./log/batche*
+if [ "-f ./log/batch*" ] ; then
+    rm ./log/batch*
 fi
-if [ -f ./log/results* ] ; then
+if [ "-f ./log/results*" ] ; then
     rm ./log/results*
 fi
 
