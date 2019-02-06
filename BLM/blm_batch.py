@@ -27,8 +27,9 @@ def main(*args):
         with open(os.path.join(os.getcwd(),'..','blm_config.yml'), 'r') as stream:
             inputs = yaml.load(stream)
     else:
-        # In this case inputs is first argument
-        inputs = yaml.load(args[1])
+        # In this case inputs file is second argument
+        with open(os.path.join(args[1]), 'r') as stream:
+            inputs = yaml.load(stream)
 
     MAXMEM = eval(inputs['MAXMEM'])    
     OutDir = inputs['outdir']
