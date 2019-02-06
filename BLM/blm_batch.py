@@ -134,7 +134,7 @@ def main(*args):
     # number of columns
     XtY = XtY.transpose()
 
-    if len(args)==1:
+    if (len(args)==1) or (type(args[1]) is str):
         # Record XtX and XtY
         np.savetxt(os.path.join(OutDir,"tmp","XtX" + str(batchNo) + ".csv"), 
                    XtX, delimiter=",")
