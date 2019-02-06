@@ -16,7 +16,7 @@ echo $@
 echo $cfgs
 echo 'echod'
 
-for cfg in cfgs
+for cfg in $cfgs
 do
 
   echo $cfg
@@ -42,7 +42,7 @@ do
   cfgno=$(($cfgno + 1))
 done
 
-for cfg in cfgs
+for cfg in $cfgs
 do
 
   # read yaml file to get output directory
