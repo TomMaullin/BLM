@@ -33,7 +33,6 @@ if [ "$setupID" == "" ] ; then
 fi
 
 echo "Setting up distributed analysis..."
-echo "(For configuration: $cfg)"
 
 # This loop waits for the setup job to finish before
 # deciding how many batches to run. It also checks to 
