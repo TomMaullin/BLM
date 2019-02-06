@@ -12,14 +12,9 @@ else
   cfgs=$@
 fi
 
-echo $@
-echo $cfgs
-echo 'echod'
-
 for cfg in $cfgs
 do
 
-  echo $cfg
   # read yaml file to get output directory
   eval $(parse_yaml $cfg "config_")
   mkdir -p $config_outdir
@@ -29,16 +24,13 @@ do
       rm $config_outdir/nb.txt 
   fi
   touch $config_outdir/nb.txt 
-  echo $config_outdir/nb.txt
 
   jID=`fsl_sub -l log/ -N setup_cfg$cfgno bash ./lib/cluster_blm_setup.sh $1`
   setupID=`echo $jID | awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}'`
   qstat
 
-  echo $setupID
-
   echo "Setting up distributed analysis..."
-  echo "\($cfg\)"
+  echo "(For configuration: $cfg)"
   cfgno=$(($cfgno + 1))
 done
 
@@ -62,7 +54,7 @@ do
     i=$(($i + 1))
 
     if [ $i -gt 30 ]; then
-      errorlog="log/setup.e$setupID"
+      errorlog="log/setup_cfg$cfgno.e$setupID"
       if [ -s $errorlog ]; then
         echo "Setup has errored"
         exit
@@ -75,14 +67,13 @@ do
   done
 
   echo "Submitting analysis jobs..."
-  echo "\($cfg\)"
+  echo "(For configuration: $cfg)"
 
   i=1
   while [ "$i" -le "$nb" ]; do
     jID=`fsl_sub -j $setupID -l log/ -N batch_cfg$cfgno\_$i bash ./lib/cluster_blm_batch.sh $i $1`
     batchIDs="`echo $jID | awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}'`,$batchIDs"
     qstat
-    echo $batchIDs
     #qsub -o log$1/ -e log$1/ -N batch$i -V -hold_jid setup lib/cluster_blm_batch.sh $i
     i=$(($i + 1))
   done
@@ -93,7 +84,7 @@ do
   qstat
 
   echo "Submitting results job..."
-  echo "\($cfg\)"
+  echo "(For configuration: $cfg)"
   cfgno=$(($cfgno + 1))
 done
 
