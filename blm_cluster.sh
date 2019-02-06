@@ -27,7 +27,6 @@ do
 
   jID=`fsl_sub -l log/ -N setup_cfg$cfgno bash ./lib/cluster_blm_setup.sh $cfg`
   setupID=`echo $jID | awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}'`
-  qstat
 
   echo "Setting up distributed analysis..."
   echo "(For configuration: $cfg)"
@@ -75,15 +74,13 @@ do
   while [ "$i" -le "$nb" ]; do
     jID=`fsl_sub -j $setupID -l log/ -N batch_cfg${cfgno}_${i} bash ./lib/cluster_blm_batch.sh $i $cfg`
     batchIDs="`echo $jID | awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}'`,$batchIDs"
-    qstat
-    #qsub -o log$1/ -e log$1/ -N batch$i -V -hold_jid setup lib/cluster_blm_batch.sh $i
+
     i=$(($i + 1))
   done
 
   #qsub -o log$1/ -e log$1/ -N results -V -hold_jid "batch*" lib/cluster_blm_concat.sh
   jID=`fsl_sub -j $batchIDs -l log/ -N results_cfg$cfgno bash ./lib/cluster_blm_concat.sh $cfg`
   resultsID=`echo $jID | awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}'`
-  qstat
 
   echo "Submitting results job..."
   echo "(For configuration: $cfg)"
