@@ -32,6 +32,9 @@ do
   cp $cfg $inputs
 
   fsl_sub -l log/ -N setup_cfg$cfgno bash ./lib/cluster_blm_setup.sh $inputs > /tmp/$$ && setupID=$(awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}' /tmp/$$)
+  if [ "$setupID" == "" ] ; then
+    echo "Setup job submission failed!"
+  fi
 
   echo "Setting up distributed analysis..."
   echo "(For configuration: $cfg)"
@@ -91,9 +94,15 @@ do
 
     i=$(($i + 1))
   done
+  if [ "$batchIDs" == "" ] ; then
+    echo "Batch jobs submission failed!"
+  fi
 
   # Submit results job 
-  fsl_sub -j $batchIDs -l log/ -N results_cfg$cfgno bash ./lib/cluster_blm_concat.sh $inputs
+  fsl_sub -j $batchIDs -l log/ -N results_cfg$cfgno bash ./lib/cluster_blm_concat.sh $inputs > /tmp/$$ && resultsID=$(awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}' /tmp/$$)
+  if [ "$resultsID" == "" ] ; then
+    echo "Results job submission failed!"
+  fi
   batchIDs=''
 
   echo "Submitting results job..."
