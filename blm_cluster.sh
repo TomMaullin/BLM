@@ -31,8 +31,7 @@ do
   inputs=$config_outdir/inputs.yml
   cp $cfg $inputs
 
-  jID=`fsl_sub -l log/ -N setup_cfg$cfgno bash ./lib/cluster_blm_setup.sh $inputs`
-  setupID=`echo $jID | awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}'`
+  fsl_sub -l log/ -N setup_cfg$cfgno bash ./lib/cluster_blm_setup.sh $inputs > /tmp/$$ && setupID=$(awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}' /tmp/$$)
 
   echo "Setting up distributed analysis..."
   echo "(For configuration: $cfg)"
@@ -58,12 +57,15 @@ do
   i=0
   while [ $nb -lt 1 ]
   do
+
+    # obtain number of batches
     sleep 1
     if [ -s $config_outdir/nb.txt ]; then
       typeset -i nb=$(cat $config_outdir/nb.txt)
     fi
     i=$(($i + 1))
 
+    # Check for error
     if [ $i -gt 30 ]; then
       errorlog="log/setup_cfg$cfgno.e$setupID"
       if [ -s $errorlog ]; then
@@ -72,6 +74,7 @@ do
       fi
     fi
 
+    # Timeout
     if [ $i -gt 500 ]; then
       echo "Something seems to be taking a while. Please check for errors."
     fi
@@ -82,15 +85,15 @@ do
 
   i=1
   while [ "$i" -le "$nb" ]; do
-    jID=`fsl_sub -j $setupID -l log/ -N batch_cfg${cfgno}_${i} bash ./lib/cluster_blm_batch.sh $i $inputs`
-    batchIDs="`echo $jID | awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}'`,$batchIDs"
+
+    # Submit nb batches and get the ids for them
+    fsl_sub -j $setupID -l log/ -N batch_cfg${cfgno}_${i} bash ./lib/cluster_blm_batch.sh $i $inputs > /tmp/$$ && setupID=$(awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}' /tmp/$$),$batchIDs
 
     i=$(($i + 1))
   done
 
-  #qsub -o log$1/ -e log$1/ -N results -V -hold_jid "batch*" lib/cluster_blm_concat.sh
-  jID=`fsl_sub -j $batchIDs -l log/ -N results_cfg$cfgno bash ./lib/cluster_blm_concat.sh $inputs`
-  resultsID=`echo $jID | awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}'`
+  # Submit results job 
+  fsl_sub -j $batchIDs -l log/ -N results_cfg$cfgno bash ./lib/cluster_blm_concat.sh $inputs
   batchIDs=''
 
   echo "Submitting results job..."
