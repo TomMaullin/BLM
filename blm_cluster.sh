@@ -1,5 +1,16 @@
 #!/bin/bash
 
+# remove previous logs
+if [ -f ./log/setup* ] ; then
+    rm ./log/setup*
+fi
+if [ -f ./log/batch* ] ; then
+    rm ./log/batche*
+fi
+if [ -f ./log/results* ] ; then
+    rm ./log/results*
+fi
+
 # include parse_yaml function
 . lib/parse_yaml.sh
 
