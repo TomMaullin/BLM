@@ -83,7 +83,7 @@ def main(*args):
     # ----------------------------------------------------------------------
     # Load X'X, X'Y, Y'Y and n_s
     # ----------------------------------------------------------------------
-    if len(args)==0:
+    if (len(args)==0) or (type(args[0]) is str):
         # Read the matrices from the first batch. Note XtY is transposed as pandas
         # handles lots of rows much faster than lots of columns.
         sumXtX = pandas.io.parsers.read_csv(os.path.join(OutDir,"tmp","XtX1.csv"), 
