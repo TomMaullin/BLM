@@ -21,7 +21,7 @@ def main(*args):
     # Change to blm directory
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
-    if len(args)==0:
+    if len(args)==0 or (not args[0]):
         # Load in inputs
         with open(os.path.join('..','blm_config.yml'), 'r') as stream:
             inputs = yaml.load(stream)

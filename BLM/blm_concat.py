@@ -45,7 +45,7 @@ def main(*args):
     # ----------------------------------------------------------------------
     # Check inputs
     # ----------------------------------------------------------------------
-    if len(args)==0:
+    if len(args)==0 or (not args[0]):
         # Load in inputs
         with open(os.path.join(
                     os.path.dirname(os.path.realpath(__file__)),

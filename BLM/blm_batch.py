@@ -22,7 +22,7 @@ def main(*args):
 
     batchNo = args[0]
 
-    if len(args)==1:
+    if len(args)==1 or (not args[1]):
         # Load in inputs
         with open(os.path.join(os.getcwd(),'..','blm_config.yml'), 'r') as stream:
             inputs = yaml.load(stream)
