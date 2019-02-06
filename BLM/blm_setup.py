@@ -26,9 +26,13 @@ def main(*args):
         with open(os.path.join('..','blm_config.yml'), 'r') as stream:
             inputs = yaml.load(stream)
     else:
-        # In this case inputs file is first argument
-        with open(os.path.join(args[0]), 'r') as stream:
-            inputs = yaml.load(stream)
+        if type(args[0]) is str:
+            # In this case inputs file is first argument
+            with open(os.path.join(args[0]), 'r') as stream:
+                inputs = yaml.load(stream)
+        else:  
+            # In this case inputs structure is first argument.
+            inputs = args[0]
 
     MAXMEM = eval(inputs['MAXMEM'])
     OutDir = inputs['outdir']
@@ -90,7 +94,7 @@ def main(*args):
                 raise ValueError('F contrast: \n' + str(cvec) + '\n is not of correct rank.')
 
 
-    if len(args)==0:
+    if (len(args)==0) or (type(args[0]) is str):
         with open(os.path.join(OutDir, "nb.txt"), 'w') as f:
             print(int(np.ceil(len(Y_files)/int(blksize))), file=f)
     else:

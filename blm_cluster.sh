@@ -18,6 +18,7 @@ if [ -f $config_outdir/nb.txt ] ; then
     rm $config_outdir/nb.txt 
 fi
 touch $config_outdir/nb.txt 
+echo $config_outdir/nb.txt
 
 jID=`fsl_sub -l log/ -N setup bash ./lib/cluster_blm_setup.sh $1`
 setupID=`echo $jID | awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}'`
