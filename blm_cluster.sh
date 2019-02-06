@@ -50,7 +50,7 @@ done
 echo "Submitting analysis jobs..."
 i=1
 while [ "$i" -le "$nb" ]; do
-  jID=`fsl_sub -l log/ -N setup bash ./lib/cluster_blm_batch.sh $i`
+  jID=`fsl_sub -j setupID -l log/ -N batch$i bash ./lib/cluster_blm_batch.sh $i`
   batchIDs="$batchIDs `echo $jID | awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}'`"
   qstat
   echo $batchIDs
@@ -58,5 +58,9 @@ while [ "$i" -le "$nb" ]; do
   i=$(($i + 1))
 done
 
-qsub -o log$1/ -e log$1/ -N results -V -hold_jid "batch*" lib/cluster_blm_concat.sh
+#qsub -o log$1/ -e log$1/ -N results -V -hold_jid "batch*" lib/cluster_blm_concat.sh
+jID=`fsl_sub -j batchIDs -l log/ -N results bash ./lib/cluster_blm_concat.sh`
+resultsID=`echo $jID | awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}'`
+qstat
+
 echo "Please use qstat to monitor progress."
