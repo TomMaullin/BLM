@@ -26,7 +26,12 @@ do
   fi
   touch $config_outdir/nb.txt 
 
-  jID=`fsl_sub -l log/ -N setup_cfg$cfgno bash ./lib/cluster_blm_setup.sh $cfg`
+  # Make a copy of the inputs file, if the user touches the cfg file this will not mess
+  # with anything now.
+  inputs=$config_outdir/inputs.yml
+  cp cfg inputs
+
+  jID=`fsl_sub -l log/ -N setup_cfg$cfgno bash ./lib/cluster_blm_setup.sh $inputs`
   setupID=`echo $jID | awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}'`
 
   echo "Setting up distributed analysis..."
@@ -42,6 +47,9 @@ do
   cfg=$(realpath $cfg)
   # read yaml file to get output directory
   eval $(parse_yaml $cfg "config_")
+
+  # Locate copy of inputs
+  inputs=$config_outdir/inputs.yml
 
   # This loop waits for the setup job to finish before
   # deciding how many batches to run. It also checks to 
@@ -74,14 +82,14 @@ do
 
   i=1
   while [ "$i" -le "$nb" ]; do
-    jID=`fsl_sub -j $setupID -l log/ -N batch_cfg${cfgno}_${i} bash ./lib/cluster_blm_batch.sh $i $cfg`
+    jID=`fsl_sub -j $setupID -l log/ -N batch_cfg${cfgno}_${i} bash ./lib/cluster_blm_batch.sh $i $inputs`
     batchIDs="`echo $jID | awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}'`,$batchIDs"
 
     i=$(($i + 1))
   done
 
   #qsub -o log$1/ -e log$1/ -N results -V -hold_jid "batch*" lib/cluster_blm_concat.sh
-  jID=`fsl_sub -j $batchIDs -l log/ -N results_cfg$cfgno bash ./lib/cluster_blm_concat.sh $cfg`
+  jID=`fsl_sub -j $batchIDs -l log/ -N results_cfg$cfgno bash ./lib/cluster_blm_concat.sh $inputs`
   resultsID=`echo $jID | awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}'`
   batchIDs=''
 
