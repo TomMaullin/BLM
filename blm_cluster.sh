@@ -3,9 +3,11 @@
 # include parse_yaml function
 . lib/parse_yaml.sh
 
-$cfgno=1
+# Work out if we have been given multiple analyses configurations
+# Else just assume blm_config is the correct configuration
+cfgno=1
 if [ "$1" == "" ] ; then
-  cfg="blm_config.yml"
+  cfgs="blm_config.yml"
 else
   cfgs=$@
 fi
@@ -13,6 +15,7 @@ fi
 for cfg in cfgs
 do
 
+  echo $cfg
   # read yaml file to get output directory
   eval $(parse_yaml $cfg "config_")
   mkdir -p $config_outdir
