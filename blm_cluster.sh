@@ -12,6 +12,10 @@ else
   cfgs=$@
 fi
 
+echo $@
+echo $cfgs
+echo 'echod'
+
 for cfg in cfgs
 do
 
