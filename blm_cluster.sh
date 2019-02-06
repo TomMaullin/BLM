@@ -34,6 +34,8 @@ do
   cfgno=$(($cfgno + 1))
 done
 
+# Now we know how many jobs to submit, submit them all
+cfgno=1
 for cfg in $cfgs
 do
 
