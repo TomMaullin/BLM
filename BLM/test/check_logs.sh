@@ -4,12 +4,12 @@ cd $BLMdir
 
 # Run each test case
 i=1
-for cfgIDs in $(ls ./BLM/test/cfgIDs/)
+for cfgIDs in $(ls ./BLM/test/cfgids/testIDs*)
 do
-  echo "Error logs for testcase $cfg".
+  echo "Error logs for testcase $cfgIDs".
   cfgIDs=$(realpath $cfgIDs)
 
-  IDs=$(awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH);exit}' )
+  IDs=$(awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH);exit}' $cfgIDs)
 
   # Status update
   echo $IDs
