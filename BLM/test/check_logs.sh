@@ -6,14 +6,35 @@ cd $BLMdir
 i=1
 for cfgIDs in $(ls ./BLM/test/cfgids/testIDs*)
 do
-  echo "Error logs for testcase $cfgIDs".
+  echo " "
+  echo '================================================================'
+  echo "Error logs for testcase $i"
+  echo " "
   cfgIDs=$(realpath $cfgIDs)
 
   # Read IDs from each line of file
   while read LINE; do 
-    IDs=$($IDs $LINE); 
+    IDs=$IDs" "$LINE; 
   done < $cfgIDs
 
   # Status update
-  echo $IDs
+  for ID in $IDs
+  do
+    logfile=$(ls ./log/*.e$ID | head -1)
+    logfilecontent=$(cat $logfile)
+    if [ ! -z "$logfilecontent" ] ; then
+      echo "Logged error in: $logfile"
+      echo $logfilecontent
+      logsencountered=1
+      echo " "
+    fi
+  done
+
+  if [ -z "$logsencountered" ] ; then
+    echo "No errors encountered for testcase $i"
+  fi
+
+  IDs=''
+  i=$(($i + 1))
+  logsencountered=""
 done
