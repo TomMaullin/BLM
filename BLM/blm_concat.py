@@ -87,7 +87,7 @@ def main(*args):
         # Read the matrices from the first batch. Note XtY is transposed as np
         # handles lots of rows much faster than lots of columns.
         sumXtX = np.load(os.path.join(OutDir,"tmp","XtX1.npy"))
-        sumXtY = np.load(os.path.join(OutDir,"tmp","XtY1.npy"))
+        sumXtY = np.load(os.path.join(OutDir,"tmp","XtY1.npy")).transpose()
         sumYtY = np.load(os.path.join(OutDir,"tmp","YtY1.npy"))
         nmapb  = nib.load(os.path.join(OutDir,"tmp", "blm_vox_n_batch1.nii"))
         n_s_sv = nmapb.get_data()
