@@ -37,6 +37,12 @@ def main(*args):
     MAXMEM = eval(inputs['MAXMEM'])
     OutDir = inputs['outdir']
 
+    # Get number of parameters
+    c1 = blm_eval(inputs['contrasts'][0]['c' + str(1)]['vector'])
+    c1 = np.array(c1)
+    n_p = c1.shape[0]
+    del c1
+
     # Make output directory and tmp
     if not os.path.isdir(OutDir):
         os.mkdir(OutDir)
@@ -57,22 +63,19 @@ def main(*args):
     except Exception as error:
         raise ValueError('The NIFTI "' + Y_files[0] + '"does not exist')
 
-    # Get the maximum memory a NIFTI could take in storage. 
+    # Get the maximum memory a NIFTI could take in storage. We divide by 3
+    # as approximately a third of the volume is actually non-zero/brain
     NIFTIsize = sys.getsizeof(np.zeros(Y0.shape,dtype='uint64'))
 
     if NIFTIsize > MAXMEM:
         raise ValueError('The NIFTI "' + Y_files[0] + '"is too large')
 
-    # Load affine
-    d0 = Y0.get_data()
-    Y0aff = Y0.affine
-
-    # Get the maximum memory a NIFTI could take in storage. 
-    NIFTIsize = sys.getsizeof(np.zeros(d0.shape,dtype='uint64'))
-
     # Similar to blksize in SwE, we divide by 8 times the size of a nifti
-    # to work out how many blocks we use.
-    blksize = np.floor(MAXMEM/8/NIFTIsize);
+    # to work out how many blocks we use. We divide NIFTIsize by 3
+    # as approximately a third of the volume is actually non-zero/brain 
+    # and then also divide though everything by the number of parameters
+    # in the analysis.
+    blksize = np.floor(MAXMEM/8/(NIFTIsize/3)/n_p);
     if blksize == 0:
         raise ValueError('Blocksize too small.')
 
