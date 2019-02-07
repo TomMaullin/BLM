@@ -12,7 +12,7 @@ Y_files: /users/nichols/inf852/tmp2/Y_200.txt
 M_files: /users/nichols/inf852/tmp2/M_200.txt
 
 # Design matrix and number of parameters.
-X: /users/nichols/inf852/tmp2/X_200_p100.csv
+X: /users/nichols/inf852/tmp2/X_200.csv
 
 # There should be an output directory here:
 outdir: /users/nichols/inf852/BLM-py/BLM/test/test_cfg10/
