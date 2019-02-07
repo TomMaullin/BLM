@@ -84,21 +84,18 @@ def main(*args):
     # Load X'X, X'Y, Y'Y and n_s
     # ----------------------------------------------------------------------
     if (len(args)==0) or (type(args[0]) is str):
-        # Read the matrices from the first batch. Note XtY is transposed as pandas
+        # Read the matrices from the first batch. Note XtY is transposed as np
         # handles lots of rows much faster than lots of columns.
-        sumXtX = pandas.io.parsers.read_csv(os.path.join(OutDir,"tmp","XtX1.csv"), 
-                            sep=",", header=None).values
-        sumXtY = pandas.io.parsers.read_csv(os.path.join(OutDir,"tmp","XtY1.csv"), 
-                            sep=",", header=None).values.transpose()
-        sumYtY = pandas.io.parsers.read_csv(os.path.join(OutDir,"tmp","YtY1.csv"), 
-                            sep=",", header=None).values
+        sumXtX = np.load(os.path.join(OutDir,"tmp","XtX1.npy"))
+        sumXtY = np.load(os.path.join(OutDir,"tmp","XtY1.npy"))
+        sumYtY = np.load(os.path.join(OutDir,"tmp","YtY1.npy"))
         nmapb  = nib.load(os.path.join(OutDir,"tmp", "blm_vox_n_batch1.nii"))
         n_s_sv = nmapb.get_data()
 
         # Delete the files as they are no longer needed.
-        os.remove(os.path.join(OutDir,"tmp","XtX1.csv"))
-        os.remove(os.path.join(OutDir,"tmp","XtY1.csv"))
-        os.remove(os.path.join(OutDir,"tmp","YtY1.csv"))
+        os.remove(os.path.join(OutDir,"tmp","XtX1.npy"))
+        os.remove(os.path.join(OutDir,"tmp","XtY1.npy"))
+        os.remove(os.path.join(OutDir,"tmp","YtY1.npy"))
         os.remove(os.path.join(OutDir,"tmp","blm_vox_n_batch1.nii"))
 
         # Work out how many files we need.
@@ -108,26 +105,23 @@ def main(*args):
         for batchNo in range(2,(len(XtX_files)+2)):
 
             # Sum the batches.
-            sumXtX = sumXtX + pandas.io.parsers.read_csv(
-                os.path.join(OutDir,"tmp","XtX" + str(batchNo) + ".csv"), 
-                             sep=",", header=None).values
+            sumXtX = sumXtX + np.load(
+                os.path.join(OutDir,"tmp","XtX" + str(batchNo) + ".npy"))
 
-            sumXtY = sumXtY + pandas.io.parsers.read_csv(
-                os.path.join(OutDir,"tmp","XtY" + str(batchNo) + ".csv"), 
-                             sep=",", header=None).values.transpose()
+            sumXtY = sumXtY + np.load(
+                os.path.join(OutDir,"tmp","XtY" + str(batchNo) + ".npy")).transpose()
 
-            sumYtY = sumYtY + pandas.io.parsers.read_csv(
-                os.path.join(OutDir,"tmp","YtY" + str(batchNo) + ".csv"), 
-                             sep=",", header=None).values
+            sumYtY = sumYtY + np.load(
+                os.path.join(OutDir,"tmp","YtY" + str(batchNo) + ".npy"))
             
             # Obtain the full nmap.
             n_s_sv = n_s_sv + nib.load(os.path.join(OutDir,"tmp", 
                 "blm_vox_n_batch" + str(batchNo) + ".nii")).get_data()
             
             # Delete the files as they are no longer needed.
-            os.remove(os.path.join(OutDir, "tmp","XtX" + str(batchNo) + ".csv"))
-            os.remove(os.path.join(OutDir, "tmp","XtY" + str(batchNo) + ".csv"))
-            os.remove(os.path.join(OutDir, "tmp","YtY" + str(batchNo) + ".csv"))
+            os.remove(os.path.join(OutDir, "tmp","XtX" + str(batchNo) + ".npy"))
+            os.remove(os.path.join(OutDir, "tmp","XtY" + str(batchNo) + ".npy"))
+            os.remove(os.path.join(OutDir, "tmp","YtY" + str(batchNo) + ".npy"))
             os.remove(os.path.join(OutDir, "tmp", "blm_vox_n_batch" + str(batchNo) + ".nii"))
 
     else:

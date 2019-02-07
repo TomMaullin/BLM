@@ -143,12 +143,12 @@ def main(*args):
 
     if (len(args)==1) or (type(args[1]) is str):
         # Record XtX and XtY
-        np.savetxt(os.path.join(OutDir,"tmp","XtX" + str(batchNo) + ".csv"), 
-                   XtX, delimiter=",")
-        np.savetxt(os.path.join(OutDir,"tmp","XtY" + str(batchNo) + ".csv"), 
-                   XtY, delimiter=",") 
-        np.savetxt(os.path.join(OutDir,"tmp","YtY" + str(batchNo) + ".csv"), 
-                   YtY, delimiter=",") 
+        np.savetxt(os.path.join(OutDir,"tmp","XtX" + str(batchNo)), 
+                   XtX)
+        np.savetxt(os.path.join(OutDir,"tmp","XtY" + str(batchNo)), 
+                   XtY) 
+        np.savetxt(os.path.join(OutDir,"tmp","YtY" + str(batchNo)), 
+                   YtY) 
         # Get map of number of scans at voxel.
         nmap = nib.Nifti1Image(nmap,
                                Y0.affine,
