@@ -11,6 +11,7 @@ else
   cfg=$1
 fi
 
+# If the second argument is IDs we use this to print IDs
 if [ "$2" == "IDs" ] ; then
   printOpt=2
 else
@@ -38,7 +39,7 @@ if [ "$setupID" == "" ] ; then
   echo "Setup job submission failed!"
 fi
 
-if [ "$printOpt" == "1"] ; then
+if [ "$printOpt" == "1" ] ; then
   echo "Setting up distributed analysis..."
 else
   echo $setupID
