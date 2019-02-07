@@ -3,7 +3,7 @@
 # 200 subjects, 100 parameters
 # ------------------------------------------------------------------------
 # Maximum Memory for computing in bytes - current default of 2**29 bytes matches that of SPM.
-MAXMEM: 2**32
+MAXMEM: 2**35
 
 # Enter a list of Y files.
 Y_files: /users/nichols/inf852/tmp2/Y_200.txt
