@@ -67,7 +67,7 @@ def main(*args):
 
     # Similar to blksize in SwE, we divide by 8 times the size of a nifti
     # to work out how many blocks we use.
-    blksize = int(np.floor(MAXMEM/8/(NIFTIsize/3)/n_p));
+    blksize = int(np.floor(MAXMEM/8/NIFTIsize/n_p));
 
     # Reduce X to X for this block.
     X = pandas.io.parsers.read_csv(
