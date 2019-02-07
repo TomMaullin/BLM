@@ -8,7 +8,7 @@ Y_files: /users/nichols/inf852/tmp2/Y_200.txt
 M_files: /users/nichols/inf852/tmp2/M_200.txt
 
 # Enter a masking threshold on Y.
-M_thresh: 0.1
+#M_thresh: 0.1
 
 # Design matrix and number of parameters.
 X: /users/nichols/inf852/tmp2/X_200.csv

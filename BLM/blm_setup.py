@@ -75,6 +75,9 @@ def main(*args):
     # as approximately a third of the volume is actually non-zero/brain 
     # and then also divide though everything by the number of parameters
     # in the analysis.
+    print(MAXMEM)
+    print(NIFTIsize)
+    print(n_p)
     blksize = np.floor(MAXMEM/8/(NIFTIsize/3)/n_p);
     if blksize == 0:
         raise ValueError('Blocksize too small.')
@@ -97,6 +100,10 @@ def main(*args):
                 raise ValueError('F contrast: \n' + str(cvec) + '\n is not of correct rank.')
 
 
+    print(len(Y_files))
+    print(int(blksize))
+    print(int(np.ceil(len(Y_files)/int(blksize))))
+    print(len(args))
     if (len(args)==0) or (type(args[0]) is str):
         with open(os.path.join(OutDir, "nb.txt"), 'w') as f:
             print(int(np.ceil(len(Y_files)/int(blksize))), file=f)

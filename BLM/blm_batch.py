@@ -14,6 +14,7 @@ import yaml
 import pandas
 import time
 np.set_printoptions(threshold=np.nan)
+from BLM.blm_eval import blm_eval
 
 def main(*args):
 
@@ -38,6 +39,12 @@ def main(*args):
     MAXMEM = eval(inputs['MAXMEM'])    
     OutDir = inputs['outdir']
 
+    # Get number of parameters
+    c1 = blm_eval(inputs['contrasts'][0]['c' + str(1)]['vector'])
+    c1 = np.array(c1)
+    n_p = c1.shape[0]
+    del c1
+
     # Y volumes
     with open(inputs['Y_files']) as a:
 
@@ -60,14 +67,13 @@ def main(*args):
 
     # Similar to blksize in SwE, we divide by 8 times the size of a nifti
     # to work out how many blocks we use.
-    blksize = int(np.floor(MAXMEM/8/NIFTIsize));
+    blksize = int(np.floor(MAXMEM/8/(NIFTIsize/3)/n_p));
 
     # Reduce X to X for this block.
     X = pandas.io.parsers.read_csv(
         inputs['X'], sep=',', header=None).values
     X = X[(blksize*(batchNo-1)):min((blksize*batchNo),len(Y_files))]
-    print(blksize)
-
+    
     # Mask volumes (if they are given)
     if 'M_files' in inputs:
 
