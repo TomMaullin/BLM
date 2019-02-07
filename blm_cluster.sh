@@ -75,7 +75,7 @@ do
   fi
 done
 
-if [ "$printOpt" == "1"] ; then
+if [ "$printOpt" == "1" ] ; then
   echo "Submitting batch jobs..."
 fi
 
@@ -90,7 +90,7 @@ done
 if [ "$batchIDs" == "" ] ; then
   echo "Batch jobs submission failed!"
 else
-  if [ "$printOpt" == "2"] ; then
+  if [ "$printOpt" == "2" ] ; then
     echo $batchIDs
   fi
 fi
@@ -101,7 +101,7 @@ if [ "$resultsID" == "" ] ; then
   echo "Results job submission failed!"
 fi
 
-if [ "$printOpt" == "1"] ; then
+if [ "$printOpt" == "1" ] ; then
   echo "Submitting results job..."
   echo "Please use qstat to monitor progress."
 else
