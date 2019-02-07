@@ -66,6 +66,7 @@ def main(*args):
     X = pandas.io.parsers.read_csv(
         inputs['X'], sep=',', header=None).values
     X = X[(blksize*(batchNo-1)):min((blksize*batchNo),len(Y_files))]
+    print(blksize)
 
     # Mask volumes (if they are given)
     if 'M_files' in inputs:
