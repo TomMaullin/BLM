@@ -1,6 +1,6 @@
 # Work out BLM dir
 BLMdir=$(realpath ../../)
-cd BLMdir
+cd $BLMdir
 
 # Read the test and data directories
 testdir=$1
@@ -17,9 +17,13 @@ mkdir -p ./BLM/test/cfgids
 i=1
 for cfg in $(ls ./BLM/test/cfg/*.yml)
 do
+  echo "Now running testcase $cfg".
   cfgfile=$(realpath $cfg)
-  # Run blm for test configuration and save the ids
-  bash ./blm_cluster.sh cfgfile IDs > ./BLM/test/cfgids/testIDs$i
 
+  # Run blm for test configuration and save the ids
+  bash ./blm_cluster.sh $cfgfile IDs > ./BLM/test/cfgids/testIDs$i
+
+  # Status update
+  qstat
   i=$(($i + 1))
 done
