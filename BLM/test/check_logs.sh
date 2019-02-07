@@ -9,7 +9,10 @@ do
   echo "Error logs for testcase $cfgIDs".
   cfgIDs=$(realpath $cfgIDs)
 
-  IDs=$(awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH);exit}' $cfgIDs)
+  # Read IDs from each line of file
+  while read LINE; do 
+    IDs=$(awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH);exit}' $LINE); 
+  done < $cfgIDs
 
   # Status update
   echo $IDs
