@@ -11,7 +11,7 @@ do
 
   # Read IDs from each line of file
   while read LINE; do 
-    IDs=$(awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH);exit}' $LINE); 
+    IDs=$($IDs $LINE); 
   done < $cfgIDs
 
   # Status update

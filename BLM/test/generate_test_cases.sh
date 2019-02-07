@@ -23,6 +23,9 @@ do
   # Run blm for test configuration and save the ids
   bash ./blm_cluster.sh $cfgfile IDs > ./BLM/test/cfgids/testIDs$(printf "%.2d" $i)
 
+  # Remove any commas from testIDs
+  sed 's/,/ /g' ./BLM/test/cfgids/testIDs$(printf "%.2d" $i) > ./BLM/test/cfgids/testIDs$(printf "%.2d" $i)
+
   # Status update
   qstat
   i=$(($i + 1))
