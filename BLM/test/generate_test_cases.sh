@@ -19,7 +19,7 @@ for cfg in $(ls ./BLM/test/cfg/*.yml)
 do
   cfgfile=$(realpath $cfg)
   # Run blm for test configuration and save the ids
-  bash ./blm_cluster.sh cfgfile > ./BLM/test/cfgids/testIDs$i
+  bash ./blm_cluster.sh cfgfile IDs > ./BLM/test/cfgids/testIDs$i
 
   i=$(($i + 1))
 done
