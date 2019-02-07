@@ -21,10 +21,11 @@ do
   cfgfile=$(realpath $cfg)
 
   # Run blm for test configuration and save the ids
-  bash ./blm_cluster.sh $cfgfile IDs > ./BLM/test/cfgids/testIDs$(printf "%.2d" $i)
+  bash ./blm_cluster.sh $cfgfile IDs > ./BLM/test/cfgids/testIDs$(printf "%.2d" $i)tmp
 
   # Remove any commas from testIDs
-  sed 's/,/ /g' ./BLM/test/cfgids/testIDs$(printf "%.2d" $i) > ./BLM/test/cfgids/testIDs$(printf "%.2d" $i)
+  sed 's/,/ /g' ./BLM/test/cfgids/testIDs$(printf "%.2d" $i)tmp > ./BLM/test/cfgids/testIDs$(printf "%.2d" $i)
+  rm ./BLM/test/cfgids/testIDs$(printf "%.2d" $i)tmp
 
   # Status update
   qstat
