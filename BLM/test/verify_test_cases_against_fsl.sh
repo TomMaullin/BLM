@@ -24,7 +24,7 @@ do
 
   # read yaml file to get output directory
   eval $(parse_yaml $cfgfilepath "config_")
-  fslpython -c "import verify_test_cases_against_fsl; verify_test_cases_against_fsl.main('$(basename $config_outdir)/fsl/', '$(basename $config_outdir)/blm/')"
+  fslpython -c "import verify_test_cases_against_fsl; verify_test_cases_against_fsl.main('$(dirname $config_outdir)/fsl/', '$(dirname $config_outdir)/blm/')"
 
   i=$(($i + 1))
 done
