@@ -14,7 +14,7 @@ subprocess
 
 (This code may work with older versions of numpy and nibabel but caution is advised as these versions have not been tested).
 
-If running `BLM-py` on a cluster, `fsl_sub` will also be required to have been set up correctly.
+If running `BLM-py` on a cluster, `fsl_sub` must also be configured correctly.
 
 ## Usage
 To run `BLM-py` first specify your design using `blm_config.yml` and then run the job either in serial or in parallel by following the below guidelines.
