@@ -49,6 +49,56 @@ The following fields are optional:
    - `Masking`: A post analysis mask.
  - `OutputCovB`: If set to `True` this will output between beta covariance maps. For studies with a large number of paramters this may not be desirable as, for example, 30 analysis paramters will create 30x30=900 between beta covariance maps. By default this is set to `True`.
  
+#### Examples
+
+Below are some example `blm_config.yml` files.
+
+Example 1: A minimal configuration.
+
+```
+MAXMEM: 2**32
+Y_files: DATA_DIRECTORY/Y.txt
+X: DATA_DIRECTORY/X.csv
+outdir: TEST_DIRECTORY/test_cfg1/
+contrasts:
+  - c1:
+      name: contrast1
+      vector: [1, 0, 1, 0 1]
+      statType: T
+```
+
+Example 2: A configuration with multiple optional fields.
+
+```
+MAXMEM: 2**32
+Y_files: DATA_DIRECTORY/Y.txt
+M_files: DATA_DIRECTORY/M_.txt
+M_thresh: 0.1
+X: DATA_DIRECTORY/X.csv
+outdir: TEST_DIRECTORY/test_cfg1/
+contrasts:
+  - c1:
+      name: contrast1
+      vector: [1, 0, 0]
+      statType: T
+  - c2:
+      name: contrast2
+      vector: [0, 1, 0]
+      statType: T
+  - c3:
+      name: contrast3
+      vector: [0, 0, 1]
+      statType: T
+  - c4:
+      name: contrast4
+      vector: [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+      statType: F
+Missingness:
+  MinPercent: 0.10
+  MinN: 15
+  Masking: /well/win/software/packages/fsl/5.0.11/data/standard/MNI152_T1_2mm_brain_mask.nii.gz
+```
+
 ### Running the Analysis
 
 An analysis can either be run in parallel on a computing cluster or in serial (one block after another). The below sections describe both scenarios.
