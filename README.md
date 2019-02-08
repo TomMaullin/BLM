@@ -28,7 +28,14 @@ The following fields are mandatory:
 
 The following fields are optional:
 
- - `contrasts`
+ - `M_files`: A text file containing a list of masks to be applied to the `Y_files`. 
+   - If the number of masks is the same as the number of `Y_files` then each mask is applied to the corresponding entry `Y_files`. E.g. The first mask listed for `M_files` will be applied to the first nifti in `Y_files`, the second mask in `M_files` will be applied to the second nifti in `Y_files` and so on. 
+   - If the number of masks is less than the number of niftis in `Y_files` then every mask is applied to every nifti in `Y_files`. I.e. all masks are applied to the first nifti in `Y_files`, all masks are applied to the second nifti in `Y_files` and so on. 
+ - `Missingness`: This field allows the user to mask the image based on how many studies had recorded values for each voxel. This can be specified in 3 ways.
+   - `MinPercent`: The percentage of studies present at a voxel necessary for that voxel to be included in the final analysis mask. For example, if this is set to `0.1` then any voxel with recorded values for at least 10% of studies will be kept in the analysis.
+   - `MinN`: The number of studies present at a voxel necessary for that voxel to be included in the final analysis mask. For example, if this is set to `20` then any voxel with recorded values for at least 20 studies will be kept in the analysis.
+   - `Masking`: A post analysis mask.
+ - `OutputCovB`: If set to `True` this will output between beta covariance maps. For studies with a large number of paramters this may not be desirable as, for example, 30 analysis paramters will create 30x30=900 between beta covariance maps. By default this is set to `True`.
 
 ## Testing
 
