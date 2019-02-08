@@ -1,3 +1,7 @@
+import warnings as w
+# These warnings are caused by numpy updates and should not be
+# output.
+w.simplefilter(action = 'ignore', category = FutureWarning)
 import glob
 import os
 import nibabel as nib
