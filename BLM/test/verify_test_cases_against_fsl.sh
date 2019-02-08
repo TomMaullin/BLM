@@ -11,7 +11,7 @@ gtdir=$1
 
 # Run each test case
 i=1
-for cfg in $(ls ./cfg/test_cfg*.yml)
+for cfg in $(ls ./cfg/fsltest_cfg*.yml)
 do
   
   cfgfilepath=$(realpath $cfg)
@@ -24,7 +24,7 @@ do
 
   # read yaml file to get output directory
   eval $(parse_yaml $cfgfilepath "config_")
-  fslpython -c "import verify_test_cases; verify_test_cases_against_fsl.main('$config_outdir', '$gtdir/$(basename $config_outdir)')"
+  fslpython -c "import verify_test_cases_against_fsl; verify_test_cases_against_fsl.main('$config_outdir', '$gtdir/$(basename $config_outdir)')"
 
   i=$(($i + 1))
 done
