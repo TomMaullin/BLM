@@ -7,7 +7,7 @@ gtdir=$1
 
 # Run each test case
 i=1
-for cfg in $(ls ./BLM/test/cfg/*.yml)
+for cfg in $(ls ./BLM/test/cfg/test_cfg*.yml)
 do
   
   cfgfilepath=$(realpath $cfg)
