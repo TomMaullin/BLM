@@ -4,11 +4,11 @@ cd $BLMdir
 
 # Run each test case
 i=1
-for cfgIDs in $(ls ./BLM/test/cfgids/testIDs*)
+for cfgIDs in $(ls ./BLM/test/cfgids/*)
 do
   echo " "
   echo '================================================================'
-  echo "Error logs for testcase $i"
+  echo "Error logs for testcase $(basename $cfgIDs)"
   echo " "
   cfgIDs=$(realpath $cfgIDs)
 
