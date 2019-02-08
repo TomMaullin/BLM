@@ -72,11 +72,17 @@ After running this you will see text printed to the commandline telling you the 
 
 ## Testing
 
+Note: All the below tests require access to test data. To ask access, please ask @TomMaullin directly.
+
+### In parallel, against ground truth
+
 To generate test cases:
 
 ```
-bash ./generate_test_cases.sh
+bash ./generate_test_cases.sh $outdir $datadir
 ```
+
+(Where `$datadir` is a data directory containg all data needed for designs `test_cfg01`, `test_cfg02`,... `test_cfg10` and `$outdir` is the desired output directory)
 
 To check the logs:
 
@@ -91,3 +97,25 @@ bash ./verify_test_cases.sh $GTDIR
 ```
 
 (Where `$GTDIR` is a directory containing ground truth data from a previous run, i.e. inside `$GTDIR` are the folders `test_cfg1`, `test_cfg2`, ... ect).
+
+### In parallel, against FSL
+
+To generate test cases:
+
+```
+bash ./generate_test_cases_fsl.sh $outdir $datadir
+```
+
+(Where `$datadir` is a data directory containg all data needed for designs `fsltest_cfg01`, `fsltest_cfg02` and `fsltest_cfg03` and `$outdir` is the desired output directory)
+
+To check the logs:
+
+```
+bash ./check_logs.sh
+```
+
+To verify the test cases against ground truth:
+
+```
+bash ./verify_test_cases_against_fsl.sh
+```
