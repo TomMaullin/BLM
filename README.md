@@ -78,6 +78,8 @@ To run an analysis in serial, ensure you are in the `BLM-py` directory and once 
 fslpython -c "import blm_serial; blm_serial.main()
 ```
 
+The commandline will then tell you how much progress is being made as it runs each block.
+
 ## Testing
 
 Note: All the below tests require access to test data. To ask access, please ask @TomMaullin directly.
