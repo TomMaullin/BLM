@@ -1,23 +1,35 @@
 # Work out BLM dir
 BLMdir=$(realpath ../../)
 cd $BLMdir
+echo $BLMdir
+echo 'lol'
+
+# Include the parse yaml function
+. lib/parse_yaml.sh
+cd $BLMdir/BLM/test
 
 # Read the test directory
 gtdir=$1
 
 # Run each test case
 i=1
-for cfg in $(ls ./BLM/test/cfg/*.yml)
+echo pwd
+echo $BLMdir
+pwd
+for cfg in $(ls ./cfg/*.yml)
 do
   
   cfgfilepath=$(realpath $cfg)
-  cfgfolder=$(basename $cfg)
 
-  echo "Now verifying testcase $cfgfolder".
+  echo " "
+  echo " "
+  echo "Now verifying: $(basename $cfgfilepath)".
+  echo " "
+  echo " "
 
   # read yaml file to get output directory
   eval $(parse_yaml $cfgfilepath "config_")
-  fslpython -c "from verify_test_cases; verify_test_cases.main("$config_outdir", "$gtdir/$cfgfolder")"
+  fslpython -c "import verify_test_cases; verify_test_cases.main('$config_outdir', '$gtdir/$(basename $config_outdir)')"
 
   i=$(($i + 1))
 done
