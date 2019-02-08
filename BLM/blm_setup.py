@@ -3,7 +3,6 @@ import warnings as w
 # output.
 w.simplefilter(action = 'ignore', category = FutureWarning)
 import numpy as np
-import subprocess
 import warnings
 import resource
 import nibabel as nib

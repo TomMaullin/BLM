@@ -1,21 +1,21 @@
 # Test against FSL 2
 # ------------------------------------------------------------------------
-# 20 subjects, default parameters
+# 50 subjects, default parameters
 # ------------------------------------------------------------------------
 # Maximum Memory for computing in bytes - current default of 2**29 bytes matches that of SPM.
 MAXMEM: 2**32
 
 # Enter a list of Y files.
-Y_files: /users/nichols/inf852/tmp2/Y_20.txt
+Y_files: /users/nichols/inf852/tmp2/fsltmp/Y_50.txt
 
 # Enter a list of Mask files.
-M_files: /users/nichols/inf852/tmp2/M_20.txt
+M_files: /users/nichols/inf852/tmp2/fsltmp/M_50.txt
 
 # Design matrix and number of parameters.
-X: /users/nichols/inf852/tmp2/X_20.csv
+X: /users/nichols/inf852/tmp2/fsltmp/X_50.csv
 
 # There should be an output directory here:
-outdir: /well/nichols/users/inf852/fsltest_cfg02/
+outdir: /well/nichols/users/inf852/fsltest_cfg02/blm/
 
 # Contrasts should be listed here as c1, c2, c3, c4 etc. 
 # The fields included should be name, vector and statType
