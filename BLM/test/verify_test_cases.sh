@@ -8,6 +8,10 @@ cd $BLMdir/BLM/test
 
 # Read the test directory
 gtdir=$1
+if [ -v $gtdir ] ; then
+  echo "Please enter ground truth directory."
+  exit
+fi
 
 # Run each test case
 i=1
