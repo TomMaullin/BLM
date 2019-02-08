@@ -14,8 +14,9 @@ def main(*args):
         with open(os.path.join(os.getcwd(),'blm_config.yml'), 'r') as stream:
             inputs = yaml.load(stream)
     else:
-        # In this case inputs is first argument
-        inputs = yaml.load(args[0])
+        # Load in inputs
+        with open(args[0], 'r') as stream:
+            inputs = yaml.load(stream)
 
     # Run the setup job to obtain the number of batches needed.
     nB = blm_setup.main(inputs)

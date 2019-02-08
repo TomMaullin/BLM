@@ -1,20 +1,21 @@
+# Test 9
+# ------------------------------------------------------------------------
+# 200 subjects, 30 parameters
+# ------------------------------------------------------------------------
 # Maximum Memory for computing in bytes - current default of 2**29 bytes matches that of SPM.
 MAXMEM: 2**32
 
 # Enter a list of Y files.
-Y_files: /users/nichols/inf852/tmp2/Y_200.txt
+Y_files: DATA_DIRECTORY/Y_200.txt
 
 # Enter a list of Mask files.
-M_files: /users/nichols/inf852/tmp2/M_200.txt
-
-# Enter a masking threshold on Y.
-#M_thresh: 0.1
+M_files: DATA_DIRECTORY/M_200.txt
 
 # Design matrix and number of parameters.
-X: /users/nichols/inf852/tmp2/X_200.csv
+X: DATA_DIRECTORY/X_200_p30.csv
 
 # There should be an output directory here:
-outdir: /users/nichols/inf852/BLM-py/BLM/test/200ukbbs_3p/
+outdir: TEST_DIRECTORY/test_cfg9/
 
 # Contrasts should be listed here as c1, c2, c3, c4 etc. 
 # The fields included should be name, vector and statType
@@ -28,19 +29,11 @@ outdir: /users/nichols/inf852/BLM-py/BLM/test/200ukbbs_3p/
 contrasts:
   - c1:
       name: contrast1
-      vector: [1, 0, 0]
+      vector: [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       statType: T
   - c2:
       name: contrast2
-      vector: [0, 1, 0]
-      statType: T
-  - c3:
-      name: contrast3
-      vector: [0, 0, 1]
-      statType: T
-  - c4:
-      name: contrast4
-      vector: [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+      vector: [[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
       statType: F
 
 # Missingness Thresholding: 3 types of threshold for missingness are available;
@@ -58,4 +51,9 @@ Missingness:
   MinPercent: 0.10
   MinN: 15
   Masking: /well/win/software/packages/fsl/5.0.11/data/standard/MNI152_T1_2mm_brain_mask.nii.gz
+
+# For large designs with many parameters, there can be many between parameter
+# covariance maps. If the number of p is large it may be desirable not to output
+# between beta covariances. To do this specify the below as false.
+OutputCovB: False
 

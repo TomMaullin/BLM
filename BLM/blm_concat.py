@@ -84,21 +84,18 @@ def main(*args):
     # Load X'X, X'Y, Y'Y and n_s
     # ----------------------------------------------------------------------
     if (len(args)==0) or (type(args[0]) is str):
-        # Read the matrices from the first batch. Note XtY is transposed as pandas
+        # Read the matrices from the first batch. Note XtY is transposed as np
         # handles lots of rows much faster than lots of columns.
-        sumXtX = pandas.io.parsers.read_csv(os.path.join(OutDir,"tmp","XtX1.csv"), 
-                            sep=",", header=None).values
-        sumXtY = pandas.io.parsers.read_csv(os.path.join(OutDir,"tmp","XtY1.csv"), 
-                            sep=",", header=None).values.transpose()
-        sumYtY = pandas.io.parsers.read_csv(os.path.join(OutDir,"tmp","YtY1.csv"), 
-                            sep=",", header=None).values
+        sumXtX = np.load(os.path.join(OutDir,"tmp","XtX1.npy"))
+        sumXtY = np.load(os.path.join(OutDir,"tmp","XtY1.npy")).transpose()
+        sumYtY = np.load(os.path.join(OutDir,"tmp","YtY1.npy"))
         nmapb  = nib.load(os.path.join(OutDir,"tmp", "blm_vox_n_batch1.nii"))
         n_s_sv = nmapb.get_data()
 
         # Delete the files as they are no longer needed.
-        os.remove(os.path.join(OutDir,"tmp","XtX1.csv"))
-        os.remove(os.path.join(OutDir,"tmp","XtY1.csv"))
-        os.remove(os.path.join(OutDir,"tmp","YtY1.csv"))
+        os.remove(os.path.join(OutDir,"tmp","XtX1.npy"))
+        os.remove(os.path.join(OutDir,"tmp","XtY1.npy"))
+        os.remove(os.path.join(OutDir,"tmp","YtY1.npy"))
         os.remove(os.path.join(OutDir,"tmp","blm_vox_n_batch1.nii"))
 
         # Work out how many files we need.
@@ -108,26 +105,23 @@ def main(*args):
         for batchNo in range(2,(len(XtX_files)+2)):
 
             # Sum the batches.
-            sumXtX = sumXtX + pandas.io.parsers.read_csv(
-                os.path.join(OutDir,"tmp","XtX" + str(batchNo) + ".csv"), 
-                             sep=",", header=None).values
+            sumXtX = sumXtX + np.load(
+                os.path.join(OutDir,"tmp","XtX" + str(batchNo) + ".npy"))
 
-            sumXtY = sumXtY + pandas.io.parsers.read_csv(
-                os.path.join(OutDir,"tmp","XtY" + str(batchNo) + ".csv"), 
-                             sep=",", header=None).values.transpose()
+            sumXtY = sumXtY + np.load(
+                os.path.join(OutDir,"tmp","XtY" + str(batchNo) + ".npy")).transpose()
 
-            sumYtY = sumYtY + pandas.io.parsers.read_csv(
-                os.path.join(OutDir,"tmp","YtY" + str(batchNo) + ".csv"), 
-                             sep=",", header=None).values
+            sumYtY = sumYtY + np.load(
+                os.path.join(OutDir,"tmp","YtY" + str(batchNo) + ".npy"))
             
             # Obtain the full nmap.
             n_s_sv = n_s_sv + nib.load(os.path.join(OutDir,"tmp", 
                 "blm_vox_n_batch" + str(batchNo) + ".nii")).get_data()
             
             # Delete the files as they are no longer needed.
-            os.remove(os.path.join(OutDir, "tmp","XtX" + str(batchNo) + ".csv"))
-            os.remove(os.path.join(OutDir, "tmp","XtY" + str(batchNo) + ".csv"))
-            os.remove(os.path.join(OutDir, "tmp","YtY" + str(batchNo) + ".csv"))
+            os.remove(os.path.join(OutDir, "tmp","XtX" + str(batchNo) + ".npy"))
+            os.remove(os.path.join(OutDir, "tmp","XtY" + str(batchNo) + ".npy"))
+            os.remove(os.path.join(OutDir, "tmp","YtY" + str(batchNo) + ".npy"))
             os.remove(os.path.join(OutDir, "tmp", "blm_vox_n_batch" + str(batchNo) + ".nii"))
 
     else:
@@ -309,27 +303,33 @@ def main(*args):
     # Calculate betahat = (X'X)^(-1)X'Y and output beta maps
     # ----------------------------------------------------------------------    
 
-    # Calculate masked X'X for ring
-    sumXtX_r = sumXtX[R_inds,:,:]
-
-    # Calculate masked X'Y for ring
+    # Reshaping
     sumXtY = sumXtY.transpose()
     sumXtY = sumXtY.reshape([n_v, n_p, 1])
-    sumXtY_r = sumXtY[R_inds,:]
 
-    # Calculate masked Beta for ring
-    beta_r = np.linalg.solve(sumXtX_r, sumXtY_r)
+    # If we have indices where only some studies are present, work out X'X and
+    # X'Y for these studies.
+    if n_v_r:
 
-    # Unmask Beta
-    beta = np.zeros([n_v, n_p])
+        # Calculate masked X'X for ring
+        sumXtX_r = sumXtX[R_inds,:,:]
 
-    # Outer ring values
-    beta[R_inds,:] = beta_r.reshape([n_v_r, n_p])
+        # Calculate masked X'Y for ring
+        sumXtY_r = sumXtY[R_inds,:]
+
+        # Calculate masked Beta for ring
+        beta_r = np.linalg.solve(sumXtX_r, sumXtY_r)
+
+        # Unmask Beta
+        beta = np.zeros([n_v, n_p])
+
+        # Outer ring values
+        beta[R_inds,:] = beta_r.reshape([n_v_r, n_p])
 
 
     # If we have indices where all studies are present, work out X'X and
     # X'Y for these studies.
-    if I_inds.size!=0:
+    if n_v_i:
         
         # X'X must be 1 by np by np for broadcasting
         sumXtX_i = sumXtX[I_inds[0],:,:]
@@ -358,7 +358,11 @@ def main(*args):
         nib.save(betakmap, os.path.join(OutDir,'blm_vox_beta_b' + str(k+1) + '.nii'))
         del betak, betakmap
 
-    del sumXtY, sumXtY_r, sumXtX, sumXtY_i
+    del sumXtY, sumXtX
+    if n_v_r:
+        del sumXtY_r
+    if n_v_i:
+        del sumXtY_i
 
     if np.ndim(beta) == 0:
         beta = np.array([[beta]])
@@ -369,49 +373,76 @@ def main(*args):
     # Calculate residual sum of squares e'e = Y'Y - (Xb)'Xb
     # ---------------------------------------------------------------------- 
 
-    # Reshape beta along smallest axis for quicker
-    # residual calculation
-    beta_r_t = beta_r.transpose(0,2,1)
-    beta_i_t = beta_i.transpose(0,2,1)
+    if n_v_i:
 
-    # Calculate Beta transpose times XtX and delete the
-    # now redudundant matrices.
-    betatXtX_r = np.matmul(beta_r_t, sumXtX_r)
-    betatXtX_i = np.matmul(beta_i_t, sumXtX_i)
-    del beta_r_t, beta_i_t
+        # Reshape beta along smallest axis for quicker
+        # residual calculation
+        beta_i_t = beta_i.transpose(0,2,1)
 
-    # Multiply BetatXtX by Beta and delete the reduundant
-    # matrices.
-    betatXtXbeta_r = np.matmul(betatXtX_r, beta_r)
-    betatXtXbeta_i = np.matmul(betatXtX_i, beta_i)
-    del betatXtX_r, betatXtX_i
+        # Calculate Beta transpose times XtX and delete the
+        # now redundant matrices.
+        betatXtX_i = np.matmul(beta_i_t, sumXtX_i)
+        del beta_i_t
 
-    # Reshape betat XtX beta
-    betatXtXbeta_r = np.reshape(betatXtXbeta_r, [n_v_r,1])
-    betatXtXbeta_i = np.reshape(betatXtXbeta_i, [n_v_i,1])
+        # Multiply BetatXtX by Beta and delete the redundant
+        # matrices.
+        betatXtXbeta_i = np.matmul(betatXtX_i, beta_i)
+        del betatXtX_i
 
-    # Residual sum of squares
-    ete_r = sumYtY[R_inds] - betatXtXbeta_r
-    ete_i = sumYtY[I_inds] - betatXtXbeta_i
+        # Reshape betat XtX beta
+        betatXtXbeta_i = np.reshape(betatXtXbeta_i, [n_v_i,1])
 
-    del sumYtY, betatXtXbeta_r, betatXtXbeta_i
+        # Residual sum of squares
+        ete_i = sumYtY[I_inds] - betatXtXbeta_i
+        del betatXtXbeta_i
+
+    if n_v_r:
+
+        # Reshape beta along smallest axis for quicker
+        # residual calculation
+        beta_r_t = beta_r.transpose(0,2,1)
+
+        # Calculate Beta transpose times XtX and delete the
+        # now redundant matrices.
+        betatXtX_r = np.matmul(beta_r_t, sumXtX_r)
+        del beta_r_t
+
+        # Multiply BetatXtX by Beta and delete the redundant
+        # matrices.
+        betatXtXbeta_r = np.matmul(betatXtX_r, beta_r)
+        del betatXtX_r
+
+        # Reshape betat XtX beta
+        betatXtXbeta_r = np.reshape(betatXtXbeta_r, [n_v_r,1])
+
+        # Residual sum of squares
+        ete_r = sumYtY[R_inds] - betatXtXbeta_r
+        del betatXtXbeta_r
+
+    del sumYtY
 
     # ----------------------------------------------------------------------
     # Calculate residual mean squares = e'e/(n_s - n_p)
     # ----------------------------------------------------------------------
 
-    # Mask spatially varying n_s
-    n_s_sv_r = n_s_sv[R_inds,:]
-
-    # In spatially varying the degrees of freedom
-    # varies across voxels
-    resms_r = ete_r/(n_s_sv_r-n_p)
-    resms_i = ete_i/(n_s-n_p)
-
     # Unmask resms
     resms = np.zeros([n_v,1])
-    resms[R_inds,:] = resms_r
-    resms[I_inds,:] = resms_i
+
+    # Mask spatially varying n_s
+    if n_v_r:
+        n_s_sv_r = n_s_sv[R_inds,:]
+
+        # In spatially varying the degrees of freedom
+        # varies across voxels
+        resms_r = ete_r/(n_s_sv_r-n_p)
+        resms[R_inds,:] = resms_r
+
+    if n_v_i:
+
+        # All voxels in the inner mask have n_s scans present
+        resms_i = ete_i/(n_s-n_p)
+        resms[I_inds,:] = resms_i
+
     resms = resms.reshape(NIFTIsize[0], 
                           NIFTIsize[1],
                           NIFTIsize[2])
@@ -428,39 +459,53 @@ def main(*args):
     # ----------------------------------------------------------------------
         
     # Calculate masked (x'X)^(-1) values for ring
-    isumXtX_r = blm_inverse(sumXtX_r, ouflow=True)
-    isumXtX_i = blm_inverse(sumXtX_i, ouflow=True)
+    if n_v_r:
+        isumXtX_r = blm_inverse(sumXtX_r, ouflow=True)
+    if n_v_i:
+        isumXtX_i = blm_inverse(sumXtX_i, ouflow=True)
 
-    # Output variance for each pair of betas
-    for i in range(0,n_p):
-        for j in range(0,n_p):
+    if "OutputCovB" in inputs:
+        OutputCovB = inputs["OutputCovB"]
+    else:
+        OutputCovB = True
 
-                # Calculate masked cov beta ij for ring
-                covbetaij_r = np.multiply(
-                    resms_r.reshape([resms_r.shape[0]]),
-                    isumXtX_r[:,i,j])
-                covbetaij_i = np.multiply(
-                    resms_i.reshape([resms_i.shape[0]]),
-                    isumXtX_i[:,i,j])
+    if OutputCovB:
+        
+        # Output variance for each pair of betas
+        for i in range(0,n_p):
+            for j in range(0,n_p):
 
-                # Unmask cov beta ij
-                covbetaij = np.zeros([n_v])
-                covbetaij[R_inds] = covbetaij_r
-                covbetaij[I_inds] = covbetaij_i
-                covbetaij = covbetaij.reshape(
-                                        NIFTIsize[0],
-                                        NIFTIsize[1],
-                                        NIFTIsize[2],
-                                        )
-                    
-                # Output covariance map
-                covbetaijmap = nib.Nifti1Image(covbetaij,
-                                               nifti.affine,
-                                               header=nifti.header)
-                nib.save(covbetaijmap,
-                    os.path.join(OutDir, 
-                        'blm_vox_cov_b' + str(i+1) + ',' + str(j+1) + '.nii'))
-                del covbetaij, covbetaijmap
+                    # Unmask cov beta ij
+                    covbetaij = np.zeros([n_v])
+
+                    if n_v_r: 
+                        # Calculate masked cov beta ij for ring
+                        covbetaij_r = np.multiply(
+                            resms_r.reshape([resms_r.shape[0]]),
+                            isumXtX_r[:,i,j])
+                        covbetaij[R_inds] = covbetaij_r
+        
+                    if n_v_i:
+                        # Calculate masked cov beta ij for inner
+                        covbetaij_i = np.multiply(
+                            resms_i.reshape([resms_i.shape[0]]),
+                            isumXtX_i[:,i,j])
+                        covbetaij[I_inds] = covbetaij_i
+
+                    covbetaij = covbetaij.reshape(
+                                            NIFTIsize[0],
+                                            NIFTIsize[1],
+                                            NIFTIsize[2],
+                                            )
+                        
+                    # Output covariance map
+                    covbetaijmap = nib.Nifti1Image(covbetaij,
+                                                   nifti.affine,
+                                                   header=nifti.header)
+                    nib.save(covbetaijmap,
+                        os.path.join(OutDir, 
+                            'blm_vox_cov_b' + str(i+1) + ',' + str(j+1) + '.nii'))
+                    del covbetaij, covbetaijmap
 
     # ----------------------------------------------------------------------
     # Calculate COPEs, statistic maps and covariance maps.
@@ -475,8 +520,11 @@ def main(*args):
         cvec = np.array(cvec)
 
         # Calculate C\hat{\beta}}
-        cbeta_r = np.matmul(cvec, beta_r)
-        cbeta_i = np.matmul(cvec, beta_i)
+        if n_v_r:
+            cbeta_r = np.matmul(cvec, beta_r)
+        if n_v_i:
+            cbeta_i = np.matmul(cvec, beta_i)
+    
         if cvec.ndim == 1:
             cvec = cvec.reshape([1,cvec.shape[0]])
 
@@ -484,8 +532,11 @@ def main(*args):
 
             # A T contrast has only one row so we can output cbeta here
             cbeta = np.zeros([n_v,1])
-            cbeta[R_inds,:] = cbeta_r
-            cbeta[I_inds,:] = cbeta_i
+            if n_v_r:
+                cbeta[R_inds,:] = cbeta_r
+            if n_v_i:
+                cbeta[I_inds,:] = cbeta_i
+
             cbeta = cbeta.reshape(
                         NIFTIsize[0],
                         NIFTIsize[1],
@@ -501,24 +552,29 @@ def main(*args):
                     'blm_vox_beta_c' + str(i+1) + '.nii'))
             del cbeta, cbetamap
 
-            # Calculate c'(X'X)^(-1)c
-            cvectiXtXcvec_r = np.matmul(
-                np.matmul(cvec, isumXtX_r),
-                np.transpose(cvec)).reshape(n_v_r)
-            cvectiXtXcvec_i = np.matmul(
-                np.matmul(cvec, isumXtX_i),
-                np.transpose(cvec))
-
-            # Calculate masked cov(c\hat{\beta}) for ring
-            covcbeta_r = cvectiXtXcvec_r*resms_r.reshape(n_v_r)
-
-            # Calculate masked cov(c\hat{\beta}) for inner
-            covcbeta_i = cvectiXtXcvec_i*resms_i.reshape(n_v_i)
-
             # Unmask to output
             covcbeta = np.zeros([n_v])
-            covcbeta[R_inds] = covcbeta_r
-            covcbeta[I_inds] = covcbeta_i
+
+            if n_v_r:
+                # Calculate c'(X'X)^(-1)c
+                cvectiXtXcvec_r = np.matmul(
+                    np.matmul(cvec, isumXtX_r),
+                    np.transpose(cvec)).reshape(n_v_r)
+
+                # Calculate masked cov(c\hat{\beta}) for ring
+                covcbeta_r = cvectiXtXcvec_r*resms_r.reshape(n_v_r)
+                covcbeta[R_inds] = covcbeta_r
+
+            if n_v_i:
+                # Calculate c'(X'X)^(-1)c
+                cvectiXtXcvec_i = np.matmul(
+                    np.matmul(cvec, isumXtX_i),
+                    np.transpose(cvec))
+
+                # Calculate masked cov(c\hat{\beta}) for inner
+                covcbeta_i = cvectiXtXcvec_i*resms_i.reshape(n_v_i)
+                covcbeta[I_inds] = covcbeta_i
+
             covcbeta = covcbeta.reshape(
                 NIFTIsize[0],
                 NIFTIsize[1],
@@ -534,14 +590,18 @@ def main(*args):
                     'blm_vox_cov_c' + str(i+1) + '.nii'))
             del covcbeta, covcbetamap
 
-            # Calculate masked T statistic image for ring
-            tStatc_r = cbeta_r.reshape(n_v_r)/np.sqrt(covcbeta_r)
-            tStatc_i = cbeta_i.reshape(n_v_i)/np.sqrt(covcbeta_i)
-
             # Unmask T stat
             tStatc = np.zeros([n_v])
-            tStatc[R_inds] = tStatc_r
-            tStatc[I_inds] = tStatc_i
+
+            # Calculate masked T statistic image for ring
+            if n_v_r:
+                tStatc_r = cbeta_r.reshape(n_v_r)/np.sqrt(covcbeta_r)
+                tStatc[R_inds] = tStatc_r
+
+            if n_v_i:
+                tStatc_i = cbeta_i.reshape(n_v_i)/np.sqrt(covcbeta_i)
+                tStatc[I_inds] = tStatc_i
+
             tStatc = tStatc.reshape(
                 NIFTIsize[0],
                 NIFTIsize[1],
@@ -555,64 +615,85 @@ def main(*args):
             nib.save(tStatcmap,
                 os.path.join(OutDir, 
                     'blm_vox_Tstat_c' + str(i+1) + '.nii'))
-            del tStatc, tStatcmap, tStatc_i, tStatc_r
+            del tStatc, tStatcmap
+            if n_v_i:
+                del tStatc_i
+            if n_v_r:
+                del tStatc_r
 
         if inputs['contrasts'][i]['c' + str(i+1)]['statType'] == 'F':
                 
             # Get dimension of cvector
             q = cvec.shape[0]
 
-            # Calculate c'(X'X)^(-1)c
-            # (Note C is read in the other way around for F)
-            cvectiXtXcvec_r = np.matmul(
-                np.matmul(cvec, isumXtX_r),
-                np.transpose(cvec))
-            cvectiXtXcvec_i = np.matmul(
-                np.matmul(cvec, isumXtX_i),
-                np.transpose(cvec))
-
-            # Cbeta needs to be nvox by 1 by npar for stacked
-            # multiply.
-            cbetat_r = cbeta_r.transpose(0,2,1)
-            cbetat_i = cbeta_i.transpose(0,2,1)
-
-            # Calculate masked (c'(X'X)^(-1)c)^(-1) values for ring
-            icvectiXtXcvec_r = blm_inverse(cvectiXtXcvec_r, ouflow=True).reshape([n_v_r, q*q])
-            icvectiXtXcvec_i = blm_inverse(cvectiXtXcvec_i, ouflow=True).reshape([1, q*q])
-
             # Make (c'(X'X)^(-1)c)^(-1) unmasked
             icvectiXtXcvec = np.zeros([n_v, q*q])
-            icvectiXtXcvec[R_inds,:]=icvectiXtXcvec_r
-            icvectiXtXcvec[I_inds,:]=icvectiXtXcvec_i
+
+            # Calculate c'(X'X)^(-1)c
+            # (Note C is read in the other way around for F)
+            if n_v_r:
+
+                cvectiXtXcvec_r = np.matmul(
+                    np.matmul(cvec, isumXtX_r),
+                    np.transpose(cvec))
+
+                # Cbeta needs to be nvox by 1 by npar for stacked
+                # multiply.
+                cbetat_r = cbeta_r.transpose(0,2,1)
+
+                # Calculate masked (c'(X'X)^(-1)c)^(-1) values for ring
+                icvectiXtXcvec_r = blm_inverse(cvectiXtXcvec_r, ouflow=True).reshape([n_v_r, q*q])
+                icvectiXtXcvec[R_inds,:]=icvectiXtXcvec_r
+
+            if n_v_i:
+
+                cvectiXtXcvec_i = np.matmul(
+                    np.matmul(cvec, isumXtX_i),
+                    np.transpose(cvec))
+
+                # Cbeta needs to be nvox by 1 by npar for stacked
+                # multiply.
+                cbetat_i = cbeta_i.transpose(0,2,1)
+
+                # Calculate masked (c'(X'X)^(-1)c)^(-1) values for inner
+                icvectiXtXcvec_i = blm_inverse(cvectiXtXcvec_i, ouflow=True).reshape([1, q*q])
+                icvectiXtXcvec[I_inds,:]=icvectiXtXcvec_i
+
             icvectiXtXcvec = icvectiXtXcvec.reshape([n_v, q, q])
-
-
-            # Calculate the numerator of the F statistic for the ring
-            Fnumerator_r = np.matmul(
-                cbetat_r,
-                np.linalg.solve(cvectiXtXcvec_r, cbeta_r))
-            # Calculate the numerator of the F statistic for the inner 
-            Fnumerator_i = np.matmul(
-                cbetat_i,
-                np.linalg.solve(cvectiXtXcvec_i, cbeta_i))
-
-            Fnumerator_r = Fnumerator_r.reshape(Fnumerator_r.shape[0])
-            Fnumerator_i = Fnumerator_i.reshape(Fnumerator_i.shape[0])
-
-            # Calculate the denominator of the F statistic for ring
-            Fdenominator_r = q*resms_r.reshape([n_v_r])
-
-            # Calculate the denominator of the F statistic for inner
-            Fdenominator_i = q*resms_i.reshape([n_v_i])
-
-            # Calculate F statistic.
-            fStatc_r = Fnumerator_r/Fdenominator_r
-            fStatc_i = Fnumerator_i/Fdenominator_i
 
             # Save F statistic
             fStatc = np.zeros([n_v])
-            fStatc[R_inds]=fStatc_r
-            fStatc[I_inds]=fStatc_i
+
+            # Calculate the numerator of the F statistic for the ring
+            if n_v_r:
+                Fnumerator_r = np.matmul(
+                    cbetat_r,
+                    np.linalg.solve(cvectiXtXcvec_r, cbeta_r))
+
+                Fnumerator_r = Fnumerator_r.reshape(Fnumerator_r.shape[0])
+
+                # Calculate the denominator of the F statistic for ring
+                Fdenominator_r = q*resms_r.reshape([n_v_r])
+
+                # Calculate F statistic.
+                fStatc_r = Fnumerator_r/Fdenominator_r
+                fStatc[R_inds]=fStatc_r
+
+            # Calculate the numerator of the F statistic for the inner 
+            if n_v_i:
+                Fnumerator_i = np.matmul(
+                    cbetat_i,
+                    np.linalg.solve(cvectiXtXcvec_i, cbeta_i))
+
+                Fnumerator_i = Fnumerator_i.reshape(Fnumerator_i.shape[0])
+
+                # Calculate the denominator of the F statistic for inner
+                Fdenominator_i = q*resms_i.reshape([n_v_i])
+
+                # Calculate F statistic.
+                fStatc_i = Fnumerator_i/Fdenominator_i
+                fStatc[I_inds]=fStatc_i
+
             fStatc = fStatc.reshape(
                                NIFTIsize[0],
                                NIFTIsize[1],
@@ -628,17 +709,21 @@ def main(*args):
                     'blm_vox_Fstat_c' + str(i+1) + '.nii'))
             del fStatc, fStatcmap
 
-            # Mask spatially varying n_s
-            n_s_sv_r = n_s_sv_r.reshape([n_v_r])
-
-            # Calculate partial R2 masked for ring.
-            partialR2_r = (q*fStatc_r)/(q*fStatc_r + n_s_sv_r - n_p)
-            partialR2_i = (q*fStatc_i)/(q*fStatc_i + n_s - n_p)
-
             # Unmask partialR2.
             partialR2 = np.zeros([n_v])
-            partialR2[R_inds] = partialR2_r
-            partialR2[I_inds] = partialR2_i
+
+            # Mask spatially varying n_s
+            if n_v_r:
+                n_s_sv_r = n_s_sv_r.reshape([n_v_r])
+
+                # Calculate partial R2 masked for ring.
+                partialR2_r = (q*fStatc_r)/(q*fStatc_r + n_s_sv_r - n_p)
+                partialR2[R_inds] = partialR2_r
+
+            if n_v_i:
+                # Calculate partial R2 masked for inner mask.
+                partialR2_i = (q*fStatc_i)/(q*fStatc_i + n_s - n_p)
+                partialR2[I_inds] = partialR2_i
 
             partialR2 = partialR2.reshape(
                                NIFTIsize[0],

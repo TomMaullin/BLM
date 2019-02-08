@@ -1,20 +1,22 @@
+# Test 6
+# ------------------------------------------------------------------------
+# 200 subjects, additional mask thresholding
+# ------------------------------------------------------------------------
 # Maximum Memory for computing in bytes - current default of 2**29 bytes matches that of SPM.
 MAXMEM: 2**32
 
 # Enter a list of Y files.
-Y_files: /users/nichols/inf852/tmp2/Y_200.txt
+Y_files: DATA_DIRECTORY/Y_200.txt
 
 # Enter a list of Mask files.
-M_files: /users/nichols/inf852/tmp2/M_200.txt
-
-# Enter a masking threshold on Y.
-#M_thresh: 0.1
+M_files: DATA_DIRECTORY/M_200.txt
+M_thresh: 0.1
 
 # Design matrix and number of parameters.
-X: /users/nichols/inf852/tmp2/X_200.csv
+X: DATA_DIRECTORY/X_200.csv
 
 # There should be an output directory here:
-outdir: /users/nichols/inf852/BLM-py/BLM/test/200ukbbs_3p/
+outdir: TEST_DIRECTORY/test_cfg6/
 
 # Contrasts should be listed here as c1, c2, c3, c4 etc. 
 # The fields included should be name, vector and statType
