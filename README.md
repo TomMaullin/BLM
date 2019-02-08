@@ -49,6 +49,10 @@ The following fields are optional:
    - `Masking`: A post analysis mask.
  - `OutputCovB`: If set to `True` this will output between beta covariance maps. For studies with a large number of paramters this may not be desirable as, for example, 30 analysis paramters will create 30x30=900 between beta covariance maps. By default this is set to `True`.
  
+### Running the Analysis
+
+An analysis can either be run in parallel on a computing cluster or in serial (one block after another). The below sections describe both scenarios.
+
 #### Running an analysis in parallel
 
 To run an analysis in parallel, log into the cluster you wish to run it on and ensure that `fsl` and `fsl_sub` are in the environment. On the `rescomp` cluster this can be done like so:
