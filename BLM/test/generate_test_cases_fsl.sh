@@ -42,6 +42,10 @@ do
   cfgfile=$(realpath $cfg)
   eval $(parse_yaml $cfgfile "config_")
 
+  echo $cfgfile
+  echo $config_outdir
+  echo $config_ns
+
   fsl_glm -i $datadir/$(config_ns)subNifti.nii.gz -d $datadir/X_$(config_ns)_fslformat.txt -o $(basename $cfg_outdir)/fsl/fsl_vox_betas -c $datadir/C_fslformat.txt --out_t=$(basename $cfg_outdir)/fsl/fsl_vox_Tstat_c --out_f=$(basename $cfg_outdir)/fsl/fsl_vox_Fstat_c --out_res=$(basename $cfg_outdir)/fsl/fsl_vox_resms --out_varcb=$(basename $cfg_outdir)/fsl/fsl_vox_cov_c
 
 done
