@@ -69,6 +69,10 @@ After running this you will see text printed to the commandline telling you the 
  - `setup`: This will be working out the number of batches/blocks the analysis needs to be split into.
  - `batch*`: There may be several jobs with names of this format. These are the "chunks" the analysis has been split into. These are run in parallel to one another and typically don't take very long.
  - `results`: This code is combining the output of each batch to obtain statistical analyses. This will run once all `batch*` jobs have been completed. Please note this code has been streamlined for large numbers of subjects but not large number of parameters; therefore this job may take some time for large numbers of parameters.
+ 
+#### Running an analysis in serial
+
+To run an an
 
 ## Testing
 
@@ -82,7 +86,7 @@ To generate test cases:
 bash ./generate_test_cases.sh $outdir $datadir
 ```
 
-(Where `$datadir` is a data directory containg all data needed for designs `test_cfg01`, `test_cfg02`,... `test_cfg10` and `$outdir` is the desired output directory)
+(Where `$datadir` is a data directory containg all data needed for analyses `test_cfg01.yml`, `test_cfg02.yml`,... `test_cfg10.yml` and `$outdir` is the desired output directory)
 
 To check the logs:
 
@@ -96,7 +100,7 @@ To verify the test cases against ground truth:
 bash ./verify_test_cases.sh $GTDIR
 ```
 
-(Where `$GTDIR` is a directory containing ground truth data from a previous run, i.e. inside `$GTDIR` are the folders `test_cfg1`, `test_cfg2`, ... ect).
+(Where `$GTDIR` is a directory containing ground truth data from a previous run, i.e. inside `$GTDIR` are the folders `test_cfg01.yml`, `test_cfg02.yml`, ... ect).
 
 ### In parallel, against FSL
 
@@ -106,7 +110,7 @@ To generate test cases:
 bash ./generate_test_cases_fsl.sh $outdir $datadir
 ```
 
-(Where `$datadir` is a data directory containg all data needed for designs `fsltest_cfg01`, `fsltest_cfg02` and `fsltest_cfg03` and `$outdir` is the desired output directory)
+(Where `$datadir` is a data directory containg all data needed for designs `fsltest_cfg01.yml`, `fsltest_cfg02.yml` and `fsltest_cfg03.yml` and `$outdir` is the desired output directory)
 
 To check the logs:
 
@@ -118,4 +122,14 @@ To verify the test cases against ground truth:
 
 ```
 bash ./verify_test_cases_against_fsl.sh
+```
+
+### In serial
+
+To test in serial simply run the following 3 test cases from the main `BLM-py` folder:
+
+```
+fslpython -c "import blm_serial; blm_serial.main('./BLM/test/cfg/test_cfg01.yml')
+fslpython -c "import blm_serial; blm_serial.main('./BLM/test/cfg/test_cfg02.yml')
+fslpython -c "import blm_serial; blm_serial.main('./BLM/test/cfg/test_cfg03.yml')
 ```
