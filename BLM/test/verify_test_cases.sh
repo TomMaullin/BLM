@@ -1,8 +1,6 @@
 # Work out BLM dir
 BLMdir=$(realpath ../../)
 cd $BLMdir
-echo $BLMdir
-echo 'lol'
 
 # Include the parse yaml function
 . lib/parse_yaml.sh
@@ -13,10 +11,7 @@ gtdir=$1
 
 # Run each test case
 i=1
-echo pwd
-echo $BLMdir
-pwd
-for cfg in $(ls ./cfg/*.yml)
+for cfg in $(ls ./cfg/test_cfg*.yml)
 do
   
   cfgfilepath=$(realpath $cfg)
