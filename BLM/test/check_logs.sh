@@ -8,7 +8,9 @@ for cfgIDs in $(ls ./BLM/test/cfgids/*)
 do
   echo " "
   echo '================================================================'
-  echo "Error logs for testcase $(basename $cfgIDs)"
+  testcase=$(basename $cfgIDs)
+  testcase=$(echo $testcase | sed "s/IDs//g")
+  echo "Error logs for testcase $testcase"
   echo " "
   cfgIDs=$(realpath $cfgIDs)
 
@@ -31,7 +33,7 @@ do
   done
 
   if [ -z "$logsencountered" ] ; then
-    echo "No errors encountered for testcase $i"
+    echo "No errors encountered for testcase $testcase"
   fi
 
   IDs=''
