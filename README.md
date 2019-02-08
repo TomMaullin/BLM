@@ -1,8 +1,20 @@
 # BLM-py
-This repository contains all code for the python implementation of distributed OLS for locally stored data.
+This repository contains the code for Big Linear Models for Neuroimaging cluster and local usage.
 
 ## Requirements
 To use the BLM-py code, `fsl 5.0.10` or greater must be installed and `fslpython` must be configured correctly. Alternatively the following python packages must be installed:
+
+```
+numpy>=1.14.0
+nibabel>=2.2.1
+yaml
+pandas
+subprocess
+```
+
+(This code may work with older versions of numpy and nibabel but caution is advised as these versions have not been tested).
+
+If running `BLM-py` on a cluster, `fsl_sub` will also be required to have been set up correctly.
 
 ## Usage
 To run `BLM-py` first specify your design using `blm_config.yml` and then run the job either in serial or in parallel by following the below guidelines.
@@ -36,6 +48,27 @@ The following fields are optional:
    - `MinN`: The number of studies present at a voxel necessary for that voxel to be included in the final analysis mask. For example, if this is set to `20` then any voxel with recorded values for at least 20 studies will be kept in the analysis.
    - `Masking`: A post analysis mask.
  - `OutputCovB`: If set to `True` this will output between beta covariance maps. For studies with a large number of paramters this may not be desirable as, for example, 30 analysis paramters will create 30x30=900 between beta covariance maps. By default this is set to `True`.
+ 
+#### Running an analysis in parallel
+
+To run an analysis in parallel, log into the cluster you wish to run it on and ensure that `fsl` and `fsl_sub` are in the environment. On the `rescomp` cluster this can be done like so:
+
+```
+module add fsl
+module add fsl_sub
+```
+
+Ensure you are in the `BLM-py` directory and once you are happy with the analysis you have specified in `blm_config.yml`, run the following command.
+
+```
+bash ./blm_cluster.sh
+```
+
+After running this you will see text printed to the commandline telling you the analysis is being set up and the jobs are being submitted. For large analyses or small cluster this may take a minute or two as several jobs may be submitted to the cluster. Once you can access the command line again, you can use `qstat` to see the jobs which have been submitted. You will typically see jobs of the following form:
+
+ - `setup`: This will be working out the number of batches/blocks the analysis needs to be split into.
+ - `batch*`: There may be several jobs with names of this format. These are the "chunks" the analysis has been split into. These are run in parallel to one another and typically don't take very long.
+ - `results`: This code is combining the output of each batch to obtain statistical analyses. This will run once all `batch*` jobs have been completed. Please note this code has been streamlined for large numbers of subjects but not large number of parameters; therefore this job may take some time for large numbers of parameters.
 
 ## Testing
 
