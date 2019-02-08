@@ -5,10 +5,18 @@ cd $BLMdir
 # Read the test and data directories
 testdir=$1
 datadir=$2
+if [ -v $datadir ] ; then
+  echo "Please specify data directory."
+  exit
+fi
+if [ -v $testdir ] ; then
+  echo "Please specify data directory."
+  exit
+fi
 
 # Change the name of the test and data directories in the test configurations
-find ./BLM/test/cfg/test_cfg*.yml -type f -exec sed -i 's/TEST_DIRECTORY/$testdir/g' {} \;
-find ./BLM/test/cfg/test_cfg*.yml -type f -exec sed -i 's/DATA_DIRECTORY/$datadir/g' {} \;
+find ./BLM/test/cfg/test_cfg*.yml -type f -exec sed -i "s|TEST_DIRECTORY|$testdir|g" {} \;
+find ./BLM/test/cfg/test_cfg*.yml -type f -exec sed -i "s|DATA_DIRECTORY|$datadir|g" {} \;
 
 # Make a directory to store job ids if there isn't one already.
 mkdir -p ./BLM/test/cfgids
