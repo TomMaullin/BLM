@@ -36,7 +36,11 @@ def main(*args):
             # In this case inputs structure is first argument.
             inputs = args[1]
 
-    MAXMEM = eval(inputs['MAXMEM'])    
+    if 'MAXMEM' in inputs:
+        MAXMEM = eval(inputs['MAXMEM'])
+    else:
+        MAXMEM = 2**32
+
     OutDir = inputs['outdir']
 
     # Get number of parameters
