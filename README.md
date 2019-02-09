@@ -57,9 +57,9 @@ Example 1: A minimal configuration.
 
 ```
 MAXMEM: 2**32
-Y_files: DATA_DIRECTORY/Y.txt
-X: DATA_DIRECTORY/X.csv
-outdir: TEST_DIRECTORY/test_cfg1/
+Y_files: /path/to/data/Y.txt
+X: /path/to/data/X.csv
+outdir: /path/to/output/directory/
 contrasts:
   - c1:
       name: contrast1
@@ -71,11 +71,11 @@ Example 2: A configuration with multiple optional fields.
 
 ```
 MAXMEM: 2**32
-Y_files: DATA_DIRECTORY/Y.txt
-M_files: DATA_DIRECTORY/M_.txt
+Y_files: /path/to/data/Y.txt
+M_files: /path/to/data/M_.txt
 M_thresh: 0.1
-X: DATA_DIRECTORY/X.csv
-outdir: TEST_DIRECTORY/test_cfg1/
+X: /path/to/data/X.csv
+outdir: /path/to/output/directory/
 contrasts:
   - c1:
       name: contrast1
@@ -96,7 +96,7 @@ contrasts:
 Missingness:
   MinPercent: 0.10
   MinN: 15
-  Masking: /well/win/software/packages/fsl/5.0.11/data/standard/MNI152_T1_2mm_brain_mask.nii.gz
+  Masking: /path/to/data/MNI152_T1_2mm_brain_mask.nii.gz
 ```
 
 ### Running the Analysis
