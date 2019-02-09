@@ -14,6 +14,7 @@ import yaml
 import pandas
 import time
 np.set_printoptions(threshold=np.nan)
+from BLM.blm_eval import blm_eval
 
 def main(*args):
 
@@ -35,8 +36,18 @@ def main(*args):
             # In this case inputs structure is first argument.
             inputs = args[1]
 
-    MAXMEM = eval(inputs['MAXMEM'])    
+    if 'MAXMEM' in inputs:
+        MAXMEM = eval(inputs['MAXMEM'])
+    else:
+        MAXMEM = 2**32
+
     OutDir = inputs['outdir']
+
+    # Get number of parameters
+    c1 = blm_eval(inputs['contrasts'][0]['c' + str(1)]['vector'])
+    c1 = np.array(c1)
+    n_p = c1.shape[0]
+    del c1
 
     # Y volumes
     with open(inputs['Y_files']) as a:
@@ -60,13 +71,13 @@ def main(*args):
 
     # Similar to blksize in SwE, we divide by 8 times the size of a nifti
     # to work out how many blocks we use.
-    blksize = int(np.floor(MAXMEM/8/NIFTIsize));
+    blksize = int(np.floor(MAXMEM/8/NIFTIsize/n_p));
 
     # Reduce X to X for this block.
     X = pandas.io.parsers.read_csv(
         inputs['X'], sep=',', header=None).values
     X = X[(blksize*(batchNo-1)):min((blksize*batchNo),len(Y_files))]
-
+    
     # Mask volumes (if they are given)
     if 'M_files' in inputs:
 
@@ -136,12 +147,12 @@ def main(*args):
 
     if (len(args)==1) or (type(args[1]) is str):
         # Record XtX and XtY
-        np.savetxt(os.path.join(OutDir,"tmp","XtX" + str(batchNo) + ".csv"), 
-                   XtX, delimiter=",")
-        np.savetxt(os.path.join(OutDir,"tmp","XtY" + str(batchNo) + ".csv"), 
-                   XtY, delimiter=",") 
-        np.savetxt(os.path.join(OutDir,"tmp","YtY" + str(batchNo) + ".csv"), 
-                   YtY, delimiter=",") 
+        np.save(os.path.join(OutDir,"tmp","XtX" + str(batchNo)), 
+                   XtX)
+        np.save(os.path.join(OutDir,"tmp","XtY" + str(batchNo)), 
+                   XtY) 
+        np.save(os.path.join(OutDir,"tmp","YtY" + str(batchNo)), 
+                   YtY) 
         # Get map of number of scans at voxel.
         nmap = nib.Nifti1Image(nmap,
                                Y0.affine,

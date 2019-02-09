@@ -3,7 +3,6 @@ import warnings as w
 # output.
 w.simplefilter(action = 'ignore', category = FutureWarning)
 import numpy as np
-import subprocess
 import warnings
 import resource
 import nibabel as nib
@@ -33,9 +32,19 @@ def main(*args):
         else:  
             # In this case inputs structure is first argument.
             inputs = args[0]
+    
+    if 'MAXMEM' in inputs:
+        MAXMEM = eval(inputs['MAXMEM'])
+    else:
+        MAXMEM = 2**32
 
-    MAXMEM = eval(inputs['MAXMEM'])
     OutDir = inputs['outdir']
+
+    # Get number of parameters
+    c1 = blm_eval(inputs['contrasts'][0]['c' + str(1)]['vector'])
+    c1 = np.array(c1)
+    n_p = c1.shape[0]
+    del c1
 
     # Make output directory and tmp
     if not os.path.isdir(OutDir):
@@ -57,22 +66,19 @@ def main(*args):
     except Exception as error:
         raise ValueError('The NIFTI "' + Y_files[0] + '"does not exist')
 
-    # Get the maximum memory a NIFTI could take in storage. 
+    # Get the maximum memory a NIFTI could take in storage. We divide by 3
+    # as approximately a third of the volume is actually non-zero/brain
     NIFTIsize = sys.getsizeof(np.zeros(Y0.shape,dtype='uint64'))
 
     if NIFTIsize > MAXMEM:
         raise ValueError('The NIFTI "' + Y_files[0] + '"is too large')
 
-    # Load affine
-    d0 = Y0.get_data()
-    Y0aff = Y0.affine
-
-    # Get the maximum memory a NIFTI could take in storage. 
-    NIFTIsize = sys.getsizeof(np.zeros(d0.shape,dtype='uint64'))
-
     # Similar to blksize in SwE, we divide by 8 times the size of a nifti
-    # to work out how many blocks we use.
-    blksize = np.floor(MAXMEM/8/NIFTIsize);
+    # to work out how many blocks we use. We divide NIFTIsize by 3
+    # as approximately a third of the volume is actually non-zero/brain 
+    # and then also divide though everything by the number of parameters
+    # in the analysis.
+    blksize = np.floor(MAXMEM/8/NIFTIsize/n_p);
     if blksize == 0:
         raise ValueError('Blocksize too small.')
 
@@ -92,7 +98,6 @@ def main(*args):
 
             if np.linalg.matrix_rank(cvec)<q:
                 raise ValueError('F contrast: \n' + str(cvec) + '\n is not of correct rank.')
-
 
     if (len(args)==0) or (type(args[0]) is str):
         with open(os.path.join(OutDir, "nb.txt"), 'w') as f:

@@ -11,6 +11,13 @@ else
   cfg=$1
 fi
 
+# If the second argument is IDs we use this to print IDs
+if [ "$2" == "IDs" ] ; then
+  printOpt=2
+else
+  printOpt=1
+fi
+
 cfg=$(realpath $cfg)
 # read yaml file to get output directory
 eval $(parse_yaml $cfg "config_")
@@ -32,7 +39,11 @@ if [ "$setupID" == "" ] ; then
   echo "Setup job submission failed!"
 fi
 
-echo "Setting up distributed analysis..."
+if [ "$printOpt" == "1" ] ; then
+  echo "Setting up distributed analysis..."
+else
+  echo $setupID
+fi
 
 # This loop waits for the setup job to finish before
 # deciding how many batches to run. It also checks to 
@@ -64,7 +75,9 @@ do
   fi
 done
 
-echo "Submitting batch jobs..."
+if [ "$printOpt" == "1" ] ; then
+  echo "Submitting batch jobs..."
+fi
 
 i=1
 while [ "$i" -le "$nb" ]; do
@@ -76,6 +89,10 @@ while [ "$i" -le "$nb" ]; do
 done
 if [ "$batchIDs" == "" ] ; then
   echo "Batch jobs submission failed!"
+else
+  if [ "$printOpt" == "2" ] ; then
+    echo $batchIDs
+  fi
 fi
 
 # Submit results job 
@@ -83,7 +100,10 @@ fsl_sub -j $batchIDs -l log/ -N results bash ./lib/cluster_blm_concat.sh $inputs
 if [ "$resultsID" == "" ] ; then
   echo "Results job submission failed!"
 fi
-batchIDs=''
 
-echo "Submitting results job..."
-echo "Please use qstat to monitor progress."
+if [ "$printOpt" == "1" ] ; then
+  echo "Submitting results job..."
+  echo "Please use qstat to monitor progress."
+else
+  echo $resultsID
+fi
