@@ -25,7 +25,6 @@ The regression model for BLM must be specified in `blm_config.yml`. Below is a c
 #### Mandatory fields
 The following fields are mandatory:
 
- - `MAXMEM`: This is the maximum amount of memory (in bits) that the BLM code is allowed to work with. How this should be set depends on your machine capabilities but the recommended value matches the SPM default of 2^32 (note this must be in python notation i.e. `2**32`).
  - `Y_files`: This should be a text file containing a list of response variable NIFTI's.
  - `X`: This should be the design matrix as a plain csv (no column headers).
  - `outdir`: This is the output directory.
@@ -40,6 +39,7 @@ The following fields are mandatory:
 
 The following fields are optional:
 
+ - `MAXMEM`: This is the maximum amount of memory (in bits) that the BLM code is allowed to work with. How this should be set depends on your machine capabilities; the default value however matches the SPM default of 2^32 (note this must be in python notation i.e. `2**32`).
  - `M_files`: A text file containing a list of masks to be applied to the `Y_files`. 
    - If the number of masks is the same as the number of `Y_files` then each mask is applied to the corresponding entry `Y_files`. E.g. The first mask listed for `M_files` will be applied to the first nifti in `Y_files`, the second mask in `M_files` will be applied to the second nifti in `Y_files` and so on. 
    - If the number of masks is less than the number of niftis in `Y_files` then every mask is applied to every nifti in `Y_files`. I.e. all masks are applied to the first nifti in `Y_files`, all masks are applied to the second nifti in `Y_files` and so on. 
