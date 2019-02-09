@@ -15,14 +15,15 @@ fi
 
 # Run each test case
 i=1
-for cfg in $(ls ./cfg/test_cfg*.yml)
+for cfg in $(ls ./cfg/test_cfg*_copy.yml)
 do
   
   cfgfilepath=$(realpath $cfg)
+  cfgname=$(basename $(echo $cfg | sed "s/\_copy//g"))
 
   echo " "
   echo " "
-  echo "Now verifying: $(basename $cfgfilepath)".
+  echo "Now verifying: $cfgname".
   echo " "
   echo " "
 

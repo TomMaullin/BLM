@@ -14,9 +14,17 @@ if [ -v $testdir ] ; then
   exit
 fi
 
+i=1
+for cfg in $(ls ./BLM/test/cfg/fsltest_cfg??.yml)
+do
+  cp $cfg ./BLM/test/cfg/fsltest_cfg$(printf "%.2d" $i)_copy.yml
+  i=$(($i + 1))
+done
+
+
 # Change the name of the test and data directories in the test configurations
-find ./BLM/test/cfg/fsltest_cfg*.yml -type f -exec sed -i "s|TEST_DIRECTORY|$testdir|g" {} \;
-find ./BLM/test/cfg/fsltest_cfg*.yml -type f -exec sed -i "s|DATA_DIRECTORY|$datadir|g" {} \;
+find ./BLM/test/cfg/fsltest_cfg*_copy.yml -type f -exec sed -i "s|TEST_DIRECTORY|$testdir|g" {} \;
+find ./BLM/test/cfg/fsltest_cfg*_copy.yml -type f -exec sed -i "s|DATA_DIRECTORY|$datadir|g" {} \;
 
 
 # Make a directory to store job ids if there isn't one already.
@@ -24,9 +32,10 @@ mkdir -p ./BLM/test/cfgids
 
 # Run each test case
 i=1
-for cfg in $(ls ./BLM/test/cfg/fsltest_cfg*.yml)
+for cfg in $(ls ./BLM/test/cfg/fsltest_cfg*_copy.yml)
 do
-  echo "Now running testcase $cfg".
+  cfgname=$(basename $(echo $cfg | sed "s/\_copy//g"))
+  echo "Now running testcase $cfgname"
   cfgfile=$(realpath $cfg)
 
   # Run blm for test configuration and save the ids
@@ -46,7 +55,7 @@ done
 
 # Now run equivalent fsl analyses
 i=1
-for cfg in $(ls ./BLM/test/cfg/fsltest_cfg*.yml)
+for cfg in $(ls ./BLM/test/cfg/fsltest_cfg*_copy.yml)
 do
   # Obtain output directory
   cfgfile=$(realpath $cfg)

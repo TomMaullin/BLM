@@ -11,14 +11,14 @@ gtdir=$1
 
 # Run each test case
 i=1
-for cfg in $(ls ./cfg/fsltest_cfg*.yml)
+for cfg in $(ls ./cfg/fsltest_cfg*_copy.yml)
 do
-  
+  cfgname=$(basename $(echo $cfg | sed "s/\_copy//g"))  
   cfgfilepath=$(realpath $cfg)
 
   echo " "
   echo " "
-  echo "Now verifying: $(basename $cfgfilepath)".
+  echo "Now verifying: $cfgname".
   echo " "
   echo " "
 
