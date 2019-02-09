@@ -56,7 +56,6 @@ Below are some example `blm_config.yml` files.
 Example 1: A minimal configuration.
 
 ```
-MAXMEM: 2**32
 Y_files: /path/to/data/Y.txt
 X: /path/to/data/X.csv
 outdir: /path/to/output/directory/
