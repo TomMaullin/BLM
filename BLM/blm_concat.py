@@ -302,12 +302,15 @@ def main(*args):
 
     # Create dpf map
     df_r = n_s_sv[R_inds,:] - n_p
+    df_r = df_r.reshape([n_v_r])
     df_i = n_s - n_p
 
+    print(df_r.shape)
+
     # Unmask df
-    df = np.zeros([n_v,1])
-    df[R_inds,:] = df_r
-    df[I_inds,:] = df_i
+    df = np.zeros([n_v])
+    df[R_inds] = df_r
+    df[I_inds] = df_i
 
     df = df.reshape(int(NIFTIsize[0]),
                     int(NIFTIsize[1]),
@@ -643,8 +646,14 @@ def main(*args):
 
             # Unmask p for this contrast
             pc = np.zeros([n_v])
-            pc[I_inds,:] = pc_i
-            pc[R_inds,:] = pc_r
+            pc[I_inds] = pc_i
+            pc[R_inds] = pc_r
+
+            pc = pc.reshape(
+                NIFTIsize[0],
+                NIFTIsize[1],
+                NIFTIsize[2]
+                )
 
             # Output pvalue map
             pcmap = nib.Nifti1Image(pc,
