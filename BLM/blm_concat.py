@@ -305,8 +305,6 @@ def main(*args):
     df_r = df_r.reshape([n_v_r])
     df_i = n_s - n_p
 
-    print(df_r.shape)
-
     # Unmask df
     df = np.zeros([n_v])
     df[R_inds] = df_r
@@ -758,6 +756,29 @@ def main(*args):
                 os.path.join(OutDir, 
                     'blm_vox_Fstat_c' + str(i+1) + '.nii'))
             del fStatc, fStatcmap
+
+                        # Work out p for this contrast
+            pc_i = -np.log10(1-stats.f.cdf(fStatc_i, q, df_i))
+            pc_r = -np.log10(1-stats.f.cdf(fStatc_r, q, df_r))
+
+            # Unmask p for this contrast
+            pc = np.zeros([n_v])
+            pc[I_inds] = pc_i
+            pc[R_inds] = pc_r
+
+            pc = pc.reshape(
+                NIFTIsize[0],
+                NIFTIsize[1],
+                NIFTIsize[2]
+                )
+
+            # Output pvalue map
+            pcmap = nib.Nifti1Image(pc,
+                                    nifti.affine,
+                                    header=nifti.header)
+            nib.save(pcmap,
+                os.path.join(OutDir, 
+                    'blm_vox_Fstat_lp_c' + str(i+1) + '.nii'))  
 
             # Unmask partialR2.
             partialR2 = np.zeros([n_v])
