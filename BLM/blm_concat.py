@@ -638,14 +638,17 @@ def main(*args):
                 os.path.join(OutDir, 
                     'blm_vox_Tstat_c' + str(i+1) + '.nii'))
 
-            # Work out p for this contrast
-            pc_i = -np.log10(1-stats.t.cdf(tStatc_i, df_i))
-            pc_r = -np.log10(1-stats.t.cdf(tStatc_r, df_r))
-
             # Unmask p for this contrast
             pc = np.zeros([n_v])
-            pc[I_inds] = pc_i
-            pc[R_inds] = pc_r
+
+            # Work out p for this contrast
+            if n_v_i:
+                pc_i = -np.log10(1-stats.t.cdf(tStatc_i, df_i))
+                pc[I_inds] = pc_i
+
+            if n_v_r:
+                pc_r = -np.log10(1-stats.t.cdf(tStatc_r, df_r))
+                pc[R_inds] = pc_r
 
             pc = pc.reshape(
                 NIFTIsize[0],
@@ -757,14 +760,19 @@ def main(*args):
                     'blm_vox_Fstat_c' + str(i+1) + '.nii'))
             del fStatc, fStatcmap
 
-                        # Work out p for this contrast
-            pc_i = -np.log10(1-stats.f.cdf(fStatc_i, q, df_i))
-            pc_r = -np.log10(1-stats.f.cdf(fStatc_r, q, df_r))
+
 
             # Unmask p for this contrast
             pc = np.zeros([n_v])
-            pc[I_inds] = pc_i
-            pc[R_inds] = pc_r
+
+            # Work out p for this contrast
+            if n_v_i:
+                pc_i = -np.log10(1-stats.f.cdf(fStatc_i, q, df_i))
+                pc[I_inds] = pc_i
+
+            if n_v_r:
+                pc_r = -np.log10(1-stats.f.cdf(fStatc_r, q, df_r))
+                pc[R_inds] = pc_r
 
             pc = pc.reshape(
                 NIFTIsize[0],
