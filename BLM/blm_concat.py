@@ -18,6 +18,7 @@ import warnings
 import subprocess
 from BLM.blm_eval import blm_eval
 np.set_printoptions(threshold=np.nan)
+from scipy import stats
 
 # Developer notes:
 # --------------------------------------------------------------------------
@@ -298,6 +299,27 @@ def main(*args):
 
     # Number of voxels in inner mask
     n_v_i = I_inds.shape[0]
+
+    # Create dpf map
+    df_r = n_s_sv[R_inds,:] - n_p
+    df_r = df_r.reshape([n_v_r])
+    df_i = n_s - n_p
+
+    # Unmask df
+    df = np.zeros([n_v])
+    df[R_inds] = df_r
+    df[I_inds] = df_i
+
+    df = df.reshape(int(NIFTIsize[0]),
+                    int(NIFTIsize[1]),
+                    int(NIFTIsize[2]))
+
+    # Save beta map.
+    dfmap = nib.Nifti1Image(df,
+                            nifti.affine,
+                            header=nifti.header)
+    nib.save(dfmap, os.path.join(OutDir,'blm_vox_edf.nii'))
+    del df, dfmap
 
     # ----------------------------------------------------------------------
     # Calculate betahat = (X'X)^(-1)X'Y and output beta maps
@@ -615,11 +637,40 @@ def main(*args):
             nib.save(tStatcmap,
                 os.path.join(OutDir, 
                     'blm_vox_Tstat_c' + str(i+1) + '.nii'))
-            del tStatc, tStatcmap
+
+            # Unmask p for this contrast
+            pc = np.zeros([n_v])
+
+            # Work out p for this contrast
             if n_v_i:
-                del tStatc_i
+                pc_i = -np.log10(1-stats.t.cdf(tStatc_i, df_i))
+                pc[I_inds] = pc_i
+
             if n_v_r:
-                del tStatc_r
+                pc_r = -np.log10(1-stats.t.cdf(tStatc_r, df_r))
+                pc[R_inds] = pc_r
+
+            pc = pc.reshape(
+                NIFTIsize[0],
+                NIFTIsize[1],
+                NIFTIsize[2]
+                )
+
+            # Output pvalue map
+            pcmap = nib.Nifti1Image(pc,
+                                    nifti.affine,
+                                    header=nifti.header)
+            nib.save(pcmap,
+                os.path.join(OutDir, 
+                    'blm_vox_Tstat_lp_c' + str(i+1) + '.nii'))  
+
+
+            del tStatc, tStatcmap, pcmap, pc
+            if n_v_i:
+                del tStatc_i, pc_i
+            if n_v_r:
+                del tStatc_r, pc_r
+
 
         if inputs['contrasts'][i]['c' + str(i+1)]['statType'] == 'F':
                 
@@ -708,6 +759,34 @@ def main(*args):
                 os.path.join(OutDir, 
                     'blm_vox_Fstat_c' + str(i+1) + '.nii'))
             del fStatc, fStatcmap
+
+
+
+            # Unmask p for this contrast
+            pc = np.zeros([n_v])
+
+            # Work out p for this contrast
+            if n_v_i:
+                pc_i = -np.log10(1-stats.f.cdf(fStatc_i, q, df_i))
+                pc[I_inds] = pc_i
+
+            if n_v_r:
+                pc_r = -np.log10(1-stats.f.cdf(fStatc_r, q, df_r))
+                pc[R_inds] = pc_r
+
+            pc = pc.reshape(
+                NIFTIsize[0],
+                NIFTIsize[1],
+                NIFTIsize[2]
+                )
+
+            # Output pvalue map
+            pcmap = nib.Nifti1Image(pc,
+                                    nifti.affine,
+                                    header=nifti.header)
+            nib.save(pcmap,
+                os.path.join(OutDir, 
+                    'blm_vox_Fstat_lp_c' + str(i+1) + '.nii'))  
 
             # Unmask partialR2.
             partialR2 = np.zeros([n_v])

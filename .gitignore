@@ -4,3 +4,8 @@ dist/*
 BLM_py.egg-info/*
 BLM/binputs/*
 BLM/__pycache__/*
+BLM/test/cfg/*_copy*
+BLM/test/__pycache__/*
+BLM/test/cfgids/*
+__pycache__/*
+

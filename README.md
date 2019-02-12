@@ -133,6 +133,28 @@ fslpython -c "import blm_serial; blm_serial.main()
 
 The commandline will then tell you how much progress is being made as it runs each block.
 
+### Analysis Output
+
+Below is a full list of NIFTI files output after a BLM analysis.
+
+| Filename  | Description  |
+|---|---|
+| `blm_vox_mask` | This is the analysis mask. |
+| `blm_vox_n` | This is a map of the number of subjects which contributed to each voxel in the final analysis. |
+| `blm_vox_edf` | This is the spatially varying error degrees of freedom mask. |
+| `blm_vox_beta_b{#b}`  | This is the `#b`th beta estimate.  |
+| `blm_vox_beta_c{#c}`  | This is the `#c`th contrast multiplied by the estimate of beta (this is the same as `COPE` in FSL).  |
+| `blm_vox_cov_b{#b1},{#b2}`  | This is the covariance between the `#b1`th and `#b2`th beta estimates.  |
+| `blm_vox_cov_c{#c}` | This is the covariance of the `#c`th contrast multiplied by beta (only available for T contrasts). |
+| `blm_vox_pr2_c{#c}` | This is the partial R^2 map for the `#c`th contrast (only available for F contrasts). |
+| `blm_vox_resms` | This is the residual mean squares map for the analysis. |
+| `blm_vox_Tstat_c{#c}` | This is the T statistic for the `#c`th contrast (only available for T contrasts). |
+| `blm_vox_Fstat_c{#c}` | This is the F statistic for the `#c`th contrast (only available for F contrasts). |
+| `blm_vox_Tstat_lp_c{#c}` | This is the uncorrected P value map for the `#c`th contrast (T contrast). |
+| `blm_vox_Fstat_lp_c{#c}` | This is the uncorrected P value map for the `#c`th contrast (F contrast). |
+
+In addition, a copy of the design is saved in the output directory as `inputs.yml`. It is recommended that this be kept for data provenance purposes.
+
 ## Testing
 
 Note: All the below tests require access to test data. To ask access, please ask @TomMaullin directly.
