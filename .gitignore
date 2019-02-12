@@ -4,3 +4,5 @@ dist/*
 BLM_py.egg-info/*
 BLM/binputs/*
 BLM/__pycache__/*
+BLM/test/*_copy*
+
