@@ -7,3 +7,5 @@ BLM/__pycache__/*
 BLM/test/*_copy*
 BLM/test/__pycache__/*
 BLM/test/cfgids/*
+__pycache__/*
+
