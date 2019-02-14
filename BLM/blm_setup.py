@@ -23,18 +23,24 @@ def main(*args):
         ipath = os.path.abspath(os.path.join('..','blm_config.yml'))
         with open(ipath, 'r') as stream:
             inputs = yaml.load(stream)
+        retnb = False
     else:
         if type(args[0]) is str:
             ipath = os.path.abspath(os.path.join(pwd, args[0]))
             # In this case inputs file is first argument
             with open(ipath, 'r') as stream:
                 inputs = yaml.load(stream)
+                # Work out whether to return nb or save it in a 
+                # file
+                if len(args)>1:
+                    retnb = args[1]
+                else:
+                    retnb = False
         else:  
             # In this case inputs structure is first argument.
             inputs = args[0]
             ipath = ''
-
-    print(ipath)
+            retnb = True
 
     # Save absolute filepaths in place of relative filepaths
     if ipath: 
@@ -83,9 +89,6 @@ def main(*args):
         with open(ipath, 'w') as outfile:
             yaml.dump(inputs, outfile, default_flow_style=False)
 
-
-    print(os.path.isabs(inputs['Y_files']))
-
     # Change paths to absoluate if they aren't already
     
     if 'MAXMEM' in inputs:
@@ -99,8 +102,6 @@ def main(*args):
     c1 = blm_eval(inputs['contrasts'][0]['c' + str(1)]['vector'])
     c1 = np.array(c1)
     n_p = c1.shape[0]
-    print('np')
-    print(n_p)
     del c1
 
     # Make output directory and tmp
@@ -116,9 +117,6 @@ def main(*args):
         for line in a.readlines():
 
             Y_files.append(line.replace('\n', ''))
-
-        print('Y_files')
-        print(Y_files)
 
     # Load in one nifti to check NIFTI size
     try:
@@ -138,9 +136,7 @@ def main(*args):
     # as approximately a third of the volume is actually non-zero/brain 
     # and then also divide though everything by the number of parameters
     # in the analysis.
-    blksize = np.floor(MAXMEM/8/NIFTIsize/n_p);
-    print('blocksize')
-    print(blksize)
+    blksize = np.floor(MAXMEM/8/NIFTIsize/n_p)
     if blksize == 0:
         raise ValueError('Blocksize too small.')
 
@@ -161,7 +157,7 @@ def main(*args):
             if np.linalg.matrix_rank(cvec)<q:
                 raise ValueError('F contrast: \n' + str(cvec) + '\n is not of correct rank.')
 
-    if (len(args)==0) or (type(args[0]) is str):
+    if not retnb:
         with open(os.path.join(OutDir, "nb.txt"), 'w') as f:
             print(int(np.ceil(len(Y_files)/int(blksize))), file=f)
     else:

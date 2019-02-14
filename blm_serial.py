@@ -17,11 +17,12 @@ def main(*args):
     else:
         # Load in inputs
         ipath = args[0]
-        with open(args[0], 'r') as stream:
+        with open(ipath, 'r') as stream:
             inputs = yaml.load(stream)
 
     # Run the setup job to obtain the number of batches needed.
-    nB = blm_setup.main(ipath)
+    # retnb tells setup to return nB rather than save it
+    nB = blm_setup.main(ipath, retnb=True)
 
     # Run batch jobs and concatenate results
     print('Running batch 1/' + str(nB))
