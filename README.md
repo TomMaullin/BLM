@@ -25,11 +25,11 @@ The regression model for BLM must be specified in `blm_config.yml`. Below is a c
 #### Mandatory fields
 The following fields are mandatory:
 
- - `Y_files`: This should be a text file containing a list of response variable NIFTI's.
- - `X`: This should be the design matrix as a plain csv (no column headers).
- - `outdir`: This is the output directory.
- - `contrasts`: These are the contrast vectors to be tested. They should be listed as `c1,c2,...` etc and each contrast should contain the fields:
-   - `name`: A name for the contrast. i.e. `awesomelynamedcontrast1`.
+ - `Y_files`: Text file containing a list of response variable images in NIFTI format.
+ - `X`: CSV file of the design matrix (no column header, no ID row).
+ - `outdir`: Path to the output directory.
+ - `contrasts`: Contrast vectors to be tested. They should be listed as `c1,c2,...` etc and each contrast should contain the fields:
+   - `name`: A name for the contrast. i.e. `AwesomelyNamedContrast1`.
    - `vector`: A vector for the contrast. i.e. `[1, 0, 0]` or `[[1, 0, 0],[0,1,0]]`
    - `statType`: The statistic type of the contrast vector (`T` or `F`).
    
@@ -48,6 +48,9 @@ The following fields are optional:
    - `MinN`: The number of studies present at a voxel necessary for that voxel to be included in the final analysis mask. For example, if this is set to `20` then any voxel with recorded values for at least 20 studies will be kept in the analysis.
    - `Masking`: A post analysis mask.
  - `OutputCovB`: If set to `True` this will output between beta covariance maps. For studies with a large number of paramters this may not be desirable as, for example, 30 analysis paramters will create 30x30=900 between beta covariance maps. By default this is set to `True`.
+ - `M_thresh`: Any voxel with value below this threshold will be treated as missing data. (By default, no such thresholding  is done, i.e. `M_thresh` is essentially -infinity). 
+
+
  
 #### Examples
 
@@ -62,7 +65,7 @@ outdir: /path/to/output/directory/
 contrasts:
   - c1:
       name: contrast1
-      vector: [1, 0, 1, 0 1]
+      vector: [1, 0, 1, 0, 1]
       statType: T
 ```
 
