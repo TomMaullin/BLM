@@ -62,7 +62,7 @@ outdir: /path/to/output/directory/
 contrasts:
   - c1:
       name: contrast1
-      vector: [1, 0, 1, 0 1]
+      vector: [1, 0, 1, 0, 1]
       statType: T
 ```
 
