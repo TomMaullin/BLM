@@ -27,7 +27,7 @@ def main(*args):
         if type(args[0]) is str:
             ipath = os.path.abspath(os.path.join(pwd, args[0]))
             # In this case inputs file is first argument
-            with ipath as stream:
+            with open(ipath, 'r') as stream:
                 inputs = yaml.load(stream)
         else:  
             # In this case inputs structure is first argument.
