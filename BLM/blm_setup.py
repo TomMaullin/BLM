@@ -71,12 +71,12 @@ def main(*args):
             if ("Masking" in inputs["Missingness"]) or ("masking" in inputs["Missingness"]):
 
                 # Read in threshold mask
-                if not os.path.isabs(inputs["Missingness"]["Masking"]):
-                    if "Masking" in inputs["Missingness"]:
+                if "Masking" in inputs["Missingness"]:
+                    if not os.path.isabs(inputs["Missingness"]["Masking"]):
                         inputs["Missingness"]["Masking"] = os.path.join(pwd, inputs["Missingness"]["Masking"])
 
-                if not os.path.isabs(inputs["Missingness"]["masking"]):
-                    if "Masking" in inputs["Missingness"]:
+                if "Masking" in inputs["Missingness"]:
+                    if not os.path.isabs(inputs["Missingness"]["masking"]):
                         inputs["Missingness"]["masking"] = os.path.join(pwd, inputs["Missingness"]["masking"])
 
         # Update inputs
