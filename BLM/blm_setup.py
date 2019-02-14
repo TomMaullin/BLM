@@ -75,7 +75,7 @@ def main(*args):
                     if not os.path.isabs(inputs["Missingness"]["Masking"]):
                         inputs["Missingness"]["Masking"] = os.path.join(pwd, inputs["Missingness"]["Masking"])
 
-                if "Masking" in inputs["Missingness"]:
+                if "masking" in inputs["Missingness"]:
                     if not os.path.isabs(inputs["Missingness"]["masking"]):
                         inputs["Missingness"]["masking"] = os.path.join(pwd, inputs["Missingness"]["masking"])
 
