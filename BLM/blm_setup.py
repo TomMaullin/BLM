@@ -12,6 +12,12 @@ import shutil
 import yaml
 from BLM.blm_eval import blm_eval
 
+# Main takes in two arguments at most:
+# - input: Either the path to an input file or an input structure
+#          with all paths already set to absolute.
+# - retnb: A boolean which tells us whether to return the number
+#          of batches needed (retnb=True) or save the variable
+#          in a text file (retnb=False).
 def main(*args):
 
     # Change to blm directory
