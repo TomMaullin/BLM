@@ -8,4 +8,4 @@ BLM/test/cfg/*_copy*
 BLM/test/__pycache__/*
 BLM/test/cfgids/*
 __pycache__/*
-
+blm_config.yml
