@@ -34,6 +34,8 @@ def main(*args):
             inputs = args[0]
             ipath = ''
 
+    print(ipath)
+
     # Save absolute filepaths in place of relative filepaths
     if ipath: 
 
@@ -81,6 +83,8 @@ def main(*args):
         with open(ipath, 'w') as outfile:
             yaml.dump(inputs, outfile, default_flow_style=False)
 
+
+    print(os.path.isabs(inputs['Y_files']))
 
     # Change paths to absoluate if they aren't already
     
