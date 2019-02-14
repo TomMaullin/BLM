@@ -10,28 +10,79 @@ import sys
 import os
 import shutil
 import yaml
-import time
 from BLM.blm_eval import blm_eval
 
 def main(*args):
 
-    t1 = time.time()
-
     # Change to blm directory
+    pwd = os.getcwd()
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
     if len(args)==0 or (not args[0]):
         # Load in inputs
-        with open(os.path.join('..','blm_config.yml'), 'r') as stream:
+        inpath = os.path.abspath(os.path.join('..','blm_config.yml'))
+        with open(ipath 'r') as stream:
             inputs = yaml.load(stream)
     else:
         if type(args[0]) is str:
+            ipath = os.fullpath(pwd, args[0])
             # In this case inputs file is first argument
-            with open(os.path.join(args[0]), 'r') as stream:
+            with ipath as stream:
                 inputs = yaml.load(stream)
         else:  
             # In this case inputs structure is first argument.
             inputs = args[0]
+            ipath = ''
+
+    # Save absolute filepaths in place of relative filepaths
+    if ipath: 
+
+        # Y files
+        if not os.path.isabs(inputs['Y_files']):
+
+            # Change Y in inputs
+            inputs['Y_files'] = os.path.join(pwd, inputs['Y_files'])
+
+        # If mask files are specified
+        if 'M_files' in inputs:
+
+            # M_files
+            if not os.path.isabs(inputs['M_files']):
+
+                # Change M in inputs
+                inputs['M_files'] = os.path.join(pwd, inputs['M_files'])
+
+        # If X is specified
+        if not os.path.isabs(inputs['X']):
+
+            # Change X in inputs
+            inputs['X'] = os.path.join(pwd, inputs['X'])
+
+        if not os.path.isabs(inputs['outdir']):
+
+            # Change output directory in inputs
+            inputs['outdir'] = os.path.join(pwd, inputs['outdir'])
+
+        # Change missingness mask in inputs
+        if 'Missingness' in inputs:
+
+            if ("Masking" in inputs["Missingness"]) or ("masking" in inputs["Missingness"]):
+
+                # Read in threshold mask
+                if not os.path.isabs(inputs["Missingness"]["Masking"]):
+                    if "Masking" in inputs["Missingness"]:
+                        inputs["Missingness"]["Masking"] = os.path.join(pwd, inputs["Missingness"]["Masking"])
+
+                if not os.path.isabs(inputs["Missingness"]["masking"]):
+                    if "Masking" in inputs["Missingness"]:
+                        inputs["Missingness"]["masking"] = os.path.join(pwd, inputs["Missingness"]["masking"])
+
+        # Update inputs
+        with open(ipath, 'w') as outfile:
+            yaml.dump(inputs, outfile, default_flow_style=False)
+
+
+    # Change paths to absoluate if they aren't already
     
     if 'MAXMEM' in inputs:
         MAXMEM = eval(inputs['MAXMEM'])
