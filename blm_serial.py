@@ -10,16 +10,18 @@ def main(*args):
     print('Setting up analysis...')
 
     if len(args)==0:
+        ipath = os.path.join(os.getcwd(),'blm_config.yml')
         # Load in inputs
-        with open(os.path.join(os.getcwd(),'blm_config.yml'), 'r') as stream:
+        with open(ipath, 'r') as stream:
             inputs = yaml.load(stream)
     else:
         # Load in inputs
+        ipath = args[0]
         with open(args[0], 'r') as stream:
             inputs = yaml.load(stream)
 
     # Run the setup job to obtain the number of batches needed.
-    nB = blm_setup.main(inputs)
+    nB = blm_setup.main(ipath)
 
     # Run batch jobs and concatenate results
     print('Running batch 1/' + str(nB))
