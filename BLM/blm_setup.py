@@ -99,6 +99,8 @@ def main(*args):
     c1 = blm_eval(inputs['contrasts'][0]['c' + str(1)]['vector'])
     c1 = np.array(c1)
     n_p = c1.shape[0]
+    print('np')
+    print(n_p)
     del c1
 
     # Make output directory and tmp
@@ -114,6 +116,9 @@ def main(*args):
         for line in a.readlines():
 
             Y_files.append(line.replace('\n', ''))
+
+        print('Y_files')
+        print(Y_files)
 
     # Load in one nifti to check NIFTI size
     try:
@@ -134,6 +139,8 @@ def main(*args):
     # and then also divide though everything by the number of parameters
     # in the analysis.
     blksize = np.floor(MAXMEM/8/NIFTIsize/n_p);
+    print('blocksize')
+    print(blksize)
     if blksize == 0:
         raise ValueError('Blocksize too small.')
 
