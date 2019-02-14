@@ -131,7 +131,7 @@ After running this you will see text printed to the commandline telling you the 
 To run an analysis in serial, ensure you are in the `BLM-py` directory and once you are happy with the analysis you have specified in `blm_config.yml`, run the following command:
 
 ```
-fslpython -c "import blm_serial; blm_serial.main()
+fslpython -c "import blm_serial; blm_serial.main()"
 ```
 
 The commandline will then tell you how much progress is being made as it runs each block.
