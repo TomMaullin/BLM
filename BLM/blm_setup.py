@@ -20,8 +20,8 @@ def main(*args):
 
     if len(args)==0 or (not args[0]):
         # Load in inputs
-        inpath = os.path.abspath(os.path.join('..','blm_config.yml'))
-        with open(ipath 'r') as stream:
+        ipath = os.path.abspath(os.path.join('..','blm_config.yml'))
+        with open(ipath, 'r') as stream:
             inputs = yaml.load(stream)
     else:
         if type(args[0]) is str:
