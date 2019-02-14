@@ -25,11 +25,11 @@ The regression model for BLM must be specified in `blm_config.yml`. Below is a c
 #### Mandatory fields
 The following fields are mandatory:
 
- - `Y_files`: This should be a text file containing a list of response variable NIFTI's.
- - `X`: This should be the design matrix as a plain csv (no column headers).
- - `outdir`: This is the output directory.
- - `contrasts`: These are the contrast vectors to be tested. They should be listed as `c1,c2,...` etc and each contrast should contain the fields:
-   - `name`: A name for the contrast. i.e. `awesomelynamedcontrast1`.
+ - `Y_files`: Text file containing a list of response variable images in NIFTI format.
+ - `X`: CSV file of the design matrix (no column header, no ID row).
+ - `outdir`: Path to the output directory.
+ - `contrasts`: Contrast vectors to be tested. They should be listed as `c1,c2,...` etc and each contrast should contain the fields:
+   - `name`: A name for the contrast. i.e. `AwesomelyNamedContrast1`.
    - `vector`: A vector for the contrast. i.e. `[1, 0, 0]` or `[[1, 0, 0],[0,1,0]]`
    - `statType`: The statistic type of the contrast vector (`T` or `F`).
    
