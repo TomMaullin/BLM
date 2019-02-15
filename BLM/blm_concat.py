@@ -251,13 +251,22 @@ def main(*args):
                 raise ValueError('Nifti image ' + mmThresh_path + ' will not load.')
 
             # Apply mask nifti.
-            Mask[mmThresh==0]=0
+            Mask[mmThresh>n_s_sv]=0
 
 
     # We remove anything with 1 degree of freedom (or less) by default.
     # 1 degree of freedom seems to cause broadcasting errors on a very
     # small percentage of voxels.
     Mask[n_s_sv<=n_p+1]=0
+
+    if 'additionalmask' in inputs:
+
+        addmask_path = inputs["additionalmask"]
+        
+        # Read in the mask nifti.
+        addmask = nib.load(addmask_path).get_data().reshape([n_v,1])
+        
+        Mask[addmask==0]=0
 
     # Reshape sumXtX to correct n_v by n_p by n_p
     sumXtX = sumXtX.reshape([n_v, n_p, n_p])

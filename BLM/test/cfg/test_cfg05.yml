@@ -55,6 +55,5 @@ contrasts:
 # least 15 of subject masks, enter 15.
 # For masking: Enter the filepath to the nifti mask you wish to use.
 # Examples:
-Missingness:
-  Masking: /well/win/software/packages/fsl/5.0.11/data/standard/MNI152_T1_2mm_brain_mask.nii.gz
+additionalmask: /well/win/software/packages/fsl/5.0.11/data/standard/MNI152_T1_2mm_brain_mask.nii.gz
 
