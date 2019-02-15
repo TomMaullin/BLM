@@ -32,7 +32,10 @@ def main(*args):
         retnb = False
     else:
         if type(args[0]) is str:
-            ipath = os.path.abspath(os.path.join(pwd, args[0]))
+            if os.path.isabs(args[0]):
+                ipath = args[0]
+            else:
+                ipath = os.path.abspath(os.path.join(pwd, args[0]))
             # In this case inputs file is first argument
             with open(ipath, 'r') as stream:
                 inputs = yaml.load(stream)
