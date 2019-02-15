@@ -10,28 +10,92 @@ import sys
 import os
 import shutil
 import yaml
-import time
 from BLM.blm_eval import blm_eval
 
+# Main takes in two arguments at most:
+# - input: Either the path to an input file or an input structure
+#          with all paths already set to absolute.
+# - retnb: A boolean which tells us whether to return the number
+#          of batches needed (retnb=True) or save the variable
+#          in a text file (retnb=False).
 def main(*args):
 
-    t1 = time.time()
-
     # Change to blm directory
+    pwd = os.getcwd()
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
     if len(args)==0 or (not args[0]):
         # Load in inputs
-        with open(os.path.join('..','blm_config.yml'), 'r') as stream:
+        ipath = os.path.abspath(os.path.join('..','blm_config.yml'))
+        with open(ipath, 'r') as stream:
             inputs = yaml.load(stream)
+        retnb = False
     else:
         if type(args[0]) is str:
+            ipath = os.path.abspath(os.path.join(pwd, args[0]))
             # In this case inputs file is first argument
-            with open(os.path.join(args[0]), 'r') as stream:
+            with open(ipath, 'r') as stream:
                 inputs = yaml.load(stream)
+                # Work out whether to return nb or save it in a 
+                # file
+                if len(args)>1:
+                    retnb = args[1]
+                else:
+                    retnb = False
         else:  
             # In this case inputs structure is first argument.
             inputs = args[0]
+            ipath = ''
+            retnb = True
+
+    # Save absolute filepaths in place of relative filepaths
+    if ipath: 
+
+        # Y files
+        if not os.path.isabs(inputs['Y_files']):
+
+            # Change Y in inputs
+            inputs['Y_files'] = os.path.join(pwd, inputs['Y_files'])
+
+        # If mask files are specified
+        if 'M_files' in inputs:
+
+            # M_files
+            if not os.path.isabs(inputs['M_files']):
+
+                # Change M in inputs
+                inputs['M_files'] = os.path.join(pwd, inputs['M_files'])
+
+        # If X is specified
+        if not os.path.isabs(inputs['X']):
+
+            # Change X in inputs
+            inputs['X'] = os.path.join(pwd, inputs['X'])
+
+        if not os.path.isabs(inputs['outdir']):
+
+            # Change output directory in inputs
+            inputs['outdir'] = os.path.join(pwd, inputs['outdir'])
+
+        # Change missingness mask in inputs
+        if 'Missingness' in inputs:
+
+            if ("Masking" in inputs["Missingness"]) or ("masking" in inputs["Missingness"]):
+
+                # Read in threshold mask
+                if "Masking" in inputs["Missingness"]:
+                    if not os.path.isabs(inputs["Missingness"]["Masking"]):
+                        inputs["Missingness"]["Masking"] = os.path.join(pwd, inputs["Missingness"]["Masking"])
+
+                if "masking" in inputs["Missingness"]:
+                    if not os.path.isabs(inputs["Missingness"]["masking"]):
+                        inputs["Missingness"]["masking"] = os.path.join(pwd, inputs["Missingness"]["masking"])
+
+        # Update inputs
+        with open(ipath, 'w') as outfile:
+            yaml.dump(inputs, outfile, default_flow_style=False)
+
+    # Change paths to absoluate if they aren't already
     
     if 'MAXMEM' in inputs:
         MAXMEM = eval(inputs['MAXMEM'])
@@ -78,7 +142,7 @@ def main(*args):
     # as approximately a third of the volume is actually non-zero/brain 
     # and then also divide though everything by the number of parameters
     # in the analysis.
-    blksize = np.floor(MAXMEM/8/NIFTIsize/n_p);
+    blksize = np.floor(MAXMEM/8/NIFTIsize/n_p)
     if blksize == 0:
         raise ValueError('Blocksize too small.')
 
@@ -99,7 +163,7 @@ def main(*args):
             if np.linalg.matrix_rank(cvec)<q:
                 raise ValueError('F contrast: \n' + str(cvec) + '\n is not of correct rank.')
 
-    if (len(args)==0) or (type(args[0]) is str):
+    if not retnb:
         with open(os.path.join(OutDir, "nb.txt"), 'w') as f:
             print(int(np.ceil(len(Y_files)/int(blksize))), file=f)
     else:

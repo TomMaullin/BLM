@@ -79,6 +79,10 @@ if [ "$printOpt" == "1" ] ; then
   echo "Submitting batch jobs..."
 fi
 
+# Reread yaml file in case filepaths have been updated to be absolute
+eval $(parse_yaml $inputs "config_")
+inputs=$config_outdir/inputs.yml
+
 i=1
 while [ "$i" -le "$nb" ]; do
 
