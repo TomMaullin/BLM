@@ -1,7 +1,7 @@
 #!/bin/bash
 
 RealPath() {
-    (cd $(dirname "$1") && pwd)
+    (echo $(cd $(dirname "$1") && pwd -P)/$(basename "$1"))
 }
 
 BLM_PATH=$(RealPath "${BASH_SOURCE[0]}")
