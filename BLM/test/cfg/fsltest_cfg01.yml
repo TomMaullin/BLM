@@ -58,7 +58,8 @@ contrasts:
 Missingness:
   MinPercent: 0.10
   MinN: 15
-  Masking: /well/win/software/packages/fsl/5.0.11/data/standard/MNI152_T1_2mm_brain_mask.nii.gz
+
+additionalmask: /well/win/software/packages/fsl/5.0.11/data/standard/MNI152_T1_2mm_brain_mask.nii.gz
 
 # Purely for testing, also record number of subjects
 ns: 200
