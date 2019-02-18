@@ -79,9 +79,9 @@ def main(*args):
     X = X[(blksize*(batchNo-1)):min((blksize*batchNo),len(Y_files))]
     
     # Mask volumes (if they are given)
-    if 'Data_mask_files' in inputs:
+    if 'data_mask_files' in inputs:
 
-        with open(inputs['Data_mask_files']) as a:
+        with open(inputs['data_mask_files']) as a:
 
             M_files = []
             i = 0

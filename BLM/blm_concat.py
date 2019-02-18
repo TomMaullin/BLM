@@ -209,9 +209,9 @@ def main(*args):
     # small percentage of voxels.
     Mask[n_s_sv<=n_p+1]=0
 
-    if 'Analysis_mask' in inputs:
+    if 'analysis_mask' in inputs:
 
-        addmask_path = inputs["Analysis_mask"]
+        addmask_path = inputs["analysis_mask"]
         
         # Read in the mask nifti.
         addmask = nib.load(addmask_path).get_data().reshape([n_v,1])
