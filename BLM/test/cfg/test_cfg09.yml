@@ -9,7 +9,7 @@ MAXMEM: 2**32
 Y_files: DATA_DIRECTORY/Y_200.txt
 
 # Enter a list of Mask files.
-M_files: DATA_DIRECTORY/M_200.txt
+data_mask_files: DATA_DIRECTORY/M_200.txt
 
 # Design matrix and number of parameters.
 X: DATA_DIRECTORY/X_200_p30.csv
@@ -51,7 +51,7 @@ Missingness:
   MinPercent: 0.10
   MinN: 15
 
-additionalmask: /well/win/software/packages/fsl/5.0.11/data/standard/MNI152_T1_2mm_brain_mask.nii.gz
+analysis_mask: /well/win/software/packages/fsl/5.0.11/data/standard/MNI152_T1_2mm_brain_mask.nii.gz
 
 # For large designs with many parameters, there can be many between parameter
 # covariance maps. If the number of p is large it may be desirable not to output

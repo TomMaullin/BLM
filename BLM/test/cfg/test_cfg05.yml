@@ -9,7 +9,7 @@ MAXMEM: 2**32
 Y_files: DATA_DIRECTORY/Y_200.txt
 
 # Enter a list of Mask files.
-M_files: DATA_DIRECTORY/M_200.txt
+data_mask_files: DATA_DIRECTORY/M_200.txt
 
 # Design matrix and number of parameters.
 X: DATA_DIRECTORY/X_200.csv
@@ -55,5 +55,5 @@ contrasts:
 # least 15 of subject masks, enter 15.
 # For masking: Enter the filepath to the nifti mask you wish to use.
 # Examples:
-additionalmask: /well/win/software/packages/fsl/5.0.11/data/standard/MNI152_T1_2mm_brain_mask.nii.gz
+analysis_mask: /well/win/software/packages/fsl/5.0.11/data/standard/MNI152_T1_2mm_brain_mask.nii.gz
 
