@@ -79,9 +79,9 @@ def main(*args):
     X = X[(blksize*(batchNo-1)):min((blksize*batchNo),len(Y_files))]
     
     # Mask volumes (if they are given)
-    if 'M_files' in inputs:
+    if 'Data_mask_files' in inputs:
 
-        with open(inputs['M_files']) as a:
+        with open(inputs['Data_mask_files']) as a:
 
             M_files = []
             i = 0
@@ -109,8 +109,8 @@ def main(*args):
         M_files = None
 
     # Mask threshold for Y (if given)
-    if 'M_thresh' in inputs:
-        M_t = float(inputs['M_thresh'])
+    if 'Data_mask_thresh' in inputs:
+        M_t = float(inputs['Data_mask_thresh'])
     else:
         M_t = None
 
