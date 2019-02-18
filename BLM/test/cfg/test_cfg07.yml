@@ -6,7 +6,7 @@
 MAXMEM: 2**32
 
 # Enter a list of Y files.
-data_mask_files: DATA_DIRECTORY/Y_200.txt
+Y_files: DATA_DIRECTORY/Y_200.txt
 
 # Design matrix and number of parameters.
 X: DATA_DIRECTORY/X_200.csv
