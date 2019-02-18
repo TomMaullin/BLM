@@ -94,19 +94,22 @@ def main(*args):
 
             # In this case we have a mask per Y volume
             M_files = M_files[(blksize*(batchNo-1)):min((blksize*batchNo),len(M_files))]
-            MperY = True
 
         else:
 
-            # Otherwise we have a mask/set of masks to apply to every Y.
-            MperY = False
+            if len(M_files) > len(Y_files):
+
+                raise ValueError('Too many data_masks specified!')
+
+            else:
+
+                raise ValueError('Too few data_masks specified!')
 
     # Otherwise we have no masks
     else:
 
         # There is not a mask for each Y as there are no masks at all!
-        MperY = False
-        M_files = None
+        M_files = []
 
     # Mask threshold for Y (if given)
     if 'Data_mask_thresh' in inputs:
@@ -122,7 +125,7 @@ def main(*args):
 
     # Obtain Y, mask for Y and nmap. This mask is just for voxels
     # with no studies present.
-    Y, Mask, nmap = obtainY(Y_files, M_files, MperY, M_t)
+    Y, Mask, nmap = obtainY(Y_files, M_files, M_t)
 
     # Work out voxel specific designs
     MX = blkMX(X, Y)
@@ -231,7 +234,7 @@ def blkMX(X,Y):
 
     return MX
 
-def obtainY(Y_files, M_files, MperY, M_t):
+def obtainY(Y_files, M_files, M_t):
 
     # Load in one nifti to check NIFTI size
     Y0 = nib.load(Y_files[0])
@@ -246,20 +249,6 @@ def obtainY(Y_files, M_files, MperY, M_t):
     # Count number of scans contributing to voxels
     nmap = np.zeros(d.shape)
 
-    # Make an overall mask for the block if 
-    # there's not a mask per individual
-    if not MperY:
-
-        if not M_files is None:
-
-            M_overall = np.ones(d.shape)
-
-            # Create intersect of all masks
-            for M_file in M_files:
-
-                M = nib.load(M_file).get_data()
-                M_overall = np.multiply(M_overall, M)
-
     # Read in Y
     Y = np.zeros([nscan, nvox])
     for i in range(0, len(Y_files)):
@@ -269,13 +258,9 @@ def obtainY(Y_files, M_files, MperY, M_t):
 
         # Mask Y if necesart
         if M_files is not None:
-            # If theres a mask for each individual load it
-            if MperY:
-                M_indiv = nib.load(M_files[i]).get_data()
-            # Else apply group mask to each individual
-            else:
-                M_indiv = M_overall
-
+        
+            # Apply mask
+            M_indiv = nib.load(M_files[i]).get_data()
             d = np.multiply(
                 Y_indiv.get_data(),
                 M_indiv)
