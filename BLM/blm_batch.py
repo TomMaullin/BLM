@@ -112,7 +112,7 @@ def main(*args):
         M_files = []
 
     # Mask threshold for Y (if given)
-    if 'Data_mask_thresh' in inputs:
+    if 'data_mask_thresh' in inputs:
         M_t = float(inputs['data_mask_thresh'])
     else:
         M_t = None
