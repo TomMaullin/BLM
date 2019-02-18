@@ -257,7 +257,7 @@ def obtainY(Y_files, M_files, M_t):
         Y_indiv = nib.load(Y_files[i])
 
         # Mask Y if necesart
-        if M_files is not None:
+        if M_files:
         
             # Apply mask
             M_indiv = nib.load(M_files[i]).get_data()
