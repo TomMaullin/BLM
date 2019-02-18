@@ -80,20 +80,6 @@ def main(*args):
             # Change output directory in inputs
             inputs['outdir'] = os.path.join(pwd, inputs['outdir'])
 
-        # Change missingness mask in inputs
-        if 'Missingness' in inputs:
-
-            if ("Masking" in inputs["Missingness"]) or ("masking" in inputs["Missingness"]):
-
-                # Read in threshold mask
-                if "Masking" in inputs["Missingness"]:
-                    if not os.path.isabs(inputs["Missingness"]["Masking"]):
-                        inputs["Missingness"]["Masking"] = os.path.join(pwd, inputs["Missingness"]["Masking"])
-
-                if "masking" in inputs["Missingness"]:
-                    if not os.path.isabs(inputs["Missingness"]["masking"]):
-                        inputs["Missingness"]["masking"] = os.path.join(pwd, inputs["Missingness"]["masking"])
-
         # Update inputs
         with open(ipath, 'w') as outfile:
             yaml.dump(inputs, outfile, default_flow_style=False)
