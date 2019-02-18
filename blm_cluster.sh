@@ -4,7 +4,7 @@ RealPath() {
     (echo $(cd $(dirname "$1") && pwd -P)/$(basename "$1"))
 }
 
-BLM_PATH=$(RealPath "${BASH_SOURCE[0]}")
+BLM_PATH=$(dirname $(RealPath "${BASH_SOURCE[0]}"))
 
 # include parse_yaml function
 . $BLM_PATH/lib/parse_yaml.sh
