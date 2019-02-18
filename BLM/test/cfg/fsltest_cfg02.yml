@@ -9,7 +9,7 @@ MAXMEM: 2**32
 Y_files: DATA_DIRECTORY/Y_50.txt
 
 # Enter a list of Mask files.
-M_files: DATA_DIRECTORY/M_50.txt
+data_mask_files: DATA_DIRECTORY/M_50.txt
 
 # Design matrix and number of parameters.
 X: DATA_DIRECTORY/X_50.csv
@@ -58,7 +58,7 @@ contrasts:
 Missingness:
   MinPercent: 0.10
   MinN: 15
-  Masking: /well/win/software/packages/fsl/5.0.11/data/standard/MNI152_T1_2mm_brain_mask.nii.gz
+analysis_mask: /well/win/software/packages/fsl/5.0.11/data/standard/MNI152_T1_2mm_brain_mask.nii.gz
 
 # Purely for testing, also record number of subjects
 ns: 50

@@ -61,13 +61,22 @@ def main(*args):
             inputs['Y_files'] = os.path.join(pwd, inputs['Y_files'])
 
         # If mask files are specified
-        if 'M_files' in inputs:
+        if 'data_mask_files' in inputs:
 
             # M_files
-            if not os.path.isabs(inputs['M_files']):
+            if not os.path.isabs(inputs['data_mask_files']):
 
                 # Change M in inputs
-                inputs['M_files'] = os.path.join(pwd, inputs['M_files'])
+                inputs['data_mask_files'] = os.path.join(pwd, inputs['data_mask_files'])
+
+        # If analysis mask file specified,        
+        if 'analysis_mask' in inputs:
+
+            # M_files
+            if not os.path.isabs(inputs['analysis_mask']):
+
+                # Change M in inputs
+                inputs['analysis_mask'] = os.path.join(pwd, inputs['analysis_mask'])
 
         # If X is specified
         if not os.path.isabs(inputs['X']):
@@ -79,20 +88,6 @@ def main(*args):
 
             # Change output directory in inputs
             inputs['outdir'] = os.path.join(pwd, inputs['outdir'])
-
-        # Change missingness mask in inputs
-        if 'Missingness' in inputs:
-
-            if ("Masking" in inputs["Missingness"]) or ("masking" in inputs["Missingness"]):
-
-                # Read in threshold mask
-                if "Masking" in inputs["Missingness"]:
-                    if not os.path.isabs(inputs["Missingness"]["Masking"]):
-                        inputs["Missingness"]["Masking"] = os.path.join(pwd, inputs["Missingness"]["Masking"])
-
-                if "masking" in inputs["Missingness"]:
-                    if not os.path.isabs(inputs["Missingness"]["masking"]):
-                        inputs["Missingness"]["masking"] = os.path.join(pwd, inputs["Missingness"]["masking"])
 
         # Update inputs
         with open(ipath, 'w') as outfile:

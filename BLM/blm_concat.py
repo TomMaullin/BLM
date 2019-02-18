@@ -204,60 +204,19 @@ def main(*args):
             # Mask based on threshold.
             Mask[n_s_sv<amThresh]=0
 
-        if ("Masking" in inputs["Missingness"]) or ("masking" in inputs["Missingness"]):
-
-            # Read in threshold mask
-            if "Masking" in inputs["Missingness"]:
-                mmThresh_path = inputs["Missingness"]["Masking"]
-            else:
-                mmThresh_path = inputs["Missingness"]["masking"]
-
-            try:
-                # Read in the mask nifti.
-                mmThresh = nib.load(mmThresh_path)
-
-                # Check whether the mask has the same shape as the other niftis
-                if np.array_equal(mmThresh.shape, NIFTIsize):
-                    mmThresh = mmThresh.get_data().reshape([n_v, 1])
-                else:
-                    # Make flirt resample command
-                    resamplecmd = ["flirt", "-in", mmThresh_path,
-                                            "-ref", nifti_path,
-                                            "-out", os.path.join(OutDir, 'tmp', 'blm_im_resized.nii'),
-                                            "-applyxfm"]
-
-                    # Warn the user about what is happening.
-                    warnings.warn('Masking NIFTI ' + mmThresh_path + ' does not have the'\
-                                  ' same dimensions as the input data and will therefore'\
-                                  ' be resampled using FLIRT.')
-
-                    # Run the command
-                    process = subprocess.Popen(resamplecmd, shell=False,
-                                               stdout=subprocess.PIPE)
-                    out, err = process.communicate()
-
-                    # Check the NIFTI has been generate, else wait up to 5 minutes.
-                    t = time.time()
-                    t1 = 0
-                    while (not os.path.isfile(os.path.join(OutDir, 'tmp', 'blm_im_resized.nii.gz'))) and (t1 < 300):
-                        t1 = time.time() - t
-
-                    # Load the newly resized nifti mask
-                    mmThresh = nib.load(os.path.join(OutDir, 'tmp', 'blm_im_resized.nii.gz'))
-
-                    mmThresh = mmThresh.get_data().reshape([n_v, 1])
-
-            except:
-                raise ValueError('Nifti image ' + mmThresh_path + ' will not load.')
-
-            # Apply mask nifti.
-            Mask[mmThresh==0]=0
-
-
     # We remove anything with 1 degree of freedom (or less) by default.
     # 1 degree of freedom seems to cause broadcasting errors on a very
     # small percentage of voxels.
     Mask[n_s_sv<=n_p+1]=0
+
+    if 'analysis_mask' in inputs:
+
+        addmask_path = inputs["analysis_mask"]
+        
+        # Read in the mask nifti.
+        addmask = nib.load(addmask_path).get_data().reshape([n_v,1])
+        
+        Mask[addmask==0]=0
 
     # Reshape sumXtX to correct n_v by n_p by n_p
     sumXtX = sumXtX.reshape([n_v, n_p, n_p])
