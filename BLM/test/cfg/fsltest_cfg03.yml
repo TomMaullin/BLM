@@ -17,32 +17,19 @@ X: DATA_DIRECTORY/X_20.csv
 # There should be an output directory here:
 outdir: TEST_DIRECTORY/fsltest_cfg03/blm/
 
-# Contrasts should be listed here as c1, c2, c3, c4 etc. 
-# The fields included should be name, vector and statType
-# An example c1 is given below:
-# -------------------------------------------------------
-# contrasts:
-#   - c1:
-#       name: contrast1
-#       vector: [1, 2, 0]
-#       statType: T
 contrasts:
   - c1:
       name: contrast1
       vector: [1, 0, 0]
-      statType: T
   - c2:
       name: contrast2
       vector: [0, 1, 0]
-      statType: T
   - c3:
       name: contrast3
       vector: [0, 0, 1]
-      statType: T
   - c4:
       name: contrast4
       vector: [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
-      statType: F
 
 # Missingness Thresholding: 3 types of threshold for missingness are available;
 # Relative, Absolute and Mask. 

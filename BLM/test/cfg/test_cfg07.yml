@@ -27,17 +27,13 @@ contrasts:
   - c1:
       name: contrast1
       vector: [1, 0, 0]
-      statType: T
   - c2:
       name: contrast2
       vector: [0, 1, 0]
-      statType: T
   - c3:
       name: contrast3
       vector: [0, 0, 1]
-      statType: T
   - c4:
       name: contrast4
       vector: [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
-      statType: F
 

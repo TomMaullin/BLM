@@ -30,11 +30,9 @@ contrasts:
   - c1:
       name: contrast1
       vector: [1]
-      statType: T
   - c2:
       name: contrast2
       vector: [[1]]
-      statType: F
 
 # Missingness Thresholding: 3 types of threshold for missingness are available;
 # Relative, Absolute and Mask. 

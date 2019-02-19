@@ -507,9 +507,12 @@ def main(*args):
             cbeta_i = np.matmul(cvec, beta_i)
     
         if cvec.ndim == 1:
+            statType='T'
             cvec = cvec.reshape([1,cvec.shape[0]])
+        else:
+            statType='F'
 
-        if inputs['contrasts'][i]['c' + str(i+1)]['statType'] == 'T':
+        if statType == 'T':
 
             # A T contrast has only one row so we can output cbeta here
             cbeta = np.zeros([n_v,1])
@@ -631,7 +634,7 @@ def main(*args):
                 del tStatc_r, pc_r
 
 
-        if inputs['contrasts'][i]['c' + str(i+1)]['statType'] == 'F':
+        if statType == 'F':
                 
             # Get dimension of cvector
             q = cvec.shape[0]
