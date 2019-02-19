@@ -41,7 +41,7 @@ The following fields are optional:
 
  - `MAXMEM`: This is the maximum amount of memory (in bits) that the BLM code is allowed to work with. How this should be set depends on your machine capabilities; the default value however matches the SPM default of 2^32 (note this must be in python notation i.e. `2**32`).
  - `data_mask_files`: A text file containing a list of masks to be applied to the `Y_files`. 
-   - The number of masks must be equal to the number of `Y_files` as each mask is applied to the corresponding entry `Y_files`. E.g. The first mask listed for `M_files` will be applied to the first nifti in `Y_files`, the second mask in `M_files` will be applied to the second nifti in `Y_files` and so on. 
+   - The number of masks must be equal to the number of `Y_files` as each mask is applied to the corresponding entry `Y_files`. E.g. The first mask listed for `data_mask_files` will be applied to the first nifti in `Y_files`, the second mask in `data_mask_files` will be applied to the second nifti in `Y_files` and so on. 
  - `Missingness`: This field allows the user to mask the image based on how many studies had recorded values for each voxel. This can be specified in 3 ways.
    - `MinPercent`: The percentage of studies present at a voxel necessary for that voxel to be included in the final analysis mask. For example, if this is set to `0.1` then any voxel with recorded values for at least 10% of studies will be kept in the analysis.
    - `MinN`: The number of studies present at a voxel necessary for that voxel to be included in the final analysis mask. For example, if this is set to `20` then any voxel with recorded values for at least 20 studies will be kept in the analysis.
