@@ -30,8 +30,7 @@ The following fields are mandatory:
  - `outdir`: Path to the output directory.
  - `contrasts`: Contrast vectors to be tested. They should be listed as `c1,c2,...` etc and each contrast should contain the fields:
    - `name`: A name for the contrast. i.e. `AwesomelyNamedContrast1`.
-   - `vector`: A vector for the contrast. i.e. `[1, 0, 0]` or `[[1, 0, 0],[0,1,0]]`
-   - `statType`: The statistic type of the contrast vector (`T` or `F`).
+   - `vector`: A vector for the contrast. This contrast must be one dimensional for a T test and two dimensional for an F test. For example; `[1, 0, 0]` (T contrast) or `[[1, 0, 0],[0,1,0]]` (F contrast).
    
    At least one contrast must be given, see `Examples` for an example of how to specify contrasts.
  
@@ -63,9 +62,8 @@ X: /path/to/data/X.csv
 outdir: /path/to/output/directory/
 contrasts:
   - c1:
-      name: contrast1
+      name: Tcontrast1
       vector: [1, 0, 1, 0, 1]
-      statType: T
 ```
 
 Example 2: A configuration with multiple optional fields.
@@ -79,21 +77,17 @@ X: /path/to/data/X.csv
 outdir: /path/to/output/directory/
 contrasts:
   - c1:
-      name: contrast1
+      name: Tcontrast1
       vector: [1, 0, 0]
-      statType: T
   - c2:
-      name: contrast2
+      name: Tcontrast2
       vector: [0, 1, 0]
-      statType: T
   - c3:
-      name: contrast3
+      name: Tcontrast3
       vector: [0, 0, 1]
-      statType: T
   - c4:
-      name: contrast4
+      name: Fcontrast1
       vector: [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
-      statType: F
 Missingness:
   MinPercent: 0.10
   MinN: 15
