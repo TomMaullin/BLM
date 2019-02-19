@@ -571,7 +571,7 @@ def main(*args):
                                        header=nifti.header)
             nib.save(cbetamap,
                 os.path.join(OutDir, 
-                    'blm_vox_beta_c' + str(i+1) + '.nii'))
+                    'blm_vox_con_c' + str(i+1) + '.nii'))
             del cbeta, cbetamap
 
             # Unmask to output
@@ -603,14 +603,14 @@ def main(*args):
                 NIFTIsize[2]
                 )
 
-            # Output covariance map
-            covcbetamap = nib.Nifti1Image(covcbeta,
+            # Output standard error map
+            secbetamap = nib.Nifti1Image(np.sqrt(covcbeta),
                                           nifti.affine,
                                           header=nifti.header)
-            nib.save(covcbetamap,
+            nib.save(secbetamap,
                 os.path.join(OutDir, 
-                    'blm_vox_cov_c' + str(i+1) + '.nii'))
-            del covcbeta, covcbetamap
+                    'blm_vox_conSE_c' + str(i+1) + '.nii'))
+            del covcbeta, secbetamap
 
             # Unmask T stat
             tStatc = np.zeros([n_v])
@@ -636,7 +636,7 @@ def main(*args):
                                         header=nifti.header)
             nib.save(tStatcmap,
                 os.path.join(OutDir, 
-                    'blm_vox_Tstat_c' + str(i+1) + '.nii'))
+                    'blm_vox_conT_c' + str(i+1) + '.nii'))
 
             # Unmask p for this contrast
             pc = np.zeros([n_v])
@@ -662,7 +662,7 @@ def main(*args):
                                     header=nifti.header)
             nib.save(pcmap,
                 os.path.join(OutDir, 
-                    'blm_vox_Tstat_lp_c' + str(i+1) + '.nii'))  
+                    'blm_vox_conTlp_c' + str(i+1) + '.nii'))  
 
 
             del tStatc, tStatcmap, pcmap, pc
@@ -757,7 +757,7 @@ def main(*args):
                                         header=nifti.header)
             nib.save(fStatcmap,
                 os.path.join(OutDir, 
-                    'blm_vox_Fstat_c' + str(i+1) + '.nii'))
+                    'blm_vox_conF_c' + str(i+1) + '.nii'))
             del fStatc, fStatcmap
 
 
@@ -786,7 +786,7 @@ def main(*args):
                                     header=nifti.header)
             nib.save(pcmap,
                 os.path.join(OutDir, 
-                    'blm_vox_Fstat_lp_c' + str(i+1) + '.nii'))  
+                    'blm_vox_conFlp_c' + str(i+1) + '.nii'))  
 
             # Unmask partialR2.
             partialR2 = np.zeros([n_v])
@@ -816,7 +816,7 @@ def main(*args):
                                         header=nifti.header)
             nib.save(partialR2map,
                 os.path.join(OutDir, 
-                    'blm_vox_pr2_c' + str(i+1) + '.nii'))
+                    'blm_vox_conR2_c' + str(i+1) + '.nii'))
             del partialR2, partialR2map
 
 
