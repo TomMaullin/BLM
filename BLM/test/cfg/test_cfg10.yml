@@ -2,62 +2,26 @@
 # ------------------------------------------------------------------------
 # 200 subjects, Different memory
 # ------------------------------------------------------------------------
-# Maximum Memory for computing in bytes - current default of 2**29 bytes matches that of SPM.
 MAXMEM: 2**34
-
-# Enter a list of Y files.
 Y_files: DATA_DIRECTORY/Y_200.txt
-
-# Enter a list of Mask files.
 data_mask_files: DATA_DIRECTORY/M_200.txt
-
-# Design matrix and number of parameters.
 X: DATA_DIRECTORY/X_200.csv
-
-# There should be an output directory here:
 outdir: TEST_DIRECTORY/test_cfg10/
-
-# Contrasts should be listed here as c1, c2, c3, c4 etc. 
-# The fields included should be name, vector and statType
-# An example c1 is given below:
-# -------------------------------------------------------
-# contrasts:
-#   - c1:
-#       name: contrast1
-#       vector: [1, 2, 0]
-#       statType: T
 contrasts:
   - c1:
       name: contrast1
       vector: [1, 0, 0]
-      statType: T
   - c2:
       name: contrast2
       vector: [0, 1, 0]
-      statType: T
   - c3:
       name: contrast3
       vector: [0, 0, 1]
-      statType: T
   - c4:
       name: contrast4
       vector: [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
-      statType: F
-
-# Missingness Thresholding: 3 types of threshold for missingness are available;
-# Relative, Absolute and Mask. 
-# For Relative: enter the proportion, either as a fraction of decimal
-# or percentage, of subjects required at a voxel for it to be included in the 
-# analysis. E.g. if you wish to retain all voxels which are included in at
-# least 10% of subject masks, enter either 0.01 or 10%.
-# For Absolute: enter the number of subjects observed at a voxel for it to be
-# included in the analysis. E.g. if you wish to retain all voxels which are included in at
-# least 15 of subject masks, enter 15.
-# For masking: Enter the filepath to the nifti mask you wish to use.
-# Examples:
 Missingness:
   MinPercent: 0.10
   MinN: 15
-
 analysis_mask: /well/win/software/packages/fsl/5.0.11/data/standard/MNI152_T1_2mm_brain_mask.nii.gz
 

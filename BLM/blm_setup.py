@@ -148,12 +148,11 @@ def main(*args):
     n_c = len(inputs['contrasts'])
     for i in range(0,n_c):
 
-        if inputs['contrasts'][i]['c' + str(i+1)]['statType'] == 'F':
+        # Read in contrast vector
+        cvec = blm_eval(inputs['contrasts'][i]['c' + str(i+1)]['vector'])
+        cvec = np.array(cvec)
 
-            # Read in contrast vector
-            # Get number of parameters
-            cvec = blm_eval(inputs['contrasts'][i]['c' + str(i+1)]['vector'])
-            cvec = np.array(cvec)
+        if cvec.ndim>1:
                 
             # Get dimension of cvector
             q = cvec.shape[0]
