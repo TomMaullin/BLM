@@ -40,13 +40,12 @@ The following fields are mandatory:
 The following fields are optional:
 
  - `MAXMEM`: This is the maximum amount of memory (in bits) that the BLM code is allowed to work with. How this should be set depends on your machine capabilities; the default value however matches the SPM default of 2^32 (note this must be in python notation i.e. `2**32`).
- - `M_files`: A text file containing a list of masks to be applied to the `Y_files`. 
-   - If the number of masks is the same as the number of `Y_files` then each mask is applied to the corresponding entry `Y_files`. E.g. The first mask listed for `M_files` will be applied to the first nifti in `Y_files`, the second mask in `M_files` will be applied to the second nifti in `Y_files` and so on. 
-   - If the number of masks is less than the number of niftis in `Y_files` then every mask is applied to every nifti in `Y_files`. I.e. all masks are applied to the first nifti in `Y_files`, all masks are applied to the second nifti in `Y_files` and so on. 
+ - `data_mask_files`: A text file containing a list of masks to be applied to the `Y_files`. 
+   - The number of masks must be equal to the number of `Y_files` as each mask is applied to the corresponding entry `Y_files`. E.g. The first mask listed for `data_mask_files` will be applied to the first nifti in `Y_files`, the second mask in `data_mask_files` will be applied to the second nifti in `Y_files` and so on. 
  - `Missingness`: This field allows the user to mask the image based on how many studies had recorded values for each voxel. This can be specified in 3 ways.
    - `MinPercent`: The percentage of studies present at a voxel necessary for that voxel to be included in the final analysis mask. For example, if this is set to `0.1` then any voxel with recorded values for at least 10% of studies will be kept in the analysis.
    - `MinN`: The number of studies present at a voxel necessary for that voxel to be included in the final analysis mask. For example, if this is set to `20` then any voxel with recorded values for at least 20 studies will be kept in the analysis.
-   - `Masking`: A post analysis mask.
+ - `analysis_mask`: A mask to be applied during analysis.
  - `OutputCovB`: If set to `True` this will output between beta covariance maps. For studies with a large number of paramters this may not be desirable as, for example, 30 analysis paramters will create 30x30=900 between beta covariance maps. By default this is set to `True`.
  - `M_thresh`: Any voxel with value below this threshold will be treated as missing data. (By default, no such thresholding  is done, i.e. `M_thresh` is essentially -infinity). 
 
@@ -74,7 +73,7 @@ Example 2: A configuration with multiple optional fields.
 ```
 MAXMEM: 2**32
 Y_files: /path/to/data/Y.txt
-M_files: /path/to/data/M_.txt
+data_mask_files: /path/to/data/M_.txt
 M_thresh: 0.1
 X: /path/to/data/X.csv
 outdir: /path/to/output/directory/
@@ -98,7 +97,7 @@ contrasts:
 Missingness:
   MinPercent: 0.10
   MinN: 15
-  Masking: /path/to/data/MNI152_T1_2mm_brain_mask.nii.gz
+analysis_mask: /path/to/data/MNI152_T1_2mm_brain_mask.nii.gz
 ```
 
 ### Running the Analysis
@@ -146,15 +145,15 @@ Below is a full list of NIFTI files output after a BLM analysis.
 | `blm_vox_n` | This is a map of the number of subjects which contributed to each voxel in the final analysis. |
 | `blm_vox_edf` | This is the spatially varying error degrees of freedom mask. |
 | `blm_vox_beta_b{#b}`  | This is the `#b`th beta estimate.  |
-| `blm_vox_beta_c{#c}`  | This is the `#c`th contrast multiplied by the estimate of beta (this is the same as `COPE` in FSL).  |
+| `blm_vox_con_c{#c}`  | This is the `#c`th contrast multiplied by the estimate of beta (this is the same as `COPE` in FSL).  |
 | `blm_vox_cov_b{#b1},{#b2}`  | This is the covariance between the `#b1`th and `#b2`th beta estimates.  |
-| `blm_vox_cov_c{#c}` | This is the covariance of the `#c`th contrast multiplied by beta (only available for T contrasts). |
-| `blm_vox_pr2_c{#c}` | This is the partial R^2 map for the `#c`th contrast (only available for F contrasts). |
+| `blm_vox_conSE_c{#c}` | This is the standard error of the `#c`th contrast multiplied by beta (only available for T contrasts). |
+| `blm_vox_conR2_c{#c}` | This is the partial R^2 map for the `#c`th contrast (only available for F contrasts). |
 | `blm_vox_resms` | This is the residual mean squares map for the analysis. |
-| `blm_vox_Tstat_c{#c}` | This is the T statistic for the `#c`th contrast (only available for T contrasts). |
-| `blm_vox_Fstat_c{#c}` | This is the F statistic for the `#c`th contrast (only available for F contrasts). |
-| `blm_vox_Tstat_lp_c{#c}` | This is the uncorrected P value map for the `#c`th contrast (T contrast). |
-| `blm_vox_Fstat_lp_c{#c}` | This is the uncorrected P value map for the `#c`th contrast (F contrast). |
+| `blm_vox_conT_c{#c}` | This is the T statistic for the `#c`th contrast (only available for T contrasts). |
+| `blm_vox_conF_c{#c}` | This is the F statistic for the `#c`th contrast (only available for F contrasts). |
+| `blm_vox_conTlp_c{#c}` | This is the uncorrected P value map for the `#c`th contrast (T contrast). |
+| `blm_vox_conFlp_c{#c}` | This is the uncorrected P value map for the `#c`th contrast (F contrast). |
 
 In addition, a copy of the design is saved in the output directory as `inputs.yml`. It is recommended that this be kept for data provenance purposes.
 
