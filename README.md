@@ -46,7 +46,7 @@ The following fields are optional:
    - `MinN`: The number of studies present at a voxel necessary for that voxel to be included in the final analysis mask. For example, if this is set to `20` then any voxel with recorded values for at least 20 studies will be kept in the analysis.
  - `analysis_mask`: A mask to be applied during analysis.
  - `OutputCovB`: If set to `True` this will output between beta covariance maps. For studies with a large number of paramters this may not be desirable as, for example, 30 analysis paramters will create 30x30=900 between beta covariance maps. By default this is set to `True`.
- - `M_thresh`: Any voxel with value below this threshold will be treated as missing data. (By default, no such thresholding  is done, i.e. `M_thresh` is essentially -infinity). 
+ - `data_mask_thresh`: Any voxel with value below this threshold will be treated as missing data. (By default, no such thresholding  is done, i.e. `data_mask_thresh` is essentially -infinity). 
 
 
  
@@ -72,7 +72,7 @@ Example 2: A configuration with multiple optional fields.
 MAXMEM: 2**32
 Y_files: /path/to/data/Y.txt
 data_mask_files: /path/to/data/M_.txt
-M_thresh: 0.1
+data_mask_thresh: 0.1
 X: /path/to/data/X.csv
 outdir: /path/to/output/directory/
 contrasts:
