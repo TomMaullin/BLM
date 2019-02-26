@@ -146,8 +146,8 @@ Below is a full list of NIFTI files output after a BLM analysis.
 | `blm_vox_resms` | This is the residual mean squares map for the analysis. |
 | `blm_vox_conT_c{#c}` | This is the T statistic for the `#c`th contrast (only available for T contrasts). |
 | `blm_vox_conF_c{#c}` | This is the F statistic for the `#c`th contrast (only available for F contrasts). |
-| `blm_vox_conTlp_c{#c}` | This is the uncorrected P value map for the `#c`th contrast (T contrast). |
-| `blm_vox_conFlp_c{#c}` | This is the uncorrected P value map for the `#c`th contrast (F contrast). |
+| `blm_vox_conTlp_c{#c}` | This is the map of -log10 of the uncorrected P values for the `#c`th contrast (T contrast). |
+| `blm_vox_conFlp_c{#c}` | This is the map of -log10 of the uncorrected P values for the `#c`th contrast (F contrast). |
 
 In addition, a copy of the design is saved in the output directory as `inputs.yml`. It is recommended that this be kept for data provenance purposes.
 
