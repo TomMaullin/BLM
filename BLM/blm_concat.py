@@ -324,20 +324,24 @@ def main(*args):
 
     beta = beta.reshape([n_v, n_p]).transpose()
 
+    beta_out = np.zeros([int(NIFTIsize[0]),
+                         int(NIFTIsize[1]),
+                         int(NIFTIsize[2]),
+                         beta.shape[0]])
 
     # Cycle through betas and output results.
     for k in range(0,beta.shape[0]):
 
-        betak = beta[k,:].reshape(int(NIFTIsize[0]),
-                                  int(NIFTIsize[1]),
-                                  int(NIFTIsize[2]))
+        beta_out[:,:,:,k] = beta[k,:].reshape(int(NIFTIsize[0]),
+                                              int(NIFTIsize[1]),
+                                              int(NIFTIsize[2]))
 
-        # Save beta map.
-        betakmap = nib.Nifti1Image(betak,
-                                   nifti.affine,
-                                   header=nifti.header)
-        nib.save(betakmap, os.path.join(OutDir,'blm_vox_beta_b' + str(k+1) + '.nii'))
-        del betak, betakmap
+    # Save beta map.
+    betamap = nib.Nifti1Image(beta_out,
+                              nifti.affine,
+                              header=nifti.header)
+    nib.save(betamap, os.path.join(OutDir,'blm_vox_beta.nii'))
+    del beta_out, betamap
 
     del sumXtY, sumXtX
     if n_v_r:
@@ -452,6 +456,12 @@ def main(*args):
 
     if OutputCovB:
         
+        vol = 0
+        beta_out = np.zeros([int(NIFTIsize[0]),
+                             int(NIFTIsize[1]),
+                             int(NIFTIsize[2]),
+                             n_p*n_p])
+
         # Output variance for each pair of betas
         for i in range(0,n_p):
             for j in range(0,n_p):
@@ -473,20 +483,21 @@ def main(*args):
                             isumXtX_i[:,i,j])
                         covbetaij[I_inds] = covbetaij_i
 
-                    covbetaij = covbetaij.reshape(
+                    covbetaij_out[:,:,:,vol] = covbetaij.reshape(
                                             NIFTIsize[0],
                                             NIFTIsize[1],
                                             NIFTIsize[2],
                                             )
+                    vol = vol+1;
                         
-                    # Output covariance map
-                    covbetaijmap = nib.Nifti1Image(covbetaij,
-                                                   nifti.affine,
-                                                   header=nifti.header)
-                    nib.save(covbetaijmap,
-                        os.path.join(OutDir, 
-                            'blm_vox_cov_b' + str(i+1) + ',' + str(j+1) + '.nii'))
-                    del covbetaij, covbetaijmap
+        # Output covariance map
+        covbetaijmap = nib.Nifti1Image(covbetaij_out,
+                                       nifti.affine,
+                                       header=nifti.header)
+        nib.save(covbetaijmap,
+            os.path.join(OutDir, 
+                'blm_vox_cov.nii'))
+        del covbetaij, covbetaijmap, vol, covbetaij_out, covbetaij_i, covbetaij_r
 
     # ----------------------------------------------------------------------
     # Calculate COPEs, statistic maps and covariance maps.
@@ -723,7 +734,6 @@ def main(*args):
             del fStatc, fStatcmap
 
 
-
             # Unmask p for this contrast
             pc = np.zeros([n_v])
 
@@ -796,15 +806,14 @@ def main(*args):
 # diagonals.
 def blm_inverse(A, ouflow=False):
 
+    # Work out number of matrices and dimension of
+    # matrices. I.e. if we have seven 3 by 3 matrices
+    # to invert n_r = 7, d_r = 3.
+    n_r = A.shape[0]
+    d_r = A.shape[1]
 
     # If ouflow is true, we need to precondition A.
     if ouflow:
-
-        # Work out number of matrices and dimension of
-        # matrices. I.e. if we have seven 3 by 3 matrices
-        # to invert n_r = 7, d_r = 3.
-        n_r = A.shape[0]
-        d_r = A.shape[1]
 
         # Make D to be filled with diagonal elements
         D = np.broadcast_to(np.eye(d_r), (n_r,d_r,d_r)).copy()
