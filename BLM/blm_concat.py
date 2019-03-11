@@ -508,6 +508,34 @@ def main(*args):
     # ----------------------------------------------------------------------
     n_c = len(inputs['contrasts'])
 
+    # Record how many T contrasts and F contrasts we have seen
+    n_ct = 0
+    n_cf = 0
+    for i in range(0,n_c):
+
+        # Read in contrast vector
+        cvec = blm_eval(inputs['contrasts'][i]['c' + str(i+1)]['vector'])
+        cvec = np.array(cvec)
+
+        if cvec.ndim == 1:
+            n_ct = n_ct + 1
+        else:
+            n_cf = n_cf + 1
+
+    # Current number for contrast (T and F)
+    current_n_ct = 0
+    current_n_cf = 0
+
+    # Setup 4d volumes to output
+    cbeta = np.zeros(NIFTIsize[0], NIFTIsize[1], NIFTIsize[2], n_c)
+    se_t = np.zeros(NIFTIsize[0], NIFTIsize[1], NIFTIsize[2], n_ct)
+    stat_t = np.zeros(NIFTIsize[0], NIFTIsize[1], NIFTIsize[2], n_ct)
+    p_t = np.zeros(NIFTIsize[0], NIFTIsize[1], NIFTIsize[2], n_ct)
+    stat_f = np.zeros(NIFTIsize[0], NIFTIsize[1], NIFTIsize[2], n_cf)
+    p_f = np.zeros(NIFTIsize[0], NIFTIsize[1], NIFTIsize[2], n_cf)
+    r2_f = np.zeros(NIFTIsize[0], NIFTIsize[1], NIFTIsize[2], n_cf)
+
+
     for i in range(0,n_c):
 
         # Read in contrast vector
@@ -574,20 +602,13 @@ def main(*args):
                 covcbeta_i = cvectiXtXcvec_i*resms_i.reshape(n_v_i)
                 covcbeta[I_inds] = covcbeta_i
 
-            covcbeta = covcbeta.reshape(
-                NIFTIsize[0],
-                NIFTIsize[1],
-                NIFTIsize[2]
-                )
+            se_t[:,:,:,current_n_ct] = np.sqrt(covcbeta.reshape(
+                                                    NIFTIsize[0],
+                                                    NIFTIsize[1],
+                                                    NIFTIsize[2]
+                                                    ))
 
-            # Output standard error map
-            secbetamap = nib.Nifti1Image(np.sqrt(covcbeta),
-                                          nifti.affine,
-                                          header=nifti.header)
-            nib.save(secbetamap,
-                os.path.join(OutDir, 
-                    'blm_vox_conSE_c' + str(i+1) + '.nii'))
-            del covcbeta, secbetamap
+            del covcbeta, covcbeta_i, covcbeta_r
 
             # Unmask T stat
             tStatc = np.zeros([n_v])
@@ -601,19 +622,12 @@ def main(*args):
                 tStatc_i = cbeta_i.reshape(n_v_i)/np.sqrt(covcbeta_i)
                 tStatc[I_inds] = tStatc_i
 
-            tStatc = tStatc.reshape(
-                NIFTIsize[0],
-                NIFTIsize[1],
-                NIFTIsize[2]
-                )
+            stat_t[:,:,:,current_n_ct] = tStatc.reshape(
+                                                    NIFTIsize[0],
+                                                    NIFTIsize[1],
+                                                    NIFTIsize[2]
+                                                )
 
-            # Output statistic map
-            tStatcmap = nib.Nifti1Image(tStatc,
-                                        nifti.affine,
-                                        header=nifti.header)
-            nib.save(tStatcmap,
-                os.path.join(OutDir, 
-                    'blm_vox_conT_c' + str(i+1) + '.nii'))
 
             # Unmask p for this contrast
             pc = np.zeros([n_v])
@@ -627,19 +641,14 @@ def main(*args):
                 pc_r = -np.log10(1-stats.t.cdf(tStatc_r, df_r))
                 pc[R_inds] = pc_r
 
-            pc = pc.reshape(
-                NIFTIsize[0],
-                NIFTIsize[1],
-                NIFTIsize[2]
-                )
+            p_t[:,:,:,current_n_ct] = pc.reshape(
+                                                NIFTIsize[0],
+                                                NIFTIsize[1],
+                                                NIFTIsize[2]
+                                              )
 
-            # Output pvalue map
-            pcmap = nib.Nifti1Image(pc,
-                                    nifti.affine,
-                                    header=nifti.header)
-            nib.save(pcmap,
-                os.path.join(OutDir, 
-                    'blm_vox_conTlp_c' + str(i+1) + '.nii'))  
+            # Record that we have seen another T contrast
+            current_n_ct = current_n_ct + 1
 
 
             del tStatc, tStatcmap, pcmap, pc
@@ -650,7 +659,7 @@ def main(*args):
 
 
         if statType == 'F':
-                
+
             # Get dimension of cvector
             q = cvec.shape[0]
 
@@ -722,21 +731,13 @@ def main(*args):
                 fStatc_i = Fnumerator_i/Fdenominator_i
                 fStatc[I_inds]=fStatc_i
 
-            fStatc = fStatc.reshape(
-                               NIFTIsize[0],
-                               NIFTIsize[1],
-                               NIFTIsize[2]
-                           )
+            stat_f[:,:,:,current_n_cf] = fStatc.reshape(
+                                               NIFTIsize[0],
+                                               NIFTIsize[1],
+                                               NIFTIsize[2]
+                                           )
 
-            # Output statistic map
-            fStatcmap = nib.Nifti1Image(fStatc,
-                                        nifti.affine,
-                                        header=nifti.header)
-            nib.save(fStatcmap,
-                os.path.join(OutDir, 
-                    'blm_vox_conF_c' + str(i+1) + '.nii'))
             del fStatc, fStatcmap
-
 
             # Unmask p for this contrast
             pc = np.zeros([n_v])
@@ -750,19 +751,11 @@ def main(*args):
                 pc_r = -np.log10(1-stats.f.cdf(fStatc_r, q, df_r))
                 pc[R_inds] = pc_r
 
-            pc = pc.reshape(
-                NIFTIsize[0],
-                NIFTIsize[1],
-                NIFTIsize[2]
-                )
-
-            # Output pvalue map
-            pcmap = nib.Nifti1Image(pc,
-                                    nifti.affine,
-                                    header=nifti.header)
-            nib.save(pcmap,
-                os.path.join(OutDir, 
-                    'blm_vox_conFlp_c' + str(i+1) + '.nii'))  
+            p_f[:,:,:,current_n_cf] = pc.reshape(
+                                               NIFTIsize[0],
+                                               NIFTIsize[1],
+                                               NIFTIsize[2]
+                                           )
 
             # Unmask partialR2.
             partialR2 = np.zeros([n_v])
@@ -780,21 +773,70 @@ def main(*args):
                 partialR2_i = (q*fStatc_i)/(q*fStatc_i + n_s - n_p)
                 partialR2[I_inds] = partialR2_i
 
-            partialR2 = partialR2.reshape(
-                               NIFTIsize[0],
-                               NIFTIsize[1],
-                               NIFTIsize[2]
-                           )
+            r2_f[:,:,:,current_n_cf] = partialR2.reshape(
+                                                       NIFTIsize[0],
+                                                       NIFTIsize[1],
+                                                       NIFTIsize[2]
+                                                   )
 
-            # Output statistic map
-            partialR2map = nib.Nifti1Image(partialR2,
-                                        nifti.affine,
-                                        header=nifti.header)
-            nib.save(partialR2map,
-                os.path.join(OutDir, 
-                    'blm_vox_conR2_c' + str(i+1) + '.nii'))
+            # Record that we have seen another F contrast
+            current_n_cf = current_n_cf + 1
+
             del partialR2, partialR2map
 
+    # Save contrast maps
+    if n_ct:
+
+        # Output standard error map
+        secbetamap = nib.Nifti1Image(se_t,
+                                      nifti.affine,
+                                      header=nifti.header)
+        nib.save(secbetamap,
+            os.path.join(OutDir, 
+                'blm_vox_conSE.nii'))
+
+        # Output statistic map
+        tStatcmap = nib.Nifti1Image(stat_t,
+                                    nifti.affine,
+                                    header=nifti.header)
+        nib.save(tStatcmap,
+            os.path.join(OutDir, 
+                'blm_vox_conT.nii'))
+
+        # Output pvalue map
+        pcmap = nib.Nifti1Image(p_t,
+                                nifti.affine,
+                                header=nifti.header)
+        nib.save(pcmap,
+            os.path.join(OutDir, 
+                'blm_vox_conTlp.nii'))  
+
+    if n_cf:
+
+
+        # Output statistic map
+        fStatcmap = nib.Nifti1Image(stat_f,
+                                    nifti.affine,
+                                    header=nifti.header)
+        nib.save(fStatcmap,
+            os.path.join(OutDir, 
+                'blm_vox_conF.nii'))
+
+        # Output pvalue map
+        pcmap = nib.Nifti1Image(p_f,
+                                nifti.affine,
+                                header=nifti.header)
+        nib.save(pcmap,
+            os.path.join(OutDir, 
+                'blm_vox_conFlp.nii'))  
+
+        # Output statistic map
+        partialR2map = nib.Nifti1Image(r2_f,
+                                    nifti.affine,
+                                    header=nifti.header)
+        nib.save(partialR2map,
+            os.path.join(OutDir, 
+                'blm_vox_conR2.nii'))
 
     # Clean up files
     if len(args)==0:
