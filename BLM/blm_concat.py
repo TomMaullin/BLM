@@ -527,13 +527,13 @@ def main(*args):
     current_n_cf = 0
 
     # Setup 4d volumes to output
-    cbeta = np.zeros(NIFTIsize[0], NIFTIsize[1], NIFTIsize[2], n_c)
-    se_t = np.zeros(NIFTIsize[0], NIFTIsize[1], NIFTIsize[2], n_ct)
-    stat_t = np.zeros(NIFTIsize[0], NIFTIsize[1], NIFTIsize[2], n_ct)
-    p_t = np.zeros(NIFTIsize[0], NIFTIsize[1], NIFTIsize[2], n_ct)
-    stat_f = np.zeros(NIFTIsize[0], NIFTIsize[1], NIFTIsize[2], n_cf)
-    p_f = np.zeros(NIFTIsize[0], NIFTIsize[1], NIFTIsize[2], n_cf)
-    r2_f = np.zeros(NIFTIsize[0], NIFTIsize[1], NIFTIsize[2], n_cf)
+    cbeta = np.zeros([int(NIFTIsize[0]), int(NIFTIsize[1]), int(NIFTIsize[2]), n_c])
+    se_t = np.zeros([int(NIFTIsize[0]), int(NIFTIsize[1]), int(NIFTIsize[2]), n_ct])
+    stat_t = np.zeros([int(NIFTIsize[0]), int(NIFTIsize[1]), int(NIFTIsize[2]), n_ct])
+    p_t = np.zeros([int(NIFTIsize[0]), int(NIFTIsize[1]), int(NIFTIsize[2]), n_ct])
+    stat_f = np.zeros([int(NIFTIsize[0]), int(NIFTIsize[1]), int(NIFTIsize[2]), n_cf])
+    p_f = np.zeros([int(NIFTIsize[0]), int(NIFTIsize[1]), int(NIFTIsize[2]), n_cf])
+    r2_f = np.zeros([int(NIFTIsize[0]), int(NIFTIsize[1]), int(NIFTIsize[2]), n_cf])
 
 
     for i in range(0,n_c):
