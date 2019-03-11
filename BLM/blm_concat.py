@@ -457,10 +457,10 @@ def main(*args):
     if OutputCovB:
         
         vol = 0
-        beta_out = np.zeros([int(NIFTIsize[0]),
-                             int(NIFTIsize[1]),
-                             int(NIFTIsize[2]),
-                             n_p*n_p])
+        covbetaij_out = np.zeros([int(NIFTIsize[0]),
+                                  int(NIFTIsize[1]),
+                                  int(NIFTIsize[2]),
+                                  n_p*n_p])
 
         # Output variance for each pair of betas
         for i in range(0,n_p):
