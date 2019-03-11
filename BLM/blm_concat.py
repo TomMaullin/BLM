@@ -497,7 +497,11 @@ def main(*args):
         nib.save(covbetaijmap,
             os.path.join(OutDir, 
                 'blm_vox_cov.nii'))
-        del covbetaij, covbetaijmap, vol, covbetaij_out, covbetaij_i, covbetaij_r
+        del covbetaij, covbetaijmap, vol, covbetaij_out
+        if n_v_r:
+            del covbetaij_r
+        if n_v_i:
+            del covbetaij_i
 
     # ----------------------------------------------------------------------
     # Calculate COPEs, statistic maps and covariance maps.
