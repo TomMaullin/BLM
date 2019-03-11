@@ -651,7 +651,7 @@ def main(*args):
             current_n_ct = current_n_ct + 1
 
 
-            del tStatc, tStatcmap, pcmap, pc
+            del tStatc, pc
             if n_v_i:
                 del tStatc_i, pc_i, covcbeta_i
             if n_v_r:
@@ -737,7 +737,7 @@ def main(*args):
                                                NIFTIsize[2]
                                            )
 
-            del fStatc, fStatcmap
+            del fStatc
 
             # Unmask p for this contrast
             pc = np.zeros([n_v])
