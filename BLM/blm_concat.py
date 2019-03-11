@@ -608,7 +608,11 @@ def main(*args):
                                                     NIFTIsize[2]
                                                     ))
 
-            del covcbeta, covcbeta_i, covcbeta_r
+            del covcbeta
+            if n_v_i:
+                del covcbeta_i
+            if n_v_r:
+                del covcbeta_r
 
             # Unmask T stat
             tStatc = np.zeros([n_v])
