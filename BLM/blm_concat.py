@@ -609,10 +609,6 @@ def main(*args):
                                                     ))
 
             del covcbeta
-            if n_v_i:
-                del covcbeta_i
-            if n_v_r:
-                del covcbeta_r
 
             # Unmask T stat
             tStatc = np.zeros([n_v])
@@ -657,9 +653,9 @@ def main(*args):
 
             del tStatc, tStatcmap, pcmap, pc
             if n_v_i:
-                del tStatc_i, pc_i
+                del tStatc_i, pc_i, covcbeta_i
             if n_v_r:
-                del tStatc_r, pc_r
+                del tStatc_r, pc_r, covcbeta_r
 
 
         if statType == 'F':
