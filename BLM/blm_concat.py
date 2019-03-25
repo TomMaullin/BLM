@@ -558,17 +558,17 @@ def main(*args):
         if statType == 'T':
 
             # A T contrast has only one row so we can output cbeta here
-            cbeta = np.zeros([n_v,1])
+            current_cbeta = np.zeros([n_v,1])
             if n_v_r:
-                cbeta[R_inds,:] = cbeta_r
+                current_cbeta[R_inds,:] = cbeta_r
             if n_v_i:
-                cbeta[I_inds,:] = cbeta_i
+                current_cbeta[I_inds,:] = cbeta_i
 
-            cbeta = cbeta.reshape(
-                        NIFTIsize[0],
-                        NIFTIsize[1],
-                        NIFTIsize[2],
-                        )
+            cbeta[:,:,:,current_n_ct] = current_cbeta.reshape(
+                                                    NIFTIsize[0],
+                                                    NIFTIsize[1],
+                                                    NIFTIsize[2]
+                                                    )
 
             # Output cbeta/cope map
             cbetamap = nib.Nifti1Image(cbeta,
