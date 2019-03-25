@@ -98,6 +98,7 @@ def main(fsl_folder, blm_folder):
 
     # Load in BLM files
     blm_dat = nib.load(blm_file).get_data()
+    fsl_dat = fsl_dat.reshape(blm_dat.shape)
 
     # Check how close blm and fsl are voxelwise
     compar=np.isclose(blm_dat, fsl_dat)
@@ -128,6 +129,7 @@ def main(fsl_folder, blm_folder):
     # Check covariances
     fsl_file = os.path.join(fsl_folder, 'fsl_vox_cov_c.nii.gz')
     blm_file = os.path.join(blm_folder, 'blm_vox_conSE.nii')
+    fsl_dat = fsl_dat.reshape(blm_dat.shape)
 
     for i in range(0,3):
         
