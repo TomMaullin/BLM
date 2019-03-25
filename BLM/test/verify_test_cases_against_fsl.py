@@ -11,10 +11,9 @@ def main(fsl_folder, blm_folder):
 
     # Check Betas
     fsl_file = os.path.join(fsl_folder, 'fsl_vox_betas.nii.gz')
+    blm_file = os.path.join(blm_folder, 'blm_vox_con.nii')
 
     for i in range(0,3):
-
-        blm_file = os.path.join(blm_folder, 'blm_vox_beta_c' + str(i+1) + '.nii')
         
         # Load in FSL files
         fsl_dat = nib.load(fsl_file).get_data()
@@ -22,6 +21,7 @@ def main(fsl_folder, blm_folder):
 
         # Load in BLM files
         blm_dat = nib.load(blm_file).get_data()
+        blm_dat = blm_dat[:,:,:,i]
 
         # Check how close blm and fsl are voxelwise
         compar=np.isclose(blm_dat, fsl_dat)
@@ -51,10 +51,9 @@ def main(fsl_folder, blm_folder):
 
     # Check T stats
     fsl_file = os.path.join(fsl_folder, 'fsl_vox_Tstat_c.nii.gz')
+    blm_file = os.path.join(blm_folder, 'blm_vox_conT.nii')
 
     for i in range(0,3):
-
-        blm_file = os.path.join(blm_folder, 'blm_vox_conT_c' + str(i+1) + '.nii')
         
         # Load in FSL files
         fsl_dat = nib.load(fsl_file).get_data()
@@ -62,6 +61,7 @@ def main(fsl_folder, blm_folder):
 
         # Load in BLM files
         blm_dat = nib.load(blm_file).get_data()
+        blm_dat = blm_dat[:,:,:,i]
 
         # Check how close blm and fsl are voxelwise
         compar=np.isclose(blm_dat, fsl_dat)
@@ -91,13 +91,14 @@ def main(fsl_folder, blm_folder):
 
     # Check F stat
     fsl_file = os.path.join(fsl_folder, 'fsl_vox_Fstat_c.nii.gz')
-    blm_file = os.path.join(blm_folder, 'blm_vox_conF_c4.nii')
+    blm_file = os.path.join(blm_folder, 'blm_vox_conF.nii')
         
     # Load in FSL files
     fsl_dat = nib.load(fsl_file).get_data()
 
     # Load in BLM files
     blm_dat = nib.load(blm_file).get_data()
+    fsl_dat = fsl_dat.reshape(blm_dat.shape)
 
     # Check how close blm and fsl are voxelwise
     compar=np.isclose(blm_dat, fsl_dat)
@@ -127,17 +128,18 @@ def main(fsl_folder, blm_folder):
 
     # Check covariances
     fsl_file = os.path.join(fsl_folder, 'fsl_vox_cov_c.nii.gz')
+    blm_file = os.path.join(blm_folder, 'blm_vox_conSE.nii')
+    fsl_dat = fsl_dat.reshape(blm_dat.shape)
 
     for i in range(0,3):
-
-        blm_file = os.path.join(blm_folder, 'blm_vox_conSE_c' + str(i+1) + '.nii')
         
         # Load in FSL files
         fsl_dat = nib.load(fsl_file).get_data()
         fsl_dat = fsl_dat[:,:,:,i]
 
         # Load in BLM files
-        blm_dat = nib.load(blm_file).get_data()**2
+        blm_dat = nib.load(blm_file).get_data()
+        blm_dat = blm_dat[:,:,:,i]**2
 
         # Check how close blm and fsl are voxelwise
         compar=np.isclose(blm_dat, fsl_dat)

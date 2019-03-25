@@ -138,18 +138,18 @@ Below is a full list of NIFTI files output after a BLM analysis.
 | `blm_vox_mask` | This is the analysis mask. |
 | `blm_vox_n` | This is a map of the number of subjects which contributed to each voxel in the final analysis. |
 | `blm_vox_edf` | This is the spatially varying error degrees of freedom mask. |
-| `blm_vox_beta_b{#b}`  | This is the `#b`th beta estimate.  |
-| `blm_vox_con_c{#c}`  | This is the `#c`th contrast multiplied by the estimate of beta (this is the same as `COPE` in FSL).  |
-| `blm_vox_cov_b{#b1},{#b2}`  | This is the covariance between the `#b1`th and `#b2`th beta estimates.  |
-| `blm_vox_conSE_c{#c}` | This is the standard error of the `#c`th contrast multiplied by beta (only available for T contrasts). |
-| `blm_vox_conR2_c{#c}` | This is the partial R^2 map for the `#c`th contrast (only available for F contrasts). |
+| `blm_vox_beta`  | These are the beta estimates.  |
+| `blm_vox_con`  | These are the contrasts multiplied by the estimate of beta (this is the same as `COPE` in FSL).  |
+| `blm_vox_cov`  | These are the between-beta covariance estimates.  |
+| `blm_vox_conSE` | These are the standard error of the contrasts multiplied by beta (only available for T contrasts). |
+| `blm_vox_conR2` | These are the partial R^2 maps for the contrasts (only available for F contrasts). |
 | `blm_vox_resms` | This is the residual mean squares map for the analysis. |
-| `blm_vox_conT_c{#c}` | This is the T statistic for the `#c`th contrast (only available for T contrasts). |
-| `blm_vox_conF_c{#c}` | This is the F statistic for the `#c`th contrast (only available for F contrasts). |
-| `blm_vox_conTlp_c{#c}` | This is the map of -log10 of the uncorrected P values for the `#c`th contrast (T contrast). |
-| `blm_vox_conFlp_c{#c}` | This is the map of -log10 of the uncorrected P values for the `#c`th contrast (F contrast). |
+| `blm_vox_conT` | These are the T statistics for the contrasts (only available for T contrasts). |
+| `blm_vox_conF` | These are the F statistics for the contrasts (only available for F contrasts). |
+| `blm_vox_conTlp` | These are the maps of -log10 of the uncorrected P values for the contrasts (T contrast). |
+| `blm_vox_conFlp` | These are the maps of -log10 of the uncorrected P values for the contrasts (F contrast). |
 
-In addition, a copy of the design is saved in the output directory as `inputs.yml`. It is recommended that this be kept for data provenance purposes.
+The maps are given the same ordering as the inputs. For example, in `blm_vox_con`, the `0`th volume corresponds to the `1`st contrast, the `1`st volume corresponds to the `2`nd contrast and so on. For covariances, the ordering is of a similar form with covariance between beta 1 and  beta 1 (variance of beta 1) being the `0`th volume, covariance between beta 1 and  beta 2 being the `1`st volume and so on. In addition, a copy of the design is saved in the output directory as `inputs.yml`. It is recommended that this be kept for data provenance purposes.
 
 ## Testing
 
