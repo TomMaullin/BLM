@@ -19,6 +19,7 @@ import subprocess
 from BLM.blm_eval import blm_eval
 np.set_printoptions(threshold=np.nan)
 from scipy import stats
+from BLM.blm_load import blm_load
 
 # Developer notes:
 # --------------------------------------------------------------------------
@@ -76,7 +77,7 @@ def main(*args):
     # Read in the nifti size and work out number of voxels.
     with open(inputs['Y_files']) as a:
         nifti_path = a.readline().replace('\n', '')
-        nifti = nib.load(nifti_path)
+        nifti = blm_load(nifti_path)
 
     NIFTIsize = nifti.shape
     n_v = int(np.prod(NIFTIsize))
@@ -90,7 +91,7 @@ def main(*args):
         sumXtX = np.load(os.path.join(OutDir,"tmp","XtX1.npy"))
         sumXtY = np.load(os.path.join(OutDir,"tmp","XtY1.npy")).transpose()
         sumYtY = np.load(os.path.join(OutDir,"tmp","YtY1.npy"))
-        nmapb  = nib.load(os.path.join(OutDir,"tmp", "blm_vox_n_batch1.nii"))
+        nmapb  = blm_load(os.path.join(OutDir,"tmp", "blm_vox_n_batch1.nii"))
         n_s_sv = nmapb.get_data()
 
         # Delete the files as they are no longer needed.
@@ -116,7 +117,7 @@ def main(*args):
                 os.path.join(OutDir,"tmp","YtY" + str(batchNo) + ".npy"))
             
             # Obtain the full nmap.
-            n_s_sv = n_s_sv + nib.load(os.path.join(OutDir,"tmp", 
+            n_s_sv = n_s_sv + blm_load(os.path.join(OutDir,"tmp", 
                 "blm_vox_n_batch" + str(batchNo) + ".nii")).get_data()
             
             # Delete the files as they are no longer needed.
@@ -214,7 +215,7 @@ def main(*args):
         addmask_path = inputs["analysis_mask"]
         
         # Read in the mask nifti.
-        addmask = nib.load(addmask_path).get_data().reshape([n_v,1])
+        addmask = blm_load(addmask_path).get_data().reshape([n_v,1])
         
         Mask[addmask==0]=0
 

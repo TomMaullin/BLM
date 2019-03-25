@@ -1,6 +1,7 @@
 
 import os
 import nibabel as nib
+
 # This is a small function to load in a file based on it's prefix.
 def blm_load(filepath):
 
@@ -19,4 +20,6 @@ def blm_load(filepath):
                 nifti = nib.load(os.path.join(filepath, '.img'))
         except:
             raise ValueError('Input file not found: ' + str(filepath))
+
+    return nifti
 

@@ -15,6 +15,7 @@ import pandas
 import time
 np.set_printoptions(threshold=np.nan)
 from BLM.blm_eval import blm_eval
+from BLM.blm_load import blm_load
 
 def main(*args):
 
@@ -60,7 +61,7 @@ def main(*args):
 
     # Load in one nifti to check NIFTI size
     try:
-        Y0 = nib.load(Y_files[0])
+        Y0 = blm_load(Y_files[0])
     except Exception as error:
         raise ValueError('The NIFTI "' + Y_files[0] + '"does not exist')
 
@@ -179,7 +180,7 @@ def verifyInput(Y_files, M_files, Y0):
         Y_file = Y_files[i]
 
         try:
-            Y = nib.load(Y_file)
+            Y = blm_load(Y_file)
         except Exception as error:
             raise ValueError('The NIFTI "' + Y_file + '"does not exist')
 
@@ -202,7 +203,7 @@ def verifyInput(Y_files, M_files, Y0):
             M_file = M_files[i]
 
             try:
-                M = nib.load(M_file)
+                M = blm_load(M_file)
             except Exception as error:
                 raise ValueError('The NIFTI "' + M_file + '"does not exist')
 
@@ -237,7 +238,7 @@ def blkMX(X,Y):
 def obtainY(Y_files, M_files, M_t):
 
     # Load in one nifti to check NIFTI size
-    Y0 = nib.load(Y_files[0])
+    Y0 = blm_load(Y_files[0])
     d = Y0.get_data()
     
     # Get number of voxels.
@@ -254,13 +255,13 @@ def obtainY(Y_files, M_files, M_t):
     for i in range(0, len(Y_files)):
 
         # Read in each individual NIFTI.
-        Y_indiv = nib.load(Y_files[i])
+        Y_indiv = blm_load(Y_files[i])
 
         # Mask Y if necesart
         if M_files:
         
             # Apply mask
-            M_indiv = nib.load(M_files[i]).get_data()
+            M_indiv = blm_load(M_files[i]).get_data()
             d = np.multiply(
                 Y_indiv.get_data(),
                 M_indiv)

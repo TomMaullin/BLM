@@ -11,6 +11,7 @@ import os
 import shutil
 import yaml
 from BLM.blm_eval import blm_eval
+from BLM.blm_load import blm_load
 
 # Main takes in two arguments at most:
 # - input: Either the path to an input file or an input structure
@@ -124,7 +125,7 @@ def main(*args):
 
     # Load in one nifti to check NIFTI size
     try:
-        Y0 = nib.load(Y_files[0])
+        Y0 = blm_load(Y_files[0])
     except Exception as error:
         raise ValueError('The NIFTI "' + Y_files[0] + '"does not exist')
 
