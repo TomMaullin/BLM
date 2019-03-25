@@ -782,7 +782,7 @@ def main(*args):
             # Record that we have seen another F contrast
             current_n_cf = current_n_cf + 1
 
-            del partialR2, partialR2map
+            del partialR2
 
     # Save contrast maps
     if n_ct:
