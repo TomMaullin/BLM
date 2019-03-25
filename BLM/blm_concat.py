@@ -570,15 +570,6 @@ def main(*args):
                                                     NIFTIsize[2]
                                                     )
 
-            # Output cbeta/cope map
-            cbetamap = nib.Nifti1Image(cbeta,
-                                       nifti.affine,
-                                       header=nifti.header)
-            nib.save(cbetamap,
-                os.path.join(OutDir, 
-                    'blm_vox_con_c' + str(i+1) + '.nii'))
-            del cbeta, cbetamap
-
             # Unmask to output
             covcbeta = np.zeros([n_v])
 
@@ -794,6 +785,7 @@ def main(*args):
         nib.save(secbetamap,
             os.path.join(OutDir, 
                 'blm_vox_conSE.nii'))
+        del se_t, secbetamap
 
         # Output statistic map
         tStatcmap = nib.Nifti1Image(stat_t,
@@ -802,6 +794,7 @@ def main(*args):
         nib.save(tStatcmap,
             os.path.join(OutDir, 
                 'blm_vox_conT.nii'))
+        del stat_t, tStatcmap
 
         # Output pvalue map
         pcmap = nib.Nifti1Image(p_t,
@@ -810,6 +803,16 @@ def main(*args):
         nib.save(pcmap,
             os.path.join(OutDir, 
                 'blm_vox_conTlp.nii'))  
+        del pcmap, p_t
+
+        # Output cbeta/cope map
+        cbetamap = nib.Nifti1Image(cbeta,
+                                   nifti.affine,
+                                   header=nifti.header)
+        nib.save(cbetamap,
+            os.path.join(OutDir, 
+                'blm_vox_con.nii'))
+        del cbeta, cbetamap
 
     if n_cf:
 
@@ -821,6 +824,7 @@ def main(*args):
         nib.save(fStatcmap,
             os.path.join(OutDir, 
                 'blm_vox_conF.nii'))
+        del stat_f, fStatcmap
 
         # Output pvalue map
         pcmap = nib.Nifti1Image(p_f,
@@ -829,6 +833,7 @@ def main(*args):
         nib.save(pcmap,
             os.path.join(OutDir, 
                 'blm_vox_conFlp.nii'))  
+        del pcmap, p_f
 
         # Output statistic map
         partialR2map = nib.Nifti1Image(r2_f,
@@ -837,6 +842,7 @@ def main(*args):
         nib.save(partialR2map,
             os.path.join(OutDir, 
                 'blm_vox_conR2.nii'))
+        del partialR2map, r2_f
 
     # Clean up files
     if len(args)==0:
