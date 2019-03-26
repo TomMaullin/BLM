@@ -1,5 +1,5 @@
 # Work out BLM dir
-BLMdir=$(realpath ../../)
+BLMdir=$(realpath ../)
 cd $BLMdir
 
 # Run each test case

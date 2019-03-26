@@ -3,7 +3,7 @@ BLMdir=$(realpath ../)
 cd $BLMdir
 
 # Include the parse yaml function
-. lib/parse_yaml.sh
+. scripts/parse_yaml.sh
 cd $BLMdir/test
 
 # Read the test directory

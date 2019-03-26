@@ -51,7 +51,7 @@ do
 done
 
 # Include the parse yaml function
-. lib/parse_yaml.sh
+. scripts/parse_yaml.sh
 
 # Now run equivalent fsl analyses
 i=1
