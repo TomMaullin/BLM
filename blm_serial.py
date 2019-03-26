@@ -12,9 +12,14 @@ def main(*args):
     if len(args)==0:
         ipath = os.path.join(os.getcwd(),'blm_config.yml')
     else:
-        ipath = args[0]
+        ipath = os.path.abspath(args[0])
     
     # Load in inputs
+    print(ipath)
+    print(os.getcwd())
+    print(os.path.abspath(args[0]))
+    print(len(args))
+    print(args[0])
     with open(ipath, 'r') as stream:
         inputs = yaml.load(stream)
 
