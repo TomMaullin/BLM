@@ -1,10 +1,10 @@
 # Work out BLM dir
-BLMdir=$(realpath ../../)
+BLMdir=$(realpath ../)
 cd $BLMdir
 
 # Include the parse yaml function
 . lib/parse_yaml.sh
-cd $BLMdir/BLM/test
+cd $BLMdir/test
 
 # Read the test directory
 gtdir=$1

@@ -14,8 +14,8 @@ import yaml
 import pandas
 import time
 np.set_printoptions(threshold=np.nan)
-from BLM.blm_eval import blm_eval
-from BLM.blm_load import blm_load
+from scripts.blm_eval import blm_eval
+from scripts.blm_load import blm_load
 
 def main(*args):
 

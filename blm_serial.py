@@ -1,9 +1,9 @@
 import numpy as np
 import yaml
 import os
-from BLM import blm_setup
-from BLM import blm_batch
-from BLM import blm_concat
+from lib import blm_setup
+from lib import blm_batch
+from lib import blm_concat
 
 def main(*args):
 
