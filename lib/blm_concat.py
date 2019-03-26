@@ -16,10 +16,10 @@ import pandas
 import time
 import warnings
 import subprocess
-from BLM.blm_eval import blm_eval
+from scripts.blm_eval import blm_eval
 np.set_printoptions(threshold=np.nan)
 from scipy import stats
-from BLM.blm_load import blm_load
+from scripts.blm_load import blm_load
 
 # Developer notes:
 # --------------------------------------------------------------------------

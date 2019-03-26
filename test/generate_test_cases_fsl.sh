@@ -1,5 +1,5 @@
 # Work out BLM dir
-BLMdir=$(realpath ../../)
+BLMdir=$(realpath ../)
 cd $BLMdir
 
 # Read the test and data directories
@@ -15,35 +15,35 @@ if [ -v $testdir ] ; then
 fi
 
 i=1
-for cfg in $(ls ./BLM/test/cfg/fsltest_cfg??.yml)
+for cfg in $(ls ./test/cfg/fsltest_cfg??.yml)
 do
-  cp $cfg ./BLM/test/cfg/fsltest_cfg$(printf "%.2d" $i)_copy.yml
+  cp $cfg ./test/cfg/fsltest_cfg$(printf "%.2d" $i)_copy.yml
   i=$(($i + 1))
 done
 
 
 # Change the name of the test and data directories in the test configurations
-find ./BLM/test/cfg/fsltest_cfg*_copy.yml -type f -exec sed -i "s|TEST_DIRECTORY|$testdir|g" {} \;
-find ./BLM/test/cfg/fsltest_cfg*_copy.yml -type f -exec sed -i "s|DATA_DIRECTORY|$datadir|g" {} \;
+find ./test/cfg/fsltest_cfg*_copy.yml -type f -exec sed -i "s|TEST_DIRECTORY|$testdir|g" {} \;
+find ./test/cfg/fsltest_cfg*_copy.yml -type f -exec sed -i "s|DATA_DIRECTORY|$datadir|g" {} \;
 
 
 # Make a directory to store job ids if there isn't one already.
-mkdir -p ./BLM/test/cfgids
+mkdir -p ./test/cfgids
 
 # Run each test case
 i=1
-for cfg in $(ls ./BLM/test/cfg/fsltest_cfg*_copy.yml)
+for cfg in $(ls ./test/cfg/fsltest_cfg*_copy.yml)
 do
   cfgname=$(basename $(echo $cfg | sed "s/\_copy//g"))
   echo "Now running testcase $cfgname"
   cfgfile=$(realpath $cfg)
 
   # Run blm for test configuration and save the ids
-  bash ./blm_cluster.sh $cfgfile IDs > ./BLM/test/cfgids/fsltestIDs$(printf "%.2d" $i)tmp
+  bash ./blm_cluster.sh $cfgfile IDs > ./test/cfgids/fsltestIDs$(printf "%.2d" $i)tmp
 
   # Remove any commas from testIDs
-  sed 's/,/ /g' ./BLM/test/cfgids/fsltestIDs$(printf "%.2d" $i)tmp > ./BLM/test/cfgids/fsltestIDs$(printf "%.2d" $i)
-  rm ./BLM/test/cfgids/fsltestIDs$(printf "%.2d" $i)tmp
+  sed 's/,/ /g' ./test/cfgids/fsltestIDs$(printf "%.2d" $i)tmp > ./test/cfgids/fsltestIDs$(printf "%.2d" $i)
+  rm ./test/cfgids/fsltestIDs$(printf "%.2d" $i)tmp
 
   # Status update
   qstat
@@ -55,7 +55,7 @@ done
 
 # Now run equivalent fsl analyses
 i=1
-for cfg in $(ls ./BLM/test/cfg/fsltest_cfg*_copy.yml)
+for cfg in $(ls ./test/cfg/fsltest_cfg*_copy.yml)
 do
   # Obtain output directory
   cfgfile=$(realpath $cfg)
