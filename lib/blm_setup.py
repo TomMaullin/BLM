@@ -10,8 +10,8 @@ import sys
 import os
 import shutil
 import yaml
-from BLM.blm_eval import blm_eval
-from BLM.blm_load import blm_load
+from lib.blm_eval import blm_eval
+from lib.blm_load import blm_load
 
 # Main takes in two arguments at most:
 # - input: Either the path to an input file or an input structure

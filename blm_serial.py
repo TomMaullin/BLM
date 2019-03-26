@@ -1,9 +1,9 @@
 import numpy as np
 import yaml
 import os
-from BLM import blm_setup
-from BLM import blm_batch
-from BLM import blm_concat
+from lib import blm_setup
+from lib import blm_batch
+from lib import blm_concat
 
 def main(*args):
 
@@ -12,9 +12,14 @@ def main(*args):
     if len(args)==0:
         ipath = os.path.join(os.getcwd(),'blm_config.yml')
     else:
-        ipath = args[0]
+        ipath = os.path.abspath(args[0])
     
     # Load in inputs
+    print(ipath)
+    print(os.getcwd())
+    print(os.path.abspath(args[0]))
+    print(len(args))
+    print(args[0])
     with open(ipath, 'r') as stream:
         inputs = yaml.load(stream)
 

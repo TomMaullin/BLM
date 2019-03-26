@@ -1,10 +1,10 @@
 # Work out BLM dir
-BLMdir=$(realpath ../../)
+BLMdir=$(realpath ../)
 cd $BLMdir
 
 # Run each test case
 i=1
-for cfgIDs in $(ls ./BLM/test/cfgids/*)
+for cfgIDs in $(ls ./test/cfgids/*)
 do
   echo " "
   echo '================================================================'
