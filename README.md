@@ -206,7 +206,7 @@ bash ./verify_test_cases_against_fsl.sh
 To test in serial, first run the parallel testing suite, and then afterwards simply run the following 3 test cases from the main `BLM-py` folder:
 
 ```
-fslpython -c "import blm_serial; blm_serial.main('./BLM/test/cfg/test_cfg01_copy.yml')
-fslpython -c "import blm_serial; blm_serial.main('./BLM/test/cfg/test_cfg02_copy.yml')
-fslpython -c "import blm_serial; blm_serial.main('./BLM/test/cfg/test_cfg03_copy.yml')
+fslpython -c "import blm_serial; blm_serial.main('./test/cfg/test_cfg01_copy.yml')
+fslpython -c "import blm_serial; blm_serial.main('./test/cfg/test_cfg02_copy.yml')
+fslpython -c "import blm_serial; blm_serial.main('./test/cfg/test_cfg03_copy.yml')
 ```
