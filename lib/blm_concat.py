@@ -626,18 +626,16 @@ def main(*args):
 
             # Work out p for this contrast
             if n_v_i:
-                if tStatc_i > 0:
-                    pc_i = -np.log10(stats.t.cdf(-tStatc_i, df_i))
-                else:
-                    pc_i = -np.log10(1-stats.t.cdf(tStatc_i, df_i))
+                # Do this seperately for >0 and <0 to avoid underflow
+                pc_i = np.zeros(np.shape(tStatc_i))
+                pc_i[tStatc_i < 0] = -np.log10(1-stats.t.cdf(tStatc_i[tStatc_i < 0], df_i))
+                pc_i[tStatc_i >= 0] = -np.log10(stats.t.cdf(-tStatc_i[tStatc_i >= 0], df_i))
+
                 pc[I_inds] = pc_i
 
             if n_v_r:
+                # Do this seperately for >0 and <0 to avoid underflow
                 pc_r = np.zeros(np.shape(tStatc_r))
-                print(np.shape(tStatc_r))
-                print(np.shape(df_r))
-                print(np.shape(tStatc_r < 0))
-                print(np.shape(tStatc_r[tStatc_r < 0]))
                 pc_r[tStatc_r < 0] = -np.log10(1-stats.t.cdf(tStatc_r[tStatc_r < 0], df_r[tStatc_r < 0]))
                 pc_r[tStatc_r >= 0] = -np.log10(stats.t.cdf(-tStatc_r[tStatc_r >= 0], df_r[tStatc_r >= 0]))
 
