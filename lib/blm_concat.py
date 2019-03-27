@@ -634,8 +634,12 @@ def main(*args):
 
             if n_v_r:
                 pc_r = np.zeros(np.shape(tStatc_r))
+                print(np.shape(tStatc_r))
+                print(np.shape(df_r))
+                print(np.shape(tStatc_r < 0))
+                print(np.shape(tStatc_r[tStatc_r < 0]))
                 pc_r[tStatc_r < 0] = -np.log10(1-stats.t.cdf(tStatc_r[tStatc_r < 0], df_r[tStatc_r < 0]))
-                pc_r[tStatc_r > 0] = -np.log10(stats.t.cdf(-tStatc_r[tStatc_r > 0], df_r[tStatc_r > 0]))
+                pc_r[tStatc_r >= 0] = -np.log10(stats.t.cdf(-tStatc_r[tStatc_r >= 0], df_r[tStatc_r >= 0]))
 
                 pc[R_inds] = pc_r
 
