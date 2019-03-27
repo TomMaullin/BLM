@@ -626,11 +626,31 @@ def main(*args):
 
             # Work out p for this contrast
             if n_v_i:
-                pc_i = -np.log10(1-stats.t.cdf(tStatc_i, df_i))
+                # Do this seperately for >0 and <0 to avoid underflow
+                pc_i = np.zeros(np.shape(tStatc_i))
+                pc_i[tStatc_i < 0] = -np.log10(1-stats.t.cdf(tStatc_i[tStatc_i < 0], df_i))
+                pc_i[tStatc_i >= 0] = -np.log10(stats.t.cdf(-tStatc_i[tStatc_i >= 0], df_i))
+
+                # Remove infs
+                if "minlog" in inputs:
+                    pc_i[np.logical_and(np.isinf(pc_i), pc_i<0)]=inputs['minlog']
+                else:
+                    pc_i[np.logical_and(np.isinf(pc_i), pc_i<0)]=-323.3062153431158
+
                 pc[I_inds] = pc_i
 
             if n_v_r:
-                pc_r = -np.log10(1-stats.t.cdf(tStatc_r, df_r))
+                # Do this seperately for >0 and <0 to avoid underflow
+                pc_r = np.zeros(np.shape(tStatc_r))
+                pc_r[tStatc_r < 0] = -np.log10(1-stats.t.cdf(tStatc_r[tStatc_r < 0], df_r[tStatc_r < 0]))
+                pc_r[tStatc_r >= 0] = -np.log10(stats.t.cdf(-tStatc_r[tStatc_r >= 0], df_r[tStatc_r >= 0]))
+
+                # Remove infs
+                if "minlog" in inputs:
+                    pc_r[np.logical_and(np.isinf(pc_r), pc_r<0)]=inputs['minlog']
+                else:
+                    pc_r[np.logical_and(np.isinf(pc_r), pc_r<0)]=-323.3062153431158
+
                 pc[R_inds] = pc_r
 
             p_t[:,:,:,current_n_ct] = pc.reshape(
@@ -737,10 +757,24 @@ def main(*args):
             # Work out p for this contrast
             if n_v_i:
                 pc_i = -np.log10(1-stats.f.cdf(fStatc_i, q, df_i))
+
+                # Remove infs
+                if "minlog" in inputs:
+                    pc_i[np.logical_and(np.isinf(pc_i), pc_i<0)]=inputs['minlog']
+                else:
+                    pc_i[np.logical_and(np.isinf(pc_i), pc_i<0)]=-323.3062153431158
+
                 pc[I_inds] = pc_i
 
             if n_v_r:
                 pc_r = -np.log10(1-stats.f.cdf(fStatc_r, q, df_r))
+
+                # Remove infs
+                if "minlog" in inputs:
+                    pc_r[np.logical_and(np.isinf(pc_r), pc_r<0)]=inputs['minlog']
+                else:
+                    pc_r[np.logical_and(np.isinf(pc_r), pc_r<0)]=-323.3062153431158
+
                 pc[R_inds] = pc_r
 
             p_f[:,:,:,current_n_cf] = pc.reshape(

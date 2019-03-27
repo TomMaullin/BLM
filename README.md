@@ -47,6 +47,7 @@ The following fields are optional:
  - `analysis_mask`: A mask to be applied during analysis.
  - `OutputCovB`: If set to `True` this will output between beta covariance maps. For studies with a large number of paramters this may not be desirable as, for example, 30 analysis paramters will create 30x30=900 between beta covariance maps. By default this is set to `True`.
  - `data_mask_thresh`: Any voxel with value below this threshold will be treated as missing data. (By default, no such thresholding  is done, i.e. `data_mask_thresh` is essentially -infinity). 
+ - `minlog`: Any `-inf` values in the `-log10(p)` maps will be converted to the value of `minlog`. Currently, a default value of `-323.3062153431158` is used as this is the most negative value which was seen during testing before `-inf` was encountered (see [this thread](https://github.com/TomMaullin/BLM/issues/76) for more details).
 
 
  

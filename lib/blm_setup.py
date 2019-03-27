@@ -94,8 +94,7 @@ def main(*args):
         with open(ipath, 'w') as outfile:
             yaml.dump(inputs, outfile, default_flow_style=False)
 
-    # Change paths to absoluate if they aren't already
-    
+    # Change paths to absoluate if they aren't already    
     if 'MAXMEM' in inputs:
         MAXMEM = eval(inputs['MAXMEM'])
     else:
