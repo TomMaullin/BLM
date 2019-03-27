@@ -757,10 +757,24 @@ def main(*args):
             # Work out p for this contrast
             if n_v_i:
                 pc_i = -np.log10(1-stats.f.cdf(fStatc_i, q, df_i))
+
+                # Remove infs
+                if "minlog" in inputs:
+                    pc_i[np.logical_and(np.isinf(pc_i), pc_i<0)]=inputs['minlog']
+                else:
+                    pc_i[np.logical_and(np.isinf(pc_i), pc_i<0)]=-323.3062153431158
+
                 pc[I_inds] = pc_i
 
             if n_v_r:
                 pc_r = -np.log10(1-stats.f.cdf(fStatc_r, q, df_r))
+
+                # Remove infs
+                if "minlog" in inputs:
+                    pc_r[np.logical_and(np.isinf(pc_r), pc_r<0)]=inputs['minlog']
+                else:
+                    pc_r[np.logical_and(np.isinf(pc_r), pc_r<0)]=-323.3062153431158
+
                 pc[R_inds] = pc_r
 
             p_f[:,:,:,current_n_cf] = pc.reshape(
