@@ -631,6 +631,12 @@ def main(*args):
                 pc_i[tStatc_i < 0] = -np.log10(1-stats.t.cdf(tStatc_i[tStatc_i < 0], df_i))
                 pc_i[tStatc_i >= 0] = -np.log10(stats.t.cdf(-tStatc_i[tStatc_i >= 0], df_i))
 
+                # Remove infs
+                if "minlog" in inputs:
+                    pc_i[np.logical_and(np.isinf(pc_i), pc_i<0)]=inputs['minlog']
+                else:
+                    pc_i[np.logical_and(np.isinf(pc_i), pc_i<0)]=-323.3062153431158
+
                 pc[I_inds] = pc_i
 
             if n_v_r:
@@ -638,6 +644,12 @@ def main(*args):
                 pc_r = np.zeros(np.shape(tStatc_r))
                 pc_r[tStatc_r < 0] = -np.log10(1-stats.t.cdf(tStatc_r[tStatc_r < 0], df_r[tStatc_r < 0]))
                 pc_r[tStatc_r >= 0] = -np.log10(stats.t.cdf(-tStatc_r[tStatc_r >= 0], df_r[tStatc_r >= 0]))
+
+                # Remove infs
+                if "minlog" in inputs:
+                    pc_r[np.logical_and(np.isinf(pc_r), pc_r<0)]=inputs['minlog']
+                else:
+                    pc_r[np.logical_and(np.isinf(pc_r), pc_r<0)]=-323.3062153431158
 
                 pc[R_inds] = pc_r
 
