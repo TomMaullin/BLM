@@ -1,6 +1,6 @@
 
 import os
-import pandas
+import pandas as pd
 import nibabel as nib
 
 # This is a small function to load in a file based on it's prefix.
