@@ -16,7 +16,7 @@ def blm_load(filepath):
         if data.shape[0]>1 and data.shape[1]>1:
 
             # Checking for column headers.
-            if (np.isnan(data[0,0]) or isinstance(data[0,0], str)) and isinstance(data[0,1], str):
+            if isinstance(data[0,0], str) and isinstance(data[0,1], str):
 
                 # Then checking for row headers aswell
                 if isinstance(data[1,0], str):
@@ -25,6 +25,17 @@ def blm_load(filepath):
                 else:
                     data = pd.io.parsers.read_csv(
                         filepath).values
+
+            elif np.isnan(data[0,0]) and isinstance(data[0,1], str):
+
+                # Then checking for row headers aswell
+                if isinstance(data[1,0], str):
+                    data = pd.io.parsers.read_csv(
+                        filepath,usecols=range(1,data.shape[1])).values
+                else:
+                    data = pd.io.parsers.read_csv(
+                        filepath).values
+                
 
             # Checking for row headers instead.
             elif isinstance(data[1,0], str):
@@ -39,13 +50,19 @@ def blm_load(filepath):
 
         # If we have more than one row but only one column, check for a column header
         elif data.shape[0]>1:
-            if (np.isnan(data[0,0]) or isinstance(data[0,0], str)):
-                    data = pd.io.parsers.read_csv(filepath, header=None).values
+            if isinstance(data[0,0], str):
+                data = pd.io.parsers.read_csv(filepath, header=None).values
+            elif np.isnan(data[0,0]):
+                data = pd.io.parsers.read_csv(filepath, header=None).values
         # If we have more than one column but only one row, check for a row header
         elif data.shape[1]>1:
-            if (np.isnan(data[0,0]) or isinstance(data[0,0], str)):
+            if isinstance(data[0,0], str):
                     data = pd.io.parsers.read_csv(
                         filepath,usecols=range(1,data.shape[1])).values
+            elif np.isnan(data[0,0]):
+                    data = pd.io.parsers.read_csv(
+                        filepath,usecols=range(1,data.shape[1])).values
+
 
     # If the file is a brain image in the form of nii, nii.gz, img or img.gz
     else:
