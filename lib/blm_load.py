@@ -25,8 +25,14 @@ def blm_load(filepath):
                     print('c1')
                     print(data[1,0])
                     print(type(data[1,0]))
-                    data = pd.io.parsers.read_csv(
-                        filepath,usecols=range(1,data.shape[1])).values
+                    # Check if we have numbers in the first column,
+                    # if not remove the first column because it must be 
+                    # a header.
+                    try:
+                        float(data[1,0])
+                    except:
+                        data = pd.io.parsers.read_csv(
+                            filepath,usecols=range(1,data.shape[1])).values
                 else:
                     print('c2')
                     data = pd.io.parsers.read_csv(
@@ -37,8 +43,14 @@ def blm_load(filepath):
                 print('active3')
                 # Then checking for row headers aswell
                 if isinstance(data[1,0], str):
-                    data = pd.io.parsers.read_csv(
-                        filepath,usecols=range(1,data.shape[1])).values
+                    # Check if we have numbers in the first column,
+                    # if not remove the first column because it must be 
+                    # a header.
+                    try:
+                        float(data[1,0])
+                    except:
+                        data = pd.io.parsers.read_csv(
+                            filepath,usecols=range(1,data.shape[1])).values
                 else:
                     data = pd.io.parsers.read_csv(
                         filepath).values
@@ -48,7 +60,14 @@ def blm_load(filepath):
             elif isinstance(data[1,0], str):
 
                 print('active4')
-                data = pd.io.parsers.read_csv(filepath, header=None,usecols=range(1,data.shape[1])).values
+                # Check if we have numbers in the first column,
+                # if not remove the first column because it must be 
+                # a header.
+                try:
+                    float(data[1,0])
+                except:
+                    data = pd.io.parsers.read_csv(
+                        filepath,usecols=range(1,data.shape[1])).values
 
             # If we have a nan but numeric headers for both remove the column header by default
             elif np.isnan(data[0,0]):
