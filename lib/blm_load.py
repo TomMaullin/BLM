@@ -2,6 +2,7 @@
 import os
 import pandas as pd
 import nibabel as nib
+import numpy as np
 
 # This is a small function to load in a file based on it's prefix.
 def blm_load(filepath):
