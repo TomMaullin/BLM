@@ -75,6 +75,7 @@ def main(*args):
 
     # Reduce X to X for this block.
     X = blm_load(inputs['X'])
+    print(X.shape)
     X = X[(blksize*(batchNo-1)):min((blksize*batchNo),len(Y_files))]
     
     # Mask volumes (if they are given)
