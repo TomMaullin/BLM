@@ -22,9 +22,11 @@ def blm_load(filepath):
                 print('active2')
                 # Then checking for row headers aswell
                 if isinstance(data[1,0], str):
+                    print('c1')
                     data = pd.io.parsers.read_csv(
                         filepath,usecols=range(1,data.shape[1])).values
                 else:
+                    print('c2')
                     data = pd.io.parsers.read_csv(
                         filepath).values
 
