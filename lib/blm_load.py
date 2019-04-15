@@ -14,17 +14,12 @@ def blm_load(filepath):
         # If we have rows and columns we should check for row and column headers:
         if data.shape[0]>1 and data.shape[1]>1:
 
-            print('active')
-
             # Checking for column headers.
             if isinstance(data[0,0], str) and isinstance(data[0,1], str):
 
-                print('active2')
                 # Then checking for row headers aswell
                 if isinstance(data[1,0], str):
-                    print('c1')
-                    print(data[1,0])
-                    print(type(data[1,0]))
+                    print('running1')
                     # Check if we have numbers in the first column,
                     # if not remove the first column because it must be 
                     # a header.
@@ -35,13 +30,15 @@ def blm_load(filepath):
                         data = pd.io.parsers.read_csv(
                             filepath,usecols=range(1,data.shape[1])).values
                 else:
-                    print('c2')
+                    print('running2')
                     data = pd.io.parsers.read_csv(
                         filepath).values
 
+                print(data)
+
             elif np.isnan(data[0,0]) and isinstance(data[0,1], str):
 
-                print('active3')
+                print('running3')
                 # Then checking for row headers aswell
                 if isinstance(data[1,0], str):
                     # Check if we have numbers in the first column,
@@ -93,6 +90,8 @@ def blm_load(filepath):
                         filepath,usecols=range(1,data.shape[1])).values
 
 
+        print(data)
+
     # If the file is a brain image in the form of nii, nii.gz, img or img.gz
     else:
         # If the file exists load it.
@@ -111,6 +110,5 @@ def blm_load(filepath):
             except:
                 raise ValueError('Input file not found: ' + str(filepath))
 
-    print(data)
     return data
 
