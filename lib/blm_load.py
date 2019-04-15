@@ -111,5 +111,6 @@ def blm_load(filepath):
             except:
                 raise ValueError('Input file not found: ' + str(filepath))
 
+    print(data)
     return data
 
