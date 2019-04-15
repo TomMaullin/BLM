@@ -29,9 +29,9 @@ def blm_load(filepath):
                     # if not remove the first column because it must be 
                     # a header.
                     try:
+                        print(data)
                         float(data[1,0])
                     except:
-                        print(data)
                         data = pd.io.parsers.read_csv(
                             filepath,usecols=range(1,data.shape[1])).values
                 else:
