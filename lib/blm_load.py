@@ -14,9 +14,12 @@ def blm_load(filepath):
         # If we have rows and columns we should check for row and column headers:
         if data.shape[0]>1 and data.shape[1]>1:
 
+            print('active')
+
             # Checking for column headers.
             if isinstance(data[0,0], str) and isinstance(data[0,1], str):
 
+                print('active2')
                 # Then checking for row headers aswell
                 if isinstance(data[1,0], str):
                     data = pd.io.parsers.read_csv(
@@ -27,6 +30,7 @@ def blm_load(filepath):
 
             elif np.isnan(data[0,0]) and isinstance(data[0,1], str):
 
+                print('active3')
                 # Then checking for row headers aswell
                 if isinstance(data[1,0], str):
                     data = pd.io.parsers.read_csv(
@@ -39,11 +43,13 @@ def blm_load(filepath):
             # Checking for row headers instead.
             elif isinstance(data[1,0], str):
 
-                    data = pd.io.parsers.read_csv(filepath, header=None,usecols=range(1,data.shape[1])).values
+                print('active4')
+                data = pd.io.parsers.read_csv(filepath, header=None,usecols=range(1,data.shape[1])).values
 
             # If we have a nan but numeric headers for both remove the column header by default
             elif np.isnan(data[0,0]):
 
+                print('active5')
                 data = pd.io.parsers.read_csv(
                                     filepath).values
 
@@ -56,10 +62,10 @@ def blm_load(filepath):
         # If we have more than one column but only one row, check for a row header
         elif data.shape[1]>1:
             if isinstance(data[0,0], str):
-                    data = pd.io.parsers.read_csv(
+                data = pd.io.parsers.read_csv(
                         filepath,usecols=range(1,data.shape[1])).values
             elif np.isnan(data[0,0]):
-                    data = pd.io.parsers.read_csv(
+                data = pd.io.parsers.read_csv(
                         filepath,usecols=range(1,data.shape[1])).values
 
 
