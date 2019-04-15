@@ -26,6 +26,7 @@ def blm_load(filepath):
                     try:
                         print(data)
                         float(data[1,0])
+                        data = pd.io.parsers.read_csv(filepath).values
                     except:
                         data = pd.io.parsers.read_csv(
                             filepath,usecols=range(1,data.shape[1])).values
@@ -46,6 +47,7 @@ def blm_load(filepath):
                     # a header.
                     try:
                         float(data[1,0])
+                        data = pd.io.parsers.read_csv(filepath).values
                     except:
                         data = pd.io.parsers.read_csv(
                             filepath,usecols=range(1,data.shape[1])).values
