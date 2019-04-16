@@ -12,7 +12,6 @@ import os
 import glob
 import shutil
 import yaml
-import pandas
 import time
 import warnings
 import subprocess
@@ -153,8 +152,7 @@ def main(*args):
         sumXtY = np.array([sumXtY])
 
     # Get ns.
-    X = pandas.io.parsers.read_csv(
-        inputs['X'], sep=',', header=None).values
+    X = blm_load(inputs['X'])
     n_s = X.shape[0]
 
     # ----------------------------------------------------------------------

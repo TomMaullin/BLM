@@ -11,7 +11,6 @@ import sys
 import os
 import shutil
 import yaml
-import pandas
 import time
 np.set_printoptions(threshold=np.nan)
 from lib.blm_eval import blm_eval
@@ -75,8 +74,8 @@ def main(*args):
     blksize = int(np.floor(MAXMEM/8/NIFTIsize/n_p));
 
     # Reduce X to X for this block.
-    X = pandas.io.parsers.read_csv(
-        inputs['X'], sep=',', header=None).values
+    X = blm_load(inputs['X'])
+    print(X.shape)
     X = X[(blksize*(batchNo-1)):min((blksize*batchNo),len(Y_files))]
     
     # Mask volumes (if they are given)
