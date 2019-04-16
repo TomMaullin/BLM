@@ -19,27 +19,21 @@ def blm_load(filepath):
 
                 # Then checking for row headers aswell
                 if isinstance(data[1,0], str):
-                    print('running1')
                     # Check if we have numbers in the first column,
                     # if not remove the first column because it must be 
                     # a header.
                     try:
-                        print(data)
                         float(data[1,0])
                         data = pd.io.parsers.read_csv(filepath).values
                     except:
                         data = pd.io.parsers.read_csv(
                             filepath,usecols=range(1,data.shape[1])).values
                 else:
-                    print('running2')
                     data = pd.io.parsers.read_csv(
                         filepath).values
 
-                print(data)
-
             elif np.isnan(data[0,0]) and isinstance(data[0,1], str):
 
-                print('running3')
                 # Then checking for row headers aswell
                 if isinstance(data[1,0], str):
                     # Check if we have numbers in the first column,
@@ -59,7 +53,6 @@ def blm_load(filepath):
             # Checking for row headers instead.
             elif isinstance(data[1,0], str):
 
-                print('active4')
                 # Check if we have numbers in the first column,
                 # if not remove the first column because it must be 
                 # a header.
@@ -72,7 +65,6 @@ def blm_load(filepath):
             # If we have a nan but numeric headers for both remove the column header by default
             elif np.isnan(data[0,0]):
 
-                print('active5')
                 data = pd.io.parsers.read_csv(
                                     filepath).values
 
@@ -90,9 +82,6 @@ def blm_load(filepath):
             elif np.isnan(data[0,0]):
                 data = pd.io.parsers.read_csv(
                         filepath,usecols=range(1,data.shape[1])).values
-
-
-        print(data)
 
     # If the file is a brain image in the form of nii, nii.gz, img or img.gz
     else:
