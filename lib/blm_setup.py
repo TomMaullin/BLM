@@ -105,8 +105,8 @@ def main(*args):
     notIntercept = np.array([1-np.all(X == X[0,:], axis = 0)])
     mX = np.multiply(mX,notIntercept)
 
-    # Column norms (ignoring intercept)
-    scaling = np.linalg.norm(X,axis=0)
+    # Column norms after demeaning (ignoring intercept)
+    scaling = np.linalg.norm((X-mX),axis=0)
     scaling[np.all(X == X[0,:], axis = 0)]=1
 
     # Demean and scale X
