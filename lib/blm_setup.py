@@ -101,7 +101,7 @@ def main(*args):
     print(X)
     print('mean')
     # Get mean of X
-    mX = np.mean(X, axis=0).reshape(X.shape[0],1)
+    mX = np.mean(X, axis=0).reshape(1, X.shape[1])
     print(mX)
 
     # Check for intercept column.
