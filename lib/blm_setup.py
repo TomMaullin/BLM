@@ -100,16 +100,21 @@ def main(*args):
 
     print(X)
     print('mean')
-    # Get mean of X
+    # Get mean of X, checking for intercept
     mX = np.mean(X, axis=0).reshape(1, X.shape[1])
-    print(mX)
+    notIntercept = np.array([1-np.all(X == X[0,:], axis = 0)])
+    mX = np.multiply(mX,notIntercept)
 
-    # Check for intercept column.
+    # Column norms (ignoring intercept)
+    scaling = np.linalg.norm(X,axis=0)
+    scaling[np.all(X == X[0,:], axis = 0)]=1
 
-    # Demean X
-    X = X - mX;
+    # Demean and scale X
+    X = (X - mX)/scaling
 
-    print('demeaned')
+    print('scaling')
+    print(scaling)
+    print('X')
     print(X)
 
     # Change paths to absoluate if they aren't already    
