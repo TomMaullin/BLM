@@ -26,7 +26,7 @@ def main(*args):
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
     if len(args)==0 or (not args[0]):
-        # Load in inputs
+        # Load in inputs (ipath=input path)
         ipath = os.path.abspath(os.path.join('..','blm_config.yml'))
         with open(ipath, 'r') as stream:
             inputs = yaml.load(stream)
@@ -93,6 +93,24 @@ def main(*args):
         # Update inputs
         with open(ipath, 'w') as outfile:
             yaml.dump(inputs, outfile, default_flow_style=False)
+
+    # Design matrix rescaling and demeaning
+    # Load in X
+    X = blm_load(inputs['X'])
+
+    print(X)
+    print('mean')
+    # Get mean of X
+    mX = np.mean(X, axis=0).reshape(X.shape[0],1)
+    print(mX)
+
+    # Check for intercept column.
+
+    # Demean X
+    X = X - mX;
+
+    print('demeaned')
+    print(X)
 
     # Change paths to absoluate if they aren't already    
     if 'MAXMEM' in inputs:
