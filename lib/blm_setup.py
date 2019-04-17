@@ -186,5 +186,7 @@ def main(*args):
 
     w.resetwarnings()
 
+    print(int(np.ceil(len(Y_files)/int(blksize))))
+
 if __name__ == "__main__":
     main()
