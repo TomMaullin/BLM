@@ -87,9 +87,9 @@ def main(*args):
     if (len(args)==0) or (type(args[0]) is str):
         # Read the matrices from the first batch. Note XtY is transposed as np
         # handles lots of rows much faster than lots of columns.
-        sumXtX = np.load(os.path.join(OutDir,"tmp","XtX1.npy"))
-        sumXtY = np.load(os.path.join(OutDir,"tmp","XtY1.npy")).transpose()
-        sumYtY = np.load(os.path.join(OutDir,"tmp","YtY1.npy"))
+        sumXtX = blm_load(os.path.join(OutDir,"tmp","XtX1.npy"))
+        sumXtY = blm_load(os.path.join(OutDir,"tmp","XtY1.npy")).transpose()
+        sumYtY = blm_load(os.path.join(OutDir,"tmp","YtY1.npy"))
         nmapb  = blm_load(os.path.join(OutDir,"tmp", "blm_vox_n_batch1.nii"))
         n_s_sv = nmapb.get_data()
 
@@ -106,13 +106,13 @@ def main(*args):
         for batchNo in range(2,(len(XtX_files)+2)):
 
             # Sum the batches.
-            sumXtX = sumXtX + np.load(
+            sumXtX = sumXtX + blm_load(
                 os.path.join(OutDir,"tmp","XtX" + str(batchNo) + ".npy"))
 
-            sumXtY = sumXtY + np.load(
+            sumXtY = sumXtY + blm_load(
                 os.path.join(OutDir,"tmp","XtY" + str(batchNo) + ".npy")).transpose()
 
-            sumYtY = sumYtY + np.load(
+            sumYtY = sumYtY + blm_load(
                 os.path.join(OutDir,"tmp","YtY" + str(batchNo) + ".npy"))
             
             # Obtain the full nmap.
