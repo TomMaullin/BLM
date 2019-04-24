@@ -526,7 +526,7 @@ def main(*args):
     current_n_cf = 0
 
     # Setup 4d volumes to output
-    cbeta = np.zeros([int(NIFTIsize[0]), int(NIFTIsize[1]), int(NIFTIsize[2]), n_c])
+    cbeta = np.zeros([int(NIFTIsize[0]), int(NIFTIsize[1]), int(NIFTIsize[2]), n_ct])
     se_t = np.zeros([int(NIFTIsize[0]), int(NIFTIsize[1]), int(NIFTIsize[2]), n_ct])
     stat_t = np.zeros([int(NIFTIsize[0]), int(NIFTIsize[1]), int(NIFTIsize[2]), n_ct])
     p_t = np.zeros([int(NIFTIsize[0]), int(NIFTIsize[1]), int(NIFTIsize[2]), n_ct])
@@ -635,8 +635,10 @@ def main(*args):
                     # Remove infs
                     if "minlog" in inputs:
                         pc_i[np.logical_and(np.isinf(pc_i), pc_i<0)]=inputs['minlog']
+                        pc_i[np.logical_and(np.isinf(pc_i), pc_i>0)]=-inputs['minlog']
                     else:
                         pc_i[np.logical_and(np.isinf(pc_i), pc_i<0)]=-323.3062153431158
+                        pc_i[np.logical_and(np.isinf(pc_i), pc_i>0)]=323.3062153431158
 
                     pc[I_inds] = pc_i
 
@@ -649,8 +651,10 @@ def main(*args):
                     # Remove infs
                     if "minlog" in inputs:
                         pc_r[np.logical_and(np.isinf(pc_r), pc_r<0)]=inputs['minlog']
+                        pc_r[np.logical_and(np.isinf(pc_r), pc_r>0)]=-inputs['minlog']
                     else:
                         pc_r[np.logical_and(np.isinf(pc_r), pc_r<0)]=-323.3062153431158
+                        pc_r[np.logical_and(np.isinf(pc_r), pc_r>0)]=323.3062153431158
 
                     pc[R_inds] = pc_r
 
