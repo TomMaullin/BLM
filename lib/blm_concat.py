@@ -152,7 +152,7 @@ def main(*args):
         sumXtY = np.array([sumXtY])
 
     # Get ns.
-    X = blm_load(inputs['X'])
+    X = blm_load(inputs['X_preprocessed'])
     n_s = X.shape[0]
 
     # ----------------------------------------------------------------------
