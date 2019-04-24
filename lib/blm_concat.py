@@ -592,6 +592,8 @@ def main(*args):
                 covcbeta_i = cvectiXtXcvec_i*resms_i.reshape(n_v_i)
                 covcbeta[I_inds] = covcbeta_i
 
+            print(current_n_ct)
+            print(cvec)
             se_t[:,:,:,current_n_ct] = np.sqrt(covcbeta.reshape(
                                                     NIFTIsize[0],
                                                     NIFTIsize[1],
