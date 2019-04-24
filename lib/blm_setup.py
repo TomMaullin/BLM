@@ -125,7 +125,8 @@ def main(*args):
 
     # Save preprocessed X.
     np.save(os.path.join(OutDir,"X_preprocessed"),X) 
-    inputs['X_preprocessed'] = os.path.join(OutDir,"X_preprocessed")
+    inputs['X_preprocessed'] = os.path.join(OutDir,"X_preprocessed.npy")
+    
     # Update inputs
     with open(ipath, 'w') as outfile:
         yaml.dump(inputs, outfile, default_flow_style=False)
