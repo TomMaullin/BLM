@@ -46,6 +46,9 @@ def main(*args):
                     retnb = args[1]
                 else:
                     retnb = False
+        # THIS ELSE CLAUSE IS CURRENTLY REDUNDANT BUT MAY BE USEFUL
+        # FOR FUTURE DEVELOPMENT. IN BOTH SERIAL AND CLUSTER MODE, 
+        # CURRENTLY ARGS[0] IS A STRING.
         else:  
             # In this case inputs structure is first argument.
             inputs = args[0]
@@ -101,21 +104,16 @@ def main(*args):
     print(X)
     print('mean')
     # Get mean of X, checking for intercept
-    mX = np.mean(X, axis=0).reshape(1, X.shape[1])
+    muX = np.mean(X, axis=0).reshape(1, X.shape[1])
     notIntercept = np.array([1-np.all(X == X[0,:], axis = 0)])
-    mX = np.multiply(mX,notIntercept)
+    muX = np.multiply(muX,notIntercept)
 
     # Column norms after demeaning (ignoring intercept)
-    scaling = np.linalg.norm((X-mX),axis=0)
+    scaling = np.linalg.norm((X-muX),axis=0)
     scaling[np.all(X == X[0,:], axis = 0)]=1
 
     # Demean and scale X
-    X = (X - mX)/scaling
-
-    print('scaling')
-    print(scaling)
-    print('X')
-    print(X)
+    X = (X - muX)/scaling
 
     # Change paths to absoluate if they aren't already    
     if 'MAXMEM' in inputs:
@@ -124,6 +122,13 @@ def main(*args):
         MAXMEM = 2**32
 
     OutDir = inputs['outdir']
+
+    # Save preprocessed X.
+    np.save(os.path.join(OutDir,"X_preprocessed"),X) 
+    inputs['X_preprocessed'] = os.path.join(OutDir,"X_preprocessed")
+    # Update inputs
+    with open(ipath, 'w') as outfile:
+        yaml.dump(inputs, outfile, default_flow_style=False)
 
     # Get number of parameters
     c1 = blm_eval(inputs['contrasts'][0]['c' + str(1)]['vector'])
