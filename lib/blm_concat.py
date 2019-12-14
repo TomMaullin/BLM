@@ -439,6 +439,62 @@ def main(*args):
     del msmap, resms
 
     # ----------------------------------------------------------------------
+    # Calculate log likelihood
+    # ----------------------------------------------------------------------
+
+    # Unmasked llh
+    llh = np.zeros([n_v,1])
+
+    if n_v_r:
+
+        sigma2_r = 1/n_s_sv_r * ete_r.reshape(n_s_sv_r.shape)
+
+        print(sigma2_r.shape)
+
+        # Work out -1/2(nln(sigma^2))
+        firstterm = -0.5*(n_s_sv_r.reshape(sigma2_r.shape)*np.log(sigma2_r)).reshape(ete_r.shape)
+    
+        print(firstterm.shape)
+
+        # Work out -N/2 ln(2pi)
+        secondterm = -0.5*(n_s_sv_r.reshape(sigma2_r.shape)*np.log(2*np.pi)).reshape(ete_r.shape)  
+
+        # Work out the log likelihood
+        llh_r = firstterm + secondterm + 1
+
+    if n_v_i:
+
+        sigma2_i = 1/n_s * ete_i
+
+        print(sigma2_i.shape)
+    
+        # Work out -1/2(nln(sigma^2))
+        firstterm = -0.5*(n_s*np.log(sigma2_i)).reshape(ete_i.shape)
+
+        print(firstterm.shape)
+
+        # Work out -N/2 ln(2pi)
+        secondterm = -0.5*(n_s*np.log(2*np.pi))
+
+        # Work out the log likelihood
+        llh_i = firstterm + secondterm + 1
+
+    llh[R_inds,:]=llh_r[:]
+    llh[I_inds,:]=llh_i[:]
+
+    llh = llh.reshape(NIFTIsize[0],
+                          NIFTIsize[1],
+                          NIFTIsize[2])
+
+    # Output ResSS.
+    llhmap = nib.Nifti1Image(llh,
+                             nifti.affine,
+	                     header=nifti.header)
+    nib.save(llhmap, os.path.join(OutDir,'blm_vox_llh.nii'))
+    del llhmap, llh, firstterm, secondterm
+
+
+    # ----------------------------------------------------------------------
     # Calculate beta covariance maps
     # ----------------------------------------------------------------------
         
