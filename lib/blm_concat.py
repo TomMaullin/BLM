@@ -460,7 +460,7 @@ def main(*args):
         secondterm = -0.5*(n_s_sv_r.reshape(sigma2_r.shape)*np.log(2*np.pi)).reshape(ete_r.shape)  
 
         # Work out the log likelihood
-        llh_r = firstterm + secondterm + 1
+        llh_r = firstterm + secondterm - 0.5*n_s_sv_r.reshape(ete_r.shape)
 
     if n_v_i:
 
@@ -477,7 +477,7 @@ def main(*args):
         secondterm = -0.5*(n_s*np.log(2*np.pi))
 
         # Work out the log likelihood
-        llh_i = firstterm + secondterm + 1
+        llh_i = firstterm + secondterm - 0.5*n_s
 
     llh[R_inds,:]=llh_r[:]
     llh[I_inds,:]=llh_i[:]
