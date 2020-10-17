@@ -243,29 +243,63 @@ def verifyInput(Y_files, M_files, Y0):
                                  'different affine transformation to "' +
                                  Y0 + '"')
 
-def obtainY(Y_files, M_files, M_t):
+
+# ============================================================================
+# 
+# The below function reads in the input files and thresholds and returns; Y
+# (as a numpy array), the overall mask (as a 3D numpy array), the spatially
+# varying number of observationss (as a 3D numpy array), the array Y!=0 
+# (resized appropriately for later computation) and a uniqueness map 
+# representing which voxel has which design.
+#
+# ----------------------------------------------------------------------------
+#
+# This function takes in the following inputs:
+#
+# ----------------------------------------------------------------------------
+#
+#  - `Y_files`: A list of input NIFTI volumes.
+#  - `M_files`: A list of input NIFTI mask volumes.
+#  - `M_t`: A numerical threshold k. Any voxel with less than k input volumes
+#           present will be discarded. Can be set to None.
+#  - `M_a`: An overall analysis mask 3D numpy array. Can be set to None.
+#
+# ----------------------------------------------------------------------------
+#
+# This function gives as outputs:
+#
+# ----------------------------------------------------------------------------
+#
+#  - `Y`: The masked observations, reshaped to be of dimension v by n by 1.
+#  - `n_sv`: The spatially varying number of observations (as a 3D numpy
+#            array).
+#  - `M`: The array Y!=0 (resized appropriately for later computation).
+#  - `Mmap`: A uniqueness map representing which voxel has which design.
+#
+# ============================================================================
+def obtainY(Y_files, M_files, M_t, M_a):
 
     # Load in one nifti to check NIFTI size
     Y0 = loadFile(Y_files[0])
     d = Y0.get_data()
     
     # Get number of voxels.
-    nvox = np.prod(d.shape)
+    v = np.prod(d.shape)
 
-    # Number of scans in block
-    nscan = len(Y_files)
+    # Number of observations in block
+    n = len(Y_files)
 
-    # Count number of scans contributing to voxels
-    nmap = np.zeros(d.shape)
+    # Count number of observations contributing to voxels
+    n_sv = np.zeros(d.shape)
 
     # Read in Y
-    Y = np.zeros([nscan, nvox])
+    Y = np.zeros([n, v])
     for i in range(0, len(Y_files)):
 
         # Read in each individual NIFTI.
         Y_indiv = loadFile(Y_files[i])
 
-        # Mask Y if necesart
+        # Mask Y if necesary
         if M_files:
         
             # Apply mask
@@ -281,21 +315,54 @@ def obtainY(Y_files, M_files, M_t):
         if M_t is not None:
             d[d<M_t]=0
 
+        if M_a is not None:
+            d[M_a==0]=0
+
         # NaN check
         d = np.nan_to_num(d)
 
-        # Count number of scans at each voxel
-        nmap = nmap + 1*(np.nan_to_num(d)!=0)
+        # Count number of observations at each voxel
+        n_sv = n_sv + 1*(np.nan_to_num(d)!=0)
 
-        # Constructing Y matrix
-        Y[i, :] = d.reshape([1, nvox])
+        # Constructing Y array
+        Y[i, :] = d.reshape([1, v])
     
-    Mask = np.zeros([nvox])
+    # Work out mask
+    Mask = np.zeros([v])
     Mask[np.where(np.count_nonzero(Y, axis=0)>0)[0]] = 1
     
-    Y = Y[:, np.where(np.count_nonzero(Y, axis=0)>0)[0]]
+    # Apply full mask to Y
+    Y_fm = Y[:, np.where(np.count_nonzero(Y, axis=0)>0)[0]]
 
-    return Y, Mask, nmap
+    # Apply analysis mask to Y, we use the analysis mask here as the product
+    # matrices across all batches should have the same masking for convinience
+    # We can apply the full mask at a later stage.
+    Y = Y[:, np.where(M_a.reshape([v]))[0]]
+
+    # Work out the mask.
+    M = (Y_fm!=0)
+
+    # Get indices corresponding to the unique rows of M
+    M_df = pd.DataFrame(M.transpose())
+    M_df['id'] = M_df.groupby(M_df.columns.tolist(), sort=False).ngroup() + 1
+    unique_id_nifti = M_df['id'].values
+
+    # Make a nifti which will act as a "key" telling us which voxel had which design
+    Mmap = np.zeros(Mask.shape)
+    Mmap[np.flatnonzero(Mask)] = unique_id_nifti[:]
+    Mmap = Mmap.reshape(n_sv.shape)
+
+    # Get the unique columns of M (Care must be taken here to retain
+    # the original ordering, as unique_id_nifti is now based on said
+    # ordering)
+    _, idx = np.unique(M, axis=1, return_index=True)
+    M = M[:,np.sort(idx)]
+
+    # Reshape Y
+    Y = Y.reshape(Y.shape[0], Y.shape[1], 1).transpose((1,0,2))
+
+    # Return results
+    return Y, n_sv, M, Mmap
 
 
 # ============================================================================
