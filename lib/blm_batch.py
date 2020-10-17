@@ -18,14 +18,17 @@ from lib.blm_load import blm_load
 
 def main(*args):
 
+
     # Change to blm directory
     os.chdir(os.path.dirname(os.path.realpath(__file__)))    
 
+    # Obtain batch number
     batchNo = args[0]
 
+    # Work out if which file to look at for inputs
     if len(args)==1 or (not args[1]):
         # Load in inputs
-        with open(os.path.join(os.getcwd(),'..','blm_config.yml'), 'r') as stream:
+        with open(os.path.join(os.getcwd(),'..','blmm_config.yml'), 'r') as stream:
             inputs = yaml.load(stream,Loader=yaml.FullLoader)
     else:
         if type(args[1]) is str:
@@ -36,18 +39,20 @@ def main(*args):
             # In this case inputs structure is first argument.
             inputs = args[1]
 
+    # Work out the maximum memory limit
     if 'MAXMEM' in inputs:
         MAXMEM = eval(inputs['MAXMEM'])
     else:
         MAXMEM = 2**32
 
+    # Output directory
     OutDir = inputs['outdir']
 
-    # Get number of parameters
-    c1 = blm_eval(inputs['contrasts'][0]['c' + str(1)]['vector'])
-    c1 = np.array(c1)
-    n_p = c1.shape[0]
-    del c1
+    # Get number of fixed effects parameters
+    L1 = str2vec(inputs['contrasts'][0]['c' + str(1)]['vector'])
+    L1 = np.array(L1)
+    p = L1.shape[0]
+    del L1
 
     # Y volumes
     with open(inputs['Y_files']) as a:
@@ -64,23 +69,24 @@ def main(*args):
     except Exception as error:
         raise ValueError('The NIFTI "' + Y_files[0] + '"does not exist')
 
+    # Read in some data as a default nifti
     d0 = Y0.get_data()
 
     # Get the maximum memory a NIFTI could take in storage. 
-    NIFTIsize = sys.getsizeof(np.zeros(d0.shape,dtype='uint64'))
+    NIFTImem = sys.getsizeof(np.zeros(d0.shape,dtype='uint64'))
 
     # Similar to blksize in SwE, we divide by 8 times the size of a nifti
     # to work out how many blocks we use.
-    blksize = int(np.floor(MAXMEM/8/NIFTIsize/n_p));
+    blksize = int(np.floor(MAXMEM/8/NIFTImem/p));
 
     # Reduce X to X for this block.
     X = blm_load(inputs['X'])
-    print(X.shape)
     X = X[(blksize*(batchNo-1)):min((blksize*batchNo),len(Y_files))]
-    
+
     # Mask volumes (if they are given)
     if 'data_mask_files' in inputs:
 
+        # Rrad in mask files, making sure to avoid the newline characters
         with open(inputs['data_mask_files']) as a:
 
             M_files = []
@@ -97,6 +103,8 @@ def main(*args):
 
         else:
 
+            # If we haven't the same number of masks and observations then
+            # something must be mispecified.
             if len(M_files) > len(Y_files):
 
                 raise ValueError('Too many data_masks specified!')
@@ -117,54 +125,72 @@ def main(*args):
     else:
         M_t = None
 
+    # Mask volumes (if they are given)
+    if 'analysis_mask' in inputs:
+
+        # Load the file and check it's shape is 3d (as oppose to 4d with a 4th dimension
+        # of 1)
+        M_a = blm_load(inputs['analysis_mask']).get_data()
+        M_a = M_a.reshape((M_a.shape[0],M_a.shape[1],M_a.shape[2]))
+
+    else:
+
+        # Else set to None
+        M_a = None
+
     # Reduce Y_files to only Y files for this block
     Y_files = Y_files[(blksize*(batchNo-1)):min((blksize*batchNo),len(Y_files))]
     
     # Verify input
     verifyInput(Y_files, M_files, Y0)
 
-    # Obtain Y, mask for Y and nmap. This mask is just for voxels
-    # with no studies present.
-    Y, Mask, nmap = obtainY(Y_files, M_files, M_t)
+    # Obtain Y, M (essentially the array Y!=0) n_sv and Mmap.
+    # This mask is just for voxels with no studies present.
+    Y, n_sv, M, Mmap = obtainY(Y_files, M_files, M_t, M_a)
 
-    # Work out voxel specific designs
-    MX = blkMX(X, Y)
-    
-    # Get X transpose Y, X transpose X and Y transpose Y.
-    XtY = blkXtY(X, Y, Mask)
-    YtY = blkYtY(Y, Mask)
+    # Work out voxel specific design
+    MX = applyMask(X, M)
 
-    # In a spatially varying design XtX has dimensions n_voxels
-    # by n_parameters by n_parameters. We reshape to n_voxels by
-    # n_parameters^2 so that we can save as a csv.
-    XtX_m = blkXtX(MX)
-    XtX_m = XtX_m.reshape([XtX_m.shape[0], XtX_m.shape[1]*XtX_m.shape[2]])
+    # Get X'Y and Y'Y. 
+    # ------------------------------------------------------------------
+    # Developer note: For these product matrices we do not need to worry
+    # about missing rows in X. This is as the corresponding elements in
+    # Y should already be set to 0 and, as such, won't have any affect 
+    # on these products.
+    # ------------------------------------------------------------------
 
-    # We then need to unmask XtX as we now are saving XtX.
-    XtX = np.zeros([Mask.shape[0],XtX_m.shape[1]])
-    XtX[np.flatnonzero(Mask),:] = XtX_m[:]
+    # We are careful how we compute X'Y and Y'Y, in case either p is 
+    #  large. We save these "chunk by chunk" as memory map objects just
+    # in case they don't fit in working memory (this is only usually an
+    # issue for very large designs).
+    memorySafeAtB(X.reshape(1,X.shape[0],X.shape[1]),Y,MAXMEM,os.path.join(OutDir,"tmp","XtY.npy"))
+    memorySafeAtB(Y,Y,MAXMEM,os.path.join(OutDir,"tmp","YtY.npy"))
 
-    # Pandas reads and writes files much more quickly with nrows <<
-    # number of columns
-    XtY = XtY.transpose()
+    # In a spatially varying design XtX has dimensions n by p by p. We
+    # reshape to n by p^2 so that we can save as a csv.
+    XtX = MX.transpose(0,2,1) @ MX
+    XtX = XtX.reshape([XtX.shape[0], XtX.shape[1]*XtX.shape[2]])
 
-    if (len(args)==1) or (type(args[1]) is str):
-        # Record XtX and XtY
-        np.save(os.path.join(OutDir,"tmp","XtX" + str(batchNo)), 
-                   XtX)
-        np.save(os.path.join(OutDir,"tmp","XtY" + str(batchNo)), 
-                   XtY) 
-        np.save(os.path.join(OutDir,"tmp","YtY" + str(batchNo)), 
-                   YtY) 
-        # Get map of number of scans at voxel.
-        nmap = nib.Nifti1Image(nmap,
-                               Y0.affine,
-                               header=Y0.header)
-        nib.save(nmap, os.path.join(OutDir,'tmp',
-                        'blm_vox_n_batch'+ str(batchNo) + '.nii'))
-    else:
-        # Return XtX, XtY, YtY, nB
-        return(XtX, XtY, YtY, nmap)
+    # Record product matrix X'X.
+    np.save(os.path.join(OutDir,"tmp","XtX" + str(batchNo)), 
+                XtX)
+
+    # Get map of number of observations at voxel.
+    n_sv = nib.Nifti1Image(n_sv,
+                           Y0.affine,
+                           header=Y0.header)
+    nib.save(n_sv, os.path.join(OutDir,'tmp',
+                    'blmm_vox_n_batch'+ str(batchNo) + '.nii'))
+
+    # Get Mmap, indicating which design each voxel must use for analysis,
+    # using an integer representing the order in which X'X, Z'X and Z'Z 
+    # appear in the `XtX.npy`, `ZtX.npy` and `ZtZ.npy` files respectively.
+    Mmap = nib.Nifti1Image(Mmap,
+                           Y0.affine,
+                           header=Y0.header)
+    nib.save(Mmap, os.path.join(OutDir,'tmp',
+                    'blmm_vox_uniqueM_batch'+ str(batchNo) + '.nii'))
+
     w.resetwarnings()
 
 def verifyInput(Y_files, M_files, Y0):
@@ -217,22 +243,6 @@ def verifyInput(Y_files, M_files, Y0):
                 raise ValueError('Input NIFTI "' + M_file + '" has a ' +
                                  'different affine transformation to "' +
                                  Y0 + '"')
-
-def blkMX(X,Y):
-
-    # Work out the mask.
-    M = (Y!=0)
-
-    # Get M in a form where each voxel's mask is mutliplied
-    # by X
-    M = M.transpose().reshape([M.shape[1], 1, M.shape[0]])
-    Xt=X.transpose()
-
-    # Obtain design for each voxel
-    MXt = np.multiply(M, Xt)
-    MX = MXt.transpose(0,2,1)
-
-    return MX
 
 def obtainY(Y_files, M_files, M_t):
 
@@ -288,75 +298,129 @@ def obtainY(Y_files, M_files, M_t):
 
     return Y, Mask, nmap
 
-# Note: this techniqcally calculates sum(Y.Y) for each voxel,
-# not Y transpose Y for all voxels
-def blkYtY(Y, Mask):
 
-    # Read in number of scans and voxels.
-    nscan = Y.shape[0]
-    nvox = Y.shape[1]
+# ============================================================================
+# 
+# The below function takes in a (2D) array, X, and applies a mask to it, 
+# resulting in a 3D array, MX, where whenever data was missing at voxel v for
+# observations i1, i2,... etc, MX[v,:,:] is X but with rows i1, i2,... i3
+# replaced with zeros.
+#
+# ----------------------------------------------------------------------------
+#
+# This function takes in the following inputs:
+#
+# ----------------------------------------------------------------------------
+#
+#  - `X`: The (2D) array of interest to be converted.
+#  - `M`: The (n by v) mask to be applied to X (essentially the array Y!=0,
+#         reshaped where appropriate).
+#
+# ----------------------------------------------------------------------------
+#
+# This function gives as outputs:
+#
+# ----------------------------------------------------------------------------
+#
+#  - `MX`: The (3D) "Masked" version of X.
+#
+# ============================================================================
+def applyMask(X,M):
+
+    # Get M in a form where each voxel's mask is mutliplied
+    # by X
+    M = M.transpose().reshape([M.shape[1], 1, M.shape[0]])
+    Xt=X.transpose()
+
+    # Obtain X for each voxel
+    MXt = np.multiply(M, Xt)
+    MX = MXt.transpose(0,2,1)
+
+    return MX
+
+
+# ============================================================================
+#
+# Given two 3D numpy arrays, A and B, of shape (1, k1, k2) and (v, k1, k3)
+# respectively, the below function calculates the (v, k2, k3) matrix A'B
+# and outputs it to a file in a "memory safe" way, ensuring that the 
+# (v, k2, k3) matrix is calculated and output in managable chunks, one at a
+# time.
+#
+# This function is designed with the use case of the product matrices X'Y and
+# Z'Y in mind.
+#
+# ----------------------------------------------------------------------------
+#
+# This function takes in the following inputs:
+#
+# ----------------------------------------------------------------------------
+#
+# - `A`: The (1, k1, k2) shaped matrix.
+# - `B`: The (v, k1, k3) shaped matrix.
+# - `MAXMEM`: The maximum memory allowed for usage, in bytes.
+# - `filename`: The name of the file.
+#
+# ============================================================================
+def memorySafeAtB(A,B,MAXMEM,filename):
+
+    # Check if file is in use
+    fileLocked = True
+    while fileLocked:
+        try:
+            # Create lock file, so other jobs know we are writing to this file
+            os.open(filename + ".lock", os.O_CREAT|os.O_EXCL|os.O_RDWR)
+            fileLocked = False
+        except FileExistsError:
+            fileLocked = True
+
+    # Record v and k3 (which is usually p or 1)
+    v = B.shape[0]
+    pORone = A.shape[2]
+
+    # If the memory map doesn't exist already, create it
+    if not os.path.isfile(filename):
+
+        # Create a memory-mapped .npy file with the dimensions and dtype we want
+        M = open_memmap(filename, mode='w+', dtype='float64', shape=(v,pORone))
+
+        # Work out the number of voxels we can save at a time.
+        # (8 bytes per numpy float exponent multiplied by 10
+        # for a safe overhead)
+        vPerBlock = MAXMEM/(10*8*pORone)
+
+        # Work out the indices for each group of voxels
+        voxelGroups = np.array_split(np.arange(v, dtype='int32'), v//vPerBlock+1)
+
+        # Loop through each group of voxels saving A'B for those voxels
+        for vb in range(int(v//vPerBlock+1)):
+            M[voxelGroups[vb],:]=(A.transpose(0,2,1) @ B[voxelGroups[vb],:,:]).reshape(len(voxelGroups[vb]),pORone)
     
-    # Reshape Y
-    Y_rs = Y.transpose().reshape(nvox, nscan, 1)
-    Yt_rs = Y.transpose().reshape(nvox, 1, nscan)
-    del Y
-
-    # Calculate Y transpose Y.
-    YtY_m = np.matmul(Yt_rs,Y_rs).reshape([nvox, 1])
-
-    # Unmask YtY
-    YtY = np.zeros([Mask.shape[0], 1])
-    YtY[np.flatnonzero(Mask),:] = YtY_m[:]
-
-    return YtY
-
-
-def blkXtY(X, Y, Mask):
-    
-    # Calculate X transpose Y (Masked)
-    XtY_m = np.asarray(
-                np.dot(np.transpose(X), Y))
-
-    # Check the dimensions haven't been reduced
-    # (numpy will lower the dimension of the 
-    # array if the length in one dimension is
-    # one)
-    if np.ndim(XtY_m) == 0:
-        XtY_m = np.array([[XtY_m]])
-    elif np.ndim(XtY_m) == 1:
-        XtY_m = np.array([XtY_m])
-
-    # Unmask XtY
-    XtY = np.zeros([XtY_m.shape[0], Mask.shape[0]])
-    XtY[:,np.flatnonzero(Mask)] = XtY_m[:]
-
-    return XtY
-
-
-def blkXtX(X):
-
-    if np.ndim(X) == 3:
-
-        Xt = X.transpose((0, 2, 1))
-        XtX = np.matmul(Xt, X)
-
+    # Otherwise we add to the memory map that does exist
     else:
 
-        # Calculate XtX
-        XtX = np.asarray(
-                    np.dot(np.transpose(X), X))
+        # Load in the file but in memory map mode
+        M = np.load(filename,mmap_mode='r+')
+        M = M.reshape((v,pORone))
 
-        # Check the dimensions haven't been reduced
-        # (numpy will lower the dimension of the 
-        # array if the length in one dimension is
-        # one)
-        if np.ndim(XtX) == 0:
-            XtX = np.array([XtX])
-        elif np.ndim(XtX) == 1:
-            XtX = np.array([XtX])
+        # Work out the number of voxels we can save at a time.
+        # (8 bytes per numpy float exponent multiplied by 10
+        # for a safe overhead)
+        vPerBlock = MAXMEM/(10*8*pORone)
 
-    return XtX
+        # Work out the indices for each group of voxels
+        voxelGroups = np.array_split(np.arange(v, dtype='int32'), v//vPerBlock+1)
+        
+        # Loop through each group of voxels saving A'B for those voxels
+        for vb in range(int(v//vPerBlock+1)):
+            M[voxelGroups[vb],:]=M[voxelGroups[vb],:]+(A.transpose(0,2,1) @ B[voxelGroups[vb],:,:]).reshape(len(voxelGroups[vb]),pORone)
 
+    # Delete M from memory (important!)
+    del M
+
+    # Delete lock file, so other jobs know they can now write to the
+    # file
+    os.remove(filename + ".lock")
 
 if __name__ == "__main__":
     main()
