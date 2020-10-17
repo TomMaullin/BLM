@@ -489,7 +489,7 @@ def main(*args):
             betatXtXbeta_i = np.reshape(betatXtXbeta_i, [v_i,1])
 
             # Residual sum of squares
-            ete_i = YtY[I_inds] - betatXtXbeta_i
+            ete_i = YtY_i[I_inds] - betatXtXbeta_i
             del betatXtXbeta_i
 
         if v_r:
@@ -512,7 +512,7 @@ def main(*args):
             betatXtXbeta_r = np.reshape(betatXtXbeta_r, [v_r,1])
 
             # Residual sum of squares
-            ete_r = YtY[R_inds] - betatXtXbeta_r
+            ete_r = YtY_r[R_inds] - betatXtXbeta_r
             del betatXtXbeta_r
 
         # ----------------------------------------------------------------------
@@ -641,319 +641,170 @@ def main(*args):
 
                 if statType == 'T':
 
-                    # A T contrast has only one row so we can output Lbeta here
-                    addBlockToNifti(os.path.join(OutDir, 'blm_vox_con.nii'), Lbeta_r, R_inds,volInd=current_nt,dim=dimT,aff=nifti.affine,hdr=nifti.header)
-                    addBlockToNifti(os.path.join(OutDir, 'blm_vox_con.nii'), Lbeta_i, I_inds,volInd=current_nt,dim=dimT,aff=nifti.affine,hdr=nifti.header)
-
-        # ======================================================================================================================================================================
-
-                # Unmask to output
-                covLbeta = np.zeros([v])
+                    if v_r:
+
+                        # A T contrast has only one row so we can output Lbeta here
+                        addBlockToNifti(os.path.join(OutDir, 'blm_vox_con.nii'), Lbeta_r, R_inds,volInd=current_nt,dim=dimT,aff=nifti.affine,hdr=nifti.header)
 
-                if v_r:
-                    # Calculate c'(X'X)^(-1)c
-                    LvectiXtXLvec_r = np.matmul(
-                        np.matmul(Lvec, isumXtX_r),
-                        np.transpose(Lvec)).reshape(v_r)
+                        # Calculate c'(X'X)^(-1)c
+                        LvectiXtXLvec_r = np.matmul(
+                            np.matmul(Lvec, isumXtX_r),
+                            np.transpose(Lvec)).reshape(v_r)
+
+                        # Calculate masked cov(c\hat{\beta}) for ring
+                        covLbeta_r = LvectiXtXLvec_r*resms_r.reshape(v_r)
+                        addBlockToNifti(os.path.join(OutDir, 'blm_vox_conSE.nii'), np.sqrt(covLbeta_r), R_inds,volInd=current_nt,dim=dimT,aff=nifti.affine,hdr=nifti.header)
+
+                        # Calculate T stat
+                        tStatc_r = Lbeta_r.reshape(v_r)/np.sqrt(covLbeta_r)
+                        addBlockToNifti(os.path.join(OutDir, 'blm_vox_conT.nii'), tStatc_r, R_inds,volInd=current_nt,dim=dimT,aff=nifti.affine,hdr=nifti.header)
 
-                    # Calculate masked cov(c\hat{\beta}) for ring
-                    covLbeta_r = LvectiXtXLvec_r*resms_r.reshape(v_r)
-                    covLbeta[R_inds] = covLbeta_r
+                        # Calculate p (seperately for >0 and <0 to avoid underflow)
+                        pc_r = np.zeros(np.shape(tStatc_r))
+                        pc_r[tStatc_r < 0] = -np.log10(1-stats.t.cdf(tStatc_r[tStatc_r < 0], df_r[tStatc_r < 0]))
+                        pc_r[tStatc_r >= 0] = -np.log10(stats.t.cdf(-tStatc_r[tStatc_r >= 0], df_r[tStatc_r >= 0]))
 
-                if v_i:
-                    # Calculate c'(X'X)^(-1)c
-                    LvectiXtXLvec_i = np.matmul(
-                        np.matmul(Lvec, isumXtX_i),
-                        np.transpose(Lvec))
+                        # Remove infs
+                        if "minlog" in inputs:
+                            pc_r[np.logical_and(np.isinf(pc_r), pc_r<0)]=inputs['minlog']
+                        else:
+                            pc_r[np.logical_and(np.isinf(pc_r), pc_r<0)]=-323.3062153431158
 
-                    # Calculate masked cov(c\hat{\beta}) for inner
-                    covLbeta_i = LvectiXtXLvec_i*resms_i.reshape(v_i)
-                    covLbeta[I_inds] = covLbeta_i
+                        # Output p
+                        addBlockToNifti(os.path.join(OutDir, 'blm_vox_conTlp.nii'), pc_r, R_inds,volInd=current_nt,dim=dimT,aff=nifti.affine,hdr=nifti.header)
 
-                se_t[:,:,:,current_nt] = np.sqrt(covLbeta.reshape(
-                                                        NIFTIsize[0],
-                                                        NIFTIsize[1],
-                                                        NIFTIsize[2]
-                                                        ))
+                    if v_i:
 
-                del covLbeta
+                        # A T contrast has only one row so we can output Lbeta here
+                        addBlockToNifti(os.path.join(OutDir, 'blm_vox_con.nii'), Lbeta_i, I_inds,volInd=current_nt,dim=dimT,aff=nifti.affine,hdr=nifti.header)
+                        
+                        # Calculate c'(X'X)^(-1)c
+                        LvectiXtXLvec_i = np.matmul(
+                            np.matmul(Lvec, isumXtX_i),
+                            np.transpose(Lvec))
 
-                # Unmask T stat
-                tStatc = np.zeros([v])
+                        # Calculate masked cov(c\hat{\beta}) for inner
+                        covLbeta_i = LvectiXtXLvec_i*resms_i.reshape(v_i)
+                        addBlockToNifti(os.path.join(OutDir, 'blm_vox_conSE.nii'), np.sqrt(covLbeta_i), I_inds,volInd=current_nt,dim=dimT,aff=nifti.affine,hdr=nifti.header)
 
-                # Calculate masked T statistic image for ring
-                if v_r:
-                    tStatc_r = Lbeta_r.reshape(v_r)/np.sqrt(covLbeta_r)
-                    tStatc[R_inds] = tStatc_r
+                        # Calculate T stat
+                        tStatc_i = Lbeta_i.reshape(v_i)/np.sqrt(covLbeta_i)
+                        addBlockToNifti(os.path.join(OutDir, 'blm_vox_conT.nii'), tStatc_i, I_inds,volInd=current_nt,dim=dimT,aff=nifti.affine,hdr=nifti.header)
 
-                if v_i:
-                    tStatc_i = Lbeta_i.reshape(v_i)/np.sqrt(covLbeta_i)
-                    tStatc[I_inds] = tStatc_i
+                        # Calculate p (seperately for >0 and <0 to avoid underflow)
+                        pc_i = np.zeros(np.shape(tStatc_i))
+                        pc_i[tStatc_i < 0] = -np.log10(1-stats.t.cdf(tStatc_i[tStatc_i < 0], df_i))
+                        pc_i[tStatc_i >= 0] = -np.log10(stats.t.cdf(-tStatc_i[tStatc_i >= 0], df_i))
 
-                stat_t[:,:,:,current_nt] = tStatc.reshape(
-                                                        NIFTIsize[0],
-                                                        NIFTIsize[1],
-                                                        NIFTIsize[2]
-                                                    )
+                        # Remove infs
+                        if "minlog" in inputs:
+                            pc_i[np.logical_and(np.isinf(pc_i), pc_i<0)]=inputs['minlog']
+                        else:
+                            pc_i[np.logical_and(np.isinf(pc_i), pc_i<0)]=-323.3062153431158
 
+                        # Output p
+                        addBlockToNifti(os.path.join(OutDir, 'blm_vox_conTlp.nii'), pc_i, I_inds,volInd=current_nt,dim=dimT,aff=nifti.affine,hdr=nifti.header)
 
-                # Unmask p for this contrast
-                pc = np.zeros([v])
+                    # Record that we have seen another T contrast
+                    current_nt = current_nt + 1
 
-                # Work out p for this contrast
-                if v_i:
-                    # Do this seperately for >0 and <0 to avoid underflow
-                    pc_i = np.zeros(np.shape(tStatc_i))
-                    pc_i[tStatc_i < 0] = -np.log10(1-stats.t.cdf(tStatc_i[tStatc_i < 0], df_i))
-                    pc_i[tStatc_i >= 0] = -np.log10(stats.t.cdf(-tStatc_i[tStatc_i >= 0], df_i))
+                if statType == 'F':
 
-                    # Remove infs
-                    if "minlog" in inputs:
-                        pc_i[np.logical_and(np.isinf(pc_i), pc_i<0)]=inputs['minlog']
-                    else:
-                        pc_i[np.logical_and(np.isinf(pc_i), pc_i<0)]=-323.3062153431158
+                    # Get dimension of Lvector
+                    q = Lvec.shape[0]
+                
+                    # Calculate L'(X'X)^(-1)L
+                    # (Note L is read in the other way around for F)
+                    if v_r:
 
-                    pc[I_inds] = pc_i
+                        LvectiXtXLvec_r = np.matmul(
+                            np.matmul(Lvec, isumXtX_r),
+                            np.transpose(Lvec))
 
-                if v_r:
-                    # Do this seperately for >0 and <0 to avoid underflow
-                    pc_r = np.zeros(np.shape(tStatc_r))
-                    pc_r[tStatc_r < 0] = -np.log10(1-stats.t.cdf(tStatc_r[tStatc_r < 0], df_r[tStatc_r < 0]))
-                    pc_r[tStatc_r >= 0] = -np.log10(stats.t.cdf(-tStatc_r[tStatc_r >= 0], df_r[tStatc_r >= 0]))
+                        # Lbeta needs to be nvox by 1 by npar for stacked
+                        # multiply.
+                        Lbetat_r = Lbeta_r.transpose(0,2,1)
 
-                    # Remove infs
-                    if "minlog" in inputs:
-                        pc_r[np.logical_and(np.isinf(pc_r), pc_r<0)]=inputs['minlog']
-                    else:
-                        pc_r[np.logical_and(np.isinf(pc_r), pc_r<0)]=-323.3062153431158
+                        # Calculate masked (L'(X'X)^(-1)L)^(-1) values for ring
+                        iLvectiXtXLvec_r = blm_inverse(LvectiXtXLvec_r, ouflow=True).reshape([v_r, q*q])
 
-                    pc[R_inds] = pc_r
+                        # Calculate the numerator of the F statistic for the ring
+                        Fnumerator_r = np.matmul(Lbetat_r, np.linalg.solve(LvectiXtXLvec_r, Lbeta_r)).reshape(Fnumerator_r.shape[0])
 
-                p_t[:,:,:,current_nt] = pc.reshape(
-                                                    NIFTIsize[0],
-                                                    NIFTIsize[1],
-                                                    NIFTIsize[2]
-                                                  )
+                        # Calculate the denominator of the F statistic for ring
+                        Fdenominator_r = q*resms_r.reshape([v_r])
 
-                # Record that we have seen another T contrast
-                current_nt = current_nt + 1
+                        # Calculate F statistic.
+                        fStatc_r = Fnumerator_r/Fdenominator_r
 
+                        # Output F statistic.
+                        addBlockToNifti(os.path.join(OutDir, 'blm_vox_conF.nii'), fStatc_r, R_inds,volInd=current_nf,dim=dimF,aff=nifti.affine,hdr=nifti.header)
 
-                del tStatc, pc
-                if v_i:
-                    del tStatc_i, pc_i, covLbeta_i
-                if v_r:
-                    del tStatc_r, pc_r, covLbeta_r
+                        # Work out p for this contrast
+                        pc_r = -np.log10(1-stats.f.cdf(fStatc_r, q, df_r))
 
+                        # Remove infs
+                        if "minlog" in inputs:
+                            pc_r[np.logical_and(np.isinf(pc_r), pc_r<0)]=inputs['minlog']
+                        else:
+                            pc_r[np.logical_and(np.isinf(pc_r), pc_r<0)]=-323.3062153431158
 
-        if statType == 'F':
+                        # Output p
+                        addBlockToNifti(os.path.join(OutDir, 'blm_vox_conFlp.nii'), pc_r, R_inds,volInd=current_nf,dim=dimF,aff=nifti.affine,hdr=nifti.header)
 
-            # Get dimension of Lvector
-            q = Lvec.shape[0]
+                        # Reshape for partial R^2
+                        n_sv_r = n_sv_r.reshape([v_r])
 
-            # Make (c'(X'X)^(-1)c)^(-1) unmasked
-            iLvectiXtXLvec = np.zeros([v, q*q])
+                        # Calculate partial R2 masked for ring.
+                        partialR2_r = (q*fStatc_r)/(q*fStatc_r + n_sv_r - p)
 
-            # Calculate c'(X'X)^(-1)c
-            # (Note C is read in the other way around for F)
-            if v_r:
+                        # Output R^2
+                        addBlockToNifti(os.path.join(OutDir, 'blm_vox_conR2.nii'), partialR2_r, R_inds,volInd=current_nf,dim=dimF,aff=nifti.affine,hdr=nifti.header)
 
-                LvectiXtXLvec_r = np.matmul(
-                    np.matmul(Lvec, isumXtX_r),
-                    np.transpose(Lvec))
 
-                # Lbeta needs to be nvox by 1 by npar for stacked
-                # multiply.
-                Lbetat_r = Lbeta_r.transpose(0,2,1)
+                    if v_i:
 
-                # Calculate masked (c'(X'X)^(-1)c)^(-1) values for ring
-                iLvectiXtXLvec_r = blm_inverse(LvectiXtXLvec_r, ouflow=True).reshape([v_r, q*q])
-                iLvectiXtXLvec[R_inds,:]=iLvectiXtXLvec_r
+                        LvectiXtXLvec_i = np.matmul(
+                            np.matmul(Lvec, isumXtX_i),
+                            np.transpose(Lvec))
 
-            if v_i:
+                        # Lbeta needs to be nvox by 1 by npar for stacked
+                        # multiply.
+                        Lbetat_i = Lbeta_i.transpose(0,2,1)
 
-                LvectiXtXLvec_i = np.matmul(
-                    np.matmul(Lvec, isumXtX_i),
-                    np.transpose(Lvec))
+                        # Calculate masked (L'(X'X)^(-1)L)^(-1) values for inner
+                        iLvectiXtXLvec_i = blm_inverse(LvectiXtXLvec_i, ouflow=True).reshape([1, q*q])
 
-                # Lbeta needs to be nvox by 1 by npar for stacked
-                # multiply.
-                Lbetat_i = Lbeta_i.transpose(0,2,1)
+                        # Calculate the numerator of the F statistic for the ring
+                        Fnumerator_i = np.matmul(Lbetat_i, np.linalg.solve(LvectiXtXLvec_i, Lbeta_i))
+                        Fnumerator_i = Fnumerator_i.reshape(Fnumerator_i.shape[0])
 
-                # Calculate masked (c'(X'X)^(-1)c)^(-1) values for inner
-                iLvectiXtXLvec_i = blm_inverse(LvectiXtXLvec_i, ouflow=True).reshape([1, q*q])
-                iLvectiXtXLvec[I_inds,:]=iLvectiXtXLvec_i
+                        # Calculate the denominator of the F statistic for inner
+                        Fdenominator_i = q*resms_i.reshape([v_i])
 
-            iLvectiXtXLvec = iLvectiXtXLvec.reshape([v, q, q])
+                        # Calculate F statistic.
+                        fStatc_i = Fnumerator_i/Fdenominator_i
 
-            # Save F statistic
-            fStatc = np.zeros([v])
+                        # Output F statistic.
+                        addBlockToNifti(os.path.join(OutDir, 'blm_vox_conF.nii'), fStatc_i, I_inds,volInd=current_nf,dim=dimF,aff=nifti.affine,hdr=nifti.header)
 
-            # Calculate the numerator of the F statistic for the ring
-            if v_r:
-                Fnumerator_r = np.matmul(
-                    Lbetat_r,
-                    np.linalg.solve(LvectiXtXLvec_r, Lbeta_r))
+                        # Work out p for this contrast
+                        pc_i = -np.log10(1-stats.f.cdf(fStatc_i, q, df_i))
 
-                Fnumerator_r = Fnumerator_r.reshape(Fnumerator_r.shape[0])
+                        # Remove infs
+                        if "minlog" in inputs:
+                            pc_i[np.logical_and(np.isinf(pc_i), pc_i<0)]=inputs['minlog']
+                        else:
+                            pc_i[np.logical_and(np.isinf(pc_i), pc_i<0)]=-323.3062153431158
 
-                # Calculate the denominator of the F statistic for ring
-                Fdenominator_r = q*resms_r.reshape([v_r])
+                        # Output p
+                        addBlockToNifti(os.path.join(OutDir, 'blm_vox_conFlp.nii'), pc_i, I_inds,volInd=current_nf,dim=dimF,aff=nifti.affine,hdr=nifti.header)
 
-                # Calculate F statistic.
-                fStatc_r = Fnumerator_r/Fdenominator_r
-                fStatc[R_inds]=fStatc_r
+                        # Calculate partial R2 masked for inner mask.
+                        partialR2_i = (q*fStatc_i)/(q*fStatc_i + n - p)
 
-            # Calculate the numerator of the F statistic for the inner 
-            if v_i:
-                Fnumerator_i = np.matmul(
-                    Lbetat_i,
-                    np.linalg.solve(LvectiXtXLvec_i, Lbeta_i))
-
-                Fnumerator_i = Fnumerator_i.reshape(Fnumerator_i.shape[0])
-
-                # Calculate the denominator of the F statistic for inner
-                Fdenominator_i = q*resms_i.reshape([v_i])
-
-                # Calculate F statistic.
-                fStatc_i = Fnumerator_i/Fdenominator_i
-                fStatc[I_inds]=fStatc_i
-
-            stat_f[:,:,:,current_nf] = fStatc.reshape(
-                                               NIFTIsize[0],
-                                               NIFTIsize[1],
-                                               NIFTIsize[2]
-                                           )
-
-            del fStatc
-
-            # Unmask p for this contrast
-            pc = np.zeros([v])
-
-            # Work out p for this contrast
-            if v_i:
-                pc_i = -np.log10(1-stats.f.cdf(fStatc_i, q, df_i))
-
-                # Remove infs
-                if "minlog" in inputs:
-                    pc_i[np.logical_and(np.isinf(pc_i), pc_i<0)]=inputs['minlog']
-                else:
-                    pc_i[np.logical_and(np.isinf(pc_i), pc_i<0)]=-323.3062153431158
-
-                pc[I_inds] = pc_i
-
-            if v_r:
-                pc_r = -np.log10(1-stats.f.cdf(fStatc_r, q, df_r))
-
-                # Remove infs
-                if "minlog" in inputs:
-                    pc_r[np.logical_and(np.isinf(pc_r), pc_r<0)]=inputs['minlog']
-                else:
-                    pc_r[np.logical_and(np.isinf(pc_r), pc_r<0)]=-323.3062153431158
-
-                pc[R_inds] = pc_r
-
-            p_f[:,:,:,current_nf] = pc.reshape(
-                                               NIFTIsize[0],
-                                               NIFTIsize[1],
-                                               NIFTIsize[2]
-                                           )
-
-            # Unmask partialR2.
-            partialR2 = np.zeros([v])
-
-            # Mask spatially varying n
-            if v_r:
-                n_sv_r = n_sv_r.reshape([v_r])
-
-                # Calculate partial R2 masked for ring.
-                partialR2_r = (q*fStatc_r)/(q*fStatc_r + n_sv_r - p)
-                partialR2[R_inds] = partialR2_r
-
-            if v_i:
-                # Calculate partial R2 masked for inner mask.
-                partialR2_i = (q*fStatc_i)/(q*fStatc_i + n - p)
-                partialR2[I_inds] = partialR2_i
-
-            r2_f[:,:,:,current_nf] = partialR2.reshape(
-                                                       NIFTIsize[0],
-                                                       NIFTIsize[1],
-                                                       NIFTIsize[2]
-                                                   )
-
-            # Record that we have seen another F contrast
-            current_nf = current_nf + 1
-
-            del partialR2
-
-    # Save contrast maps
-    if nt:
-
-        # Output standard error map
-        seLbetamap = nib.Nifti1Image(se_t,
-                                      nifti.affine,
-                                      header=nifti.header)
-        nib.save(seLbetamap,
-            os.path.join(OutDir, 
-                'blm_vox_conSE.nii'))
-        del se_t, seLbetamap
-
-        # Output statistic map
-        tStatcmap = nib.Nifti1Image(stat_t,
-                                    nifti.affine,
-                                    header=nifti.header)
-        nib.save(tStatcmap,
-            os.path.join(OutDir, 
-                'blm_vox_conT.nii'))
-        del stat_t, tStatcmap
-
-        # Output pvalue map
-        pcmap = nib.Nifti1Image(p_t,
-                                nifti.affine,
-                                header=nifti.header)
-        nib.save(pcmap,
-            os.path.join(OutDir, 
-                'blm_vox_conTlp.nii'))  
-        del pcmap, p_t
-
-        # Output Lbeta/cope map
-        Lbetamap = nib.Nifti1Image(Lbeta,
-                                   nifti.affine,
-                                   header=nifti.header)
-        nib.save(Lbetamap,
-            os.path.join(OutDir, 
-                'blm_vox_con.nii'))
-        del Lbeta, Lbetamap
-
-    if nf:
-
-
-        # Output statistic map
-        fStatcmap = nib.Nifti1Image(stat_f,
-                                    nifti.affine,
-                                    header=nifti.header)
-        nib.save(fStatcmap,
-            os.path.join(OutDir, 
-                'blm_vox_conF.nii'))
-        del stat_f, fStatcmap
-
-        # Output pvalue map
-        pcmap = nib.Nifti1Image(p_f,
-                                nifti.affine,
-                                header=nifti.header)
-        nib.save(pcmap,
-            os.path.join(OutDir, 
-                'blm_vox_conFlp.nii'))  
-        del pcmap, p_f
-
-        # Output statistic map
-        partialR2map = nib.Nifti1Image(r2_f,
-                                    nifti.affine,
-                                    header=nifti.header)
-        nib.save(partialR2map,
-            os.path.join(OutDir, 
-                'blm_vox_conR2.nii'))
-        del partialR2map, r2_f
+                        # Output R^2
+                        addBlockToNifti(os.path.join(OutDir, 'blm_vox_conR2.nii'), partialR2_i, I_inds,volInd=current_nf,dim=dimF,aff=nifti.affine,hdr=nifti.header)
 
     # Clean up files
     if len(args)==0:
