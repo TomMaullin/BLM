@@ -28,7 +28,7 @@ def main(*args):
     # Work out if which file to look at for inputs
     if len(args)==1 or (not args[1]):
         # Load in inputs
-        with open(os.path.join(os.getcwd(),'..','blmm_config.yml'), 'r') as stream:
+        with open(os.path.join(os.getcwd(),'..','blm_config.yml'), 'r') as stream:
             inputs = yaml.load(stream,Loader=yaml.FullLoader)
     else:
         if type(args[1]) is str:
@@ -180,7 +180,7 @@ def main(*args):
                            Y0.affine,
                            header=Y0.header)
     nib.save(n_sv, os.path.join(OutDir,'tmp',
-                    'blmm_vox_n_batch'+ str(batchNo) + '.nii'))
+                    'blm_vox_n_batch'+ str(batchNo) + '.nii'))
 
     # Get Mmap, indicating which design each voxel must use for analysis,
     # using an integer representing the order in which X'X, Z'X and Z'Z 
@@ -189,7 +189,7 @@ def main(*args):
                            Y0.affine,
                            header=Y0.header)
     nib.save(Mmap, os.path.join(OutDir,'tmp',
-                    'blmm_vox_uniqueM_batch'+ str(batchNo) + '.nii'))
+                    'blm_vox_uniqueM_batch'+ str(batchNo) + '.nii'))
 
     w.resetwarnings()
 
