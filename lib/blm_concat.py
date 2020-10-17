@@ -407,7 +407,7 @@ def main(*args):
             beta_r = np.linalg.solve(XtX_r, XtY_r)
 
             # Output Beta
-            addBlockToNifti(os.path.join(OutDir, 'blmm_vox_beta.nii'), beta_r, R_inds,volInd=None,dim=dimBeta,aff=nifti.affine,hdr=nifti.header)
+            addBlockToNifti(os.path.join(OutDir, 'blm_vox_beta.nii'), beta_r, R_inds,volInd=None,dim=dimBeta,aff=nifti.affine,hdr=nifti.header)
 
 
         # If we have indices where all studies are present, work out X'X and
@@ -418,7 +418,7 @@ def main(*args):
             beta_i = np.linalg.solve(XtX_i, XtY_i)
 
             # Output Beta
-            addBlockToNifti(os.path.join(OutDir, 'blmm_vox_beta.nii'), beta_i, I_inds,volInd=None,dim=dimBeta,aff=nifti.affine,hdr=nifti.header)
+            addBlockToNifti(os.path.join(OutDir, 'blm_vox_beta.nii'), beta_i, I_inds,volInd=None,dim=dimBeta,aff=nifti.affine,hdr=nifti.header)
 
         # ----------------------------------------------------------------------
         # Calculate residual sum of squares e'e = Y'Y - (Xb)'Xb
@@ -508,7 +508,7 @@ def main(*args):
             llh_r = firstterm + secondterm - 0.5*n_sv_r.reshape(ete_r.shape)
 
             # Output
-            addBlockToNifti(os.path.join(OutDir, 'blmm_vox_llh.nii'), llh_r, R_inds,volInd=0,dim=NIFTIsize,aff=nifti.affine,hdr=nifti.header)
+            addBlockToNifti(os.path.join(OutDir, 'blm_vox_llh.nii'), llh_r, R_inds,volInd=0,dim=NIFTIsize,aff=nifti.affine,hdr=nifti.header)
 
         if v_i:
 
@@ -524,7 +524,7 @@ def main(*args):
             llh_i = firstterm + secondterm - 0.5*n
 
             # Output
-            addBlockToNifti(os.path.join(OutDir, 'blmm_vox_llh.nii'), llh_i, I_inds,volInd=0,dim=NIFTIsize,aff=nifti.affine,hdr=nifti.header)
+            addBlockToNifti(os.path.join(OutDir, 'blm_vox_llh.nii'), llh_i, I_inds,volInd=0,dim=NIFTIsize,aff=nifti.affine,hdr=nifti.header)
 
         # ----------------------------------------------------------------------
         # Calculate beta covariance maps
@@ -559,7 +559,7 @@ def main(*args):
                                 isumXtX_r[:,i,j])
 
                             # Output 
-                            addBlockToNifti(os.path.join(OutDir, 'blmm_vox_cov.nii'), covbetaij_r, R_inds,volInd=vol,dim=dimCov,aff=nifti.affine,hdr=nifti.header)
+                            addBlockToNifti(os.path.join(OutDir, 'blm_vox_cov.nii'), covbetaij_r, R_inds,volInd=vol,dim=dimCov,aff=nifti.affine,hdr=nifti.header)
             
                         if v_i:
                             # Calculate masked cov beta ij for inner
@@ -568,7 +568,7 @@ def main(*args):
                                 isumXtX_i[:,i,j])
 
                             # Output 
-                            addBlockToNifti(os.path.join(OutDir, 'blmm_vox_cov.nii'), covbetaij_i, I_inds,volInd=vol,dim=dimCov,aff=nifti.affine,hdr=nifti.header)
+                            addBlockToNifti(os.path.join(OutDir, 'blm_vox_cov.nii'), covbetaij_i, I_inds,volInd=vol,dim=dimCov,aff=nifti.affine,hdr=nifti.header)
 
                         vol = vol+1;
 
@@ -1069,7 +1069,7 @@ def readAndSumUniqueAtB(AtBstr, OutDir, vinds, n_b, sv):
 
     # Work out the uniqueness mask for the spatially varying designs
     uniquenessMask = loadFile(os.path.join(OutDir,"tmp", 
-        "blmm_vox_uniqueM_batch1.nii")).get_data()
+        "blm_vox_uniqueM_batch1.nii")).get_data()
 
     v = np.prod(uniquenessMask.shape)
     vcurrent = np.prod(vinds.shape)
