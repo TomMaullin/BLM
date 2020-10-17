@@ -303,7 +303,6 @@ def main(*args):
         else:
             nf = nf + 1
 
-
     # ------------------------------------------------------------------------
     # Output volume dimensions
     # ------------------------------------------------------------------------
@@ -337,8 +336,7 @@ def main(*args):
     # Split voxels we want to look at into groups we can compute
     voxelGroups = np.array_split(bamInds, nvg)
 
-
-
+    print('nvg: ', nvg)
 
     # Loop through list of voxel indices, looking at each group of voxels, in
     # turn.
