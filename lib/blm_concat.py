@@ -276,8 +276,8 @@ def main(*args):
     # compute, in relation to the entire volume. If we aren't partitioning by 
     # block these will be equal to amInds
     pnvb = pracNumVoxelBlocks(inputs)
-    bamInds = get_amInds(amask, vb-1, pnvb) # Remem vb 0 indexed in py but 1 indexed in bash
-
+    bamInds = get_amInds(amask, -1, pnvb) 
+    
     # ------------------------------------------------------------------------
     # Split the voxels into computable groups
     # ------------------------------------------------------------------------
