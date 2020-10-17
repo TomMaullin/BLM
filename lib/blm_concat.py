@@ -469,17 +469,10 @@ def main(*args):
         # X'Y for these studies.
         if v_i:
             
-            print('XtX vox: ', XtX_i[100000,:,:])
-            print('XtY vox: ', XtY_i[100000,:,:])
-            print('YtY vox: ', YtY_i[100000,:,:])
 
             # Calculate masked Beta for ring
             beta_i = np.linalg.solve(XtX_i, XtY_i)
 
-            print('XtX shape', XtX_i.shape)
-            print('XtY shape', XtY_i.shape)
-            print('XtX num sub', np.amax(XtX_i[:,0,0]))
-            print('XtX num sub min', np.amin(XtX_i[:,0,0]))
 
             # Output Beta
             addBlockToNifti(os.path.join(OutDir, 'blm_vox_beta.nii'), beta_i, I_inds,volInd=None,dim=dimBeta,aff=nifti.affine,hdr=nifti.header)
