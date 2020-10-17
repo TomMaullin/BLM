@@ -608,7 +608,7 @@ def main(*args):
                             # Calculate masked cov beta ij for ring
                             covbetaij_r = np.multiply(
                                 resms_r.reshape([resms_r.shape[0]]),
-                                XtX_r[:,i,j])
+                                iXtX_r[:,i,j])
 
                             # Output 
                             addBlockToNifti(os.path.join(OutDir, 'blm_vox_cov.nii'), covbetaij_r, R_inds,volInd=vol,dim=dimCov,aff=nifti.affine,hdr=nifti.header)
@@ -617,7 +617,7 @@ def main(*args):
                             # Calculate masked cov beta ij for inner
                             covbetaij_i = np.multiply(
                                 resms_i.reshape([resms_i.shape[0]]),
-                                XtX_i[:,i,j])
+                                iXtX_i[:,i,j])
 
                             # Output 
                             addBlockToNifti(os.path.join(OutDir, 'blm_vox_cov.nii'), covbetaij_i, I_inds,volInd=vol,dim=dimCov,aff=nifti.affine,hdr=nifti.header)
