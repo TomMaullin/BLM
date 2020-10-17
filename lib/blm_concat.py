@@ -285,6 +285,18 @@ def main(*args):
     bamInds = get_amInds(amask, -1, pnvb) 
 
     # ------------------------------------------------------------------------
+    # Output volume dimensions
+    # ------------------------------------------------------------------------
+
+    # Dimension of beta volume
+    dimBeta = (NIFTIsize[0],NIFTIsize[1],NIFTIsize[2],p)
+
+    if OutputCovB:
+
+        # Dimension of cov(beta) NIFTI
+        dimCov = (NIFTIsize[0],NIFTIsize[1],NIFTIsize[2],p**2)
+    
+    # ------------------------------------------------------------------------
     # Split the voxels into computable groups
     # ------------------------------------------------------------------------
 
@@ -298,6 +310,9 @@ def main(*args):
 
     # Split voxels we want to look at into groups we can compute
     voxelGroups = np.array_split(bamInds, nvg)
+
+
+
 
     # Loop through list of voxel indices, looking at each group of voxels, in
     # turn.

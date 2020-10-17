@@ -341,7 +341,7 @@ def readLinesFromNPY(filename, lines):
 #
 # - `am`: The analysis mask as a 3d volume.
 # - `vb`: The number of the voxel block of interest (less than 0 return all
-#         indices)
+#         indices). Currently, for all BLM purposes we only ever use vb=-1.
 # - `nvb`: The number of voxel blocks in total.
 #
 # ----------------------------------------------------------------------------
