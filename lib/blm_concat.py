@@ -83,7 +83,13 @@ def main(*args):
 
     NIFTIsize = nifti.shape
     v = int(np.prod(NIFTIsize))
-    
+
+    # Check if the maximum memory is saved.    
+    if 'MAXMEM' in inputs:
+        MAXMEM = eval(inputs['MAXMEM'])
+    else:
+        MAXMEM = 2**32
+            
     # --------------------------------------------------------------------------------
     # Get n (number of observations) and n_sv (spatially varying number of
     # observations)
@@ -277,7 +283,7 @@ def main(*args):
     # block these will be equal to amInds
     pnvb = pracNumVoxelBlocks(inputs)
     bamInds = get_amInds(amask, -1, pnvb) 
-    
+
     # ------------------------------------------------------------------------
     # Split the voxels into computable groups
     # ------------------------------------------------------------------------
