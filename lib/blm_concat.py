@@ -120,14 +120,59 @@ def main(*args):
     # Get ns.
     X = loadFile(inputs['X'])
     n = X.shape[0]
-
-
+    
     # --------------------------------------------------------------------------------
-    # Read Mask 
+    # Create Mask
     # --------------------------------------------------------------------------------
-        
-    # Read in the mask nifti.
-    Mask = loadFile(os.path.join(OutDir,'blm_vox_mask.nii')).get_data().reshape([v,1])
+
+    Mask = np.ones([v, 1])
+
+    # Check for user specified missingness thresholds.
+    if 'Missingness' in inputs:
+
+        # Apply user specified missingness thresholding.
+        if ("MinPercent" in inputs["Missingness"]) or ("minpercent" in inputs["Missingness"]):
+
+            # Read in relative threshold
+            if "MinPercent" in inputs["Missingness"]:
+                rmThresh = inputs["Missingness"]["MinPercent"]
+            else:
+                rmThresh = inputs["Missingness"]["minpercent"]
+
+            # If it's a percentage it will be a string and must be converted.
+            rmThresh = str(rmThresh)
+            if "%" in rmThresh:
+                rmThresh = float(rmThresh.replace("%", ""))/100
+            else:
+                rmThresh = float(rmThresh)
+
+            # Check the Relative threshold is between 0 and 1.
+            if (rmThresh < 0) or (rmThresh > 1):
+                raise ValueError('Minumum percentage missingness threshold is out of range: ' +
+                                 '0 < ' + str(rmThresh) + ' < 1 violation')
+
+            # Mask based on threshold.
+            Mask[n_sv<rmThresh*n]=0
+
+        if ("MinN" in inputs["Missingness"]) or ("minn" in inputs["Missingness"]):
+
+            # Read in relative threshold
+            if "minn" in inputs["Missingness"]:
+                amThresh = inputs["Missingness"]["minn"]
+            else:
+                amThresh = inputs["Missingness"]["MinN"]
+
+            # If it's a percentage it will be a string and must be converted.
+            if isinstance(amThresh, str):
+                amThresh = float(amThresh)
+
+            # Mask based on threshold.
+            Mask[n_sv<amThresh]=0
+
+    # We remove anything with 1 degree of freedom (or less) by default.
+    # 1 degree of freedom seems to cause broadcasting errors on a very
+    # small percentage of voxels.
+    Mask[n_sv<=p+1]=0
 
     if 'analysis_mask' in inputs:
 
@@ -141,9 +186,24 @@ def main(*args):
         # By default make amask ones
         amask = np.ones([v,1])
 
+
     # Get indices for whole analysis mask. These indices are the indices we
     # have recorded for the product matrices with respect to the entire volume
     amInds = get_amInds(amask)
+        
+    # Ensure overall mask matches analysis mask
+    Mask[~np.in1d(np.arange(v).reshape(v,1), amInds)]=0
+
+    # Output final mask map
+    maskmap = nib.Nifti1Image(Mask.reshape(
+                                    NIFTIsize[0],
+                                    NIFTIsize[1],
+                                    NIFTIsize[2]
+                                    ),
+                              nifti.affine,
+                              header=nifti.header) 
+    nib.save(maskmap, os.path.join(OutDir,'blm_vox_mask.nii'))
+    del maskmap
 
     # ------------------------------------------------------------------------
     # Work out "Ring" and "Inner" indices for whole mask
