@@ -15,10 +15,9 @@ import yaml
 import time
 import warnings
 import subprocess
-from lib.blm_eval import blm_eval
 np.set_printoptions(threshold=np.nan)
 from scipy import stats
-from lib.blm_load import blm_load
+from lib.fileio import *
 
 # Developer notes:
 # --------------------------------------------------------------------------
@@ -62,9 +61,6 @@ def main(*args):
             # In this case inputs structure is first argument.
             inputs = args[0]
 
-    # ======================================================================================================================================================================
-
-
     # ----------------------------------------------------------------------
     # Read basic inputs
     # ----------------------------------------------------------------------
@@ -87,7 +83,6 @@ def main(*args):
 
     NIFTIsize = nifti.shape
     v = int(np.prod(NIFTIsize))
-    # ======================================================================================================================================================================
     
     # --------------------------------------------------------------------------------
     # Get n (number of observations) and n_sv (spatially varying number of
@@ -524,7 +519,7 @@ def main(*args):
         for i in range(0,c):
 
             # Read in contrast vector
-            Lvec = blm_eval(inputs['contrasts'][i]['c' + str(i+1)]['vector'])
+            Lvec = str2vec(inputs['contrasts'][i]['c' + str(i+1)]['vector'])
             Lvec = np.array(Lvec)
 
             if Lvec.ndim == 1:
@@ -540,7 +535,7 @@ def main(*args):
 
             # Read in contrast vector
             # Get number of parameters
-            Lvec = blm_eval(inputs['contrasts'][i]['c' + str(i+1)]['vector'])
+            Lvec = str2vec(inputs['contrasts'][i]['c' + str(i+1)]['vector'])
             Lvec = np.array(Lvec)
 
             # Calculate C\hat{\beta}}
