@@ -660,7 +660,7 @@ def main(*args):
 
                         # Calculate c'(X'X)^(-1)c
                         LvectiXtXLvec_r = np.matmul(
-                            np.matmul(Lvec, XtX_r),
+                            np.matmul(Lvec, iXtX_r),
                             np.transpose(Lvec)).reshape(v_r)
 
                         # Calculate masked cov(c\hat{\beta}) for ring
@@ -692,7 +692,7 @@ def main(*args):
                         
                         # Calculate c'(X'X)^(-1)c
                         LvectiXtXLvec_i = np.matmul(
-                            np.matmul(Lvec, XtX_i),
+                            np.matmul(Lvec, iXtX_i),
                             np.transpose(Lvec))
 
                         # Calculate masked cov(c\hat{\beta}) for inner
@@ -730,7 +730,7 @@ def main(*args):
                     if v_r:
 
                         LvectiXtXLvec_r = np.matmul(
-                            np.matmul(Lvec, XtX_r),
+                            np.matmul(Lvec, iXtX_r),
                             np.transpose(Lvec))
 
                         # Lbeta needs to be nvox by 1 by npar for stacked
@@ -777,7 +777,7 @@ def main(*args):
                     if v_i:
 
                         LvectiXtXLvec_i = np.matmul(
-                            np.matmul(Lvec, XtX_i),
+                            np.matmul(Lvec, iXtX_i),
                             np.transpose(Lvec))
 
                         # Lbeta needs to be nvox by 1 by npar for stacked
