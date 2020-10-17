@@ -448,6 +448,10 @@ def main(*args):
         # Get beta for ring
         if v_r:
 
+            print('XtX shape', XtX_r.shape)
+            print('XtY shape', XtY_r.shape)
+            print('XtX num sub', np.amax(XtX_r[:,0,0]))
+
             # Calculate masked Beta for ring
             beta_r = np.linalg.solve(XtX_r, XtY_r)
 
@@ -461,6 +465,11 @@ def main(*args):
             
             # Calculate masked Beta for ring
             beta_i = np.linalg.solve(XtX_i, XtY_i)
+
+            print('XtX shape', XtX_r.shape)
+            print('XtY shape', XtY_r.shape)
+            print('XtX num sub', np.amax(XtX_r[:,0,0]))
+            print('XtX num sub min', np.amin(XtX_r[:,0,0]))
 
             # Output Beta
             addBlockToNifti(os.path.join(OutDir, 'blm_vox_beta.nii'), beta_i, I_inds,volInd=None,dim=dimBeta,aff=nifti.affine,hdr=nifti.header)
