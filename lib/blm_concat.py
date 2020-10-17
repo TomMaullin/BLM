@@ -741,7 +741,8 @@ def main(*args):
                         iLvectiXtXLvec_r = blm_inverse(LvectiXtXLvec_r, ouflow=True).reshape([v_r, q*q])
 
                         # Calculate the numerator of the F statistic for the ring
-                        Fnumerator_r = np.matmul(Lbetat_r, np.linalg.solve(LvectiXtXLvec_r, Lbeta_r)).reshape(Fnumerator_r.shape[0])
+                        Fnumerator_r = np.matmul(Lbetat_r, np.linalg.solve(LvectiXtXLvec_r, Lbeta_r))
+                        Fnumerator_r = Fnumerator_r.reshape(Fnumerator_r.shape[0])
 
                         # Calculate the denominator of the F statistic for ring
                         Fdenominator_r = q*resms_r.reshape([v_r])
