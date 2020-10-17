@@ -285,6 +285,26 @@ def main(*args):
     bamInds = get_amInds(amask, -1, pnvb) 
 
     # ------------------------------------------------------------------------
+    # Number of contrasts
+    # ------------------------------------------------------------------------
+    c = len(inputs['contrasts'])
+
+    # Record how many T contrasts and F contrasts we have seen
+    nt = 0
+    nf = 0
+    for i in range(0,c):
+
+        # Read in contrast vector
+        Lvec = str2vec(inputs['contrasts'][i]['c' + str(i+1)]['vector'])
+        Lvec = np.array(Lvec)
+
+        if Lvec.ndim == 1:
+            nt = nt + 1
+        else:
+            nf = nf + 1
+
+
+    # ------------------------------------------------------------------------
     # Output volume dimensions
     # ------------------------------------------------------------------------
 
@@ -295,7 +315,13 @@ def main(*args):
 
         # Dimension of cov(beta) NIFTI
         dimCov = (NIFTIsize[0],NIFTIsize[1],NIFTIsize[2],p**2)
-    
+
+    # Work out the dimension of the T-stat-related volumes
+    dimT = (NIFTIsize[0],NIFTIsize[1],NIFTIsize[2],nt)
+
+    # Work out the dimension of the F-stat-related volumes
+    dimF = (NIFTIsize[0],NIFTIsize[1],NIFTIsize[2],nf)
+
     # ------------------------------------------------------------------------
     # Split the voxels into computable groups
     # ------------------------------------------------------------------------
@@ -587,64 +613,40 @@ def main(*args):
 
                         vol = vol+1;
 
-        # ======================================================================================================================================================================
+            # ----------------------------------------------------------------------
+            # Calculate COPEs, statistic maps and covariance maps.
+            # ----------------------------------------------------------------------
 
-        # ----------------------------------------------------------------------
-        # Calculate COPEs, statistic maps and covariance maps.
-        # ----------------------------------------------------------------------
-        c = len(inputs['contrasts'])
+            # Current number for contrast (T and F)
+            current_nt = 0
+            current_nf = 0
 
-        # Record how many T contrasts and F contrasts we have seen
-        ct = 0
-        cf = 0
-        for i in range(0,c):
+            for i in range(0,c):
 
-            # Read in contrast vector
-            Lvec = str2vec(inputs['contrasts'][i]['c' + str(i+1)]['vector'])
-            Lvec = np.array(Lvec)
+                # Read in contrast vector
+                # Get number of parameters
+                Lvec = str2vec(inputs['contrasts'][i]['c' + str(i+1)]['vector'])
+                Lvec = np.array(Lvec)
 
-            if Lvec.ndim == 1:
-                ct = ct + 1
-            else:
-                cf = cf + 1
-
-        # Current number for contrast (T and F)
-        current_n_ct = 0
-        current_n_cf = 0
-
-        for i in range(0,c):
-
-            # Read in contrast vector
-            # Get number of parameters
-            Lvec = str2vec(inputs['contrasts'][i]['c' + str(i+1)]['vector'])
-            Lvec = np.array(Lvec)
-
-            # Calculate C\hat{\beta}}
-            if v_r:
-                Lbeta_r = np.matmul(Lvec, beta_r)
-            if v_i:
-                Lbeta_i = np.matmul(Lvec, beta_i)
-        
-            if Lvec.ndim == 1:
-                statType='T'
-                Lvec = Lvec.reshape([1,Lvec.shape[0]])
-            else:
-                statType='F'
-
-            if statType == 'T':
-
-                # A T contrast has only one row so we can output Lbeta here
-                current_Lbeta = np.zeros([v,1])
+                # Calculate L\hat{\beta}}
                 if v_r:
-                    current_Lbeta[R_inds,:] = Lbeta_r
+                    Lbeta_r = np.matmul(Lvec, beta_r)
                 if v_i:
-                    current_Lbeta[I_inds,:] = Lbeta_i
+                    Lbeta_i = np.matmul(Lvec, beta_i)
+            
+                if Lvec.ndim == 1:
+                    statType='T'
+                    Lvec = Lvec.reshape([1,Lvec.shape[0]])
+                else:
+                    statType='F'
 
-                Lbeta[:,:,:,current_n_ct] = current_Lbeta.reshape(
-                                                        NIFTIsize[0],
-                                                        NIFTIsize[1],
-                                                        NIFTIsize[2]
-                                                        )
+                if statType == 'T':
+
+                    # A T contrast has only one row so we can output Lbeta here
+                    addBlockToNifti(os.path.join(OutDir, 'blm_vox_con.nii'), Lbeta_r, R_inds,volInd=current_nt,dim=dimT,aff=nifti.affine,hdr=nifti.header)
+                    addBlockToNifti(os.path.join(OutDir, 'blm_vox_con.nii'), Lbeta_i, I_inds,volInd=current_nt,dim=dimT,aff=nifti.affine,hdr=nifti.header)
+
+        # ======================================================================================================================================================================
 
                 # Unmask to output
                 covLbeta = np.zeros([v])
@@ -669,7 +671,7 @@ def main(*args):
                     covLbeta_i = LvectiXtXLvec_i*resms_i.reshape(v_i)
                     covLbeta[I_inds] = covLbeta_i
 
-                se_t[:,:,:,current_n_ct] = np.sqrt(covLbeta.reshape(
+                se_t[:,:,:,current_nt] = np.sqrt(covLbeta.reshape(
                                                         NIFTIsize[0],
                                                         NIFTIsize[1],
                                                         NIFTIsize[2]
@@ -689,7 +691,7 @@ def main(*args):
                     tStatc_i = Lbeta_i.reshape(v_i)/np.sqrt(covLbeta_i)
                     tStatc[I_inds] = tStatc_i
 
-                stat_t[:,:,:,current_n_ct] = tStatc.reshape(
+                stat_t[:,:,:,current_nt] = tStatc.reshape(
                                                         NIFTIsize[0],
                                                         NIFTIsize[1],
                                                         NIFTIsize[2]
@@ -728,14 +730,14 @@ def main(*args):
 
                     pc[R_inds] = pc_r
 
-                p_t[:,:,:,current_n_ct] = pc.reshape(
+                p_t[:,:,:,current_nt] = pc.reshape(
                                                     NIFTIsize[0],
                                                     NIFTIsize[1],
                                                     NIFTIsize[2]
                                                   )
 
                 # Record that we have seen another T contrast
-                current_n_ct = current_n_ct + 1
+                current_nt = current_nt + 1
 
 
                 del tStatc, pc
@@ -818,7 +820,7 @@ def main(*args):
                 fStatc_i = Fnumerator_i/Fdenominator_i
                 fStatc[I_inds]=fStatc_i
 
-            stat_f[:,:,:,current_n_cf] = fStatc.reshape(
+            stat_f[:,:,:,current_nf] = fStatc.reshape(
                                                NIFTIsize[0],
                                                NIFTIsize[1],
                                                NIFTIsize[2]
@@ -852,7 +854,7 @@ def main(*args):
 
                 pc[R_inds] = pc_r
 
-            p_f[:,:,:,current_n_cf] = pc.reshape(
+            p_f[:,:,:,current_nf] = pc.reshape(
                                                NIFTIsize[0],
                                                NIFTIsize[1],
                                                NIFTIsize[2]
@@ -874,19 +876,19 @@ def main(*args):
                 partialR2_i = (q*fStatc_i)/(q*fStatc_i + n - p)
                 partialR2[I_inds] = partialR2_i
 
-            r2_f[:,:,:,current_n_cf] = partialR2.reshape(
+            r2_f[:,:,:,current_nf] = partialR2.reshape(
                                                        NIFTIsize[0],
                                                        NIFTIsize[1],
                                                        NIFTIsize[2]
                                                    )
 
             # Record that we have seen another F contrast
-            current_n_cf = current_n_cf + 1
+            current_nf = current_nf + 1
 
             del partialR2
 
     # Save contrast maps
-    if ct:
+    if nt:
 
         # Output standard error map
         seLbetamap = nib.Nifti1Image(se_t,
@@ -924,7 +926,7 @@ def main(*args):
                 'blm_vox_con.nii'))
         del Lbeta, Lbetamap
 
-    if cf:
+    if nf:
 
 
         # Output statistic map
