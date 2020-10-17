@@ -596,7 +596,7 @@ def main(*args):
                             # Calculate masked cov beta ij for ring
                             covbetaij_r = np.multiply(
                                 resms_r.reshape([resms_r.shape[0]]),
-                                isumXtX_r[:,i,j])
+                                XtX_r[:,i,j])
 
                             # Output 
                             addBlockToNifti(os.path.join(OutDir, 'blm_vox_cov.nii'), covbetaij_r, R_inds,volInd=vol,dim=dimCov,aff=nifti.affine,hdr=nifti.header)
@@ -605,7 +605,7 @@ def main(*args):
                             # Calculate masked cov beta ij for inner
                             covbetaij_i = np.multiply(
                                 resms_i.reshape([resms_i.shape[0]]),
-                                isumXtX_i[:,i,j])
+                                XtX_i[:,i,j])
 
                             # Output 
                             addBlockToNifti(os.path.join(OutDir, 'blm_vox_cov.nii'), covbetaij_i, I_inds,volInd=vol,dim=dimCov,aff=nifti.affine,hdr=nifti.header)
@@ -648,7 +648,7 @@ def main(*args):
 
                         # Calculate c'(X'X)^(-1)c
                         LvectiXtXLvec_r = np.matmul(
-                            np.matmul(Lvec, isumXtX_r),
+                            np.matmul(Lvec, XtX_r),
                             np.transpose(Lvec)).reshape(v_r)
 
                         # Calculate masked cov(c\hat{\beta}) for ring
@@ -680,7 +680,7 @@ def main(*args):
                         
                         # Calculate c'(X'X)^(-1)c
                         LvectiXtXLvec_i = np.matmul(
-                            np.matmul(Lvec, isumXtX_i),
+                            np.matmul(Lvec, XtX_i),
                             np.transpose(Lvec))
 
                         # Calculate masked cov(c\hat{\beta}) for inner
@@ -718,7 +718,7 @@ def main(*args):
                     if v_r:
 
                         LvectiXtXLvec_r = np.matmul(
-                            np.matmul(Lvec, isumXtX_r),
+                            np.matmul(Lvec, XtX_r),
                             np.transpose(Lvec))
 
                         # Lbeta needs to be nvox by 1 by npar for stacked
@@ -765,7 +765,7 @@ def main(*args):
                     if v_i:
 
                         LvectiXtXLvec_i = np.matmul(
-                            np.matmul(Lvec, isumXtX_i),
+                            np.matmul(Lvec, XtX_i),
                             np.transpose(Lvec))
 
                         # Lbeta needs to be nvox by 1 by npar for stacked
