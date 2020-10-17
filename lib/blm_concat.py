@@ -453,6 +453,11 @@ def main(*args):
             print('XtX num sub', np.amax(XtX_r[:,0,0]))
             print('XtX num sub min', np.amin(XtX_r[:,0,0]))
 
+
+            print('XtX vox: ', XtX_r[8000,:,:])
+            print('XtY vox: ', XtY_r[8000,:,:])
+            print('YtY vox: ', YtY_r[8000,:,:])
+
             # Calculate masked Beta for ring
             beta_r = np.linalg.solve(XtX_r, XtY_r)
 
@@ -464,6 +469,10 @@ def main(*args):
         # X'Y for these studies.
         if v_i:
             
+            print('XtX vox: ', XtX_i[100000,:,:])
+            print('XtY vox: ', XtY_i[100000,:,:])
+            print('YtY vox: ', YtY_i[100000,:,:])
+
             # Calculate masked Beta for ring
             beta_i = np.linalg.solve(XtX_i, XtY_i)
 
