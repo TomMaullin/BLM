@@ -489,7 +489,7 @@ def main(*args):
             betatXtXbeta_i = np.reshape(betatXtXbeta_i, [v_i,1])
 
             # Residual sum of squares
-            ete_i = YtY_i[I_inds] - betatXtXbeta_i
+            ete_i = YtY_i - betatXtXbeta_i
             del betatXtXbeta_i
 
         if v_r:
@@ -512,7 +512,7 @@ def main(*args):
             betatXtXbeta_r = np.reshape(betatXtXbeta_r, [v_r,1])
 
             # Residual sum of squares
-            ete_r = YtY_r[R_inds] - betatXtXbeta_r
+            ete_r = YtY_r - betatXtXbeta_r
             del betatXtXbeta_r
 
         # ----------------------------------------------------------------------
