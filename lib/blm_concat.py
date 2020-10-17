@@ -90,6 +90,12 @@ def main(*args):
     else:
         MAXMEM = 2**32
 
+    # Work out if we are outputting cov(beta) maps
+    if "OutputCovB" in inputs:
+        OutputCovB = inputs["OutputCovB"]
+    else:
+        OutputCovB = True
+
     # --------------------------------------------------------------------------------
     # Get n (number of observations) and n_sv (spatially varying number of
     # observations)
@@ -574,11 +580,6 @@ def main(*args):
             iXtX_r = blm_inverse(XtX_r, ouflow=True)
         if v_i:
             iXtX_i = blm_inverse(XtX_i, ouflow=True)
-
-        if "OutputCovB" in inputs:
-            OutputCovB = inputs["OutputCovB"]
-        else:
-            OutputCovB = True
 
         if OutputCovB:
             
