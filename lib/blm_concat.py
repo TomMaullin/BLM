@@ -665,6 +665,7 @@ def main(*args):
 
                         # Degrees of freedom
                         df_r = n_sv[R_inds,:] - p
+                        df_r = df_r.reshape(df_r.shape[0])
 
                         # Calculate p (seperately for >0 and <0 to avoid underflow)
                         pc_r = np.zeros(np.shape(tStatc_r))
