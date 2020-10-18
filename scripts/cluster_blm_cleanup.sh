@@ -1,2 +1,2 @@
 #!/bin/bash
-fslpython -c "from src import blm_cleanup; blm_cleanup.main('$1')"
+fslpython -c "from lib import blm_cleanup; blm_cleanup.main('$1')"
