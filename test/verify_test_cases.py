@@ -15,17 +15,17 @@ def main(folder, gt_folder):
     # Loop through files checking against ground truth
     for file in filestotest:
 
+        # Tell the user we are testing
+        print('======================================================')
+        print('Testing: ' + file)
+        print('Against: ' + gt_file)
+        
         # Work out which is ground truth file
         gt_file = os.path.join(gt_folder,os.path.split(file)[1])
 
         # Load ground truth and truth
         f_dat = nib.load(file).get_data()
         gt_f_dat = nib.load(gt_file).get_data().reshape(f_dat.shape)
-
-        # Tell the user we are testing
-        print('======================================================')
-        print('Testing: ' + file)
-        print('Against: ' + gt_file)
 
         # Check if values are all close to expected
         if np.allclose(gt_f_dat, f_dat):
