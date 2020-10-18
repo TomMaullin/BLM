@@ -163,8 +163,6 @@ def main(*args):
     #  large. We save these "chunk by chunk" as memory map objects just
     # in case they don't fit in working memory (this is only usually an
     # issue for very large designs).
-    print(X.shape)
-    print(Y.shape)
     memorySafeAtB(X.reshape(1,X.shape[0],X.shape[1]),Y,MAXMEM,os.path.join(OutDir,"tmp","XtY.npy"))
     memorySafeAtB(Y,Y,MAXMEM,os.path.join(OutDir,"tmp","YtY.npy"))
 

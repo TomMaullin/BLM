@@ -337,7 +337,9 @@ def main(*args):
     nvb = MAXMEM/(10*8*(p**2))
     
     # Work out number of groups we have to split indices into.
-    nvg = int(len(bamInds)//nvb+1)
+    #nvg = int(len(bamInds)//nvb+1)
+
+    nvg=10
 
     # Split voxels we want to look at into groups we can compute
     voxelGroups = np.array_split(bamInds, nvg)
@@ -447,16 +449,6 @@ def main(*args):
 
         # Get beta for ring
         if v_r:
-
-            print('XtX shape', XtX_r.shape)
-            print('XtY shape', XtY_r.shape)
-            print('XtX num sub', np.amax(XtX_r[:,0,0]))
-            print('XtX num sub min', np.amin(XtX_r[:,0,0]))
-
-
-            print('XtX vox: ', XtX_r[8000,:,:])
-            print('XtY vox: ', XtY_r[8000,:,:])
-            print('YtY vox: ', YtY_r[8000,:,:])
 
             # Calculate masked Beta for ring
             beta_r = np.linalg.solve(XtX_r, XtY_r)
