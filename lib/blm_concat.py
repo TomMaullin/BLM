@@ -142,8 +142,12 @@ def main(*args):
     # Check for user specified missingness thresholds.
     if 'Missingness' in inputs:
 
+        print('up to rm')
+
         # Apply user specified missingness thresholding.
         if ("MinPercent" in inputs["Missingness"]) or ("minpercent" in inputs["Missingness"]):
+
+            print('active')
 
             # Read in relative threshold
             if "MinPercent" in inputs["Missingness"]:
@@ -165,6 +169,12 @@ def main(*args):
 
             # Mask based on threshold.
             Mask[n_sv<rmThresh*n]=0
+
+            print(n)
+
+            print(rmThresh)
+
+            print(n*rmThresh)
 
         if ("MinN" in inputs["Missingness"]) or ("minn" in inputs["Missingness"]):
 
@@ -295,6 +305,8 @@ def main(*args):
     # ------------------------------------------------------------------------
     c = len(inputs['contrasts'])
 
+    print('c: ', c)
+
     # Record how many T contrasts and F contrasts we have seen
     nt = 0
     nf = 0
@@ -308,6 +320,8 @@ def main(*args):
             nt = nt + 1
         else:
             nf = nf + 1
+
+    print('nt: ', nt)
 
     # ------------------------------------------------------------------------
     # Output volume dimensions
