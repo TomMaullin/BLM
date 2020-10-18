@@ -22,19 +22,26 @@ def main(folder, gt_folder):
         print('======================================================')
         print('Testing: ' + file)
         print('Against: ' + gt_file)
-        
-        # Load ground truth and truth
-        f_dat = nib.load(file).get_data()
-        gt_f_dat = nib.load(gt_file).get_data().reshape(f_dat.shape)
 
-        # Check if values are all close to expected
-        if np.allclose(gt_f_dat, f_dat):
-            result = 'PASSED'
-        else:
-            result = 'FAILED'
+        try:
+            # Load ground truth and truth
+            f_dat = nib.load(file).get_data()
+            gt_f_dat = nib.load(gt_file).get_data().reshape(f_dat.shape)
 
-        # Output result
-        print('Result: ' + result)
+            # Check if values are all close to expected
+            if np.allclose(gt_f_dat, f_dat):
+                result = 'PASSED'
+            else:
+                result = 'FAILED'
+
+            # Output result
+            print('Result: ' + result)
+
+        except Exception as e: 
+            
+            # Output result
+            print('Result: FAILED')
+            print('Error given: ', e)
 
     print('======================================================')
 
