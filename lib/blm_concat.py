@@ -663,6 +663,9 @@ def main(*args):
                         tStatc_r = Lbeta_r.reshape(v_r)/np.sqrt(covLbeta_r)
                         addBlockToNifti(os.path.join(OutDir, 'blm_vox_conT.nii'), tStatc_r, R_inds,volInd=current_nt,dim=dimT,aff=nifti.affine,hdr=nifti.header)
 
+                        # Degrees of freedom
+                        df_r = n_sv[R_inds,:] - p
+
                         # Calculate p (seperately for >0 and <0 to avoid underflow)
                         pc_r = np.zeros(np.shape(tStatc_r))
                         pc_r[tStatc_r < 0] = -np.log10(1-stats.t.cdf(tStatc_r[tStatc_r < 0], df_r[tStatc_r < 0]))
