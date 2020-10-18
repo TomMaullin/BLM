@@ -337,14 +337,10 @@ def main(*args):
     nvb = MAXMEM/(10*8*(p**2))
     
     # Work out number of groups we have to split indices into.
-    #nvg = int(len(bamInds)//nvb+1)
-
-    nvg=10
+    nvg = int(len(bamInds)//nvb+1)
 
     # Split voxels we want to look at into groups we can compute
     voxelGroups = np.array_split(bamInds, nvg)
-
-    print('nvg: ', nvg)
 
     # Loop through list of voxel indices, looking at each group of voxels, in
     # turn.
@@ -796,6 +792,10 @@ def main(*args):
 
                         # Output F statistic.
                         addBlockToNifti(os.path.join(OutDir, 'blm_vox_conF.nii'), fStatc_i, I_inds,volInd=current_nf,dim=dimF,aff=nifti.affine,hdr=nifti.header)
+
+                        # Degrees of freedom
+                        df_r = n_sv[R_inds,:] - p
+                        df_r = df_r.reshape(df_r.shape[0])
 
                         # Work out p for this contrast
                         pc_i = -np.log10(1-stats.f.cdf(fStatc_i, q, df_i))
