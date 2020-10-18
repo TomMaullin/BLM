@@ -20,7 +20,7 @@ def main(folder, gt_folder):
 
         # Load ground truth and truth
         f_dat = nib.load(file).get_data()
-        gt_f_dat = nib.load(gt_file).get_data()
+        gt_f_dat = nib.load(gt_file).get_data().reshape(f_dat.shape)
 
         # Tell the user we are testing
         print('======================================================')
