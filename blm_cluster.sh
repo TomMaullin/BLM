@@ -126,3 +126,5 @@ if [ "$cleanupID" == "" ] ; then
 else
   echo "Submitted: Cleanup job."
   echo "Analysis submission complete. Please use qstat to monitor progress."
+fi
+
