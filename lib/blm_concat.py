@@ -142,12 +142,8 @@ def main(*args):
     # Check for user specified missingness thresholds.
     if 'Missingness' in inputs:
 
-        print('up to rm')
-
         # Apply user specified missingness thresholding.
         if ("MinPercent" in inputs["Missingness"]) or ("minpercent" in inputs["Missingness"]):
-
-            print('active')
 
             # Read in relative threshold
             if "MinPercent" in inputs["Missingness"]:
@@ -169,12 +165,6 @@ def main(*args):
 
             # Mask based on threshold.
             Mask[n_sv<rmThresh*n]=0
-
-            print(n)
-
-            print(rmThresh)
-
-            print(n*rmThresh)
 
         if ("MinN" in inputs["Missingness"]) or ("minn" in inputs["Missingness"]):
 
@@ -305,8 +295,6 @@ def main(*args):
     # ------------------------------------------------------------------------
     c = len(inputs['contrasts'])
 
-    print('c: ', c)
-
     # Record how many T contrasts and F contrasts we have seen
     nt = 0
     nf = 0
@@ -320,8 +308,6 @@ def main(*args):
             nt = nt + 1
         else:
             nf = nf + 1
-
-    print('nt: ', nt)
 
     # ------------------------------------------------------------------------
     # Output volume dimensions
@@ -352,7 +338,6 @@ def main(*args):
     
     # Work out number of groups we have to split indices into.
     nvg = int(len(bamInds)//nvb+1)
-    print('nvg: ', nvg)
 
     # Split voxels we want to look at into groups we can compute
     voxelGroups = np.array_split(bamInds, nvg)
@@ -360,8 +345,6 @@ def main(*args):
     # Loop through list of voxel indices, looking at each group of voxels, in
     # turn.
     for cv in range(nvg):
-
-        print('cv: ', cv)
 
         # Current group of voxels
         bamInds_cv = voxelGroups[cv]
@@ -393,11 +376,9 @@ def main(*args):
 
         # Number of voxels in ring
         v_r = R_inds.shape[0]
-        print('v_r: ', v_r)
 
         # Number of voxels in inner mask
         v_i = I_inds.shape[0]
-        print('v_i: ', v_i)
 
         # Number of voxels in whole (inner + ring) mask
         v_m = v_i + v_r
