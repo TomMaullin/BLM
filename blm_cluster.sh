@@ -112,7 +112,22 @@ fi
 
 if [ "$printOpt" == "1" ] ; then
   echo "Submitting results job..."
-  echo "Please use qstat to monitor progress."
 else
   echo $resultsID
 fi
+
+# -----------------------------------------------------------------------
+# Submit Cleanup job
+# -----------------------------------------------------------------------
+fsl_sub -j $resultsID -l log/ -N cleanup bash $BLM_PATH/scripts/cluster_blm_cleanup.sh $inputs > /tmp/$$ && cleanupID=$(awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}' /tmp/$$)
+if [ "$cleanupID" == "" ] ; then
+  echo "Clean up job submission failed!"
+fi
+
+if [ "$printOpt" == "1" ] ; then
+  echo "Submitting clean up job..."
+  echo "Analysis submission complete. Please use qstat to monitor progress."
+else
+  echo $cleanupID
+fi
+

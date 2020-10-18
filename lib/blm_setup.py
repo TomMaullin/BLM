@@ -10,8 +10,8 @@ import sys
 import os
 import shutil
 import yaml
-from lib.blm_eval import blm_eval
-from lib.blm_load import blm_load
+from lib.fileio import *
+
 
 # Main takes in two arguments at most:
 # - input: Either the path to an input file or an input structure
@@ -103,7 +103,7 @@ def main(*args):
     OutDir = inputs['outdir']
 
     # Get number of parameters
-    c1 = blm_eval(inputs['contrasts'][0]['c' + str(1)]['vector'])
+    c1 = str2vec(inputs['contrasts'][0]['c' + str(1)]['vector'])
     c1 = np.array(c1)
     n_p = c1.shape[0]
     del c1
@@ -124,7 +124,7 @@ def main(*args):
 
     # Load in one nifti to check NIFTI size
     try:
-        Y0 = blm_load(Y_files[0])
+        Y0 = loadFile(Y_files[0])
     except Exception as error:
         raise ValueError('The NIFTI "' + Y_files[0] + '"does not exist')
 
@@ -149,7 +149,7 @@ def main(*args):
     for i in range(0,n_c):
 
         # Read in contrast vector
-        cvec = blm_eval(inputs['contrasts'][i]['c' + str(i+1)]['vector'])
+        cvec = str2vec(inputs['contrasts'][i]['c' + str(i+1)]['vector'])
         cvec = np.array(cvec)
 
         if cvec.ndim>1:

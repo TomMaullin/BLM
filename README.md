@@ -178,7 +178,7 @@ To verify the test cases against ground truth:
 bash ./verify_test_cases.sh $GTDIR
 ```
 
-(Where `$GTDIR` is a directory containing ground truth data from a previous run, i.e. inside `$GTDIR` are the folders `test_cfg01.yml`, `test_cfg02.yml`, ... ect).
+(Where `$GTDIR` is a directory containing ground truth data from a previous run, i.e. inside `$GTDIR` are the folders `test_cfg01.yml`, `test_cfg02.yml`, ... etc).
 
 ### In parallel, against FSL
 
