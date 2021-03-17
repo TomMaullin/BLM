@@ -17,7 +17,7 @@ subprocess
 If running `BLM-py` on a cluster, `fsl_sub` must also be configured correctly.
 
 ## Usage
-To run `BLM-py` first specify your design using `blm_config.yml` and then run the job either in serial or in parallel by following the below guidelines.
+To run `BLM-py` first specify your design using `blm_config.yml` and then run the job in parallel by following the below guidelines.
 
 ### Specifying your model
 The regression model for BLM must be specified in `blm_config.yml`. Below is a complete list of possible inputs to this file.
@@ -97,7 +97,7 @@ analysis_mask: /path/to/data/MNI152_T1_2mm_brain_mask.nii.gz
 
 ### Running the Analysis
 
-An analysis can either be run in parallel on a computing cluster or in serial (one block after another). The below sections describe both scenarios.
+An analysis can either be run in parallel on a computing cluster using BLM.
 
 #### Running an analysis in parallel
 
@@ -119,16 +119,6 @@ After running this you will see text printed to the commandline telling you the 
  - `setup`: This will be working out the number of batches/blocks the analysis needs to be split into.
  - `batch*`: There may be several jobs with names of this format. These are the "chunks" the analysis has been split into. These are run in parallel to one another and typically don't take very long.
  - `results`: This code is combining the output of each batch to obtain statistical analyses. This will run once all `batch*` jobs have been completed. Please note this code has been streamlined for large numbers of subjects but not large number of parameters; therefore this job may take some time for large numbers of parameters.
- 
-#### Running an analysis in serial
-
-To run an analysis in serial, ensure you are in the `BLM-py` directory and once you are happy with the analysis you have specified in `blm_config.yml`, run the following command:
-
-```
-fslpython -c "import blm_serial; blm_serial.main()"
-```
-
-The commandline will then tell you how much progress is being made as it runs each block.
 
 ### Analysis Output
 
@@ -200,14 +190,4 @@ To verify the test cases against ground truth:
 
 ```
 bash ./verify_test_cases_against_fsl.sh
-```
-
-### In serial
-
-To test in serial, first run the parallel testing suite, and then afterwards simply run the following 3 test cases from the main `BLM-py` folder:
-
-```
-fslpython -c "import blm_serial; blm_serial.main('./test/cfg/test_cfg01_copy.yml')
-fslpython -c "import blm_serial; blm_serial.main('./test/cfg/test_cfg02_copy.yml')
-fslpython -c "import blm_serial; blm_serial.main('./test/cfg/test_cfg03_copy.yml')
 ```
