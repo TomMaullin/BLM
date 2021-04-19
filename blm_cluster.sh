@@ -29,6 +29,11 @@ cfg=$(RealPath $cfg)
 eval $(parse_yaml $cfg "config_")
 mkdir -p $config_outdir
 
+# Set log directory to default if it has not been specified
+if [ "$config_logdir" == "" ] ; then
+  config_logdir='log/'
+fi
+
 # This file is used to record number of batches
 if [ -f $config_outdir/nb.txt ] ; then
     rm $config_outdir/nb.txt 
@@ -40,7 +45,7 @@ touch $config_outdir/nb.txt
 inputs=$config_outdir/inputs.yml
 cp $cfg $inputs
 
-fsl_sub -l log/ -N setup bash $BLM_PATH/scripts/cluster_blm_setup.sh $inputs > /tmp/$$ && setupID=$(awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}' /tmp/$$)
+fsl_sub -l $config_logdir -N setup bash $BLM_PATH/scripts/cluster_blm_setup.sh $inputs > /tmp/$$ && setupID=$(awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}' /tmp/$$)
 if [ "$setupID" == "" ] ; then
   echo "Setup job submission failed!"
 fi
@@ -68,7 +73,7 @@ do
 
   # Check for error
   if [ $i -gt 30 ]; then
-    errorlog="log/setup.e$setupID"
+    errorlog="$config_logdirsetup.e$setupID"
     if [ -s $errorlog ]; then
       echo "Setup has errored"
       exit
@@ -93,7 +98,7 @@ i=1
 while [ "$i" -le "$nb" ]; do
 
   # Submit nb batches and get the ids for them
-  fsl_sub -j $setupID -l log/ -N batch${i} bash $BLM_PATH/scripts/cluster_blm_batch.sh $i $inputs > /tmp/$$ && batchIDs=$(awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}' /tmp/$$),$batchIDs
+  fsl_sub -j $setupID -l $config_logdir -N batch${i} bash $BLM_PATH/scripts/cluster_blm_batch.sh $i $inputs > /tmp/$$ && batchIDs=$(awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}' /tmp/$$),$batchIDs
   i=$(($i + 1))
 done
 if [ "$batchIDs" == "" ] ; then
@@ -105,7 +110,7 @@ else
 fi
 
 # Submit results job 
-fsl_sub -j $batchIDs -l log/ -N results bash $BLM_PATH/scripts/cluster_blm_concat.sh $inputs > /tmp/$$ && resultsID=$(awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}' /tmp/$$)
+fsl_sub -j $batchIDs -l $config_logdir -N results bash $BLM_PATH/scripts/cluster_blm_concat.sh $inputs > /tmp/$$ && resultsID=$(awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}' /tmp/$$)
 if [ "$resultsID" == "" ] ; then
   echo "Results job submission failed!"
 fi
@@ -119,7 +124,7 @@ fi
 # -----------------------------------------------------------------------
 # Submit Cleanup job
 # -----------------------------------------------------------------------
-fsl_sub -j $resultsID -l log/ -N cleanup bash $BLM_PATH/scripts/cluster_blm_cleanup.sh $inputs > /tmp/$$ && cleanupID=$(awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}' /tmp/$$)
+fsl_sub -j $resultsID -l $config_logdir -N cleanup bash $BLM_PATH/scripts/cluster_blm_cleanup.sh $inputs > /tmp/$$ && cleanupID=$(awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}' /tmp/$$)
 if [ "$cleanupID" == "" ] ; then
   echo "Clean up job submission failed!"
 fi
