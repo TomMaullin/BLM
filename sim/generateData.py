@@ -83,13 +83,10 @@ def generate_data(n,dim,OutDir,simNo):
     for i in np.arange(n):    
 
         # Initialize Yi to Xi times beta
-        Yi = Xbeta[0,i,0]
+        Yi = Xbeta[0,i,0]*np.ones(dim)
 
         # Get epsiloni
         epsiloni = get_epsilon(v, 1).reshape(dim)
-
-        # Reshape Yi to epsiloni shape
-        Yi = Yi.reshape(dim)
 
         # Add epsilon to Yi
         Yi = Yi + epsiloni
