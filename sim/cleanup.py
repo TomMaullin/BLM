@@ -55,7 +55,6 @@ def cleanup(OutDir,simNo):
     os.remove(os.path.join(simDir, 'BLM', 'blm_vox_con.nii'))
     os.remove(os.path.join(simDir, 'BLM', 'blm_vox_conSE.nii'))
     os.remove(os.path.join(simDir, 'BLM', 'blm_vox_conT.nii'))
-    os.remove(os.path.join(simDir, 'BLM', 'blm_vox_conT_swedf.nii'))
     os.remove(os.path.join(simDir, 'BLM', 'blm_vox_edf.nii'))
     os.remove(os.path.join(simDir, 'BLM', 'blm_vox_mask.nii'))
 
