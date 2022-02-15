@@ -4,6 +4,36 @@ RealPath() {
     (echo $(cd $(dirname "$1") && pwd -P)/$(basename "$1"))
 }
 
+myqsub() {
+    # Usage: myqsub "-N MyJob -q short.q" MyJob.sh arg1 arg2
+
+    local Opts="$1"; shift
+
+    # Adjust as per your local HPC configuration, so only thing output is task ID
+    qsub -l log/ $Opts "$@" | awk '{print $3}'
+}
+
+myqsubtask() {
+    # Usage: myqsubtask "-N MyJob -q short.q" 1-10 MyJob.sh arg1 arg2
+    # But *note* MyJob.sh must take an intial argument with the task array number:
+    #     MyJob.sh TaskId arg1 arg2
+
+    local Opts="$1"; shift
+    local TaskIDrng="$2"; shift
+    local Cmd="$2"; shift
+
+    local TmpFile="$(mktemp -t blm_)"
+
+    cat << EOF > $TmpFile
+#!/bin/bash
+$Cmd \$SGE_TASK_ID "$@"
+EOF
+    # Adjust as per your local HPC configuration, so only thing output is task ID *only*
+    qsub -l log/ $Opts -t "$TaskIDrng" $TmpFile | awk '{print $3}' | awk -F. '{print $1}'
+}
+
+
+
 BLM_PATH=$(dirname $(RealPath "${BASH_SOURCE[0]}"))
 
 # include parse_yaml function
@@ -40,7 +70,7 @@ touch $config_outdir/nb.txt
 inputs=$config_outdir/inputs.yml
 cp $cfg $inputs
 
-fsl_sub -l log/ -N setup bash $BLM_PATH/scripts/cluster_blm_setup.sh $inputs > /tmp/$$ && setupID=$(awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}' /tmp/$$)
+myqsub "-N setup" bash $BLM_PATH/scripts/cluster_blm_setup.sh $inputs > /tmp/$$ && setupID=$(awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}' /tmp/$$)
 if [ "$setupID" == "" ] ; then
   echo "Setup job submission failed!"
 fi
@@ -93,7 +123,7 @@ i=1
 while [ "$i" -le "$nb" ]; do
 
   # Submit nb batches and get the ids for them
-  fsl_sub -j $setupID -l log/ -N batch${i} bash $BLM_PATH/scripts/cluster_blm_batch.sh $i $inputs > /tmp/$$ && batchIDs=$(awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}' /tmp/$$),$batchIDs
+  myqsub "-j $setupID -N batch${i}" bash $BLM_PATH/scripts/cluster_blm_batch.sh $i $inputs > /tmp/$$ && batchIDs=$(awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}' /tmp/$$),$batchIDs
   i=$(($i + 1))
 done
 if [ "$batchIDs" == "" ] ; then
@@ -105,7 +135,7 @@ else
 fi
 
 # Submit results job 
-fsl_sub -j $batchIDs -l log/ -N results bash $BLM_PATH/scripts/cluster_blm_concat.sh $inputs > /tmp/$$ && resultsID=$(awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}' /tmp/$$)
+myqsub "-j $batchIDs -N results" bash $BLM_PATH/scripts/cluster_blm_concat.sh $inputs > /tmp/$$ && resultsID=$(awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}' /tmp/$$)
 if [ "$resultsID" == "" ] ; then
   echo "Results job submission failed!"
 fi
@@ -119,7 +149,7 @@ fi
 # -----------------------------------------------------------------------
 # Submit Cleanup job
 # -----------------------------------------------------------------------
-fsl_sub -j $resultsID -l log/ -N cleanup bash $BLM_PATH/scripts/cluster_blm_cleanup.sh $inputs > /tmp/$$ && cleanupID=$(awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}' /tmp/$$)
+myqsub "-j $resultsID -N cleanup" bash $BLM_PATH/scripts/cluster_blm_cleanup.sh $inputs > /tmp/$$ && cleanupID=$(awk 'match($0,/[0-9]+/){print substr($0, RSTART, RLENGTH)}' /tmp/$$)
 if [ "$cleanupID" == "" ] ; then
   echo "Clean up job submission failed!"
 fi
