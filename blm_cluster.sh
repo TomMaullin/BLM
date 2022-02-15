@@ -4,8 +4,18 @@ RealPath() {
     (echo $(cd $(dirname "$1") && pwd -P)/$(basename "$1"))
 }
 
+#
+#  Localisation guidance
+#
+#  Please review the next two functions carefully, and modify the qsub call
+#  as needed (e.g. adding -q queue specification).
+#
+#  ALSO, careful review is needed for the pipe following qsub, to ensure
+#  that *only* the job id and *nothing* else is issued to stdout.
+#
+
 myqsub() {
-    # Usage: myqsub "-N MyJob -q short.q" MyJob.sh arg1 arg2
+    # Usage: myqsub "-N MyJob" MyJob.sh arg1 arg2
 
     local Opts="$1"; shift
 
@@ -15,7 +25,7 @@ myqsub() {
 }
 
 myqsubtask() {
-    # Usage: myqsubtask "-N MyJob -q short.q" 1-10 MyJob.sh arg1 arg2
+    # Usage: myqsubtask "-N MyJob" 1-10 MyJob.sh arg1 arg2
     # But *note* MyJob.sh must take an intial argument with the task array number:
     #     MyJob.sh TaskId arg1 arg2
 
