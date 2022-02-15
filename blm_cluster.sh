@@ -11,6 +11,7 @@ myqsub() {
 
     # Adjust as per your local HPC configuration, so only thing output is task ID
     qsub -l log/ $Opts "$@" | awk '{print $3}'
+    return ${PIPESTATUS[0]}
 }
 
 myqsubtask() {
@@ -28,8 +29,10 @@ myqsubtask() {
 #!/bin/bash
 $Cmd \$SGE_TASK_ID "$@"
 EOF
+    chmod +x $TmpFile
     # Adjust as per your local HPC configuration, so only thing output is task ID *only*
     qsub -l log/ $Opts -t "$TaskIDrng" $TmpFile | awk '{print $3}' | awk -F. '{print $1}'
+    return ${PIPESTATUS[0]}
 }
 
 
