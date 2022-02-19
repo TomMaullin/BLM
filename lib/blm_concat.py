@@ -15,7 +15,7 @@ import yaml
 import time
 import warnings
 import subprocess
-np.set_printoptions(threshold=np.nan)
+np.set_printoptions(threshold=sys.maxsize)
 from scipy import stats
 from lib.fileio import *
 
