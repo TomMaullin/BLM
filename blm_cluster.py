@@ -24,7 +24,6 @@ if __name__ == "__main__":
 	# Specify cluster setup
 	cluster = SGECluster(cores=24,
 	                     memory="100GB",
-	                     project='BLM',
 	                     queue='short.qc',
 	                     walltime='02:00:00')
 
