@@ -18,18 +18,21 @@ def main(client):
 	nb = client.submit(blm_setup, inputs_yml, retnb)
 	nb = nb.result()
 
+	# Print number of batches
+	print(nb)
+
 # If running this function
 if __name__ == "__main__":
 
 	# Specify cluster setup
-	cluster = SGECluster(cores=24,
+	cluster = SGECluster(cores=1,
 	                     memory="100GB",
 	                     queue='short.qc',
-	                     walltime='02:00:00')
+	                     walltime='01:00:00')
 
 
-	# Start 100 workers in 100 jobs that match the description above
-	cluster.scale(100)  
+	# Set maximum number of jobs
+	cluster.adapt(maximum_jobs=20)
 
 	# Connect to cluster
 	client = Client(cluster)   
