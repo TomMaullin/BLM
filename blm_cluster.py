@@ -1,3 +1,4 @@
+from dask import config
 from dask_jobqueue import SGECluster
 from dask.distributed import Client
 from lib.blm_setup import main as blm_setup
@@ -23,6 +24,8 @@ def main(client):
 
 # If running this function
 if __name__ == "__main__":
+
+	config.set(distributed__comm__timeouts__tcp='90s')
 
 	print('here1')
 
