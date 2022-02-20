@@ -31,23 +31,21 @@ if __name__ == "__main__":
 	print('here1')
 
 	# Specify cluster setup
-	cluster = SGECluster(cores=1,
-	                     memory="80GB",
+	cluster = SGECluster(cores=36,
+	                     memory="100GB",
 	                     queue='short.qc',
 	                     walltime='01:00:00',
 	                     extra=['--no-dashboard'])
 
 	print('here2')
 
-	# Set maximum number of jobs
-	cluster.adapt(maximum_jobs=20)
+	# Ask for a node for setup
+	cluster.scale(1)
 
 	print('here3')
 
 	# Connect to cluster
-	client = Client()#cluster)   
-
-	print(client)
+	client = Client(cluster)   
 
 	print('here4')
 
@@ -58,6 +56,3 @@ if __name__ == "__main__":
 
 	# Close the client
 	client.close()
-
-	# Print errors
-	print(cluster.job_script())
