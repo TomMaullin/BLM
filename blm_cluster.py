@@ -24,21 +24,31 @@ def main(client):
 # If running this function
 if __name__ == "__main__":
 
+	print('here1')
+
 	# Specify cluster setup
 	cluster = SGECluster(cores=1,
 	                     memory="100GB",
 	                     queue='short.qc',
-	                     walltime='01:00:00')
+	                     walltime='01:00:00',
+	                     extra=['--no-dashboard'])
 
+	print('here2')
 
 	# Set maximum number of jobs
 	cluster.adapt(maximum_jobs=20)
 
+	print('here3')
+
 	# Connect to cluster
 	client = Client(cluster)   
 
+	print('here4')
+
 	# Run BLM
 	main(client)
+
+	print('here5')
 
 	# Close the client
 	client.close()
