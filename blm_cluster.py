@@ -39,7 +39,7 @@ def main(cluster, client):
 		future_b = client.submit(blm_batch, b, inputs_yml, pure=False)
 		
 		# Append to list
-		futures.apend(future_b)
+		futures.append(future_b)
 
 	# Completed jobs
 	completed = as_completed(futures)
