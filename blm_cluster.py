@@ -66,7 +66,7 @@ if __name__ == "__main__":
 	print('here1')
 
 	# Specify cluster setup
-	cluster = SGECluster(cores=36,
+	cluster = SGECluster(cores=1,
 	                     memory="100GB",
 	                     queue='short.qc',
 	                     walltime='00:30:00',
