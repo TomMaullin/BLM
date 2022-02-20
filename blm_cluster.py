@@ -1,6 +1,6 @@
 from dask import config
 from dask_jobqueue import SGECluster
-from dask.distributed import Client
+from distributed import Client
 from lib.blm_setup import main as blm_setup
 from lib.blm_batch import main as blm_batch
 from lib.blm_concat import main as blm_concat
