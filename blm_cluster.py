@@ -1,13 +1,13 @@
 from dask import config
 from dask_jobqueue import SGECluster
-from distributed import Client
+from distributed import Client, as_completed
 from lib.blm_setup import main as blm_setup
 from lib.blm_batch import main as blm_batch
 from lib.blm_concat import main as blm_concat
 from lib.blm_cleanup import main as blm_cleanup
 
 # Given a dask distributed client run BLM.
-def main(client):
+def main(cluster, client):
 
 	# Inputs yaml
 	inputs_yml = #...
@@ -15,12 +15,46 @@ def main(client):
 	# Need to return number of batches
 	retnb = True
 
+	# Ask for a node for setup
+	cluster.scale(1)
+
 	# Get number of batches
-	nb = client.submit(blm_setup, inputs_yml, retnb, pure=False)
-	nb = nb.result()
+	future_0 = client.submit(blm_setup, inputs_yml, retnb, pure=False)
+	nb = future_0.result()
 
 	# Print number of batches
 	print(nb)
+
+	# Ask for 100 nodes for BLM batch
+	cluster.scale(100)
+
+	# Empty futures list
+	futures = []
+
+	# Run batch jobs
+	for b in (np.arange(nb)+1):
+
+		# Individual batch job
+		future_b = client.submit(blm_batch, b, inputs_yml, pure=False)
+		
+		# Append to list
+		futures.apend(future_b)
+
+	# Completed jobs
+	completed = as_completed(futures)
+
+	# Wait for results
+	for i in completed:
+		i.result()
+
+	# Ask for 1 node for BLM concat
+	cluster.scale(1)
+
+	# Concatenation job
+	future_last = client.submit(blm_concat, inputs_yml, pure=False)
+	
+	print('BLM code complete!')
+
 
 # If running this function
 if __name__ == "__main__":
@@ -40,9 +74,6 @@ if __name__ == "__main__":
 
 	print('here2')
 
-	# Ask for a node for setup
-	cluster.scale(1)
-
 	print('here3')
 
 	# Connect to cluster
@@ -51,7 +82,7 @@ if __name__ == "__main__":
 	print('here4')
 
 	# Run BLM
-	main(client)
+	main(cluster, client)
 
 	print('here5')
 
