@@ -19,7 +19,7 @@ from lib.fileio import *
 # - retnb: A boolean which tells us whether to return the number
 #          of batches needed (retnb=True) or save the variable
 #          in a text file (retnb=False).
-def main(*args):
+async def main(*args):
 
     # Change to blm directory
     pwd = os.getcwd()
