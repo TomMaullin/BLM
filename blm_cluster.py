@@ -45,7 +45,9 @@ if __name__ == "__main__":
 	print('here3')
 
 	# Connect to cluster
-	client = Client(cluster)   
+	client = Client()#cluster)   
+
+	print(client)
 
 	print('here4')
 
