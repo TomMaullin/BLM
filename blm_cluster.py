@@ -56,3 +56,5 @@ if __name__ == "__main__":
 
 	# Close the client
 	client.close()
+
+	print(cluster.job_script())
