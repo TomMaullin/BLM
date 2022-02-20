@@ -34,8 +34,9 @@ if __name__ == "__main__":
 	cluster = SGECluster(cores=36,
 	                     memory="100GB",
 	                     queue='short.qc',
-	                     walltime='01:00:00',
-	                     extra=['--no-dashboard'])
+	                     walltime='00:30:00',
+	                     extra=['--no-dashboard'],
+       					 interface="ib0")
 
 	print('here2')
 
