@@ -32,7 +32,7 @@ if __name__ == "__main__":
 
 	# Specify cluster setup
 	cluster = SGECluster(cores=1,
-	                     memory="100GB",
+	                     memory="80GB",
 	                     queue='short.qc',
 	                     walltime='01:00:00',
 	                     extra=['--no-dashboard'])
