@@ -26,6 +26,7 @@ def main(client):
 if __name__ == "__main__":
 
 	config.set(distributed__comm__timeouts__tcp='90s')
+	config.set(distributed__comm__timeouts__connect='90s')
 
 	print('here1')
 
