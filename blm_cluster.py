@@ -5,6 +5,7 @@ from lib.blm_setup import main as blm_setup
 from lib.blm_batch import main as blm_batch
 from lib.blm_concat import main as blm_concat
 from lib.blm_cleanup import main as blm_cleanup
+import numpy as np
 
 # Given a dask distributed client run BLM.
 def main(cluster, client):
