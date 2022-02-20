@@ -15,7 +15,7 @@ def main(client):
 	retnb = True
 
 	# Get number of batches
-	nb = await client.submit(blm_setup, inputs_yml, retnb, pure=False)
+	nb = client.submit(blm_setup, inputs_yml, retnb, pure=False)
 	nb = nb.result()
 
 	# Print number of batches
@@ -35,21 +35,13 @@ if __name__ == "__main__":
 
 	print('here2')
 
-
-
-    # client = await Client(asynchronous=True)
-    # future = client.submit(lambda x: x + 1, 10)
-    # result = await future
-    # await client.close()
-    # return result
-
 	# Set maximum number of jobs
 	cluster.adapt(maximum_jobs=20)
 
 	print('here3')
 
 	# Connect to cluster
-	client = await Client(cluster)   
+	client = Client(cluster)   
 
 	print('here4')
 
@@ -59,7 +51,7 @@ if __name__ == "__main__":
 	print('here5')
 
 	# Close the client
-	await client.close()
+	client.close()
 
 	# Print errors
 	print(cluster.job_script())
