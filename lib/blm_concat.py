@@ -106,7 +106,7 @@ def main(*args):
 
     # Read in n (spatially varying)
     nmapb  = loadFile(os.path.join(OutDir,"tmp", "blm_vox_n_batch1.nii"))
-    n_sv = nmapb.get_data()# Read in uniqueness Mask file
+    n_sv = nmapb.get_fdata()# Read in uniqueness Mask file
 
     # Remove file we just read
     os.remove(os.path.join(OutDir,"tmp", "blm_vox_n_batch1.nii"))
@@ -116,7 +116,7 @@ def main(*args):
         
         # Obtain the full nmap.
         n_sv = n_sv + loadFile(os.path.join(OutDir,"tmp", 
-            "blm_vox_n_batch" + str(batchNo) + ".nii")).get_data()
+            "blm_vox_n_batch" + str(batchNo) + ".nii")).get_fdata()
 
         # Remove file we just read
         os.remove(os.path.join(OutDir,"tmp", "blm_vox_n_batch" + str(batchNo) + ".nii"))
@@ -191,7 +191,7 @@ def main(*args):
         amask_path = inputs["analysis_mask"]
         
         # Read in the mask nifti.
-        amask = loadFile(amask_path).get_data().reshape([v,1])
+        amask = loadFile(amask_path).get_fdata().reshape([v,1])
 
     else:
 
@@ -945,7 +945,7 @@ def readAndSumUniqueAtB(AtBstr, OutDir, vinds, n_b, sv):
 
     # Work out the uniqueness mask for the spatially varying designs
     uniquenessMask = loadFile(os.path.join(OutDir,"tmp", 
-        "blm_vox_uniqueM_batch1.nii")).get_data()
+        "blm_vox_uniqueM_batch1.nii")).get_fdata()
 
     v = np.prod(uniquenessMask.shape)
     vcurrent = np.prod(vinds.shape)
@@ -988,7 +988,7 @@ def readAndSumUniqueAtB(AtBstr, OutDir, vinds, n_b, sv):
 
         # Read in uniqueness Mask file
         uniquenessMask = loadFile(os.path.join(OutDir,"tmp", 
-            "blm_vox_uniqueM_batch" + str(batchNo) + ".nii")).get_data().reshape(v)
+            "blm_vox_uniqueM_batch" + str(batchNo) + ".nii")).get_fdata().reshape(v)
 
         maxM = np.int32(np.amax(uniquenessMask))
 

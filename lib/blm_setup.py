@@ -136,10 +136,12 @@ def main(*args):
 
     #     # Load the file and check it's shape is 3d (as oppose to 4d with a 4th dimension
     #     # of 1)
-    #     M_a = loadFile(inputs['analysis_mask']).get_data()
+    #     M_a = loadFile(inputs['analysis_mask']).get_fdata()
 
     #     # Number of non-zero voxels
     #     v_nz = np.count_nonzero(np.nan_to_num(M_a))
+
+    # else:
 
     if True:
 

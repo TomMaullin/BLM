@@ -70,7 +70,7 @@ def main(*args):
         raise ValueError('The NIFTI "' + Y_files[0] + '"does not exist')
 
     # Read in some data as a default nifti
-    d0 = Y0.get_data()
+    d0 = Y0.get_fdata()
 
     # Get the maximum memory a NIFTI could take in storage. 
     NIFTImem = sys.getsizeof(np.zeros(d0.shape,dtype='uint64'))
@@ -130,7 +130,7 @@ def main(*args):
 
         # Load the file and check it's shape is 3d (as oppose to 4d with a 4th dimension
         # of 1)
-        M_a = loadFile(inputs['analysis_mask']).get_data()
+        M_a = loadFile(inputs['analysis_mask']).get_fdata()
         M_a = M_a.reshape((M_a.shape[0],M_a.shape[1],M_a.shape[2]))
 
     else:
@@ -196,7 +196,7 @@ def main(*args):
 def verifyInput(Y_files, M_files, Y0):
 
     # Obtain information about zero-th scan
-    d0 = Y0.get_data()
+    d0 = Y0.get_fdata()
     Y0aff = Y0.affine
 
     # Initial checks for NIFTI compatability for Y.
@@ -282,7 +282,7 @@ def obtainY(Y_files, M_files, M_t, M_a):
 
     # Load in one nifti to check NIFTI size
     Y0 = loadFile(Y_files[0])
-    d = Y0.get_data()
+    d = Y0.get_fdata()
     
     # Get number of voxels.
     v = np.prod(d.shape)
@@ -304,13 +304,13 @@ def obtainY(Y_files, M_files, M_t, M_a):
         if M_files:
         
             # Apply mask
-            M_indiv = loadFile(M_files[i]).get_data()
+            M_indiv = loadFile(M_files[i]).get_fdata()
             d = np.multiply(
-                Y_indiv.get_data(),
+                Y_indiv.get_fdata(),
                 M_indiv)
         else: 
             #Just load in Y
-            d = Y_indiv.get_data()
+            d = Y_indiv.get_fdata()
 
         # If theres an initial threshold for the data apply it.
         if M_t is not None:
@@ -324,6 +324,22 @@ def obtainY(Y_files, M_files, M_t, M_a):
 
         # Count number of observations at each voxel
         n_sv = n_sv + 1*(np.nan_to_num(d)!=0)
+
+# MARKER ===================================================================================
+# The code in this section is causing mass slowdown for Anyas design. Reason: we're saving
+# the whole volume for Yi here rather than just the masked. It is masked at the end of this 
+# highlighted block.
+# ---------------------
+# Instead we need to save masked version. I.e. something like:
+
+#     # Apply analysis mask to d, we use the analysis mask here as the product
+#     # matrices across all batches should have the same masking for convinience
+#     # We can apply the full mask at a later stage.
+#     if M_a is not None:
+#         d = d[:, np.where(M_a.reshape([v]))[0]]
+
+#     # Number of voxels in analysis mask
+#     v_am = np.count_nonzero(np.nan_to_num(M_a))
 
         # Constructing Y array
         Y[i, :] = d.reshape([1, v])
@@ -340,6 +356,8 @@ def obtainY(Y_files, M_files, M_t, M_a):
     # We can apply the full mask at a later stage.
     if M_a is not None:
         Y = Y[:, np.where(M_a.reshape([v]))[0]]
+
+# MARKER ===================================================================================
 
     # Work out the mask.
     M = (Y_fm!=0)
