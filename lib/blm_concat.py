@@ -42,6 +42,8 @@ from lib.fileio import *
 
 def main(*args):
 
+    print('marker')
+
     # ----------------------------------------------------------------------
     # Check inputs
     # ----------------------------------------------------------------------
@@ -101,6 +103,8 @@ def main(*args):
     # observations)
     # --------------------------------------------------------------------------------
 
+    print('marker2')
+
     # Work out number of batchs
     n_b = len(glob.glob(os.path.join(OutDir,"tmp","blm_vox_n_batch*")))
 
@@ -111,6 +115,8 @@ def main(*args):
     # Remove file we just read
     os.remove(os.path.join(OutDir,"tmp", "blm_vox_n_batch1.nii"))
 
+    print('marker3')
+    
     # Cycle through batches and add together n.
     for batchNo in range(2,(n_b+1)):
         
