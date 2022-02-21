@@ -30,23 +30,11 @@ def main(cluster, client):
     # Ask for 100 nodes for BLM batch
     cluster.scale(100)
 
-    # Empty futures list
-    futures = []
-
-    # Run batch jobs
-    for b in (np.arange(nb)+1):
-
-        # Individual batch job
-        future_b = client.submit(blm_batch, b, inputs_yml, pure=False)
-        
-        # Append to list
-        futures.append(future_b)
-
-    # Completed jobs
-    completed = as_completed(futures)
+    # Futures list
+    futures = client.map(blm_batch, *[np.arange(nb)+1, [inputs_yml]*nb], pure=False)
 
     # Wait for results
-    for future_b in completed:
+    for future_b in as_completed(futures):
         future_b.result()
 
     print('Batches completed')
