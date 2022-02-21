@@ -45,14 +45,23 @@ def main(cluster, client):
     completed = as_completed(futures)
 
     # Wait for results
-    for i in completed:
-        i.result()
+    for future_b in completed:
+        future_b.result()
 
     # Ask for 1 node for BLM concat
     cluster.scale(1)
 
     # Concatenation job
-    future_last = client.submit(blm_concat, inputs_yml, pure=False)
+    future_concat = client.submit(blm_concat, inputs_yml, pure=False)
+
+    # Run concatenation job
+    future_concat.result()
+
+    # Run cleanup job
+    future_cleanup = client.submit(blm_cleanup, inputs_yml, pure=False)
+
+    # Run cleanup job
+    future_cleanup.result()
     
     print('BLM code complete!')
 
