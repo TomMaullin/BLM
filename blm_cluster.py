@@ -2,10 +2,10 @@ from dask import config
 from dask_jobqueue import SGECluster
 from dask.distributed import Client, as_completed
 from dask.distributed import performance_report
-from lib.blm_setup import main as blm_setup
-from lib.blm_batch import main as blm_batch
-from lib.blm_concat import main as blm_concat
-from lib.blm_cleanup import main as blm_cleanup
+from lib.blm_setup import main1 as blm_setup
+from lib.blm_batch import main2 as blm_batch
+from lib.blm_concat import main3 as blm_concat
+from lib.blm_cleanup import main4 as blm_cleanup
 import numpy as np
 
 # Given a dask distributed client run BLM.

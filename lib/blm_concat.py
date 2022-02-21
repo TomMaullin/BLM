@@ -40,7 +40,7 @@ from lib.fileio import *
 # --------------------------------------------------------------------------
 # Author: Tom Maullin (04/02/2019)
 
-def main(*args):
+def main3(*args):
 
     print('marker')
 
@@ -116,7 +116,7 @@ def main(*args):
     os.remove(os.path.join(OutDir,"tmp", "blm_vox_n_batch1.nii"))
 
     print('marker3')
-    
+
     # Cycle through batches and add together n.
     for batchNo in range(2,(n_b+1)):
         

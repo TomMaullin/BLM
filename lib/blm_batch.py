@@ -16,7 +16,7 @@ import time
 np.set_printoptions(threshold=sys.maxsize)
 from lib.fileio import *
 
-def main(*args):
+def main2(*args):
 
 
     # Change to blm directory
