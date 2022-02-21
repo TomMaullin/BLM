@@ -96,7 +96,7 @@ if __name__ == "__main__":
     # Connect to cluster
     client = Client(cluster)   
 
-    with performance_report(filename="dask-report.html"):
+    with performance_report(filename="well/nichols/users/inf852/BLMdask/dask-report.html"):
         print('here4')
 
         # Run BLM
