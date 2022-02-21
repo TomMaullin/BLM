@@ -79,30 +79,31 @@ if __name__ == "__main__":
 
     print('here1')
 
-    # Specify cluster setup
-    cluster = SGECluster(cores=1,
-                         memory="100GB",
-                         queue='short.qc',
-                         walltime='00:30:00',
-                         extra=['--no-dashboard'],
-                         interface="ib0",
-                         local_directory="/well/nichols/users/inf852/BLMdask/")
+    with performance_report(filename="dask-report.html"):
+        # Specify cluster setup
+        cluster = SGECluster(cores=1,
+                             memory="100GB",
+                             queue='short.qc',
+                             walltime='00:30:00',
+                             extra=['--no-dashboard'],
+                             interface="ib0",
+                             local_directory="/well/nichols/users/inf852/BLMdask/")
 
-    print('here2')
+        print('here2')
 
-    print('here3')
+        print('here3')
 
-    # Connect to cluster
-    client = Client(cluster)   
+        # Connect to cluster
+        client = Client(cluster)   
 
-    print('here4')
+        print('here4')
 
-    # Run BLM
-    main(cluster, client)
+        # Run BLM
+        main(cluster, client)
 
-    print('here5')
+        print('here5')
 
-    # Close the client
-    client.close()
+        # Close the client
+        client.close()
 
-    print(cluster.job_script())
+        print(cluster.job_script())
