@@ -33,9 +33,13 @@ def main(cluster, client):
     # Futures list
     futures = client.map(blm_batch, *[np.arange(nb)+1, [inputs_yml]*nb], pure=False)
 
-    # Wait for results
-    for future_b in as_completed(futures):
-        future_b.result()
+    # # Wait for results
+    # for future_b in as_completed(futures):
+    #     future_b.result()
+
+    # results
+    results = client.gather(futures)
+    del results
 
     print('Batches completed')
 
