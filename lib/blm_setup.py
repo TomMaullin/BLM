@@ -130,7 +130,23 @@ def main(*args):
 
     # Get the maximum memory a NIFTI could take in storage. We divide by 3
     # as approximately a third of the volume is actually non-zero/brain
-    NIFTIsize = sys.getsizeof(np.zeros(Y0.shape,dtype='uint64'))
+
+    # Mask volumes (if they are given)
+    if 'analysis_mask' in inputs:
+
+        # Load the file and check it's shape is 3d (as oppose to 4d with a 4th dimension
+        # of 1)
+        M_a = loadFile(inputs['analysis_mask']).get_data()
+
+        # Number of non-zero voxels
+        v_nz = np.count_nonzero(np.nan_to_num(M_a))
+
+    else:
+
+        # Number of non-zero voxels
+        v_nz = np.prod(Y0.shape)
+
+    NIFTIsize = sys.getsizeof(np.zeros([v_nz,1],dtype='uint64'))
 
     if NIFTIsize > MAXMEM:
         raise ValueError('The NIFTI "' + Y_files[0] + '"is too large')
