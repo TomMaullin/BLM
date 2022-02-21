@@ -48,6 +48,8 @@ def main(cluster, client):
     for future_b in completed:
         future_b.result()
 
+    print('Batches completed')
+
     # Ask for 1 node for BLM concat
     cluster.scale(1)
 
@@ -56,6 +58,8 @@ def main(cluster, client):
 
     # Run concatenation job
     future_concat.result()
+
+    print('Concat completed')
 
     # Run cleanup job
     future_cleanup = client.submit(blm_cleanup, inputs_yml, pure=False)
@@ -68,6 +72,10 @@ def main(cluster, client):
 
 # If running this function
 if __name__ == "__main__":
+
+    # timeouts
+    config.set(distributed__comm__timeouts__tcp='90s')
+    config.set(distributed__comm__timeouts__connect='90s')
 
     print('here1')
 
