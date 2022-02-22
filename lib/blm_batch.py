@@ -19,6 +19,8 @@ from lib.fileio import *
 def main2(*args):
 
 
+    print('started')
+
     # Change to blm directory
     os.chdir(os.path.dirname(os.path.realpath(__file__)))    
 
@@ -244,6 +246,7 @@ def verifyInput(Y_files, M_files, Y0):
                                  'different affine transformation to "' +
                                  Y0 + '"')
 
+    print('made to end')
 
 # ============================================================================
 # 
