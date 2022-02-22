@@ -80,7 +80,8 @@ if __name__ == "__main__":
                          extra=['--no-dashboard'],
                          interface="ib0",
                          local_directory="/well/nichols/users/inf852/BLMdask/",
-                         scheduler_options={'dashboard_address': ':8888'})
+                         scheduler_options={'dashboard_address': ':8888'},
+                         processes=False)
 
     print('here2')
 
