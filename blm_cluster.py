@@ -43,24 +43,24 @@ def main(cluster, client):
 
     print('Batches completed')
 
-    # # Ask for 1 node for BLM concat
-    # cluster.scale(1)
+    # Ask for 1 node for BLM concat
+    cluster.scale(1)
 
-    # # Concatenation job
-    # future_concat = client.submit(blm_concat, inputs_yml, pure=False)
+    # Concatenation job
+    future_concat = client.submit(blm_concat, inputs_yml, pure=False)
 
-    # # Run concatenation job
-    # future_concat.result()
+    # Run concatenation job
+    future_concat.result()
 
-    # print('Concat completed')
+    print('Concat completed')
 
-    # # Run cleanup job
-    # future_cleanup = client.submit(blm_cleanup, inputs_yml, pure=False)
+    # Run cleanup job
+    future_cleanup = client.submit(blm_cleanup, inputs_yml, pure=False)
 
-    # # Run cleanup job
-    # future_cleanup.result()
+    # Run cleanup job
+    future_cleanup.result()
     
-    # print('BLM code complete!')
+    print('BLM code complete!')
 
 
 # If running this function
@@ -100,5 +100,3 @@ if __name__ == "__main__":
 
         # Close the client
         client.close()
-
-        print(cluster.job_script())
