@@ -69,6 +69,7 @@ if __name__ == "__main__":
     # timeouts
     config.set(distributed__comm__timeouts__tcp='90s')
     config.set(distributed__comm__timeouts__connect='90s')
+    config.set(scheduler='single-threaded')
 
     print('here1')
 
