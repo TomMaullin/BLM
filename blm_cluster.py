@@ -77,11 +77,9 @@ if __name__ == "__main__":
                          memory="100GB",
                          queue='short.qc',
                          walltime='00:30:00',
-                         extra=['--no-dashboard'],
                          interface="ib0",
                          local_directory="/well/nichols/users/inf852/BLMdask/",
-                         scheduler_options={'dashboard_address': ':8888'},
-                         processes=False)
+                         scheduler_options={'dashboard_address': ':8888'})
 
     print('here2')
 
