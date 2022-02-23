@@ -61,7 +61,7 @@ def main(cluster, client):
     print('Concat completed')
 
     # Run cleanup job
-    future_cleanup = client.submit(blm_cleanup, inputs_yml, pure=False)
+    future_cleanup = client.submit(blm_cleanup, nb, inputs_yml, pure=False)
 
     # Run cleanup job
     future_cleanup.result()
