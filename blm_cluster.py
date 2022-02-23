@@ -41,10 +41,6 @@ def main(cluster, client):
     results = client.gather(futures)
     del results
 
-
-    addr = client.scheduler_info()['address']
-    client2 = Client(addr)
-
     print('Batches completed')
 
     # Ask for 1 node for BLM concat
