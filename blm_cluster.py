@@ -54,6 +54,10 @@ def main(cluster, client):
     # Run concatenation job
     future_concat.result()
 
+    client.recreate_error_locally(future_concat) 
+
+    print(client.recreate_error_locally(future_concat)) 
+
     print('Concat completed')
 
     # Run cleanup job
@@ -92,13 +96,12 @@ if __name__ == "__main__":
     # Connect to cluster
     client = Client(cluster)   
 
-    with performance_report(filename="well/nichols/users/inf852/BLMdask/dask-report.html"):
-        print('here4')
+    print('here4')
 
-        # Run BLM
-        main(cluster, client)
+    # Run BLM
+    main(cluster, client)
 
-        print('here5')
+    print('here5')
 
-        # Close the client
-        client.close()
+    # Close the client
+    client.close()
