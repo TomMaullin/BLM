@@ -43,7 +43,7 @@ from lib.fileio import *
 def main3(*args):
 
     print('marker')
-    
+
     # Work out number of batchs
     n_b = args[0]
 
@@ -112,7 +112,7 @@ def main3(*args):
     n_sv = nmapb.get_fdata()# Read in uniqueness Mask file
 
     # Remove file we just read
-    os.remove(os.path.join(OutDir,"tmp", "blm_vox_n_batch1.nii"))
+    #os.remove(os.path.join(OutDir,"tmp", "blm_vox_n_batch1.nii"))
 
     print('marker3')
 
@@ -124,7 +124,7 @@ def main3(*args):
             "blm_vox_n_batch" + str(batchNo) + ".nii")).get_fdata()
 
         # Remove file we just read
-        os.remove(os.path.join(OutDir,"tmp", "blm_vox_n_batch" + str(batchNo) + ".nii"))
+        #os.remove(os.path.join(OutDir,"tmp", "blm_vox_n_batch" + str(batchNo) + ".nii"))
         
     # Save nmap
     nmap = nib.Nifti1Image(n_sv,
@@ -819,11 +819,6 @@ def main3(*args):
 
                     # Output R^2
                     addBlockToNifti(os.path.join(OutDir, 'blm_vox_conR2.nii'), partialR2_i, I_inds,volInd=current_nf,dim=dimF,aff=nifti.affine,hdr=nifti.header)
-
-    # Clean up files
-    if len(args)==0:
-        os.remove(os.path.join(OutDir, 'nb.txt'))
-    shutil.rmtree(os.path.join(OutDir, 'tmp'))
 
     w.resetwarnings()
 

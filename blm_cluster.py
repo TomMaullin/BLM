@@ -66,11 +66,24 @@ def main(cluster, client):
 
     print('Concat completed')
 
-    # Run cleanup job
-    future_cleanup = client.submit(blm_cleanup, inputs_yml, pure=False)
+    # # --------------------------------------------------------------------------------
+    # # Check inputs
+    # # --------------------------------------------------------------------------------
+    # # Inputs file is first argument
+    # with open(os.path.join(ipath), 'r') as stream:
+    #     inputs = yaml.load(stream,Loader=yaml.FullLoader)
 
-    # Run cleanup job
-    future_cleanup.result()
+    # # --------------------------------------------------------------------------------
+    # # Read Output directory, work out number of batches
+    # # --------------------------------------------------------------------------------
+    # OutDir = inputs['outdir']
+
+    # # --------------------------------------------------------------------------------
+    # # Clean up files
+    # # --------------------------------------------------------------------------------
+    # os.remove(os.path.join(OutDir, 'nb.txt'))
+    # if os.path.isdir(os.path.join(OutDir, 'tmp')):
+    #     shutil.rmtree(os.path.join(OutDir, 'tmp'))
     
     print('BLM code complete!')
 
