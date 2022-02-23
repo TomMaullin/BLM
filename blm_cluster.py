@@ -51,12 +51,18 @@ def main(cluster, client):
     # Concatenation job
     future_concat = client.submit(blm_concat, nb, inputs_yml, pure=False)
 
+    print('0')
+
     # Run concatenation job
     future_concat.result()
+
+    print('1')
 
     client.recreate_error_locally(future_concat) 
 
     print(client.recreate_error_locally(future_concat)) 
+
+    print('2')
 
     print('Concat completed')
 
