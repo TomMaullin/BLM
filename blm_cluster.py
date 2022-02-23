@@ -54,9 +54,9 @@ def main(cluster, client):
     # Run concatenation job
     future_concat.result()
 
-    client.recreate_error_locally(future_concat) 
+    # client.recreate_error_locally(future_concat) 
 
-    print(client.recreate_error_locally(future_concat)) 
+    # print(client.recreate_error_locally(future_concat)) 
 
     print('Concat completed')
 
