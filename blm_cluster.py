@@ -47,7 +47,7 @@ def main(cluster, client):
     cluster.scale(1)
 
     # Concatenation job
-    future_concat = client2.submit(blm_concat, inputs_yml, pure=False)
+    future_concat = client.submit(blm_concat, inputs_yml, pure=False)
 
     # Run concatenation job
     future_concat.result()
@@ -55,7 +55,7 @@ def main(cluster, client):
     print('Concat completed')
 
     # Run cleanup job
-    future_cleanup = client2.submit(blm_cleanup, inputs_yml, pure=False)
+    future_cleanup = client.submit(blm_cleanup, inputs_yml, pure=False)
 
     # Run cleanup job
     future_cleanup.result()
