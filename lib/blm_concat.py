@@ -43,11 +43,14 @@ from lib.fileio import *
 def main3(*args):
 
     print('marker')
+    
+    # Work out number of batchs
+    n_b = args[0]
 
     # ----------------------------------------------------------------------
     # Check inputs
     # ----------------------------------------------------------------------
-    if len(args)==0 or (not args[0]):
+    if len(args)==1 or (not args[1]):
         # Load in inputs
         with open(os.path.join(
                     os.path.dirname(os.path.realpath(__file__)),
@@ -55,22 +58,18 @@ def main3(*args):
                     'blm_config.yml'), 'r') as stream:
             inputs = yaml.load(stream,Loader=yaml.FullLoader)
     else:
-        if type(args[0]) is str:
+        if type(args[1]) is str:
             # In this case inputs file is first argument
-            with open(os.path.join(args[0]), 'r') as stream:
+            with open(os.path.join(args[1]), 'r') as stream:
                 inputs = yaml.load(stream,Loader=yaml.FullLoader)
         else:  
             # In this case inputs structure is first argument.
-            inputs = args[0]
+            inputs = args[1]
 
     # ----------------------------------------------------------------------
     # Read basic inputs
     # ----------------------------------------------------------------------
     OutDir = inputs['outdir']
-
-    # Work out number of batchs
-    with open(os.path.join(OutDir,'nb.txt')) as f:
-        n_b = int(f.readline())
 
     # Get number of fixed effects parameters
     L1 = str2vec(inputs['contrasts'][0]['c' + str(1)]['vector'])
