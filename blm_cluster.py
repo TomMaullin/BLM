@@ -108,6 +108,8 @@ if __name__ == "__main__":
                          interface="ib0",
                          local_directory="/well/nichols/users/inf852/BLMdask/",
                          log_directory="/well/nichols/users/inf852/BLMdask/log/",
+                         silence_logs=False,
+                         processes=False,
                          scheduler_options={'dashboard_address': ':8888'})
 
 
