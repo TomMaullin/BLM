@@ -96,6 +96,7 @@ if __name__ == "__main__":
     config.set(distributed__comm__timeouts__connect='90s')
     config.set(scheduler='single-threaded')
     config.set({'distributed.scheduler.allowed-failures': 50}) 
+    config.set(admin__tick__limit='3h')
 
 
     print('here1')
