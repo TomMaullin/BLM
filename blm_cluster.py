@@ -104,9 +104,10 @@ if __name__ == "__main__":
     cluster = SGECluster(cores=1,
                          memory="100GB",
                          queue='short.qc',
-                         walltime='00:30:00',
+                         walltime='01:00:00',
                          interface="ib0",
                          local_directory="/well/nichols/users/inf852/BLMdask/",
+                         log_directory="/well/nichols/users/inf852/BLMdask/log/",
                          scheduler_options={'dashboard_address': ':8888'})
 
 

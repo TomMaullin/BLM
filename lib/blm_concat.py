@@ -44,6 +44,9 @@ def main3(*args):
 
     print('marker')
 
+    t1 = time.time()
+    print('started, time ',t1-t1)
+
     # Work out number of batchs
     n_b = args[0]
 
@@ -65,6 +68,9 @@ def main3(*args):
         else:  
             # In this case inputs structure is first argument.
             inputs = args[1]
+
+    t2 = time.time()
+    print('inputs, time ',t2-t1)
 
     # ----------------------------------------------------------------------
     # Read basic inputs
@@ -96,6 +102,11 @@ def main3(*args):
         OutputCovB = inputs["OutputCovB"]
     else:
         OutputCovB = True
+
+    t2 = time.time()
+    print('inputs2, time ',t2-t1)
+
+    print('OutputCovB ', OutputCovB)
 
     # --------------------------------------------------------------------------------
     # Get n (number of observations) and n_sv (spatially varying number of
@@ -137,6 +148,10 @@ def main3(*args):
     # Get ns.
     X = loadFile(inputs['X'])
     n = X.shape[0]
+
+
+    t2 = time.time()
+    print('n_sv, time ',t2-t1)
     
     # --------------------------------------------------------------------------------
     # Create Mask
@@ -222,6 +237,9 @@ def main3(*args):
     nib.save(maskmap, os.path.join(OutDir,'blm_vox_mask.nii'))
     del maskmap
 
+    t2 = time.time()
+    print('mask, time ',t2-t1)
+
     # ------------------------------------------------------------------------
     # Work out "Ring" and "Inner" indices for whole mask
     # ------------------------------------------------------------------------
@@ -242,6 +260,9 @@ def main3(*args):
     # Work out the 'inner' indices, in relation to the analysis mask
     ix_i = np.argsort(np.argsort(I_inds))
     I_inds_am = np.sort(np.where(np.in1d(amInds,I_inds))[0])[ix_i]
+
+    t2 = time.time()
+    print('ring/inner, time ',t2-t1)
 
     # ------------------------------------------------------------------------
     # Number of voxels in ring and inner
@@ -281,6 +302,9 @@ def main3(*args):
     nib.save(dfmap, os.path.join(OutDir,'blm_vox_edf.nii'))
     del df, dfmap
 
+    t2 = time.time()
+    print('vedf, time ',t2-t1)
+
     # ------------------------------------------------------------------------
     # The next operations are more computationally intensive so we split 
     # computation into blocks of voxels
@@ -314,6 +338,14 @@ def main3(*args):
         else:
             nf = nf + 1
 
+
+    t2 = time.time()
+    print('contrasts, time ',t2-t1)
+
+    print('c ', c)
+    print('nt ', nt)
+    print('nf ', nf)
+
     # ------------------------------------------------------------------------
     # Output volume dimensions
     # ------------------------------------------------------------------------
@@ -344,12 +376,19 @@ def main3(*args):
     # Work out number of groups we have to split indices into.
     nvg = int(len(bamInds)//nvb+1)
 
+    print('nvg: ', nvg)
+
     # Split voxels we want to look at into groups we can compute
     voxelGroups = np.array_split(bamInds, nvg)
 
     # Loop through list of voxel indices, looking at each group of voxels, in
     # turn.
     for cv in range(nvg):
+
+        t2 = time.time()
+        print('in loop, time ',t2-t1)
+
+        print('cv ', cv)
 
         # Current group of voxels
         bamInds_cv = voxelGroups[cv]
@@ -375,6 +414,9 @@ def main3(*args):
         ix_i = np.argsort(np.argsort(I_inds))
         I_inds_am = np.sort(np.where(np.in1d(amInds,I_inds))[0])[ix_i]
 
+        t2 = time.time()
+        print('in loop masked inds, time ',t2-t1)
+
         # ------------------------------------------------------------------------
         # Number of voxels in ring and inner
         # ------------------------------------------------------------------------
@@ -392,18 +434,40 @@ def main3(*args):
         # Load X'X, X'Y, Y'Y
         # --------------------------------------------------------------------------------
 
+        t2 = time.time()
+        print('in loop got vox numbers, time ',t2-t1)
+
         # Ring X'Y, Y'Y
         XtY_r = readLinesFromNPY(os.path.join(OutDir,"tmp",'XtY.npy'), R_inds_am).reshape([v_r, p, 1])
+
+        t2 = time.time()
+        print('in loop got XtY_r, time ',t2-t1)
+
         YtY_r = readLinesFromNPY(os.path.join(OutDir,"tmp",'YtY.npy'), R_inds_am).reshape([v_r, 1, 1])
+
+        t2 = time.time()
+        print('in loop got YtY_r, time ',t2-t1)
 
         # Inner X'Y, Y'Y
         XtY_i = readLinesFromNPY(os.path.join(OutDir,"tmp",'XtY.npy'), I_inds_am).reshape([v_i, p, 1])
+        t2 = time.time()
+        print('in loop got XtY_i, time ',t2-t1)
+
         YtY_i = readLinesFromNPY(os.path.join(OutDir,"tmp",'YtY.npy'), I_inds_am).reshape([v_i, 1, 1])
+
+        t2 = time.time()
+        print('in loop got YtY_i, time ',t2-t1)
+
+        print('v_i ', v_i)
+        print('v_r ', v_r)
 
         if v_r:
 
             # Ring X'X
             XtX_r = readAndSumUniqueAtB('XtX', OutDir, R_inds, n_b, True).reshape([v_r, p, p])
+
+            t2 = time.time()
+            print('in loop got XtX_r time ',t2-t1)
 
             # ----------------------------------------------------------------------------
             # Remove low rank designs
@@ -415,6 +479,11 @@ def main3(*args):
 
             # Work out number of low rank indices
             v_lowrank = np.prod(lowrank_inds.shape)
+
+            t2 = time.time()
+            print('in loop removed rank time ',t2-t1)
+
+            print('v_lowrank ', v_lowrank)
 
             # If we have low rank indices remove them from our working variables
             if v_lowrank:
