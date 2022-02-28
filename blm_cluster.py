@@ -21,7 +21,7 @@ def main(cluster, client):
     cluster.scale(1)
 
     # Get number of batches
-    future_0 = client.submit(blm_setup, inputs_yml, retnb, pure=False)
+    future_0 = client.submit(blm_setup, inputs_yml, retnb)#, pure=False)
     nb = future_0.result()
 
     # del future_0
@@ -33,7 +33,7 @@ def main(cluster, client):
     cluster.scale(100)
 
     # Futures list
-    futures = client.map(blm_batch, *[np.arange(nb)+1, [inputs_yml]*nb], pure=False)
+    futures = client.map(blm_batch, *[np.arange(nb)+1, [inputs_yml]*nb])#, pure=False)
 
     # # Wait for results
     # for future_b in as_completed(futures):
@@ -49,7 +49,7 @@ def main(cluster, client):
     cluster.scale(1)
 
     # Concatenation job
-    future_concat = client.submit(blm_concat, nb, inputs_yml, pure=False)
+    future_concat = client.submit(blm_concat, nb, inputs_yml)#, pure=False)
 
     print('0')
 
