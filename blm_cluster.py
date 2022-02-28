@@ -1,6 +1,6 @@
 from dask import config
 from dask_jobqueue import SGECluster
-from dask.distributed import Client, as_completed, wait
+from dask.distributed import Client, as_completed
 from dask.distributed import performance_report
 from lib.blm_setup import main1 as blm_setup
 from lib.blm_batch import main2 as blm_batch
@@ -22,8 +22,9 @@ def main(cluster, client):
 
     # Get number of batches
     future_0 = client.submit(blm_setup, inputs_yml, retnb, pure=False)
-    wait(future_0)
     nb = future_0.result()
+
+    del future_0
 
     # Print number of batches
     print(nb)
@@ -39,9 +40,8 @@ def main(cluster, client):
     #     future_b.result()
 
     # results
-    # results = client.gather(futures)
-    # del futures, results
-    wait(futures)
+    results = client.gather(futures)
+    del futures, results
 
     print('Batches completed')
 
@@ -54,13 +54,13 @@ def main(cluster, client):
     print('0')
 
     # Run concatenation job
-    wait(future_concat)
+    future_concat.result()
 
     print('1')
 
-    # client.recreate_error_locally(future_concat) 
+    client.recreate_error_locally(future_concat) 
 
-    # print(client.recreate_error_locally(future_concat)) 
+    print(client.recreate_error_locally(future_concat)) 
 
     print('2')
 
@@ -96,7 +96,7 @@ if __name__ == "__main__":
     config.set(distributed__comm__timeouts__connect='90s')
     config.set(scheduler='single-threaded')
     config.set({'distributed.scheduler.allowed-failures': 50}) 
-    # config.set(admin__tick__limit='3h')
+    config.set(admin__tick__limit='3h')
 
 
     print('here1')
@@ -110,7 +110,7 @@ if __name__ == "__main__":
                          local_directory="/well/nichols/users/inf852/BLMdask/",
                          log_directory="/well/nichols/users/inf852/BLMdask/log/",
                          silence_logs=False,
-                         scheduler_options={'dashboard_address': ':8888'})
+                         scheduler_options={'dashboard_address': ':8889'})
 
 
     print('here2')
