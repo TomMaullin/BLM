@@ -24,7 +24,7 @@ def main(cluster, client):
     future_0 = client.submit(blm_setup, inputs_yml, retnb, pure=False)
     nb = future_0.result()
 
-    # del future_0
+    del future_0
 
     # Print number of batches
     print(nb)
@@ -41,7 +41,7 @@ def main(cluster, client):
 
     # results
     results = client.gather(futures)
-    # del futures, results
+    del futures, results
 
     print('Batches completed')
 
@@ -55,6 +55,7 @@ def main(cluster, client):
 
     # Run concatenation job
     future_concat.result()
+    del future_concat
 
     print('1')
 
