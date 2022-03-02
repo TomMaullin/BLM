@@ -228,6 +228,8 @@ def main3(*args):
         if os.path.exists(df_fname):
             df_sv = n_sv + loadFile(df_fname).get_fdata()
             os.remove(df_fname)
+        else:
+            df_sv = n_sv
 
         # Save nmap
         nmap = nib.Nifti1Image(n_sv,
