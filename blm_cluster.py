@@ -10,6 +10,7 @@ from lib.blm_cleanup import main4 as blm_cleanup
 import numpy as np
 import os
 import shutil
+import yaml
 
 # Given a dask distributed client run BLM.
 def main(cluster, client):
