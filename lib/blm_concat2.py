@@ -56,10 +56,12 @@ def main3(*args):
     # Number of nodes
     numNodes = args[2]
 
+    maskJob = args[3]
+
     # ----------------------------------------------------------------------
     # Check inputs
     # ----------------------------------------------------------------------
-    if len(args)==3 or (not args[3]):
+    if len(args)==4 or (not args[4]):
         # Load in inputs
         with open(os.path.join(
                     os.path.dirname(os.path.realpath(__file__)),
@@ -67,13 +69,13 @@ def main3(*args):
                     'blm_config.yml'), 'r') as stream:
             inputs = yaml.load(stream,Loader=yaml.FullLoader)
     else:
-        if type(args[3]) is str:
+        if type(args[4]) is str:
             # In this case inputs file is first argument
-            with open(os.path.join(args[3]), 'r') as stream:
+            with open(os.path.join(args[4]), 'r') as stream:
                 inputs = yaml.load(stream,Loader=yaml.FullLoader)
         else:  
             # In this case inputs structure is first argument.
-            inputs = args[3]
+            inputs = args[4]
 
     t2 = time.time()
     print('inputs, time ',t2-t1)
@@ -153,7 +155,6 @@ def main3(*args):
     
         # This is the last node
         lastNode = True
-        redundant = False
     
     elif ((1+(node-1)*n_images) <= (n_b + 1)):
     
@@ -162,7 +163,6 @@ def main3(*args):
     
         # This is not the last node
         lastNode = False
-        redundant = False
 
     else:
 
@@ -171,9 +171,8 @@ def main3(*args):
 
         # This is not the last node (this one's redundant)
         lastNode = False
-        redundant = True
 
-    if not redundant:
+    if maskJob:
 
         # Check if this is the first image we're looking at
         firstImage = True
@@ -212,7 +211,7 @@ def main3(*args):
         while fileLocked:
             try:
                 # Create lock file, so other jobs know we are writing to this file
-                f=os.open(n_fname + ".lock", os.O_CREAT|os.O_EXCL|os.O_RDWR)
+                f=os.open("config_write.lock", os.O_CREAT|os.O_EXCL|os.O_RDWR)
                 fileLocked = False
             except FileExistsError:
                 fileLocked = True
@@ -221,15 +220,16 @@ def main3(*args):
         # ------------------------------------------------------------------------------------
         # MARKER ADD TO RUNNING TOTAL
         # ------------------------------------------------------------------------------------
-        if os.path.exists(n_fname):
-            n_sv = n_sv + loadFile(n_fname).get_fdata()
-            os.remove(n_fname)
 
         if os.path.exists(df_fname):
             df_sv = n_sv + loadFile(df_fname).get_fdata()
             os.remove(df_fname)
         else:
-            df_sv = n_sv
+            df_sv = np.array(n_sv) # MARKER SOMETHING WRONG WITH DF
+
+        if os.path.exists(n_fname):
+            n_sv = n_sv + loadFile(n_fname).get_fdata()
+            os.remove(n_fname)
 
         # Save nmap
         nmap = nib.Nifti1Image(n_sv,
@@ -253,7 +253,7 @@ def main3(*args):
 
         # Delete lock file, so other jobs know they can now write to the
         # file
-        os.remove(n_fname + ".lock")
+        os.remove("config_write.lock")
         os.close(f)
         
         # --------------------------------------------------------------------------------
@@ -263,7 +263,7 @@ def main3(*args):
         if lastNode:
 
             Mask = np.ones([v, 1])
-            n_sv = n_sv.reshape(v, 1)   
+            n_sv = n_sv.reshape(v, 1)   # MARKER: PROBLEM: current n_sv may not have input from all jobs 
 
             # Check for user specified missingness thresholds.
             if 'Missingness' in inputs:

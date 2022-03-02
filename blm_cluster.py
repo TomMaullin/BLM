@@ -77,7 +77,7 @@ def main(cluster, client):
     for node in np.arange(1,101):
 
         # Give the i^{th} node the i^{th} partition of the data
-        future_b = client.submit(blm_concat2, nb, node, 100, inputs_yml, pure=False)
+        future_b = client.submit(blm_concat2, nb, node, 100, False, inputs_yml, pure=False)
 
         # Append to list
         futures.append(future_b)
@@ -88,6 +88,14 @@ def main(cluster, client):
     # Wait for results
     for i in completed:
         i.result()
+
+    del i, completed, futures, future_b
+
+    # The last job does the analysis mask (this is why the 3rd argument is set to true)
+    future_b_last = client.submit(blm_concat2, nb, 100 + 1, 100, True, inputs_yml, pure=False)
+    res = future_b_last.result()
+
+    del future_b_last, res
 
     # --------------------------------------------------------
     # RESULTS
