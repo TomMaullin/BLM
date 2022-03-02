@@ -154,12 +154,20 @@ def main3(*args):
         # This is the last node
         lastNode = True
     
-    else:
+    elif ((1+(node-1)*n_images) <= (n_b + 1)):
     
         # Work out loop range
         loopRange = range(1+(node-1)*n_images,1+node*n_images)
     
         # This is not the last node
+        lastNode = False
+
+    else:
+
+        # Empty loop range
+        loopRange = range(0,0)
+
+        # This is not the last node (this one's redundant)
         lastNode = False
 
     # Check if this is the first image we're looking at
