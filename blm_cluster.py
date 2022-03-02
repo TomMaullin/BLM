@@ -14,6 +14,26 @@ def main(cluster, client):
     # Inputs yaml
     inputs_yml = #...
 
+    # --------------------------------------------------------------------------------
+    # Check inputs
+    # --------------------------------------------------------------------------------
+    # Inputs file is first argument
+    with open(os.path.join(ipath), 'r') as stream:
+        inputs = yaml.load(stream,Loader=yaml.FullLoader)
+
+    # --------------------------------------------------------------------------------
+    # Read Output directory, work out number of batches
+    # --------------------------------------------------------------------------------
+    OutDir = inputs['outdir']
+
+    # --------------------------------------------------------------------------------
+    # Clean up files
+    # --------------------------------------------------------------------------------
+    os.remove(os.path.join(OutDir, 'nb.txt'))
+    if os.path.isdir(os.path.join(OutDir, 'tmp')):
+        shutil.rmtree(os.path.join(OutDir, 'tmp'))
+
+
     # Need to return number of batches
     retnb = True
 
@@ -45,49 +65,59 @@ def main(cluster, client):
 
     print('Batches completed')
 
-    # Ask for 1 node for BLM concat
-    cluster.scale(1)
+    # --------------------------------------------------------
+    # Plan
+    # --------------------------------------------------------
 
-    # Concatenation job
-    future_concat = client.submit(blm_concat, nb, inputs_yml, pure=False)
+    # --------------------------------------------------------
+    # CONCAT
+    # --------------------------------------------------------
 
-    print('0')
+    # Loop through nodes
+    for i in np.arange(100):
 
-    # Run concatenation job
-    future_concat.result()
-    del future_concat
+        # Give the i^{th} node the i^{th} partition of the data
 
-    print('1')
+    # --------------------------------------------------------
+    # RESULTS
+    # --------------------------------------------------------
 
-    client.recreate_error_locally(future_concat) 
+    # Work out the max number of voxels we can actually compute at a time.
+    # (This is really just a rule of thumb guess but works reasonably in
+    # practice).
+    nvb = MAXMEM/(10*8*(p**2))
 
-    print(client.recreate_error_locally(future_concat)) 
+    # We're now going to chunk up the analysis mask.
+    nvb = np.min(2000, nvb)
 
-    print('2')
+    # Work out number of groups we have to split indices into.
+    nvg = int(len(bamInds)//nvb+1)
 
-    print('Concat completed')
+    # --------------------------------------------------------
+    # # Ask for 1 node for BLM concat
+    # cluster.scale(1)
 
-    # --------------------------------------------------------------------------------
-    # Check inputs
-    # --------------------------------------------------------------------------------
-    # Inputs file is first argument
-    with open(os.path.join(ipath), 'r') as stream:
-        inputs = yaml.load(stream,Loader=yaml.FullLoader)
+    # # Concatenation job
+    # future_concat = client.submit(blm_concat, nb, inputs_yml, pure=False)
 
-    # --------------------------------------------------------------------------------
-    # Read Output directory, work out number of batches
-    # --------------------------------------------------------------------------------
-    OutDir = inputs['outdir']
+    # print('0')
 
-    # --------------------------------------------------------------------------------
-    # Clean up files
-    # --------------------------------------------------------------------------------
-    os.remove(os.path.join(OutDir, 'nb.txt'))
-    if os.path.isdir(os.path.join(OutDir, 'tmp')):
-        shutil.rmtree(os.path.join(OutDir, 'tmp'))
-    
+    # # Run concatenation job
+    # future_concat.result()
+    # del future_concat
+
+    # print('1')
+
+    # client.recreate_error_locally(future_concat) 
+
+    # print(client.recreate_error_locally(future_concat)) 
+
+    # print('2')
+
+    # print('Concat completed')
+
+   
     print('BLM code complete!')
-
 
 # If running this function
 if __name__ == "__main__":
