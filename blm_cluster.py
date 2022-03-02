@@ -21,7 +21,7 @@ def main(cluster, client):
     # Check inputs
     # --------------------------------------------------------------------------------
     # Inputs file is first argument
-    with open(os.path.join(ipath), 'r') as stream:
+    with open(os.path.join(inputs_yml), 'r') as stream:
         inputs = yaml.load(stream,Loader=yaml.FullLoader)
 
     # --------------------------------------------------------------------------------
