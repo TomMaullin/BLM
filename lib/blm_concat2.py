@@ -263,6 +263,7 @@ def main3(*args):
         if lastNode:
 
             Mask = np.ones([v, 1])
+            n_sv = n_sv.reshape(v, 1)   
 
             # Check for user specified missingness thresholds.
             if 'Missingness' in inputs:
