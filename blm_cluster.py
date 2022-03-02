@@ -5,6 +5,7 @@ from dask.distributed import performance_report
 from lib.blm_setup import main1 as blm_setup
 from lib.blm_batch import main2 as blm_batch
 from lib.blm_concat import main3 as blm_concat
+from lib.blm_concat2 import main3 as blm_concat2
 from lib.blm_cleanup import main4 as blm_cleanup
 import numpy as np
 
@@ -73,10 +74,24 @@ def main(cluster, client):
     # CONCAT
     # --------------------------------------------------------
 
+    # Empty futures list
+    futures = []
+
     # Loop through nodes
-    for i in np.arange(100):
+    for node in np.arange(1,101):
 
         # Give the i^{th} node the i^{th} partition of the data
+        future_b = client.submit(blm_concat2, nb, node, 100, inputs_yml, pure=False)
+
+        # Append to list
+        futures.append(future_b)
+
+    # Completed jobs
+    completed = as_completed(futures)
+
+    # Wait for results
+    for i in completed:
+        i.result()
 
     # --------------------------------------------------------
     # RESULTS
