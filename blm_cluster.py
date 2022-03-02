@@ -30,13 +30,6 @@ def main(cluster, client):
     # --------------------------------------------------------------------------------
     OutDir = inputs['outdir']
 
-    # --------------------------------------------------------------------------------
-    # Clean up files
-    # --------------------------------------------------------------------------------
-    os.remove(os.path.join(OutDir, 'nb.txt'))
-    if os.path.isdir(os.path.join(OutDir, 'tmp')):
-        shutil.rmtree(os.path.join(OutDir, 'tmp'))
-
 
     # Need to return number of batches
     retnb = True
@@ -100,16 +93,16 @@ def main(cluster, client):
     # RESULTS
     # --------------------------------------------------------
 
-    # Work out the max number of voxels we can actually compute at a time.
-    # (This is really just a rule of thumb guess but works reasonably in
-    # practice).
-    nvb = MAXMEM/(10*8*(p**2))
+    # # Work out the max number of voxels we can actually compute at a time.
+    # # (This is really just a rule of thumb guess but works reasonably in
+    # # practice).
+    # nvb = MAXMEM/(10*8*(p**2))
 
-    # We're now going to chunk up the analysis mask.
-    nvb = np.min(2000, nvb)
+    # # We're now going to chunk up the analysis mask.
+    # nvb = np.min(2000, nvb)
 
-    # Work out number of groups we have to split indices into.
-    nvg = int(len(bamInds)//nvb+1)
+    # # Work out number of groups we have to split indices into.
+    # nvg = int(len(bamInds)//nvb+1)
 
     # --------------------------------------------------------
     # # Ask for 1 node for BLM concat
@@ -134,6 +127,13 @@ def main(cluster, client):
 
     # print('Concat completed')
 
+
+    # --------------------------------------------------------------------------------
+    # Clean up files
+    # --------------------------------------------------------------------------------
+    os.remove(os.path.join(OutDir, 'nb.txt'))
+    if os.path.isdir(os.path.join(OutDir, 'tmp')):
+        shutil.rmtree(os.path.join(OutDir, 'tmp'))
    
     print('BLM code complete!')
 
