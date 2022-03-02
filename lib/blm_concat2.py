@@ -187,14 +187,17 @@ def main3(*args):
         #os.remove(os.path.join(OutDir,"tmp", "blm_vox_n_batch" + str(batchNo) + ".nii"))
 
     # Filename for nmap
-    fname = os.path.join(OutDir,'blm_vox_n.nii')
+    n_fname = os.path.join(OutDir,'blm_vox_n.nii')
+
+    # Filename for dfmap
+    df_fname = os.path.join(OutDir,'blm_vox_edf.nii')
 
     # Check if file is in use
     fileLocked = True
     while fileLocked:
         try:
             # Create lock file, so other jobs know we are writing to this file
-            f=os.open(fname + ".lock", os.O_CREAT|os.O_EXCL|os.O_RDWR)
+            f=os.open(n_fname + ".lock", os.O_CREAT|os.O_EXCL|os.O_RDWR)
             fileLocked = False
         except FileExistsError:
             fileLocked = True
@@ -203,261 +206,148 @@ def main3(*args):
     # ------------------------------------------------------------------------------------
     # MARKER ADD TO RUNNING TOTAL
     # ------------------------------------------------------------------------------------
-    # if file exists: MARKER
-    #   n_sv = n_sv + loadFile(fname).get_fdata()
-    #   os.remove(fname)
+    if os.path.exists(n_fname):
+        n_sv = n_sv + loadFile(n_fname).get_fdata()
+        os.remove(n_fname)
+
+    if os.path.exists(df_fname):
+        df_sv = n_sv + loadFile(df_fname).get_fdata()
+        os.remove(df_fname)
 
     # Save nmap
     nmap = nib.Nifti1Image(n_sv,
                            nifti.affine,
                            header=nifti.header)
-    nib.save(nmap, fname)
+    nib.save(nmap, n_fname)
     del nmap
+
+    # Save dfmap
+    if not lastNode:
+        dfmap = nib.Nifti1Image(df_sv,
+                                nifti.affine,
+                                header=nifti.header)
+    else:
+        dfmap = nib.Nifti1Image(df_sv-p,
+                                nifti.affine,
+                                header=nifti.header)
+
+    nib.save(dfmap, df_fname)
+    del dfmap
 
     # Delete lock file, so other jobs know they can now write to the
     # file
-    os.remove(fname + ".lock")
+    os.remove(n_fname + ".lock")
     os.close(f)
-
-    # ------------------------------------------------------------------------------------
-
-    n_sv = n_sv.reshape(v, 1)
-
-    # Get ns.
-    X = loadFile(inputs['X'])
-    n = X.shape[0]
-
-
-    t2 = time.time()
-    print('n_sv, time ',t2-t1)
     
     # --------------------------------------------------------------------------------
     # Create Mask
     # --------------------------------------------------------------------------------
 
-    Mask = np.ones([v, 1])
+    if lastNode:
 
-    # Check for user specified missingness thresholds.
-    if 'Missingness' in inputs:
+        Mask = np.ones([v, 1])
 
-        # Apply user specified missingness thresholding.
-        if ("MinPercent" in inputs["Missingness"]) or ("minpercent" in inputs["Missingness"]):
+        # Check for user specified missingness thresholds.
+        if 'Missingness' in inputs:
 
-            # Read in relative threshold
-            if "MinPercent" in inputs["Missingness"]:
-                rmThresh = inputs["Missingness"]["MinPercent"]
-            else:
-                rmThresh = inputs["Missingness"]["minpercent"]
+            # Apply user specified missingness thresholding.
+            if ("MinPercent" in inputs["Missingness"]) or ("minpercent" in inputs["Missingness"]):
 
-            # If it's a percentage it will be a string and must be converted.
-            rmThresh = str(rmThresh)
-            if "%" in rmThresh:
-                rmThresh = float(rmThresh.replace("%", ""))/100
-            else:
-                rmThresh = float(rmThresh)
+                # Read in relative threshold
+                if "MinPercent" in inputs["Missingness"]:
+                    rmThresh = inputs["Missingness"]["MinPercent"]
+                else:
+                    rmThresh = inputs["Missingness"]["minpercent"]
 
-            # Check the Relative threshold is between 0 and 1.
-            if (rmThresh < 0) or (rmThresh > 1):
-                raise ValueError('Minumum percentage missingness threshold is out of range: ' +
-                                 '0 < ' + str(rmThresh) + ' < 1 violation')
+                # If it's a percentage it will be a string and must be converted.
+                rmThresh = str(rmThresh)
+                if "%" in rmThresh:
+                    rmThresh = float(rmThresh.replace("%", ""))/100
+                else:
+                    rmThresh = float(rmThresh)
 
-            # Mask based on threshold.
-            Mask[n_sv<rmThresh*n]=0
+                # Check the Relative threshold is between 0 and 1.
+                if (rmThresh < 0) or (rmThresh > 1):
+                    raise ValueError('Minumum percentage missingness threshold is out of range: ' +
+                                     '0 < ' + str(rmThresh) + ' < 1 violation')
 
-        if ("MinN" in inputs["Missingness"]) or ("minn" in inputs["Missingness"]):
+                # Mask based on threshold.
+                Mask[n_sv<rmThresh*n]=0
 
-            # Read in relative threshold
-            if "minn" in inputs["Missingness"]:
-                amThresh = inputs["Missingness"]["minn"]
-            else:
-                amThresh = inputs["Missingness"]["MinN"]
+            if ("MinN" in inputs["Missingness"]) or ("minn" in inputs["Missingness"]):
 
-            # If it's a percentage it will be a string and must be converted.
-            if isinstance(amThresh, str):
-                amThresh = float(amThresh)
+                # Read in relative threshold
+                if "minn" in inputs["Missingness"]:
+                    amThresh = inputs["Missingness"]["minn"]
+                else:
+                    amThresh = inputs["Missingness"]["MinN"]
 
-            # Mask based on threshold.
-            Mask[n_sv<amThresh]=0
+                # If it's a percentage it will be a string and must be converted.
+                if isinstance(amThresh, str):
+                    amThresh = float(amThresh)
 
-    # We remove anything with 1 degree of freedom (or less) by default.
-    # 1 degree of freedom seems to cause broadcasting errors on a very
-    # small percentage of voxels.
-    Mask[n_sv<=p+1]=0
+                # Mask based on threshold.
+                Mask[n_sv<amThresh]=0
 
-    if 'analysis_mask' in inputs:
+        # We remove anything with 1 degree of freedom (or less) by default.
+        # 1 degree of freedom seems to cause broadcasting errors on a very
+        # small percentage of voxels.
+        Mask[n_sv<=p+1]=0
 
-        amask_path = inputs["analysis_mask"]
-        
-        # Read in the mask nifti.
-        amask = loadFile(amask_path).get_fdata().reshape([v,1])
+        if 'analysis_mask' in inputs:
 
-    else:
+            amask_path = inputs["analysis_mask"]
+            
+            # Read in the mask nifti.
+            amask = loadFile(amask_path).get_fdata().reshape([v,1])
 
-        # By default make amask ones
-        amask = np.ones([v,1])
-
-
-    # Get indices for whole analysis mask. These indices are the indices we
-    # have recorded for the product matrices with respect to the entire volume
-    amInds = get_amInds(amask)
-        
-    # Ensure overall mask matches analysis mask
-    Mask[~np.in1d(np.arange(v).reshape(v,1), amInds)]=0
-
-    # Output final mask map
-    maskmap = nib.Nifti1Image(Mask.reshape(
-                                    NIFTIsize[0],
-                                    NIFTIsize[1],
-                                    NIFTIsize[2]
-                                    ),
-                              nifti.affine,
-                              header=nifti.header) 
-    nib.save(maskmap, os.path.join(OutDir,'blm_vox_mask.nii'))
-    del maskmap
-
-    t2 = time.time()
-    print('mask, time ',t2-t1)
-
-    # ------------------------------------------------------------------------
-    # Work out "Ring" and "Inner" indices for whole mask
-    # ------------------------------------------------------------------------
-
-    # Get indices of voxels in ring around brain where there are
-    # missing studies.
-    R_inds = np.sort(np.where((Mask==1)*(n_sv<n))[0])
-
-    # Work out the 'ring' indices, in relation to the analysis mask
-    ix_r = np.argsort(np.argsort(R_inds))
-    R_inds_am = np.sort(np.where(np.in1d(amInds,R_inds))[0])[ix_r]
-
-    # Get indices of the "inner" volume where all studies had information
-    # present. I.e. the voxels (usually near the middle of the brain) where
-    # every voxel has a reading for every study.
-    I_inds = np.sort(np.where((Mask==1)*(n_sv==n))[0])
-
-    # Work out the 'inner' indices, in relation to the analysis mask
-    ix_i = np.argsort(np.argsort(I_inds))
-    I_inds_am = np.sort(np.where(np.in1d(amInds,I_inds))[0])[ix_i]
-
-    t2 = time.time()
-    print('ring/inner, time ',t2-t1)
-
-    # ------------------------------------------------------------------------
-    # Number of voxels in ring and inner
-    # ------------------------------------------------------------------------
-
-    # Number of voxels in ring
-    v_r = R_inds.shape[0]
-
-    # Number of voxels in inner mask
-    v_i = I_inds.shape[0]
-
-    # Number of voxels in whole (inner + ring) mask
-    v_m = v_i + v_r
-
-    # ------------------------------------------------------------------------
-    # Degrees of freedom (n-p)
-    # ------------------------------------------------------------------------
-
-    # Create df map
-    df_r = n_sv[R_inds,:] - p
-    df_r = df_r.reshape([v_r])
-    df_i = n - p
-
-    # Unmask df
-    df = np.zeros([v])
-    df[R_inds] = df_r 
-    df[I_inds] = df_i
-
-    df = df.reshape(int(NIFTIsize[0]),
-                    int(NIFTIsize[1]),
-                    int(NIFTIsize[2]))
-
-    # Save beta map.
-    dfmap = nib.Nifti1Image(df,
-                            nifti.affine,
-                            header=nifti.header) 
-    nib.save(dfmap, os.path.join(OutDir,'blm_vox_edf.nii'))
-    del df, dfmap
-
-    t2 = time.time()
-    print('vedf, time ',t2-t1)
-
-    # ------------------------------------------------------------------------
-    # The next operations are more computationally intensive so we split 
-    # computation into blocks of voxels
-    # ------------------------------------------------------------------------
-
-    # ------------------------------------------------------------------------
-    # Work out block of voxels we are looking at
-    # ------------------------------------------------------------------------
-    # Get indices for block. These indices have to be the indices we want to
-    # compute, in relation to the entire volume. If we aren't partitioning by 
-    # block these will be equal to amInds
-    pnvb = pracNumVoxelBlocks(inputs)
-    bamInds = get_amInds(amask, -1, pnvb) 
-
-    # ------------------------------------------------------------------------
-    # Number of contrasts
-    # ------------------------------------------------------------------------
-    c = len(inputs['contrasts'])
-
-    # Record how many T contrasts and F contrasts we have seen
-    nt = 0
-    nf = 0
-    for i in range(0,c):
-
-        # Read in contrast vector
-        Lvec = str2vec(inputs['contrasts'][i]['c' + str(i+1)]['vector'])
-        Lvec = np.array(Lvec)
-
-        if Lvec.ndim == 1:
-            nt = nt + 1
         else:
-            nf = nf + 1
+
+            # By default make amask ones
+            amask = np.ones([v,1])
 
 
-    t2 = time.time()
-    print('contrasts, time ',t2-t1)
+        # Get indices for whole analysis mask. These indices are the indices we
+        # have recorded for the product matrices with respect to the entire volume
+        amInds = get_amInds(amask)
+            
+        # Ensure overall mask matches analysis mask
+        Mask[~np.in1d(np.arange(v).reshape(v,1), amInds)]=0
 
-    print('c ', c)
-    print('nt ', nt)
-    print('nf ', nf)
+        # Output final mask map
+        maskmap = nib.Nifti1Image(Mask.reshape(
+                                        NIFTIsize[0],
+                                        NIFTIsize[1],
+                                        NIFTIsize[2]
+                                        ),
+                                  nifti.affine,
+                                  header=nifti.header) 
+        nib.save(maskmap, os.path.join(OutDir,'blm_vox_mask.nii'))
+        del maskmap
 
-    # ------------------------------------------------------------------------
-    # Output volume dimensions
-    # ------------------------------------------------------------------------
+    # t2 = time.time()
+    # print('mask, time ',t2-t1)
 
-    # Dimension of beta volume
-    dimBeta = (NIFTIsize[0],NIFTIsize[1],NIFTIsize[2],p)
 
-    if OutputCovB:
+    # # Unmask df
+    # df = np.zeros([v])
+    # df[R_inds] = df_r 
+    # df[I_inds] = df_i
 
-        # Dimension of cov(beta) NIFTI
-        dimCov = (NIFTIsize[0],NIFTIsize[1],NIFTIsize[2],p**2)
+    # df = df.reshape(int(NIFTIsize[0]),
+    #                 int(NIFTIsize[1]),
+    #                 int(NIFTIsize[2]))
 
-    # Work out the dimension of the T-stat-related volumes
-    dimT = (NIFTIsize[0],NIFTIsize[1],NIFTIsize[2],nt)
+    # # Save beta map.
+    # dfmap = nib.Nifti1Image(df,
+    #                         nifti.affine,
+    #                         header=nifti.header) 
+    # nib.save(dfmap, os.path.join(OutDir,'blm_vox_edf.nii'))
+    # del df, dfmap
 
-    # Work out the dimension of the F-stat-related volumes
-    dimF = (NIFTIsize[0],NIFTIsize[1],NIFTIsize[2],nf)
+    # t2 = time.time()
+    # print('vedf, time ',t2-t1)
 
-    # ------------------------------------------------------------------------
-    # Split the voxels into computable groups
-    # ------------------------------------------------------------------------
-
-    # Work out the number of voxels we can actually compute at a time.
-    # (This is really just a rule of thumb guess but works reasonably in
-    # practice).
-    nvb = MAXMEM/(10*8*(p**2))
-    
-    # Work out number of groups we have to split indices into.
-    nvg = int(len(bamInds)//nvb+1)
-
-    print('nvg: ', nvg)
-
-    # Split voxels we want to look at into groups we can compute
-    voxelGroups = np.array_split(bamInds, nvg)
 
     
 if __name__ == "__rain__":

@@ -70,6 +70,140 @@ def main(*args)
 
     print('cv ', cv)
 
+    # ------------------------------------------------------------------------------------
+
+    n_sv = n_sv.reshape(v, 1) # MARKER
+
+    # Get ns.
+    X = loadFile(inputs['X'])
+    n = X.shape[0]
+
+
+    t2 = time.time()
+    print('n_sv, time ',t2-t1)
+
+    # ------------------------------------------------------------------------
+    # Work out "Ring" and "Inner" indices for whole mask
+    # ------------------------------------------------------------------------
+
+    # Get indices of voxels in ring around brain where there are
+    # missing studies.
+    R_inds = np.sort(np.where((Mask==1)*(n_sv<n))[0])
+
+    # Work out the 'ring' indices, in relation to the analysis mask
+    ix_r = np.argsort(np.argsort(R_inds))
+    R_inds_am = np.sort(np.where(np.in1d(amInds,R_inds))[0])[ix_r]
+
+    # Get indices of the "inner" volume where all studies had information
+    # present. I.e. the voxels (usually near the middle of the brain) where
+    # every voxel has a reading for every study.
+    I_inds = np.sort(np.where((Mask==1)*(n_sv==n))[0])
+
+    # Work out the 'inner' indices, in relation to the analysis mask
+    ix_i = np.argsort(np.argsort(I_inds))
+    I_inds_am = np.sort(np.where(np.in1d(amInds,I_inds))[0])[ix_i]
+
+    t2 = time.time()
+    print('ring/inner, time ',t2-t1)
+
+    # ------------------------------------------------------------------------
+    # Number of voxels in ring and inner
+    # ------------------------------------------------------------------------
+
+    # Number of voxels in ring
+    v_r = R_inds.shape[0]
+
+    # Number of voxels in inner mask
+    v_i = I_inds.shape[0]
+
+    # Number of voxels in whole (inner + ring) mask
+    v_m = v_i + v_r
+
+    # ------------------------------------------------------------------------
+    # Degrees of freedom (n-p)
+    # ------------------------------------------------------------------------
+
+    # Create df map
+    df_r = n_sv[R_inds,:] - p
+    df_r = df_r.reshape([v_r])
+    df_i = n - p
+
+    # ------------------------------------------------------------------------
+    # The next operations are more computationally intensive so we split 
+    # computation into blocks of voxels
+    # ------------------------------------------------------------------------
+
+    # ------------------------------------------------------------------------
+    # Work out block of voxels we are looking at
+    # ------------------------------------------------------------------------
+    # Get indices for block. These indices have to be the indices we want to
+    # compute, in relation to the entire volume. If we aren't partitioning by 
+    # block these will be equal to amInds
+    pnvb = pracNumVoxelBlocks(inputs)
+    bamInds = get_amInds(amask, -1, pnvb) 
+
+    # ------------------------------------------------------------------------
+    # Number of contrasts
+    # ------------------------------------------------------------------------
+    c = len(inputs['contrasts'])
+
+    # Record how many T contrasts and F contrasts we have seen
+    nt = 0
+    nf = 0
+    for i in range(0,c):
+
+        # Read in contrast vector
+        Lvec = str2vec(inputs['contrasts'][i]['c' + str(i+1)]['vector'])
+        Lvec = np.array(Lvec)
+
+        if Lvec.ndim == 1:
+            nt = nt + 1
+        else:
+            nf = nf + 1
+
+
+    t2 = time.time()
+    print('contrasts, time ',t2-t1)
+
+    print('c ', c)
+    print('nt ', nt)
+    print('nf ', nf)
+
+    # ------------------------------------------------------------------------
+    # Output volume dimensions
+    # ------------------------------------------------------------------------
+
+    # Dimension of beta volume
+    dimBeta = (NIFTIsize[0],NIFTIsize[1],NIFTIsize[2],p)
+
+    if OutputCovB:
+
+        # Dimension of cov(beta) NIFTI
+        dimCov = (NIFTIsize[0],NIFTIsize[1],NIFTIsize[2],p**2)
+
+    # Work out the dimension of the T-stat-related volumes
+    dimT = (NIFTIsize[0],NIFTIsize[1],NIFTIsize[2],nt)
+
+    # Work out the dimension of the F-stat-related volumes
+    dimF = (NIFTIsize[0],NIFTIsize[1],NIFTIsize[2],nf)
+
+    # ------------------------------------------------------------------------
+    # Split the voxels into computable groups
+    # ------------------------------------------------------------------------
+
+    # Work out the number of voxels we can actually compute at a time.
+    # (This is really just a rule of thumb guess but works reasonably in
+    # practice).
+    nvb = MAXMEM/(10*8*(p**2))
+    
+    # Work out number of groups we have to split indices into.
+    nvg = int(len(bamInds)//nvb+1)
+
+    print('nvg: ', nvg)
+
+    # Split voxels we want to look at into groups we can compute
+    voxelGroups = np.array_split(bamInds, nvg)
+
     # Current group of voxels
     bamInds_cv = voxelGroups[cv]
 
