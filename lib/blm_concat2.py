@@ -192,7 +192,7 @@ def main3(*args):
                 "blm_vox_n_batch" + str(batchNo) + ".nii")).get_fdata()
 
         # Remove file we just read
-        #os.remove(os.path.join(OutDir,"tmp", "blm_vox_n_batch" + str(batchNo) + ".nii"))
+        os.remove(os.path.join(OutDir,"tmp", "blm_vox_n_batch" + str(batchNo) + ".nii"))
 
     # Filename for nmap
     n_fname = os.path.join(OutDir,'blm_vox_n.nii')
