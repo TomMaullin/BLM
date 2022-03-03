@@ -271,10 +271,9 @@ def main3(*args):
     # --------------------------------------------------------------------------------
 
     if maskJob:
-        
+
         # Read in n (spatially varying)
-        n_sv  = loadFile(os.path.join(OutDir,"tmp", 
-                         "blm_vox_n_batch" + str(batchNo) + ".nii")).get_fdata()
+        n_sv  = loadFile(os.path.join(OutDir,'blm_vox_n.nii')).get_fdata()
 
         Mask = np.ones([v, 1])
         n_sv = n_sv.reshape(v, 1)   # MARKER: PROBLEM: current n_sv may not have input from all jobs 
