@@ -13,7 +13,7 @@ import shutil
 import yaml
 
 # Given a dask distributed client run BLM.
-def main(cluster, client):
+def main(cluster):
 
     # Inputs yaml
     inputs_yml = #...
@@ -34,6 +34,9 @@ def main(cluster, client):
     # Need to return number of batches
     retnb = True
 
+    # Connect to cluster
+    client = Client(cluster)   
+
     # Ask for a node for setup
     cluster.scale(1)
 
@@ -42,6 +45,12 @@ def main(cluster, client):
     nb = future_0.result()
 
     del future_0
+
+    # Close the client
+    client.close()
+
+    # Connect to cluster
+    client = Client(cluster)   
 
     # Print number of batches
     print(nb)
@@ -62,6 +71,9 @@ def main(cluster, client):
 
     print('Batches completed')
 
+    # Close the client
+    client.close()
+
     # --------------------------------------------------------
     # Plan
     # --------------------------------------------------------
@@ -70,14 +82,32 @@ def main(cluster, client):
     # CONCAT
     # --------------------------------------------------------
 
+    # Connect to cluster
+    client = Client(cluster)   
+
+    # Ask for 100 nodes for BLM batch
+    cluster.scale(100)
+
+    # Start with mask job
+    maskJob = True
+
+    # The first job does the analysis mask (this is why the 3rd argument is set to true)
+    future_b_first = client.submit(blm_concat2, nb, 100 + 1, 100, maskJob, inputs_yml, pure=False)
+    res = future_b_first.result()
+
+    del future_b_first, res
+
+    # Now other jobs
+    maskJob = False
+
     # Empty futures list
     futures = []
 
     # Loop through nodes
-    for node in np.arange(1,101):
+    for node in np.arange(1,100 + 1):
 
         # Give the i^{th} node the i^{th} partition of the data
-        future_b = client.submit(blm_concat2, nb, node, 100, False, inputs_yml, pure=False)
+        future_b = client.submit(blm_concat2, nb, node, 100, maskJob, inputs_yml, pure=False)
 
         # Append to list
         futures.append(future_b)
@@ -91,11 +121,9 @@ def main(cluster, client):
 
     del i, completed, futures, future_b
 
-    # The last job does the analysis mask (this is why the 3rd argument is set to true)
-    future_b_last = client.submit(blm_concat2, nb, 100 + 1, 100, True, inputs_yml, pure=False)
-    res = future_b_last.result()
+    # Close the client
+    client.close()
 
-    del future_b_last, res
 
     # --------------------------------------------------------
     # RESULTS
@@ -175,15 +203,9 @@ if __name__ == "__main__":
 
     print('here3')
 
-    # Connect to cluster
-    client = Client(cluster)   
-
     print('here4')
 
     # Run BLM
-    main(cluster, client)
+    main(cluster)
 
     print('here5')
-
-    # Close the client
-    client.close()
