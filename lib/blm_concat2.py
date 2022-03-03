@@ -58,7 +58,7 @@ def main3(*args):
 
     maskJob = args[3]
 
-    print('n_b: ', n_b, ', node: ', node ', numNodes: ', numNodes ', maskJob: ', maskJob)
+    print('n_b: ', n_b, ', node: ', node, ', numNodes: ', numNodes, ', maskJob: ', maskJob)
 
     # ----------------------------------------------------------------------
     # Check inputs
