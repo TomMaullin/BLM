@@ -158,6 +158,9 @@ def main3(*args):
         # This is the last node
         lastNode = True
     
+        # Empty loop
+        emptyLoop = False
+
     elif ((1+(node-1)*n_images) <= (n_b + 1)):
     
         # Work out loop range
@@ -166,6 +169,9 @@ def main3(*args):
         # This is not the last node
         lastNode = False
 
+        # Empty loop
+        emptyLoop = False
+
     else:
 
         # Empty loop range
@@ -173,6 +179,9 @@ def main3(*args):
 
         # This is not the last node (this one's redundant)
         lastNode = False
+
+        # Empty loop
+        emptyLoop = True
 
     # Check if this is the first image we're looking at
     firstImage = True
@@ -216,46 +225,47 @@ def main3(*args):
         except FileExistsError:
             fileLocked = True
 
-    
-    # ------------------------------------------------------------------------------------
-    # MARKER ADD TO RUNNING TOTAL
-    # ------------------------------------------------------------------------------------
+    if not emptyLoop:
+            
+        # ------------------------------------------------------------------------------------
+        # MARKER ADD TO RUNNING TOTAL
+        # ------------------------------------------------------------------------------------
 
-    if os.path.exists(df_fname):
-        df_sv = n_sv + loadFile(df_fname).get_fdata()
-        os.remove(df_fname)
-    else:
-        df_sv = np.array(n_sv) # MARKER SOMETHING WRONG WITH DF
+        if os.path.exists(df_fname):
+            df_sv = n_sv + loadFile(df_fname).get_fdata()
+            os.remove(df_fname)
+        else:
+            df_sv = np.array(n_sv) # MARKER SOMETHING WRONG WITH DF
 
-    if os.path.exists(n_fname):
-        n_sv = n_sv + loadFile(n_fname).get_fdata()
-        os.remove(n_fname)
+        if os.path.exists(n_fname):
+            n_sv = n_sv + loadFile(n_fname).get_fdata()
+            os.remove(n_fname)
 
-    # Save nmap
-    nmap = nib.Nifti1Image(n_sv,
-                           nifti.affine,
-                           header=nifti.header)
-    nib.save(nmap, n_fname)
-    del nmap
+        # Save nmap
+        nmap = nib.Nifti1Image(n_sv,
+                               nifti.affine,
+                               header=nifti.header)
+        nib.save(nmap, n_fname)
+        del nmap
 
-    # Save dfmap
-    if not lastNode:
-        dfmap = nib.Nifti1Image(df_sv,
-                                nifti.affine,
-                                header=nifti.header)
-    else:
-        dfmap = nib.Nifti1Image(df_sv-p,
-                                nifti.affine,
-                                header=nifti.header)
+        # Save dfmap
+        if not lastNode:
+            dfmap = nib.Nifti1Image(df_sv,
+                                    nifti.affine,
+                                    header=nifti.header)
+        else:
+            dfmap = nib.Nifti1Image(df_sv-p,
+                                    nifti.affine,
+                                    header=nifti.header)
 
-    nib.save(dfmap, df_fname)
-    del dfmap
+        nib.save(dfmap, df_fname)
+        del dfmap
 
-    # Delete lock file, so other jobs know they can now write to the
-    # file
-    os.remove("config_write.lock")
-    os.close(f)
-    
+        # Delete lock file, so other jobs know they can now write to the
+        # file
+        os.remove("config_write.lock")
+        os.close(f)
+        
     # --------------------------------------------------------------------------------
     # Create Mask
     # --------------------------------------------------------------------------------
