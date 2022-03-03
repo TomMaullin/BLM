@@ -91,8 +91,10 @@ def main(cluster):
     # Start with mask job
     maskJob = True
 
+    print(blm_concat2, nb, 101, 100, maskJob, inputs_yml)
+
     # The first job does the analysis mask (this is why the 3rd argument is set to true)
-    future_b_first = client.submit(blm_concat2, nb, 100 + 1, 100, maskJob, inputs_yml, pure=False)
+    future_b_first = client.submit(blm_concat2, nb, 101, 100, maskJob, inputs_yml, pure=False)
     res = future_b_first.result()
 
     del future_b_first, res
