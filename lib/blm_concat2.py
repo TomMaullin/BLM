@@ -215,17 +215,17 @@ def main3(*args):
     # Filename for dfmap
     df_fname = os.path.join(OutDir,'blm_vox_edf.nii')
 
-    # Check if file is in use
-    fileLocked = True
-    while fileLocked:
-        try:
-            # Create lock file, so other jobs know we are writing to this file
-            f=os.open(os.path.join(OutDir,"config_write.lock"), os.O_CREAT|os.O_EXCL|os.O_RDWR)
-            fileLocked = False
-        except FileExistsError:
-            fileLocked = True
-
     if not emptyLoop:
+
+        # Check if file is in use
+        fileLocked = True
+        while fileLocked:
+            try:
+                # Create lock file, so other jobs know we are writing to this file
+                f=os.open(os.path.join(OutDir,"config_write.lock"), os.O_CREAT|os.O_EXCL|os.O_RDWR)
+                fileLocked = False
+            except FileExistsError:
+                fileLocked = True
 
         # ------------------------------------------------------------------------------------
         # MARKER ADD TO RUNNING TOTAL
