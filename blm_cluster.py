@@ -46,12 +46,6 @@ def main(cluster):
 
     del future_0
 
-    # Close the client
-    client.close()
-
-    # Connect to cluster
-    client = Client(cluster)   
-
     # Print number of batches
     print(nb)
 
@@ -71,9 +65,6 @@ def main(cluster):
 
     print('Batches completed')
 
-    # Close the client
-    client.close()
-
     # --------------------------------------------------------
     # Plan
     # --------------------------------------------------------
@@ -82,26 +73,8 @@ def main(cluster):
     # CONCAT
     # --------------------------------------------------------
 
-    # Connect to cluster
-    client = Client(cluster)   
-
-    # Ask for 100 nodes for BLM batch
-    cluster.scale(100)
-
-    # Start with mask job
-    maskJob = True
-
-    print('hereeee')
-    print(nb, 101, 100, maskJob, inputs_yml)
-
-    # The first job does the analysis mask (this is why the 3rd argument is set to true)
-    future_b_first = client.submit(blm_concat2, nb, 101, 100, maskJob, inputs_yml, pure=False)
-    res = future_b_first.result()
-
-    del future_b_first, res
-
     print('hereeee2')
-    # Now other jobs
+    # Batch jobs
     maskJob = False
 
     # Empty futures list
@@ -125,8 +98,17 @@ def main(cluster):
 
     del i, completed, futures, future_b
 
-    # Close the client
-    client.close()
+    # Mask job
+    maskJob = True
+
+    print('hereeee')
+    print(nb, 101, 100, maskJob, inputs_yml)
+
+    # The first job does the analysis mask (this is why the 3rd argument is set to true)
+    future_b_first = client.submit(blm_concat2, nb, 101, 100, maskJob, inputs_yml, pure=False)
+    res = future_b_first.result()
+
+    del future_b_first, res
 
 
     # --------------------------------------------------------
