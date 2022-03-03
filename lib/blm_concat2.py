@@ -58,6 +58,8 @@ def main3(*args):
 
     maskJob = args[3]
 
+    print('n_b: ', n_b, ', node: ', node ', numNodes: ', numNodes ', maskJob: ', maskJob)
+
     # ----------------------------------------------------------------------
     # Check inputs
     # ----------------------------------------------------------------------
@@ -123,8 +125,8 @@ def main3(*args):
 
     print('marker2')
 
-    # Work out number of batchs
-    n_b = len(glob.glob(os.path.join(OutDir,"tmp","blm_vox_n_batch*")))
+    # # Work out number of batchs
+    # n_b = len(glob.glob(os.path.join(OutDir,"tmp","blm_vox_n_batch*")))
 
     # ----------------------------------------------------------------
     # CHANGED
@@ -259,7 +261,7 @@ def main3(*args):
     # --------------------------------------------------------------------------------
 
     if maskJob:
-        
+
         Mask = np.ones([v, 1])
         n_sv = n_sv.reshape(v, 1)   # MARKER: PROBLEM: current n_sv may not have input from all jobs 
 
