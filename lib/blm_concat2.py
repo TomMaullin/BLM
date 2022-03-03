@@ -172,176 +172,174 @@ def main3(*args):
         # This is not the last node (this one's redundant)
         lastNode = False
 
+    # Check if this is the first image we're looking at
+    firstImage = True
+
+    # Cycle through batches and add together n.
+    for batchNo in loopRange:
+
+        print('batchNo: ', batchNo)
+
+        if firstImage:
+
+            # Read in n (spatially varying)
+            n_sv  = loadFile(os.path.join(OutDir,"tmp", 
+                             "blm_vox_n_batch" + str(batchNo) + ".nii")).get_fdata()
+
+            # No longer looking at the first image
+            firstImage = False
+
+        else:
+
+            # Obtain the full nmap.
+            n_sv = n_sv + loadFile(os.path.join(OutDir,"tmp", 
+                "blm_vox_n_batch" + str(batchNo) + ".nii")).get_fdata()
+
+        # Remove file we just read
+        # os.remove(os.path.join(OutDir,"tmp", "blm_vox_n_batch" + str(batchNo) + ".nii"))
+
+    # Filename for nmap
+    n_fname = os.path.join(OutDir,'blm_vox_n.nii')
+
+    # Filename for dfmap
+    df_fname = os.path.join(OutDir,'blm_vox_edf.nii')
+
+    # Check if file is in use
+    fileLocked = True
+    while fileLocked:
+        try:
+            # Create lock file, so other jobs know we are writing to this file
+            f=os.open("config_write.lock", os.O_CREAT|os.O_EXCL|os.O_RDWR)
+            fileLocked = False
+        except FileExistsError:
+            fileLocked = True
+
+    
+    # ------------------------------------------------------------------------------------
+    # MARKER ADD TO RUNNING TOTAL
+    # ------------------------------------------------------------------------------------
+
+    if os.path.exists(df_fname):
+        df_sv = n_sv + loadFile(df_fname).get_fdata()
+        os.remove(df_fname)
+    else:
+        df_sv = np.array(n_sv) # MARKER SOMETHING WRONG WITH DF
+
+    if os.path.exists(n_fname):
+        n_sv = n_sv + loadFile(n_fname).get_fdata()
+        os.remove(n_fname)
+
+    # Save nmap
+    nmap = nib.Nifti1Image(n_sv,
+                           nifti.affine,
+                           header=nifti.header)
+    nib.save(nmap, n_fname)
+    del nmap
+
+    # Save dfmap
+    if not lastNode:
+        dfmap = nib.Nifti1Image(df_sv,
+                                nifti.affine,
+                                header=nifti.header)
+    else:
+        dfmap = nib.Nifti1Image(df_sv-p,
+                                nifti.affine,
+                                header=nifti.header)
+
+    nib.save(dfmap, df_fname)
+    del dfmap
+
+    # Delete lock file, so other jobs know they can now write to the
+    # file
+    os.remove("config_write.lock")
+    os.close(f)
+    
+    # --------------------------------------------------------------------------------
+    # Create Mask
+    # --------------------------------------------------------------------------------
+
     if maskJob:
-
-        # Check if this is the first image we're looking at
-        firstImage = True
-
-        # Cycle through batches and add together n.
-        for batchNo in loopRange:
-
-            print('batchNo: ', batchNo)
-
-            if firstImage:
-
-                # Read in n (spatially varying)
-                n_sv  = loadFile(os.path.join(OutDir,"tmp", 
-                                 "blm_vox_n_batch" + str(batchNo) + ".nii")).get_fdata()
-
-                # No longer looking at the first image
-                firstImage = False
-
-            else:
-
-                # Obtain the full nmap.
-                n_sv = n_sv + loadFile(os.path.join(OutDir,"tmp", 
-                    "blm_vox_n_batch" + str(batchNo) + ".nii")).get_fdata()
-
-            # Remove file we just read
-            # os.remove(os.path.join(OutDir,"tmp", "blm_vox_n_batch" + str(batchNo) + ".nii"))
-
-        # Filename for nmap
-        n_fname = os.path.join(OutDir,'blm_vox_n.nii')
-
-        # Filename for dfmap
-        df_fname = os.path.join(OutDir,'blm_vox_edf.nii')
-
-        # Check if file is in use
-        fileLocked = True
-        while fileLocked:
-            try:
-                # Create lock file, so other jobs know we are writing to this file
-                f=os.open("config_write.lock", os.O_CREAT|os.O_EXCL|os.O_RDWR)
-                fileLocked = False
-            except FileExistsError:
-                fileLocked = True
-
         
-        # ------------------------------------------------------------------------------------
-        # MARKER ADD TO RUNNING TOTAL
-        # ------------------------------------------------------------------------------------
+        Mask = np.ones([v, 1])
+        n_sv = n_sv.reshape(v, 1)   # MARKER: PROBLEM: current n_sv may not have input from all jobs 
 
-        if os.path.exists(df_fname):
-            df_sv = n_sv + loadFile(df_fname).get_fdata()
-            os.remove(df_fname)
+        # Check for user specified missingness thresholds.
+        if 'Missingness' in inputs:
+
+            # Apply user specified missingness thresholding.
+            if ("MinPercent" in inputs["Missingness"]) or ("minpercent" in inputs["Missingness"]):
+
+                # Read in relative threshold
+                if "MinPercent" in inputs["Missingness"]:
+                    rmThresh = inputs["Missingness"]["MinPercent"]
+                else:
+                    rmThresh = inputs["Missingness"]["minpercent"]
+
+                # If it's a percentage it will be a string and must be converted.
+                rmThresh = str(rmThresh)
+                if "%" in rmThresh:
+                    rmThresh = float(rmThresh.replace("%", ""))/100
+                else:
+                    rmThresh = float(rmThresh)
+
+                # Check the Relative threshold is between 0 and 1.
+                if (rmThresh < 0) or (rmThresh > 1):
+                    raise ValueError('Minumum percentage missingness threshold is out of range: ' +
+                                     '0 < ' + str(rmThresh) + ' < 1 violation')
+
+                # Mask based on threshold.
+                Mask[n_sv<rmThresh*n]=0
+
+            if ("MinN" in inputs["Missingness"]) or ("minn" in inputs["Missingness"]):
+
+                # Read in relative threshold
+                if "minn" in inputs["Missingness"]:
+                    amThresh = inputs["Missingness"]["minn"]
+                else:
+                    amThresh = inputs["Missingness"]["MinN"]
+
+                # If it's a percentage it will be a string and must be converted.
+                if isinstance(amThresh, str):
+                    amThresh = float(amThresh)
+
+                # Mask based on threshold.
+                Mask[n_sv<amThresh]=0
+
+        # We remove anything with 1 degree of freedom (or less) by default.
+        # 1 degree of freedom seems to cause broadcasting errors on a very
+        # small percentage of voxels.
+        Mask[n_sv<=p+1]=0
+
+        if 'analysis_mask' in inputs:
+
+            amask_path = inputs["analysis_mask"]
+            
+            # Read in the mask nifti.
+            amask = loadFile(amask_path).get_fdata().reshape([v,1])
+
         else:
-            df_sv = np.array(n_sv) # MARKER SOMETHING WRONG WITH DF
 
-        if os.path.exists(n_fname):
-            n_sv = n_sv + loadFile(n_fname).get_fdata()
-            os.remove(n_fname)
-
-        # Save nmap
-        nmap = nib.Nifti1Image(n_sv,
-                               nifti.affine,
-                               header=nifti.header)
-        nib.save(nmap, n_fname)
-        del nmap
-
-        # Save dfmap
-        if not lastNode:
-            dfmap = nib.Nifti1Image(df_sv,
-                                    nifti.affine,
-                                    header=nifti.header)
-        else:
-            dfmap = nib.Nifti1Image(df_sv-p,
-                                    nifti.affine,
-                                    header=nifti.header)
-
-        nib.save(dfmap, df_fname)
-        del dfmap
-
-        # Delete lock file, so other jobs know they can now write to the
-        # file
-        os.remove("config_write.lock")
-        os.close(f)
-        
-        # --------------------------------------------------------------------------------
-        # Create Mask
-        # --------------------------------------------------------------------------------
-
-        if lastNode:
-
-            Mask = np.ones([v, 1])
-            n_sv = n_sv.reshape(v, 1)   # MARKER: PROBLEM: current n_sv may not have input from all jobs 
-
-            # Check for user specified missingness thresholds.
-            if 'Missingness' in inputs:
-
-                # Apply user specified missingness thresholding.
-                if ("MinPercent" in inputs["Missingness"]) or ("minpercent" in inputs["Missingness"]):
-
-                    # Read in relative threshold
-                    if "MinPercent" in inputs["Missingness"]:
-                        rmThresh = inputs["Missingness"]["MinPercent"]
-                    else:
-                        rmThresh = inputs["Missingness"]["minpercent"]
-
-                    # If it's a percentage it will be a string and must be converted.
-                    rmThresh = str(rmThresh)
-                    if "%" in rmThresh:
-                        rmThresh = float(rmThresh.replace("%", ""))/100
-                    else:
-                        rmThresh = float(rmThresh)
-
-                    # Check the Relative threshold is between 0 and 1.
-                    if (rmThresh < 0) or (rmThresh > 1):
-                        raise ValueError('Minumum percentage missingness threshold is out of range: ' +
-                                         '0 < ' + str(rmThresh) + ' < 1 violation')
-
-                    # Mask based on threshold.
-                    Mask[n_sv<rmThresh*n]=0
-
-                if ("MinN" in inputs["Missingness"]) or ("minn" in inputs["Missingness"]):
-
-                    # Read in relative threshold
-                    if "minn" in inputs["Missingness"]:
-                        amThresh = inputs["Missingness"]["minn"]
-                    else:
-                        amThresh = inputs["Missingness"]["MinN"]
-
-                    # If it's a percentage it will be a string and must be converted.
-                    if isinstance(amThresh, str):
-                        amThresh = float(amThresh)
-
-                    # Mask based on threshold.
-                    Mask[n_sv<amThresh]=0
-
-            # We remove anything with 1 degree of freedom (or less) by default.
-            # 1 degree of freedom seems to cause broadcasting errors on a very
-            # small percentage of voxels.
-            Mask[n_sv<=p+1]=0
-
-            if 'analysis_mask' in inputs:
-
-                amask_path = inputs["analysis_mask"]
-                
-                # Read in the mask nifti.
-                amask = loadFile(amask_path).get_fdata().reshape([v,1])
-
-            else:
-
-                # By default make amask ones
-                amask = np.ones([v,1])
+            # By default make amask ones
+            amask = np.ones([v,1])
 
 
-            # Get indices for whole analysis mask. These indices are the indices we
-            # have recorded for the product matrices with respect to the entire volume
-            amInds = get_amInds(amask)
-                
-            # Ensure overall mask matches analysis mask
-            Mask[~np.in1d(np.arange(v).reshape(v,1), amInds)]=0
+        # Get indices for whole analysis mask. These indices are the indices we
+        # have recorded for the product matrices with respect to the entire volume
+        amInds = get_amInds(amask)
+            
+        # Ensure overall mask matches analysis mask
+        Mask[~np.in1d(np.arange(v).reshape(v,1), amInds)]=0
 
-            # Output final mask map
-            maskmap = nib.Nifti1Image(Mask.reshape(
-                                            NIFTIsize[0],
-                                            NIFTIsize[1],
-                                            NIFTIsize[2]
-                                            ),
-                                      nifti.affine,
-                                      header=nifti.header) 
-            nib.save(maskmap, os.path.join(OutDir,'blm_vox_mask.nii'))
-            del maskmap
+        # Output final mask map
+        maskmap = nib.Nifti1Image(Mask.reshape(
+                                        NIFTIsize[0],
+                                        NIFTIsize[1],
+                                        NIFTIsize[2]
+                                        ),
+                                  nifti.affine,
+                                  header=nifti.header) 
+        nib.save(maskmap, os.path.join(OutDir,'blm_vox_mask.nii'))
+        del maskmap
 
         # t2 = time.time()
         # print('mask, time ',t2-t1)
