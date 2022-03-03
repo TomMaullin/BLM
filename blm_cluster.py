@@ -22,7 +22,7 @@ def main(cluster):
     # Check inputs
     # --------------------------------------------------------------------------------
     # Inputs file is first argument
-    with open(os.path.join(inputs_yml), 'r') as stream:
+    with open(inputs_yml, 'r') as stream:
         inputs = yaml.load(stream,Loader=yaml.FullLoader)
 
     # --------------------------------------------------------------------------------
@@ -91,7 +91,8 @@ def main(cluster):
     # Start with mask job
     maskJob = True
 
-    print(blm_concat2, nb, 101, 100, maskJob, inputs_yml)
+    print('hereeee')
+    print(nb, 101, 100, maskJob, inputs_yml)
 
     # The first job does the analysis mask (this is why the 3rd argument is set to true)
     future_b_first = client.submit(blm_concat2, nb, 101, 100, maskJob, inputs_yml, pure=False)
@@ -99,6 +100,7 @@ def main(cluster):
 
     del future_b_first, res
 
+    print('hereeee2')
     # Now other jobs
     maskJob = False
 
