@@ -126,7 +126,7 @@ def main(cluster):
     for jobNum in np.arange(1,100 + 1):
 
         # Run the jobNum^{th} job.
-        future_c = client.submit(blm_results2, jobNum, pnvb, n_b, inputs_yml, pure=False)
+        future_c = client.submit(blm_results2, jobNum, pnvb, nb, inputs_yml, pure=False)
 
         # Append to list
         futures.append(future_c)
