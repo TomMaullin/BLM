@@ -109,6 +109,10 @@ def main3(*args):
     else:
         OutputCovB = True
 
+    # Get ns.
+    X = loadFile(inputs['X'])
+    n = X.shape[0]
+    
     t2 = time.time()
     print('inputs2, time ',t2-t1)
 
