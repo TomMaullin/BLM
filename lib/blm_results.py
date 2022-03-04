@@ -40,7 +40,7 @@ from lib.fileio import *
 # --------------------------------------------------------------------------
 # Author: Tom Maullin (04/02/2019)
 
-def main(*args)
+def main4(*args)
 
     t1 = time.time()
 
@@ -70,8 +70,48 @@ def main(*args)
 
     print('cv ', cv)
 
+
+    # ----------------------------------------------------------------------
+    # Read basic inputs
+    # ----------------------------------------------------------------------
+    OutDir = inputs['outdir']
+
+    # Get number of fixed effects parameters
+    L1 = str2vec(inputs['contrasts'][0]['c' + str(1)]['vector'])
+    L1 = np.array(L1)
+    p = L1.shape[0]
+    del L1
+    
+    # Read in the nifti size and work out number of voxels.
+    with open(inputs['Y_files']) as a:
+        nifti_path = a.readline().replace('\n', '')
+        nifti = loadFile(nifti_path)
+
+    NIFTIsize = nifti.shape
+    v = int(np.prod(NIFTIsize))
+
+    # Check if the maximum memory is saved.    
+    if 'MAXMEM' in inputs:
+        MAXMEM = eval(inputs['MAXMEM'])
+    else:
+        MAXMEM = 2**32
+
+    # Work out if we are outputting cov(beta) maps
+    if "OutputCovB" in inputs:
+        OutputCovB = inputs["OutputCovB"]
+    else:
+        OutputCovB = True
+
+
+    # Load mask
+    Mask = loadFile(os.path.join(OutDir,'blm_vox_mask.nii')).get_fdata()
+    Mask = Mask.reshape(v, 1)
+
     # ------------------------------------------------------------------------------------
 
+
+    # Load mask
+    n_sv = loadFile(os.path.join(OutDir,'blm_vox_n.nii')).get_fdata()
     n_sv = n_sv.reshape(v, 1) # MARKER
 
     # Get ns.
@@ -190,16 +230,6 @@ def main(*args)
     # ------------------------------------------------------------------------
     # Split the voxels into computable groups
     # ------------------------------------------------------------------------
-
-    # Work out the number of voxels we can actually compute at a time.
-    # (This is really just a rule of thumb guess but works reasonably in
-    # practice).
-    nvb = MAXMEM/(10*8*(p**2))
-    
-    # Work out number of groups we have to split indices into.
-    nvg = int(len(bamInds)//nvb+1)
-
-    print('nvg: ', nvg)
 
     # Split voxels we want to look at into groups we can compute
     voxelGroups = np.array_split(bamInds, nvg)

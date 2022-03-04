@@ -256,7 +256,7 @@ def main3(*args):
         else:
             dfmap = nib.Nifti1Image(df_sv-p,
                                     nifti.affine,
-                                    header=nifti.header)
+                                    header=nifti.header) 
 
         nib.save(dfmap, df_fname)
         del dfmap
@@ -272,11 +272,24 @@ def main3(*args):
 
     if maskJob:
 
+        # Read in degrees of freedom
+        df_sv = os.path.join(OutDir,'blm_vox_edf.nii')
+
+        # Remove non-zero voxels
+        df_sv = np.maximum(df_sv,0)
+
+        # Write to file
+        dfmap = nib.Nifti1Image(df_sv,
+                                nifti.affine,
+                                header=nifti.header) 
+        nib.save(dfmap, df_fname)
+        del dfmap
+
         # Read in n (spatially varying)
         n_sv  = loadFile(os.path.join(OutDir,'blm_vox_n.nii')).get_fdata()
 
         Mask = np.ones([v, 1])
-        n_sv = n_sv.reshape(v, 1)   # MARKER: PROBLEM: current n_sv may not have input from all jobs 
+        n_sv = n_sv.reshape(v, 1)   
 
         # Check for user specified missingness thresholds.
         if 'Missingness' in inputs:

@@ -4,9 +4,10 @@ from dask.distributed import Client, as_completed
 from dask.distributed import performance_report
 from lib.blm_setup import main1 as blm_setup
 from lib.blm_batch import main2 as blm_batch
-from lib.blm_concat import main3 as blm_concat
 from lib.blm_concat2 import main3 as blm_concat2
+from lib.blm_results2 import main3 as blm_results2
 from lib.blm_cleanup import main4 as blm_cleanup
+from lib.fileio import pracNumVoxelBlocks
 import numpy as np
 import os
 import shutil
@@ -115,17 +116,33 @@ def main(cluster):
     # RESULTS
     # --------------------------------------------------------
 
-    # # Work out the max number of voxels we can actually compute at a time.
-    # # (This is really just a rule of thumb guess but works reasonably in
-    # # practice).
-    # nvb = MAXMEM/(10*8*(p**2))
+    # Number of jobs for results (practical number of voxel batches)
+    pnvb = np.max(100, pracNumVoxelBlocks(inputs))
 
-    # # We're now going to chunk up the analysis mask.
-    # nvb = np.min(2000, nvb)
+    # Empty futures list
+    futures = []
 
-    # # Work out number of groups we have to split indices into.
-    # nvg = int(len(bamInds)//nvb+1)
+    # Loop through nodes
+    for jobNum in np.arange(1,100 + 1):
 
+        # Run the jobNum^{th} job.
+        future_c = client.submit(blm_results2, jobNum, pnvb, n_b, inputs_yml, pure=False)
+
+        # Append to list
+        futures.append(future_c)
+
+    # Completed jobs
+    completed = as_completed(futures)
+
+    # Wait for results
+    for i in completed:
+        i.result()
+
+    del i, completed, futures, future_c
+
+    print('Results runr')
+
+    #
     # --------------------------------------------------------
     # # Ask for 1 node for BLM concat
     # cluster.scale(1)
