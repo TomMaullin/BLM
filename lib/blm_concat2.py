@@ -273,7 +273,7 @@ def main3(*args):
     if maskJob:
 
         # Read in degrees of freedom
-        df_sv = os.path.join(OutDir,'blm_vox_edf.nii')
+        df_sv = loadFile(os.path.join(OutDir,'blm_vox_edf.nii')).get_fdata()
 
         # Remove non-zero voxels
         df_sv = np.maximum(df_sv,0)
