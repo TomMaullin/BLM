@@ -79,16 +79,16 @@ def main3(*args):
 
     t2 = time.time()
 
-    with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'w') as f:
-        print('inputs, time ',t2-t1, file=f)
-
     # ----------------------------------------------------------------------
     # Read basic inputs
     # ----------------------------------------------------------------------
 
-    t1=time.time()
-
     OutDir = inputs['outdir']
+
+    with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'w') as f:
+        print('inputs, time ',t2-t1, file=f)
+
+    t1=time.time()
 
     # Get number of fixed effects parameters
     L1 = str2vec(inputs['contrasts'][0]['c' + str(1)]['vector'])
