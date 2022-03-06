@@ -396,7 +396,7 @@ def main3(*args):
 
             t1 = time.time()
             # Ring X'X
-            XtX_r = readAndSumUniqueAtB('XtX', OutDir, R_inds, n_b, True).reshape([v_r, p, p])
+            XtX_r = readAndSumUniqueAtB('XtX', OutDir, R_inds, n_b, True, jobNum).reshape([v_r, p, p])
 
             t2 = time.time()
 
@@ -455,7 +455,7 @@ def main3(*args):
             t1 = time.time()
 
             # Inner X'X
-            XtX_i = readAndSumUniqueAtB('XtX', OutDir, I_inds, n_b, False).reshape([1, p, p])
+            XtX_i = readAndSumUniqueAtB('XtX', OutDir, I_inds, n_b, False, jobNum).reshape([1, p, p])
 
             # Check the design is full rank
             if np.linalg.matrix_rank(XtX_i)<p:
@@ -984,7 +984,7 @@ def blm_det(A):
 #          each voxel. If sv was false we will have one matrix for all voxels.
 #
 # ============================================================================
-def readAndSumUniqueAtB(AtBstr, OutDir, vinds, n_b, sv):
+def readAndSumUniqueAtB(AtBstr, OutDir, vinds, n_b, sv, jobNum):
 
     # Work out the uniqueness mask for the spatially varying designs
     uniquenessMask = loadFile(os.path.join(OutDir,"tmp", 
