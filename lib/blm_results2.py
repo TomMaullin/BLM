@@ -85,7 +85,7 @@ def main3(*args):
 
     OutDir = inputs['outdir']
 
-    with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'w') as f:
+    with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'a') as f:
         print('inputs, time ',t2-t1, file=f)
 
     t1=time.time()
@@ -122,7 +122,7 @@ def main3(*args):
 
     t2 = time.time()
 
-    with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'w') as f:
+    with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'a') as f:
         print('inputs2, time ',t2-t1, file=f)
         print('OutputCovB ', OutputCovB, file=f)
 
@@ -178,7 +178,7 @@ def main3(*args):
 
     t2 = time.time()
 
-    with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'w') as f:
+    with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'a') as f:
         print('ring/inner, time ',t2-t1, file=f)
 
     # ------------------------------------------------------------------------
@@ -242,7 +242,7 @@ def main3(*args):
     t2 = time.time()
 
 
-    with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'w') as f:
+    with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'a') as f:
         print('contrasts, time ',t2-t1, file=f)
 
         print('c ', c, file=f)
@@ -282,7 +282,7 @@ def main3(*args):
     nvg = int(len(bamInds)//nvb+1)
 
 
-    with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'w') as f:
+    with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'a') as f:
         print('nvg: ', nvg, file=f)
 
     # Split voxels we want to look at into groups we can compute
@@ -295,7 +295,7 @@ def main3(*args):
         t1 = time.time()
 
 
-        with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'w') as f:
+        with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'a') as f:
             print('in loop ', file=f)
 
             print('cv ', cv, file=f)
@@ -327,7 +327,7 @@ def main3(*args):
         t2 = time.time()
 
 
-        with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'w') as f:
+        with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'a') as f:
             print('in loop masked inds, time ',t2-t1, file=f)
 
         t1 = time.time()
@@ -349,7 +349,7 @@ def main3(*args):
         # Load X'X, X'Y, Y'Y
         # --------------------------------------------------------------------------------
 
-        with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'w') as f:
+        with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'a') as f:
             print('in loop got vox numbers, time ',t2-t1, file=f)
 
         t1 = time.time()
@@ -359,7 +359,7 @@ def main3(*args):
 
         t2 = time.time()
 
-        with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'w') as f:
+        with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'a') as f:
             print('in loop got XtY_r, time ',t2-t1, file=f)
 
         t1 = time.time()
@@ -368,7 +368,7 @@ def main3(*args):
 
         t2 = time.time()
 
-        with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'w') as f:
+        with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'a') as f:
             print('in loop got YtY_r, time ',t2-t1, file=f)
 
         t1 = time.time()
@@ -377,7 +377,7 @@ def main3(*args):
         XtY_i = readLinesFromNPY(os.path.join(OutDir,"tmp",'XtY.npy'), I_inds_am).reshape([v_i, p, 1])
         t2 = time.time()
 
-        with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'w') as f:
+        with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'a') as f:
             print('in loop got XtY_i, time ',t2-t1, file=f)
 
         t1 = time.time()
@@ -386,7 +386,7 @@ def main3(*args):
 
         t2 = time.time()
 
-        with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'w') as f:
+        with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'a') as f:
             print('in loop got YtY_i, time ',t2-t1, file=f)
 
             print('v_i ', v_i, file=f)
@@ -400,7 +400,7 @@ def main3(*args):
 
             t2 = time.time()
 
-            with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'w') as f:
+            with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'a') as f:
                 print('in loop got XtX_r time ',t2-t1, file=f)
 
             # ----------------------------------------------------------------------------
@@ -417,7 +417,7 @@ def main3(*args):
 
             t2 = time.time()
 
-            with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'w') as f:
+            with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'a') as f:
                 print('in loop removed rank time ',t2-t1, file=f)
 
                 print('v_lowrank ', v_lowrank, file=f)
@@ -446,7 +446,7 @@ def main3(*args):
 
                 t2 = time.time()
 
-                with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'w') as f:
+                with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'a') as f:
                     print('in loop updated masks ',t2-t1, file=f)
 
 
@@ -464,7 +464,7 @@ def main3(*args):
 
             t2 = time.time()
 
-            with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'w') as f:
+            with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'a') as f:
                 print('in loop inner rank check ',t2-t1, file=f)
 
         # ----------------------------------------------------------------------
@@ -484,7 +484,7 @@ def main3(*args):
 
             t2 = time.time()
 
-            with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'w') as f:
+            with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'a') as f:
                 print('in loop beta ring ',t2-t1, file=f)
 
 
@@ -503,7 +503,7 @@ def main3(*args):
 
             t2 = time.time()
 
-            with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'w') as f:
+            with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'a') as f:
                 print('in loop beta inner ',t2-t1, file=f)
 
         # ----------------------------------------------------------------------
@@ -626,7 +626,7 @@ def main3(*args):
 
         t2 = time.time()
 
-        with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'w') as f:
+        with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'a') as f:
             print('inverse ',t2-t1, file=f)
 
         if OutputCovB:
@@ -1053,6 +1053,9 @@ def readAndSumUniqueAtB(AtBstr, OutDir, vinds, n_b, sv):
 
         # Fill with unique maskings
         for m in range(1,maxM+1):
+
+            with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'a') as f:
+                print('maxM ',maxM, file=f)
 
             if sv:
                 AtB_batch[np.where(uniquenessMask==m),:] = AtB_batch_unique[(m-1),:]
