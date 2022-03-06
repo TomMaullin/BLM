@@ -442,7 +442,7 @@ def combineUniqueAtB(AtBstr, OutDir, fileRange, index):
     AtB_unique_current = np.concatenate((np.zeros((1,AtB_unique_current.shape[1])), AtB_unique_current), axis=0)
 
     # Loop through other files reading one at a time.
-    for i in np.arange(1, len(NIFTIfilenames)):
+    for i in np.arange(1, len(NIFTIfilenames)+1):
 
         # Read new uniqueness mask
         uniquenessMask_new = loadFile(NIFTIfilenames[i]).get_fdata()
@@ -463,10 +463,12 @@ def combineUniqueAtB(AtBstr, OutDir, fileRange, index):
         maxM = np.maximum(maxM_new,maxM_current)
 
         # Get updated uniqueness mask
-        uniquenessMask_updated = uniquenessMask_current*(maxM**0) + uniquenessMask_new*(maxM**1)
+        uniquenessMask_updated_full = uniquenessMask_current*((maxM+1)**0) + uniquenessMask_new*((maxM+1)**1)
 
         # Get unique values in new map.
-        uniquenessMask_updated = np.unique(uniquenessMask_updated, return_inverse = True)[1].reshape(uniquenessMask_new.shape)
+        uniqueVals = np.unique(uniquenessMask_updated_full, return_inverse = True)
+        uniquenessMask_updated = uniqueVals[1].reshape(uniquenessMask_new.shape)
+        uniqueVal_array = uniqueVals[0]
 
         # Update maxM
         maxM_updated = np.amax(uniquenessMask_updated)
@@ -477,11 +479,14 @@ def combineUniqueAtB(AtBstr, OutDir, fileRange, index):
         # Get value1 and value2, corresponding to values in original uniqueness maps.
         for value_updated in np.arange(maxM_updated+1):
 
-            # Work out which value the updated uniqueness values corresponded to in the `current' image
-            value_current = [np.where(uniquenessMask_current==value_updated)][0]
+            # Get value we're interested in
+            value_updated_full = uniqueVal_array[value_updated]
 
             # Work out which value the updated uniqueness values corresponded to in the `new' image
-            value_new = [np.where(uniquenessMask_new==value_updated)][0]
+            value_new = int(value_updated_full//(maxM+1))
+
+            # Work out which value the updated uniqueness values corresponded to in the `current' image
+            value_current = int(value_updated_full-value_new*(maxM+1))
 
             # Update the unique AtB array
             AtB_unique_updated[value_updated,:] = AtB_unique_new[value_new,:] + AtB_unique_current[value_current,:]
