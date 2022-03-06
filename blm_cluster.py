@@ -126,7 +126,7 @@ def main(cluster):
     for jobNum in np.arange(100):
 
         # Run the jobNum^{th} job.
-        future_c = client.submit(blm_results3, 'XtX', OutDir, fileGroups[jobNum], 'c' + str(jobNum), pure=False)
+        future_c = client.submit(blm_concat3, 'XtX', OutDir, fileGroups[jobNum], 'c' + str(jobNum), pure=False)
 
         # Append to list
         futures.append(future_c)
