@@ -5,6 +5,7 @@ from dask.distributed import performance_report
 from lib.blm_setup import main1 as blm_setup
 from lib.blm_batch import main2 as blm_batch
 from lib.blm_concat2 import main3 as blm_concat2
+from lib.blm_concat2 import combineUniqueAtB as blm_concat3
 from lib.blm_results2 import main3 as blm_results2
 from lib.blm_cleanup import main4 as blm_cleanup
 from lib.fileio import pracNumVoxelBlocks
@@ -111,6 +112,35 @@ def main(cluster):
 
     del future_b_first, res
 
+
+    # --------------------------------------------------------
+    # AtB
+    # --------------------------------------------------------
+    # Empty futures list
+    futures = []
+
+    # Groups of files
+    fileGroups = np.array_split(np.arange(nb), 100)
+
+    # Loop through nodes
+    for jobNum in np.arange(100):
+
+        # Run the jobNum^{th} job.
+        future_c = client.submit(blm_results3, 'XtX', OutDir, fileGroups[jobNum], 'c' + str(jobNum), pure=False)
+
+        # Append to list
+        futures.append(future_c)
+
+    # Completed jobs
+    completed = as_completed(futures)
+
+    # Wait for results
+    for i in completed:
+        i.result()
+
+    del i, completed, futures, future_c
+
+    print('AtB run')
 
     # --------------------------------------------------------
     # RESULTS

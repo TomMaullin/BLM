@@ -393,6 +393,108 @@ def main3(*args):
         # print('vedf, time ',t2-t1)
 
 
+
+# ============================================================================
+#
+# 
+#
+# ----------------------------------------------------------------------------
+#
+# This function takes in the following inputs:
+#
+# ----------------------------------------------------------------------------
+#
+# - `AtBstr`: A string representing which product matrix we are looking at. 
+#             e.g. "XtX" for X'X.
+# - `OutDir`: Output directory.
+# - 
+#
+# ----------------------------------------------------------------------------
+#
+# And gives the following output:
+#
+# ----------------------------------------------------------------------------
+#
+# - `AtB`: The product matrix (flattened); If we had wanted X'X (which is 
+#          dimension p by p) for v voxels, the output would here would have 
+#          dimension (1 by p**2). If sv was True, we will have one matrix for
+#          each voxel. If sv was false we will have one matrix for all voxels.
+#
+# ============================================================================
+def combineUniqueAtB(AtBstr, OutDir, fileRange, index):
+
+    # PLAN
+
+    # Get NIFTIfilenames
+    NIFTIfilenames = [os.path.join(OutDir,"tmp", 
+        "blm_vox_uniqueM_batch" + str(i) + ".nii") for i in fileRange]
+
+    # Get AtB filenames
+    AtBfilenames = [os.path.join(OutDir,"tmp",
+        AtBstr+ str(i) + ".npy") for i in fileRange]
+
+
+    # Initialize current uniqueness map and AtB
+    uniquenessMask_current = loadFile(NIFTIfilenames[0]).get_fdata()
+    AtB_unique_current = np.load(AtBfilenames[0])
+
+    # Loop through other files reading one at a time.
+    for i in np.arange(1, len(NIFTIfilenames)):
+
+        # Read new uniqueness mask
+        uniquenessMask_new = loadFile(NIFTIfilenames[i]).get_fdata()
+
+        # Read in new unique list of AtB's
+        AtB_unique_new = np.load(AtBfilenames[i])
+
+        # Get maxM for new uniqueness mask.
+        maxM_new = np.int32(np.amax(uniquenessMask_new))
+
+        # Get maxM for running uniqueness mask.
+        maxM_current = np.int32(np.amax(uniquenessMask_current))
+
+        # Get max of both
+        maxM = np.maximum(maxM_new,maxM_current)
+
+        # Get updated uniqueness mask
+        uniquenessMask_updated = uniquenessMask_current*(maxM**0) + uniquenessMask_new*(maxM**1)
+
+        # Get unique values in new map.
+        uniquenessMask_updated = np.unique(uniquenessMask_updated, return_inverse = True)[1].reshape(uniquenessMask_new.shape)
+
+        # Update maxM
+        maxM_updated = np.amax(uniquenessMask_updated)
+
+        # Initialise AtB_unique_updated
+        AtB_unique_updated = np.zeros([maxM_updated+1, AtB_unique_current.shape[1]])
+
+        # Get value1 and value2, corresponding to values in original uniqueness maps.
+        for value_updated in np.arange(maxM_updated+1):
+
+            # Work out which value the updated uniqueness values corresponded to in the `current' image
+            value_current = [np.where(uniquenessMask_current==value_updated)][0]
+
+            # Work out which value the updated uniqueness values corresponded to in the `new' image
+            value_new = [np.where(uniquenessMask_new==value_updated)][0]
+
+            # Update the unique AtB array
+            AtB_unique_updated[value_updated,:] = AtB_unique_new[value_new,:] + AtB_unique_current[value_current,:]
+
+        # Update uniquenessMask_current as uniquenessMask_updated
+        uniquenessMask_current = np.array(uniquenessMask_updated)
+
+        # Update AtB_unique_current as AtB_unique_updated
+        AtB_unique_current = np.array(AtB_unique_updated)
+
+    # Save uniqueness map
+    nib.save(uniquenessMask_current, os.path.join(OutDir,"tmp", 
+             "blm_vox_uniqueM_batch" + str(index) + ".nii"))
+
+    # Save unique designs
+    np.save(os.path.join(OutDir,"tmp",AtBstr + str(index)), 
+                    AtB_unique_current)
+
+
     
 if __name__ == "__rain__":
     main()
