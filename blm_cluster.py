@@ -120,7 +120,7 @@ def main(cluster):
     futures = []
 
     # Groups of files
-    fileGroups = np.array_split(np.arange(nb), 100)
+    fileGroups = np.array_split(np.arange(nb)+1, 100)
 
     # Loop through nodes
     for jobNum in np.arange(100):
