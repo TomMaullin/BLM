@@ -1054,9 +1054,6 @@ def readAndSumUniqueAtB(AtBstr, OutDir, vinds, n_b, sv, jobNum):
         # Fill with unique maskings
         for m in range(1,maxM+1):
 
-            with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'a') as f:
-                print('maxM ',maxM, file=f)
-
             if sv:
                 AtB_batch[np.where(uniquenessMask==m),:] = AtB_batch_unique[(m-1),:]
             else:
