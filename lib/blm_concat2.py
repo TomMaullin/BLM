@@ -438,6 +438,9 @@ def combineUniqueAtB(AtBstr, OutDir, fileRange, index):
     uniquenessMask_current = loadFile(NIFTIfilenames[0]).get_fdata()
     AtB_unique_current = np.load(AtBfilenames[0])
 
+    # Add row of zeros for outside of mask
+    AtB_unique_current = np.concatenate((np.zeros((1,AtB_unique_current.shape[1])), AtB_unique_current), axis=0)
+
     # Loop through other files reading one at a time.
     for i in np.arange(1, len(NIFTIfilenames)):
 
@@ -446,6 +449,9 @@ def combineUniqueAtB(AtBstr, OutDir, fileRange, index):
 
         # Read in new unique list of AtB's
         AtB_unique_new = np.load(AtBfilenames[i])
+
+        # Add row of zeros for outside of mask
+        AtB_unique_new = np.concatenate((np.zeros((1,AtB_unique_new.shape[1])), AtB_unique_new), axis=0)
 
         # Get maxM for new uniqueness mask.
         maxM_new = np.int32(np.amax(uniquenessMask_new))
