@@ -405,7 +405,6 @@ def main3(*args):
 
             with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'a') as f:
                 print('in loop got XtX_r time ',t2-t1, file=f)
-                print('big check, ring ',np.allclose(XtX_r, XtX_r2), file=f)
 
             # ----------------------------------------------------------------------------
             # Remove low rank designs
@@ -470,7 +469,6 @@ def main3(*args):
 
             with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'a') as f:
                 print('in loop inner rank check ',t2-t1, file=f)
-                print('big check, inner ',np.allclose(XtX_i, XtX_i2), file=f)
 
         # ----------------------------------------------------------------------
         # Calculate betahat = (X'X)^(-1)X'Y and output beta maps
