@@ -79,6 +79,9 @@ def main(cluster):
     # Batch jobs
     maskJob = False
 
+    # Groups of files
+    fileGroups = np.array_split(np.arange(nb)+1, 100)
+
     # Empty futures list
     futures = []
 
@@ -91,6 +94,13 @@ def main(cluster):
         # Append to list
         futures.append(future_b)
 
+
+        # Run the jobNum^{th} job.
+        future_c = client.submit(blm_concat3, 'XtX', OutDir, fileGroups[node-1], pure=False)
+
+        # Append to list
+        futures.append(future_c)
+
     # Completed jobs
     completed = as_completed(futures)
 
@@ -98,7 +108,7 @@ def main(cluster):
     for i in completed:
         i.result()
 
-    del i, completed, futures, future_b
+    del i, completed, futures, future_b, future_c
 
     # Mask job
     maskJob = True
@@ -113,34 +123,25 @@ def main(cluster):
     del future_b_first, res
 
 
-    # --------------------------------------------------------
-    # AtB
-    # --------------------------------------------------------
-    # Empty futures list
-    futures = []
+    # # --------------------------------------------------------
+    # # AtB
+    # # --------------------------------------------------------
+    # # Empty futures list
+    # futures = []
 
-    # Groups of files
-    fileGroups = np.array_split(np.arange(nb)+1, 100)
+    # # Loop through nodes
+    # for jobNum in np.arange(np.minimum(100,nb)): # MARKER
 
-    # Loop through nodes
-    for jobNum in np.arange(100):
+    # # Completed jobs
+    # completed = as_completed(futures)
 
-        # Run the jobNum^{th} job.
-        future_c = client.submit(blm_concat3, 'XtX', OutDir, fileGroups[jobNum], 'c' + str(jobNum), pure=False)
+    # # Wait for results
+    # for i in completed:
+    #     i.result()
 
-        # Append to list
-        futures.append(future_c)
+    # del i, completed, futures, future_c
 
-    # Completed jobs
-    completed = as_completed(futures)
-
-    # Wait for results
-    for i in completed:
-        i.result()
-
-    del i, completed, futures, future_c
-
-    print('AtB run')
+    # print('AtB run')
 
     # --------------------------------------------------------
     # RESULTS

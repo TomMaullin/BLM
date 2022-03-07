@@ -399,8 +399,7 @@ def main3(*args):
 
             t1 = time.time()
             # Ring X'X
-            XtX_r = readAndSumUniqueAtB('XtX', OutDir, R_inds, n_b, True, jobNum).reshape([v_r, p, p])
-            XtX_r2 = readUniqueAtB('XtX', OutDir, R_inds, True).reshape([v_r, p, p])
+            XtX_r = readUniqueAtB('XtX', OutDir, R_inds, True, uniq).reshape([v_r, p, p])
 
             t2 = time.time()
 
@@ -460,9 +459,7 @@ def main3(*args):
             t1 = time.time()
 
             # Inner X'X
-            XtX_i = readAndSumUniqueAtB('XtX', OutDir, I_inds, n_b, False, jobNum).reshape([1, p, p])
-
-            XtX_i2 = readUniqueAtB('XtX', OutDir, I_inds, False).reshape([1, p, p])
+            XtX_i = readUniqueAtB('XtX', OutDir, I_inds, False, uniq).reshape([1, p, p])
 
             # Check the design is full rank
             if np.linalg.matrix_rank(XtX_i)<p:
@@ -1076,11 +1073,11 @@ def readAndSumUniqueAtB(AtBstr, OutDir, vinds, n_b, sv, jobNum):
 
     return(AtB)
 
-def readUniqueAtB(AtBstr, OutDir, vinds, sv):
+def readUniqueAtB(AtBstr, OutDir, vinds, sv, uniquenessMask):
 
-    # Work out the uniqueness mask for the spatially varying designs
-    uniquenessMask = loadFile(os.path.join(OutDir,"tmp", 
-        "blm_vox_uniqueM.nii")).get_fdata()
+    # # Work out the uniqueness mask for the spatially varying designs
+    # uniquenessMask = loadFile(os.path.join(OutDir,"tmp", 
+    #     "blm_vox_uniqueM.nii")).get_fdata()
 
     v = np.prod(uniquenessMask.shape)
     vcurrent = np.prod(vinds.shape)

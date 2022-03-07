@@ -421,9 +421,9 @@ def main3(*args):
 #          each voxel. If sv was false we will have one matrix for all voxels.
 #
 # ============================================================================
-def combineUniqueAtB(AtBstr, OutDir, fileRange, index):
+def combineUniqueAtB(AtBstr, OutDir, fileRange):
 
-    # PLAN
+    # MARKER HANDLE EMPTY JOB
 
     # Get NIFTIfilenames
     NIFTIfilenames = [os.path.join(OutDir,"tmp", 
