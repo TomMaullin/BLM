@@ -48,6 +48,8 @@ def main(cluster):
 
     del future_0
 
+    # MARKER: ASK USER ABOUT PREVIOUS INPUT
+
     # Print number of batches
     print(nb)
 
@@ -88,18 +90,20 @@ def main(cluster):
     # Loop through nodes
     for node in np.arange(1,100 + 1):
 
-        # Give the i^{th} node the i^{th} partition of the data
-        future_b = client.submit(blm_concat2, nb, node, 100, maskJob, inputs_yml, pure=False)
-
-        # Append to list
-        futures.append(future_b)
-
-
         # Run the jobNum^{th} job.
         future_c = client.submit(blm_concat3, 'XtX', OutDir, fileGroups[node-1], pure=False)
 
         # Append to list
         futures.append(future_c)
+
+    # Loop through nodes
+    for node in np.arange(1,100 + 1):
+
+        # Give the i^{th} node the i^{th} partition of the data
+        future_b = client.submit(blm_concat2, nb, node, 100, maskJob, inputs_yml, pure=False)
+
+        # Append to list
+        futures.append(future_b)
 
     # Completed jobs
     completed = as_completed(futures)
@@ -148,13 +152,13 @@ def main(cluster):
     # --------------------------------------------------------
 
     # Number of jobs for results (practical number of voxel batches)
-    pnvb = np.maximum(100, pracNumVoxelBlocks(inputs))
+    pnvb = np.maximum(10*100, pracNumVoxelBlocks(inputs))
 
     # Empty futures list
     futures = []
 
     # Loop through nodes
-    for jobNum in np.arange(100):
+    for jobNum in np.arange(pnvb):
 
         # Run the jobNum^{th} job.
         future_c = client.submit(blm_results2, jobNum, pnvb, nb, inputs_yml, pure=False)
@@ -201,7 +205,8 @@ def main(cluster):
     # --------------------------------------------------------------------------------
     # Clean up files
     # --------------------------------------------------------------------------------
-    os.remove(os.path.join(OutDir, 'nb.txt'))
+    if os.path.isfile(os.remove(os.path.join(OutDir, 'nb.txt'))):
+        os.remove(os.path.join(OutDir, 'nb.txt'))
     if os.path.isdir(os.path.join(OutDir, 'tmp')):
         shutil.rmtree(os.path.join(OutDir, 'tmp'))
    
