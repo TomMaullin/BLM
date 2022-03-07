@@ -455,6 +455,9 @@ def combineUniqueAtB(AtBstr, OutDir, fileRange, index):
 
             # Read in new unique list of AtB's
             AtB_unique_new = np.load(AtBfilenames[i])
+        
+            # Add row of zeros for outside of mask
+            AtB_unique_new = np.concatenate((np.zeros((1,AtB_unique_new.shape[1])), AtB_unique_new), axis=0)
 
         # Once we've done the assigned images we do the last image
         else:
@@ -486,14 +489,11 @@ def combineUniqueAtB(AtBstr, OutDir, fileRange, index):
 
                 break
 
-        # Add row of zeros for outside of mask
-        AtB_unique_new = np.concatenate((np.zeros((1,AtB_unique_new.shape[1])), AtB_unique_new), axis=0)
-
         # Get maxM for new uniqueness mask.
-        maxM_new = np.int32(np.amax(uniquenessMask_new))
+        maxM_new = np.int64(np.amax(uniquenessMask_new))
 
         # Get maxM for running uniqueness mask.
-        maxM_current = np.int32(np.amax(uniquenessMask_current))
+        maxM_current = np.int64(np.amax(uniquenessMask_current))
 
         # Get max of both
         maxM = np.maximum(maxM_new,maxM_current)
