@@ -459,6 +459,10 @@ def combineUniqueAtB(AtBstr, OutDir, fileRange):
             # Add row of zeros for outside of mask
             AtB_unique_new = np.concatenate((np.zeros((1,AtB_unique_new.shape[1])), AtB_unique_new), axis=0)
 
+            # Remove files
+            os.remove(NIFTIfilenames[i])
+            os.remove(AtBfilenames[i])
+
         # Once we've done the assigned images we do the last image
         else:
 
