@@ -1028,12 +1028,12 @@ def readAndSumUniqueAtB(AtBstr, OutDir, vinds, n_b, sv, jobNum):
 
         if sv:
             # Work out X'X for the ring
-            AtB[np.where(uniquenessMask==m),:] = AtB_batch_unique[m,:]
+            AtB[np.where(uniquenessMask==m),:] = AtB_batch_unique[(m-1),:]
 
         # Work out X'X for the inner
         else:
             if uniquenessMask == m:
-                AtB = AtB_batch_unique[m,:]
+                AtB = AtB_batch_unique[(m-1),:]
 
     # Cycle through batches and add together results.
     for batchNo in range(2,(n_b+1)):
@@ -1064,12 +1064,12 @@ def readAndSumUniqueAtB(AtBstr, OutDir, vinds, n_b, sv, jobNum):
         for m in range(1,maxM+1):
 
             if sv:
-                AtB_batch[np.where(uniquenessMask==m),:] = AtB_batch_unique[m,:]
+                AtB_batch[np.where(uniquenessMask==m),:] = AtB_batch_unique[(m-1),:]
             else:
                 # Work out X'X for the inner
                 if uniquenessMask == m:
 
-                    AtB_batch = AtB_batch_unique[m,:]
+                    AtB_batch = AtB_batch_unique[(m-1),:]
 
         # Add to running total
         AtB = AtB + AtB_batch
