@@ -445,13 +445,46 @@ def combineUniqueAtB(AtBstr, OutDir, fileRange, index):
     AtB_unique_current = np.concatenate((np.zeros((1,AtB_unique_current.shape[1])), AtB_unique_current), axis=0)
 
     # Loop through other files reading one at a time.
-    for i in np.arange(1, len(NIFTIfilenames)):
+    for i in np.arange(1, len(NIFTIfilenames)+1):
 
-        # Read new uniqueness mask
-        uniquenessMask_new = loadFile(NIFTIfilenames[i]).get_fdata()
+        # Loop through assigned images
+        if i < len(NIFTIfilenames):
 
-        # Read in new unique list of AtB's
-        AtB_unique_new = np.load(AtBfilenames[i])
+            # Read new uniqueness mask
+            uniquenessMask_new = loadFile(NIFTIfilenames[i]).get_fdata()
+
+            # Read in new unique list of AtB's
+            AtB_unique_new = np.load(AtBfilenames[i])
+
+        # Once we've done the assigned images we do the last image
+        else:
+
+            # Check if running totals in use
+            fileLocked = True
+            while fileLocked:
+                try:
+                    # Create lock file, so other jobs know we are writing to this file
+                    f=os.open(os.path.join(OutDir,AtBstr + ".lock"), os.O_CREAT|os.O_EXCL|os.O_RDWR)
+                    fileLocked = False
+                except FileExistsError:
+                    fileLocked = True
+
+            # Check whether the NIFTI exists already
+            if os.path.isfile(os.path.join(OutDir,"tmp", "blm_vox_uniqueM.nii")):
+
+                # Adding to the running total now
+                uniquenessMask_new = loadFile(os.path.join(OutDir,"tmp", 
+                                              "blm_vox_uniqueM.nii")).get_fdata()
+
+                # Read in the running list of AtB's
+                AtB_unique_new = np.load(os.path.join(OutDir,"tmp",
+                                         AtBstr + ".npy"))
+
+            # If this is the first time we've made the running total we don't need
+            # to add it so we break out of the loop
+            else:
+
+                break
 
         # Add row of zeros for outside of mask
         AtB_unique_new = np.concatenate((np.zeros((1,AtB_unique_new.shape[1])), AtB_unique_new), axis=0)
@@ -506,12 +539,15 @@ def combineUniqueAtB(AtBstr, OutDir, fileRange, index):
 
     # Save uniqueness map
     nib.save(uniquenessMask_current, os.path.join(OutDir,"tmp", 
-             "blm_vox_uniqueM_batch" + str(index) + ".nii"))
+             "blm_vox_uniqueM.nii"))
 
     # Save unique designs
-    np.save(os.path.join(OutDir,"tmp",AtBstr + str(index)), 
-                    AtB_unique_current)
+    np.save(os.path.join(OutDir,"tmp",AtBstr),AtB_unique_current)
 
+    # Delete lock file, so other jobs know they can now write to the
+    # file
+    os.remove(fname + ".lock")
+    os.close(f)
 
     
 if __name__ == "__rain__":
