@@ -464,7 +464,7 @@ def combineUniqueAtB(AtBstr, OutDir, fileRange, index):
             while fileLocked:
                 try:
                     # Create lock file, so other jobs know we are writing to this file
-                    f=os.open(os.path.join(OutDir,AtBstr + ".lock"), os.O_CREAT|os.O_EXCL|os.O_RDWR)
+                    f=os.open(os.path.join(OutDir,'tmp',AtBstr + ".lock"), os.O_CREAT|os.O_EXCL|os.O_RDWR)
                     fileLocked = False
                 except FileExistsError:
                     fileLocked = True
@@ -546,7 +546,7 @@ def combineUniqueAtB(AtBstr, OutDir, fileRange, index):
 
     # Delete lock file, so other jobs know they can now write to the
     # file
-    os.remove(os.path.join(OutDir,AtBstr + ".lock"))
+    os.remove(os.path.join(OutDir,'tmp',AtBstr + ".lock"))
     os.close(f)
 
     
