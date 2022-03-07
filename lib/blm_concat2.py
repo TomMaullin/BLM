@@ -546,7 +546,7 @@ def combineUniqueAtB(AtBstr, OutDir, fileRange, index):
 
     # Delete lock file, so other jobs know they can now write to the
     # file
-    os.remove(fname + ".lock")
+    os.remove(os.path.join(OutDir,AtBstr + ".lock"))
     os.close(f)
 
     
