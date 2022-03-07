@@ -1103,19 +1103,19 @@ def readUniqueAtB(AtBstr, OutDir, vinds, sv):
 
     # Make zeros for outer ring of brain XtX (remember A'B is still flattened)
     if sv:
-        AtB = np.zeros((vcurrent, AtB_batch_unique.shape[1]))
+        AtB = np.zeros((vcurrent, AtB_unique.shape[1]))
 
     # Fill with unique maskings
     for m in range(1,maxM+1):
 
         if sv:
             # Work out X'X for the ring
-            AtB[np.where(uniquenessMask==m),:] = AtB_batch_unique[m,:]
+            AtB[np.where(uniquenessMask==m),:] = AtB_unique[m,:]
 
         # Work out X'X for the inner
         else:
             if uniquenessMask == m:
-                AtB = AtB_batch_unique[m,:]
+                AtB = AtB_unique[m,:]
 
     return(AtB)
 
