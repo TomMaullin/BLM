@@ -135,6 +135,9 @@ def main3(*args):
     n_sv = loadFile(os.path.join(OutDir,'blm_vox_n.nii')).get_fdata()
     n_sv = n_sv.reshape(v, 1) # MARKER
 
+    # Load uniqueness file
+    uniq = loadFile(os.path.join(OutDir,"tmp","blm_vox_uniqueM.nii")).get_fdata()
+
 
     if 'analysis_mask' in inputs:
 
@@ -397,11 +400,13 @@ def main3(*args):
             t1 = time.time()
             # Ring X'X
             XtX_r = readAndSumUniqueAtB('XtX', OutDir, R_inds, n_b, True, jobNum).reshape([v_r, p, p])
+            XtX_r2 = readUniqueAtB('XtX', OutDir, R_inds, True).reshape([v_r, p, p])
 
             t2 = time.time()
 
             with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'a') as f:
                 print('in loop got XtX_r time ',t2-t1, file=f)
+                print('big check, ring ',np.allclose(XtX_r, XtX_r2), file=f)
 
             # ----------------------------------------------------------------------------
             # Remove low rank designs
@@ -457,6 +462,8 @@ def main3(*args):
             # Inner X'X
             XtX_i = readAndSumUniqueAtB('XtX', OutDir, I_inds, n_b, False, jobNum).reshape([1, p, p])
 
+            XtX_i2 = readUniqueAtB('XtX', OutDir, I_inds, False).reshape([1, p, p])
+
             # Check the design is full rank
             if np.linalg.matrix_rank(XtX_i)<p:
                 raise Exception('The design matrix, X, is of insufficient rank.') 
@@ -466,6 +473,7 @@ def main3(*args):
 
             with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'a') as f:
                 print('in loop inner rank check ',t2-t1, file=f)
+                print('big check, inner ',np.allclose(XtX_i, XtX_i2), file=f)
 
         # ----------------------------------------------------------------------
         # Calculate betahat = (X'X)^(-1)X'Y and output beta maps
@@ -1020,12 +1028,12 @@ def readAndSumUniqueAtB(AtBstr, OutDir, vinds, n_b, sv, jobNum):
 
         if sv:
             # Work out X'X for the ring
-            AtB[np.where(uniquenessMask==m),:] = AtB_batch_unique[(m-1),:]
+            AtB[np.where(uniquenessMask==m),:] = AtB_batch_unique[m,:]
 
         # Work out X'X for the inner
         else:
             if uniquenessMask == m:
-                AtB = AtB_batch_unique[(m-1),:]
+                AtB = AtB_batch_unique[m,:]
 
     # Cycle through batches and add together results.
     for batchNo in range(2,(n_b+1)):
@@ -1056,17 +1064,62 @@ def readAndSumUniqueAtB(AtBstr, OutDir, vinds, n_b, sv, jobNum):
         for m in range(1,maxM+1):
 
             if sv:
-                AtB_batch[np.where(uniquenessMask==m),:] = AtB_batch_unique[(m-1),:]
+                AtB_batch[np.where(uniquenessMask==m),:] = AtB_batch_unique[m,:]
             else:
                 # Work out X'X for the inner
                 if uniquenessMask == m:
 
-                    AtB_batch = AtB_batch_unique[(m-1),:]
+                    AtB_batch = AtB_batch_unique[m,:]
 
         # Add to running total
         AtB = AtB + AtB_batch
 
     return(AtB)
+
+def readUniqueAtB(AtBstr, OutDir, vinds, sv):
+
+    # Work out the uniqueness mask for the spatially varying designs
+    uniquenessMask = loadFile(os.path.join(OutDir,"tmp", 
+        "blm_vox_uniqueM.nii")).get_fdata()
+
+    v = np.prod(uniquenessMask.shape)
+    vcurrent = np.prod(vinds.shape)
+
+    uniquenessMask=uniquenessMask.reshape(v)
+
+    # Work out how many unique matrices there were
+    maxM = np.int32(np.amax(uniquenessMask))
+
+    if sv:
+        # Work out the uniqueness mask inside the ring around the brain
+        uniquenessMask = uniquenessMask[vinds]
+    else:
+        # Work out the uniqueness mask value inside the inner part of the brain
+        uniquenessMask = uniquenessMask[vinds[0]] 
+
+
+    # read in XtX
+    AtB_unique = np.load(os.path.join(OutDir,"tmp",AtBstr+".npy"))
+
+    # Make zeros for outer ring of brain XtX (remember A'B is still flattened)
+    if sv:
+        AtB = np.zeros((vcurrent, AtB_batch_unique.shape[1]))
+
+    # Fill with unique maskings
+    for m in range(1,maxM+1):
+
+        if sv:
+            # Work out X'X for the ring
+            AtB[np.where(uniquenessMask==m),:] = AtB_batch_unique[m,:]
+
+        # Work out X'X for the inner
+        else:
+            if uniquenessMask == m:
+                AtB = AtB_batch_unique[m,:]
+
+    return(AtB)
+
+
 
 if __name__ == "__rain__":
     main()
