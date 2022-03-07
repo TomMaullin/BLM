@@ -433,6 +433,9 @@ def combineUniqueAtB(AtBstr, OutDir, fileRange, index):
     AtBfilenames = [os.path.join(OutDir,"tmp",
         AtBstr+ str(i) + ".npy") for i in fileRange]
 
+    # Affine and header
+    aff = loadFile(NIFTIfilenames[0]).affine
+    hdr = loadFile(NIFTIfilenames[0]).header
 
     # Initialize current uniqueness map and AtB
     uniquenessMask_current = loadFile(NIFTIfilenames[0]).get_fdata()
@@ -496,6 +499,10 @@ def combineUniqueAtB(AtBstr, OutDir, fileRange, index):
 
         # Update AtB_unique_current as AtB_unique_updated
         AtB_unique_current = np.array(AtB_unique_updated)
+
+    # Make nifti
+    uniquenessMask_current = nib.Nifti1Image(uniquenessMask_current, 
+                                             aff, header=hdr)
 
     # Save uniqueness map
     nib.save(uniquenessMask_current, os.path.join(OutDir,"tmp", 
