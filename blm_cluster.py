@@ -32,7 +32,6 @@ def main(cluster):
     # --------------------------------------------------------------------------------
     OutDir = inputs['outdir']
 
-
     # Need to return number of batches
     retnb = True
 
@@ -48,7 +47,7 @@ def main(cluster):
 
     del future_0
 
-    # MARKER: ASK USER ABOUT PREVIOUS INPUT
+    # MARKER: ASK USER ABOUT PREVIOUS OUTPUT
 
     # Print number of batches
     print(nb)
@@ -59,10 +58,6 @@ def main(cluster):
     # Futures list
     futures = client.map(blm_batch, *[np.arange(nb)+1, [inputs_yml]*nb], pure=False)
 
-    # # Wait for results
-    # for future_b in as_completed(futures):
-    #     future_b.result()
-
     # results
     results = client.gather(futures)
     del futures, results
@@ -70,14 +65,9 @@ def main(cluster):
     print('Batches completed')
 
     # --------------------------------------------------------
-    # Plan
-    # --------------------------------------------------------
-
-    # --------------------------------------------------------
     # CONCAT
     # --------------------------------------------------------
-
-    print('hereeee2')
+    
     # Batch jobs
     maskJob = False
 
@@ -152,7 +142,7 @@ def main(cluster):
     # --------------------------------------------------------
 
     # Number of jobs for results (practical number of voxel batches)
-    pnvb = int(np.maximum(10*100, pracNumVoxelBlocks(inputs)))
+    pnvb = int(np.maximum(100, pracNumVoxelBlocks(inputs)))
 
     # Empty futures list
     futures = []
@@ -174,8 +164,6 @@ def main(cluster):
         i.result()
 
     del i, completed, futures, future_c
-
-    print('Results runr')
 
     #
     # --------------------------------------------------------
@@ -210,7 +198,11 @@ def main(cluster):
     if os.path.isdir(os.path.join(OutDir, 'tmp')):
         shutil.rmtree(os.path.join(OutDir, 'tmp'))
    
-    print('BLM code complete!')
+    print('BLM analysis complete!')
+    print('')
+    print('---------------------------------------------------------------------------')
+    print('')
+    print('Check results in: ', OutDir)
 
 # If running this function
 if __name__ == "__main__":

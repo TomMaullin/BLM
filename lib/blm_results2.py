@@ -42,11 +42,6 @@ from lib.fileio import *
 
 def main3(*args):
 
-    print('marker')
-
-    t1 = time.time()
-    print('started, time ',t1-t1)
-
     # Get job number
     jobNum = args[0]
 
@@ -55,8 +50,6 @@ def main3(*args):
 
     # Work out number of batchs
     n_b = args[2]
-
-    t1=time.time()
 
     # ----------------------------------------------------------------------
     # Check inputs
@@ -77,18 +70,11 @@ def main3(*args):
             # In this case inputs structure is first argument.
             inputs = args[3]
 
-    t2 = time.time()
-
     # ----------------------------------------------------------------------
     # Read basic inputs
     # ----------------------------------------------------------------------
 
     OutDir = inputs['outdir']
-
-    with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'a') as f:
-        print('inputs, time ',t2-t1, file=f)
-
-    t1=time.time()
 
     # Get number of fixed effects parameters
     L1 = str2vec(inputs['contrasts'][0]['c' + str(1)]['vector'])
@@ -120,13 +106,6 @@ def main3(*args):
     X = loadFile(inputs['X'])
     n = X.shape[0]
 
-    t2 = time.time()
-
-    with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'a') as f:
-        print('inputs2, time ',t2-t1, file=f)
-        print('OutputCovB ', OutputCovB, file=f)
-
-
     # Load mask
     Mask = loadFile(os.path.join(OutDir,'blm_vox_mask.nii')).get_fdata()
     Mask = Mask.reshape(v, 1)
@@ -150,9 +129,6 @@ def main3(*args):
 
         # By default make amask ones
         amask = np.ones([v,1])
-
-
-    t1=time.time()
 
     # Get indices for whole analysis mask. These indices are the indices we
     # have recorded for the product matrices with respect to the entire volume
@@ -179,11 +155,6 @@ def main3(*args):
     ix_i = np.argsort(np.argsort(I_inds))
     I_inds_am = np.sort(np.where(np.in1d(amInds,I_inds))[0])[ix_i]
 
-    t2 = time.time()
-
-    with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'a') as f:
-        print('ring/inner, time ',t2-t1, file=f)
-
     # ------------------------------------------------------------------------
     # Number of voxels in ring and inner
     # ------------------------------------------------------------------------
@@ -201,18 +172,13 @@ def main3(*args):
     # Degrees of freedom (n-p)
     # ------------------------------------------------------------------------
 
-    # Get df map
-    df_r = n_sv[R_inds,:] - p
-    df_r = df_r.reshape([v_r])
+    # Get df 
     df_i = n - p
 
     # ------------------------------------------------------------------------
     # The next operations are more computationally intensive so we split 
     # computation into blocks of voxels
     # ------------------------------------------------------------------------
-
-
-    t1=time.time()
 
     # ------------------------------------------------------------------------
     # Work out block of voxels we are looking at
@@ -241,17 +207,6 @@ def main3(*args):
         else:
             nf = nf + 1
 
-
-    t2 = time.time()
-
-
-    with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'a') as f:
-        print('contrasts, time ',t2-t1, file=f)
-
-        print('c ', c, file=f)
-        print('nt ', nt, file=f)
-        print('nf ', nf, file=f)
-
     # ------------------------------------------------------------------------
     # Output volume dimensions
     # ------------------------------------------------------------------------
@@ -274,8 +229,6 @@ def main3(*args):
     # Split the voxels into computable groups
     # ------------------------------------------------------------------------
 
-    t1=time.time()
-
     # Work out the number of voxels we can actually compute at a time.
     # (This is really just a rule of thumb guess but works reasonably in
     # practice).
@@ -284,24 +237,12 @@ def main3(*args):
     # Work out number of groups we have to split indices into.
     nvg = int(len(bamInds)//nvb+1)
 
-
-    with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'a') as f:
-        print('nvg: ', nvg, file=f)
-
     # Split voxels we want to look at into groups we can compute
     voxelGroups = np.array_split(bamInds, nvg)
 
     # Loop through list of voxel indices, looking at each group of voxels, in
     # turn.
     for cv in range(nvg):
-
-        t1 = time.time()
-
-
-        with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'a') as f:
-            print('in loop ', file=f)
-
-            print('cv ', cv, file=f)
 
         # Current group of voxels
         bamInds_cv = voxelGroups[cv]
@@ -327,14 +268,6 @@ def main3(*args):
         ix_i = np.argsort(np.argsort(I_inds))
         I_inds_am = np.sort(np.where(np.in1d(amInds,I_inds))[0])[ix_i]
 
-        t2 = time.time()
-
-
-        with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'a') as f:
-            print('in loop masked inds, time ',t2-t1, file=f)
-
-        t1 = time.time()
-
         # ------------------------------------------------------------------------
         # Number of voxels in ring and inner
         # ------------------------------------------------------------------------
@@ -352,65 +285,23 @@ def main3(*args):
         # Load X'X, X'Y, Y'Y
         # --------------------------------------------------------------------------------
 
-        with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'a') as f:
-            print('in loop got vox numbers, time ',t2-t1, file=f)
-
-        t1 = time.time()
-
         # Ring X'Y, Y'Y
         XtY_r = readLinesFromNPY(os.path.join(OutDir,"tmp",'XtY.npy'), R_inds_am).reshape([v_r, p, 1])
-
-        t2 = time.time()
-
-        with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'a') as f:
-            print('in loop got XtY_r, time ',t2-t1, file=f)
-
-        t1 = time.time()
-
         YtY_r = readLinesFromNPY(os.path.join(OutDir,"tmp",'YtY.npy'), R_inds_am).reshape([v_r, 1, 1])
-
-        t2 = time.time()
-
-        with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'a') as f:
-            print('in loop got YtY_r, time ',t2-t1, file=f)
-
-        t1 = time.time()
 
         # Inner X'Y, Y'Y
         XtY_i = readLinesFromNPY(os.path.join(OutDir,"tmp",'XtY.npy'), I_inds_am).reshape([v_i, p, 1])
-        t2 = time.time()
-
-        with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'a') as f:
-            print('in loop got XtY_i, time ',t2-t1, file=f)
-
-        t1 = time.time()
-
         YtY_i = readLinesFromNPY(os.path.join(OutDir,"tmp",'YtY.npy'), I_inds_am).reshape([v_i, 1, 1])
-
-        t2 = time.time()
-
-        with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'a') as f:
-            print('in loop got YtY_i, time ',t2-t1, file=f)
-
-            print('v_i ', v_i, file=f)
-            print('v_r ', v_r, file=f)
 
         if v_r:
 
-            t1 = time.time()
             # Ring X'X
             XtX_r = readUniqueAtB('XtX', OutDir, R_inds, True, uniq).reshape([v_r, p, p])
-
-            t2 = time.time()
-
-            with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'a') as f:
-                print('in loop got XtX_r time ',t2-t1, file=f)
 
             # ----------------------------------------------------------------------------
             # Remove low rank designs
             # ----------------------------------------------------------------------------
 
-            t1 = time.time()
             # Work out indices of low rank designs
             lowrank_inds = np.where(np.linalg.matrix_rank(XtX_r)<p)[0]
             fullrank_inds = np.where(np.linalg.matrix_rank(XtX_r)==p)[0]
@@ -418,17 +309,8 @@ def main3(*args):
             # Work out number of low rank indices
             v_lowrank = np.prod(lowrank_inds.shape)
 
-            t2 = time.time()
-
-            with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'a') as f:
-                print('in loop removed rank time ',t2-t1, file=f)
-
-                print('v_lowrank ', v_lowrank, file=f)
-
             # If we have low rank indices remove them from our working variables
             if v_lowrank:
-
-                t1 = time.time()
 
                 # Remove low rank designs from the existing NIFTI files
                 addBlockToNifti(os.path.join(OutDir, 'blm_vox_mask.nii'), np.zeros(v_lowrank), R_inds[lowrank_inds],volInd=0,dim=NIFTIsize,aff=nifti.affine,hdr=nifti.header)
@@ -447,15 +329,7 @@ def main3(*args):
                 v_r = R_inds.shape[0]
         
 
-                t2 = time.time()
-
-                with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'a') as f:
-                    print('in loop updated masks ',t2-t1, file=f)
-
-
         if v_i:
-
-            t1 = time.time()
 
             # Inner X'X
             XtX_i = readUniqueAtB('XtX', OutDir, I_inds, False, uniq).reshape([1, p, p])
@@ -464,12 +338,6 @@ def main3(*args):
             if np.linalg.matrix_rank(XtX_i)<p:
                 raise Exception('The design matrix, X, is of insufficient rank.') 
 
-
-            t2 = time.time()
-
-            with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'a') as f:
-                print('in loop inner rank check ',t2-t1, file=f)
-
         # ----------------------------------------------------------------------
         # Calculate betahat = (X'X)^(-1)X'Y and output beta maps
         # ----------------------------------------------------------------------    
@@ -477,25 +345,15 @@ def main3(*args):
         # Get beta for ring
         if v_r:
 
-            t1 = time.time()
-
             # Calculate masked Beta for ring
             beta_r = np.linalg.solve(XtX_r, XtY_r)
 
             # Output Beta
             addBlockToNifti(os.path.join(OutDir, 'blm_vox_beta.nii'), beta_r, R_inds,volInd=None,dim=dimBeta,aff=nifti.affine,hdr=nifti.header)
 
-            t2 = time.time()
-
-            with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'a') as f:
-                print('in loop beta ring ',t2-t1, file=f)
-
-
         # If we have indices where all studies are present, work out X'X and
         # X'Y for these studies.
         if v_i:
-
-            t1 = time.time()
 
             # Calculate masked Beta for ring
             beta_i = np.linalg.solve(XtX_i, XtY_i)
@@ -503,11 +361,6 @@ def main3(*args):
 
             # Output Beta
             addBlockToNifti(os.path.join(OutDir, 'blm_vox_beta.nii'), beta_i, I_inds,volInd=None,dim=dimBeta,aff=nifti.affine,hdr=nifti.header)
-
-            t2 = time.time()
-
-            with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'a') as f:
-                print('in loop beta inner ',t2-t1, file=f)
 
         # ----------------------------------------------------------------------
         # Calculate residual sum of squares e'e = Y'Y - (Xb)'Xb
@@ -618,19 +471,12 @@ def main3(*args):
         # ----------------------------------------------------------------------
         # Calculate beta covariance maps
         # ----------------------------------------------------------------------
-            
-        t1 = time.time()
 
         # Calculate masked (x'X)^(-1) values for ring
         if v_r:
-            iXtX_r = blm_inverse(XtX_r, ouflow=True)
+            iXtX_r = np.linalg.pinv(XtX_r)
         if v_i:
-            iXtX_i = blm_inverse(XtX_i, ouflow=True)
-
-        t2 = time.time()
-
-        with open(os.path.join(OutDir,'results' + str(jobNum) + '.txt'), 'a') as f:
-            print('inverse ',t2-t1, file=f)
+            iXtX_i = np.linalg.pinv(XtX_i)
 
         if OutputCovB:
             
@@ -781,7 +627,7 @@ def main3(*args):
                     Lbetat_r = Lbeta_r.transpose(0,2,1)
 
                     # Calculate masked (L'(X'X)^(-1)L)^(-1) values for ring
-                    iLvectiXtXLvec_r = blm_inverse(LvectiXtXLvec_r, ouflow=True).reshape([v_r, q*q])
+                    iLvectiXtXLvec_r = np.linalg.pinv(LvectiXtXLvec_r).reshape([v_r, q*q])
 
                     # Calculate the numerator of the F statistic for the ring
                     Fnumerator_r = np.matmul(Lbetat_r, np.linalg.solve(LvectiXtXLvec_r, Lbeta_r))
@@ -795,6 +641,10 @@ def main3(*args):
 
                     # Output F statistic.
                     addBlockToNifti(os.path.join(OutDir, 'blm_vox_conF.nii'), fStatc_r, R_inds,volInd=current_nf,dim=dimF,aff=nifti.affine,hdr=nifti.header)
+
+                    # Degrees of freedom
+                    df_r = n_sv[R_inds,:] - p
+                    df_r = df_r.reshape(df_r.shape[0])
 
                     # Work out p for this contrast
                     pc_r = -np.log10(1-stats.f.cdf(fStatc_r, q, df_r))
@@ -829,7 +679,7 @@ def main3(*args):
                     Lbetat_i = Lbeta_i.transpose(0,2,1)
 
                     # Calculate masked (L'(X'X)^(-1)L)^(-1) values for inner
-                    iLvectiXtXLvec_i = blm_inverse(LvectiXtXLvec_i, ouflow=True).reshape([1, q*q])
+                    iLvectiXtXLvec_i = np.linalg.pinv(LvectiXtXLvec_i).reshape([1, q*q])
 
                     # Calculate the numerator of the F statistic for the ring
                     Fnumerator_i = np.matmul(Lbetat_i, np.linalg.solve(LvectiXtXLvec_i, Lbeta_i))
