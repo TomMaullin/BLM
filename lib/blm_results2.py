@@ -942,13 +942,20 @@ def readUniqueAtB(AtBstr, OutDir, vinds, sv, uniquenessMask):
         # Work out the uniqueness mask value inside the inner part of the brain
         uniquenessMask = uniquenessMask[vinds[0]] 
 
-
+    t1 = time.time()
     # read in XtX
     AtB_unique = np.load(os.path.join(OutDir,"tmp",AtBstr+".npy"))
+    t2 = time.time()
+    with open(os.path.join(OutDir,'results.txt'), 'a') as f:
+        print('MARKER time ', t2-t1, file=f)
 
     # Make zeros for outer ring of brain XtX (remember A'B is still flattened)
     if sv:
         AtB = np.zeros((vcurrent, AtB_unique.shape[1]))
+
+    with open(os.path.join(OutDir,'results.txt'), 'a') as f:
+        print('maxM ', maxM, file=f)
+        print('length unique ', len(np.unique(uniquenessMask)), file=f)
 
     # Fill with unique maskings
     for m in range(1,maxM+1):
@@ -956,6 +963,13 @@ def readUniqueAtB(AtBstr, OutDir, vinds, sv, uniquenessMask):
         if sv:
             # Work out X'X for the ring
             AtB[np.where(uniquenessMask==m),:] = AtB_unique[m,:]
+
+            t1 = time.time()
+            tmp = readLinesFromNPY(os.path.join(OutDir,"tmp",AtBstr+".npy"), m)
+            t2 = time.time()
+            with open(os.path.join(OutDir,'results.txt'), 'a') as f:
+                print('Check ', np.allclose(tmp, AtB_unique[m,:]), file=f)
+                print('memmap time ', t2-t1, file=f)
 
         # Work out X'X for the inner
         else:
