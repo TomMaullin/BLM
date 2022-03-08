@@ -67,7 +67,7 @@ def main(cluster):
     # --------------------------------------------------------
     # CONCAT
     # --------------------------------------------------------
-    
+
     # Batch jobs
     maskJob = False
 
@@ -193,7 +193,7 @@ def main(cluster):
     # --------------------------------------------------------------------------------
     # Clean up files
     # --------------------------------------------------------------------------------
-    if os.path.isfile(os.remove(os.path.join(OutDir, 'nb.txt'))):
+    if os.path.isfile(os.path.join(OutDir, 'nb.txt')):
         os.remove(os.path.join(OutDir, 'nb.txt'))
     if os.path.isdir(os.path.join(OutDir, 'tmp')):
         shutil.rmtree(os.path.join(OutDir, 'tmp'))
