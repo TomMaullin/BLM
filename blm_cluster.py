@@ -7,7 +7,6 @@ from lib.blm_batch import main2 as blm_batch
 from lib.blm_concat import main3 as blm_concat2
 from lib.blm_concat import combineUniqueAtB as blm_concat3
 from lib.blm_results import main3 as blm_results2
-from lib.blm_cleanup import main4 as blm_cleanup
 from lib.fileio import pracNumVoxelBlocks
 import numpy as np
 import os
