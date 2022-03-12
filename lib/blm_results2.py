@@ -963,7 +963,7 @@ def readUniqueAtB(AtBstr, OutDir, vinds, sv, uniquenessMask):
         # Work out X'X for the inner
         else:
             if uniquenessMask == m:
-                AtB = AtB_unique[m,:]
+                AtB = AtB_unique[i,:]
 
     return(AtB)
 
