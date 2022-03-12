@@ -142,7 +142,7 @@ def main(cluster):
     # --------------------------------------------------------
 
     # Number of jobs for results (practical number of voxel batches)
-    pnvb = int(np.maximum(100, pracNumVoxelBlocks(inputs)))
+    pnvb = int(np.maximum(0, pracNumVoxelBlocks(inputs)))
 
     # Empty futures list
     futures = []
