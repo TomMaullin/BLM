@@ -957,8 +957,18 @@ def readUniqueAtB(AtBstr, OutDir, vinds, sv, uniquenessMask):
         print('maxM ', maxM, file=f)
         print('length unique ', len(np.unique(uniquenessMask)), file=f)
 
+
+    uniqueVals = np.unique(uniquenessMask)
+
+    t1 = time.time()
+    tmp2 = readLinesFromNPY(os.path.join(OutDir,"tmp",AtBstr+".npy"), uniqueVals)
+    t2 = time.time()
+    with open(os.path.join(OutDir,'results.txt'), 'a') as f:
+        print('memmap new time ', t2-t1, file=f)
+
+
     # Fill with unique maskings
-    for m in range(1,maxM+1):
+    for i, m in uniqueVals:
 
         if sv:
             # Work out X'X for the ring
@@ -969,6 +979,7 @@ def readUniqueAtB(AtBstr, OutDir, vinds, sv, uniquenessMask):
             t2 = time.time()
             with open(os.path.join(OutDir,'results.txt'), 'a') as f:
                 print('Check ', np.allclose(tmp, AtB_unique[m,:]), file=f)
+                print('Check 2 ', np.allclose(tmp2[i,:], AtB_unique[m,:]), file=f)
                 print('memmap time ', t2-t1, file=f)
 
         # Work out X'X for the inner
