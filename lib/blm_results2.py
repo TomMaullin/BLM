@@ -968,7 +968,7 @@ def readUniqueAtB(AtBstr, OutDir, vinds, sv, uniquenessMask):
 
 
     # Fill with unique maskings
-    for i, m in uniqueVals:
+    for i, m in enumerate(uniqueVals):
 
         if sv:
             # Work out X'X for the ring
