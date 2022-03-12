@@ -958,7 +958,7 @@ def readUniqueAtB(AtBstr, OutDir, vinds, sv, uniquenessMask):
         print('length unique ', len(np.unique(uniquenessMask)), file=f)
 
 
-    uniqueVals = np.unique(uniquenessMask)
+    uniqueVals = np.unique(uniquenessMask).astype(int)
 
     t1 = time.time()
     tmp2 = readLinesFromNPY(os.path.join(OutDir,"tmp",AtBstr+".npy"), uniqueVals)
