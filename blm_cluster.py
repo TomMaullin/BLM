@@ -2,7 +2,7 @@ from dask import config
 from dask_jobqueue import SGECluster
 from dask.distributed import Client, as_completed
 from dask.distributed import performance_report
-from lib.blm_setup import main1 as blm_setup
+from lib.blm_setup import setup
 from lib.blm_batch import compute_product_forms
 from lib.blm_concat import combine_batch_masking, combine_batch_designs
 from lib.blm_results import output_results
