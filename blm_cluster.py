@@ -34,7 +34,7 @@ def main(cluster, inputs):
     cluster.scale(1)
 
     # Get number of batches
-    future_0 = client.submit(blm_setup, inputs_yml, retnb, pure=False)
+    future_0 = client.submit(setup, inputs_yml, retnb, pure=False)
     nb = future_0.result()
 
     del future_0
