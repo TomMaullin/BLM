@@ -3,10 +3,9 @@ from dask_jobqueue import SGECluster
 from dask.distributed import Client, as_completed
 from dask.distributed import performance_report
 from lib.blm_setup import main1 as blm_setup
-from lib.blm_batch import main2 as blm_batch
-from lib.blm_concat import main3 as blm_concat2
-from lib.blm_concat import combineUniqueAtB as blm_concat3
-from lib.blm_results import main3 as blm_results2
+from lib.blm_batch import compute_product_forms
+from lib.blm_concat import combine_batch_masking, combine_batch_designs
+from lib.blm_results import output_results
 from lib.fileio import pracNumVoxelBlocks
 import numpy as np
 import os
@@ -46,7 +45,7 @@ def main(cluster, inputs):
     cluster.scale(numNodes)
 
     # Futures list
-    futures = client.map(blm_batch, *[np.arange(nb)+1, [inputs_yml]*nb], pure=False)
+    futures = client.map(compute_product_forms, *[np.arange(nb)+1, [inputs_yml]*nb], pure=False)
 
     # results
     results = client.gather(futures)

@@ -40,7 +40,7 @@ from lib.fileio import *
 # --------------------------------------------------------------------------
 # Author: Tom Maullin (04/02/2019)
 
-def main3(*args):
+def output_results(*args):
 
     # Get job number
     jobNum = args[0]

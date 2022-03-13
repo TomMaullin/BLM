@@ -16,10 +16,7 @@ import time
 np.set_printoptions(threshold=sys.maxsize)
 from lib.fileio import *
 
-def main2(*args):
-
-
-    print('started')
+def compute_product_forms(*args):
 
     # Change to blm directory
     os.chdir(os.path.dirname(os.path.realpath(__file__)))    
@@ -246,7 +243,6 @@ def verifyInput(Y_files, M_files, Y0):
                                  'different affine transformation to "' +
                                  Y0 + '"')
 
-    print('made to end')
 
 # ============================================================================
 # 

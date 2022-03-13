@@ -40,7 +40,7 @@ from lib.fileio import *
 # --------------------------------------------------------------------------
 # Author: Tom Maullin (04/02/2019)
 
-def main3(*args):
+def combine_batch_masking(*args):
 
     print('marker')
 
@@ -369,30 +369,6 @@ def main3(*args):
         nib.save(maskmap, os.path.join(OutDir,'blm_vox_mask.nii'))
         del maskmap
 
-        # t2 = time.time()
-        # print('mask, time ',t2-t1)
-
-
-        # # Unmask df
-        # df = np.zeros([v])
-        # df[R_inds] = df_r 
-        # df[I_inds] = df_i
-
-        # df = df.reshape(int(NIFTIsize[0]),
-        #                 int(NIFTIsize[1]),
-        #                 int(NIFTIsize[2]))
-
-        # # Save beta map.
-        # dfmap = nib.Nifti1Image(df,
-        #                         nifti.affine,
-        #                         header=nifti.header) 
-        # nib.save(dfmap, os.path.join(OutDir,'blm_vox_edf.nii'))
-        # del df, dfmap
-
-        # t2 = time.time()
-        # print('vedf, time ',t2-t1)
-
-
 
 # ============================================================================
 #
@@ -421,7 +397,7 @@ def main3(*args):
 #          each voxel. If sv was false we will have one matrix for all voxels.
 #
 # ============================================================================
-def combineUniqueAtB(AtBstr, OutDir, fileRange):
+def combine_batch_designs(AtBstr, OutDir, fileRange):
 
     # MARKER HANDLE EMPTY JOB
 
