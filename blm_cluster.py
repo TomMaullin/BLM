@@ -150,7 +150,10 @@ if __name__ == "__main__":
 
     # Inputs file is first argument
     if len(sys.argv)>1:
-        inputs_yml = sys.argv[1]
+        if not os.path.split(sys.argv[1])[0]:
+            inputs_yml = os.path.join(os.getcwd(),sys.argv[1])
+        else:
+            inputs_yml = sys.argv[1]
     else:
         inputs_yml = os.path.join(os.path.realpath(__file__),'blm_config.yml')
 
