@@ -70,16 +70,16 @@ def main(cluster, inputs):
     for node in np.arange(1,numNodes + 1):
 
         # Run the jobNum^{th} job.
-        future_c = client.submit(blm_concat3, 'XtX', OutDir, fileGroups[node-1], pure=False)
+        future_c = client.submit(combine_batch_designs, 'XtX', OutDir, fileGroups[node-1], pure=False)
 
-        # Append to list
+        # Append to list 
         futures.append(future_c)
 
     # Loop through nodes
     for node in np.arange(1,numNodes + 1):
 
         # Give the i^{th} node the i^{th} partition of the data
-        future_b = client.submit(blm_concat2, nb, node, numNodes, maskJob, inputs_yml, pure=False)
+        future_b = client.submit(combine_batch_masking, nb, node, numNodes, maskJob, inputs_yml, pure=False)
 
         # Append to list
         futures.append(future_b)
@@ -97,7 +97,7 @@ def main(cluster, inputs):
     maskJob = True
 
     # The first job does the analysis mask (this is why the 3rd argument is set to true)
-    future_b_first = client.submit(blm_concat2, nb, numNodes + 1, numNodes, maskJob, inputs_yml, pure=False)
+    future_b_first = client.submit(combine_batch_masking, nb, numNodes + 1, numNodes, maskJob, inputs_yml, pure=False)
     res = future_b_first.result()
 
     del future_b_first, res
@@ -116,7 +116,7 @@ def main(cluster, inputs):
     for jobNum in np.arange(pnvb):
 
         # Run the jobNum^{th} job.
-        future_c = client.submit(blm_results2, jobNum, pnvb, nb, inputs_yml, pure=False)
+        future_c = client.submit(output_results, jobNum, pnvb, nb, inputs_yml, pure=False)
 
         # Append to list
         futures.append(future_c)
