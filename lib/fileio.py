@@ -177,6 +177,8 @@ def str2vec(c):
 # ============================================================================
 def addBlockToNifti(fname, block, blockInds,dim=None,volInd=None,aff=None,hdr=None):
 
+    OutDir = "/well/nichols/users/inf852/BLMdask2"
+
     # Check if file is in use
     fileLocked = True
     while fileLocked:
