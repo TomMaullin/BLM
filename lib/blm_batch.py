@@ -69,7 +69,7 @@ def compute_product_forms(*args):
         raise ValueError('The NIFTI "' + Y_files[0] + '"does not exist')
 
     # Read in some data as a default nifti
-    d0 = Y0.get_fdata()
+    d0 = np.asarray(Y0, dtype=np.float64)
 
     # Get the maximum memory a NIFTI could take in storage. 
     NIFTImem = sys.getsizeof(np.zeros(d0.shape,dtype='uint64'))
@@ -129,7 +129,7 @@ def compute_product_forms(*args):
 
         # Load the file and check it's shape is 3d (as oppose to 4d with a 4th dimension
         # of 1)
-        M_a = loadFile(inputs['analysis_mask']).get_fdata()
+        M_a = np.asarray(loadFile(inputs['analysis_mask']))
         M_a = M_a.reshape((M_a.shape[0],M_a.shape[1],M_a.shape[2]))
 
     else:
@@ -195,7 +195,7 @@ def compute_product_forms(*args):
 def verifyInput(Y_files, M_files, Y0):
 
     # Obtain information about zero-th scan
-    d0 = Y0.get_fdata()
+    d0 = np.asarray(Y0, dtype=np.float64)
     Y0aff = Y0.affine
 
     # Initial checks for NIFTI compatability for Y.
@@ -281,7 +281,7 @@ def obtainY(Y_files, M_files, M_t, M_a):
 
     # Load in one nifti to check NIFTI size
     Y0 = loadFile(Y_files[0])
-    d = Y0.get_fdata()
+    d = np.asarray(Y0, dtype=np.float64)
     
     # Get number of voxels.
     v = np.prod(d.shape)
@@ -303,13 +303,13 @@ def obtainY(Y_files, M_files, M_t, M_a):
         if M_files:
         
             # Apply mask
-            M_indiv = loadFile(M_files[i]).get_fdata()
+            M_indiv = np.asarray(loadFile(M_files[i]), dtype=np.float64) 
             d = np.multiply(
-                Y_indiv.get_fdata(),
+                np.asarray(Y_indiv, dtype=np.float64),
                 M_indiv)
         else: 
             #Just load in Y
-            d = Y_indiv.get_fdata()
+            d = np.asarray(Y_indiv, dtype=np.float64)
 
         # If theres an initial threshold for the data apply it.
         if M_t is not None:
