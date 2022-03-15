@@ -212,7 +212,7 @@ def addBlockToNifti(fname, block, blockInds,dim=None,volInd=None,aff=None,hdr=No
 
         # Non cached version
         t1 = time.time()
-        data2 = img.dataobj # https://nipy.org/nibabel/images_and_memory.html 
+        data2 = np.asarray(img.dataobj, dtype=np.float64) # https://nipy.org/nibabel/images_and_memory.html 
         t2 = time.time()
         with open(os.path.join(OutDir,'results.txt'), 'a') as f:
             print('dataobj time ', t2-t1,file=f)
