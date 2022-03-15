@@ -144,6 +144,9 @@ def main(cluster, inputs):
     print('')
     print('Check results in: ', OutDir)
 
+    # Close the client
+    client.close()
+
 # If running this function
 if __name__ == "__main__":
 
