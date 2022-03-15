@@ -205,17 +205,19 @@ def addBlockToNifti(fname, block, blockInds,dim=None,volInd=None,aff=None,hdr=No
         t1 = time.time()
         data = img.get_fdata()
         t2 = time.time()
-        print('fdata time ', t2-t1)
+        with open(os.path.join(OutDir,'results.txt'), 'a') as f:
+            print('fdata time ', t2-t1,file=f)
 
         # Non cached version
         t1 = time.time()
         data2 = img.dataobj # https://nipy.org/nibabel/images_and_memory.html 
         t2 = time.time()
-        print('dataobj time ', t2-t1)
+        with open(os.path.join(OutDir,'results.txt'), 'a') as f:
+            print('dataobj time ', t2-t1,file=f)
 
-        print('types ', type(data), type(data2))
-        print('dtypes ', data.dtype, data2.dtype)
-        print('equality ', np.allclose(data,data2), np.all(data==data2))
+            print('types ', type(data), type(data2),file=f)
+            print('dtypes ', data.dtype, data2.dtype,file=f)
+            print('equality ', np.allclose(data,data2), np.all(data==data2),file=f)
 
         # Work out affine
         affine = img.affine
