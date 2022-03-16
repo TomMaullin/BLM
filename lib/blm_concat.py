@@ -208,12 +208,12 @@ def combine_batch_masking(*args):
         else:
 
             # Obtain the full nmap.
-            n_sv2 = n_sv + np.asarray(loadFile(os.path.join(OutDir,"tmp", 
+            n_sv = n_sv + np.asarray(loadFile(os.path.join(OutDir,"tmp", 
                 "blm_vox_n_batch" + str(batchNo) + ".nii")).dataobj)
-            n_sv = n_sv + loadFile(os.path.join(OutDir,"tmp", 
-                "blm_vox_n_batch" + str(batchNo) + ".nii")).get_fdata()
-            with open(os.path.join(OutDir,'results.txt'), 'a') as f:
-                print('check 9 ',np.allclose(n_sv, n_sv2), np.all(n_sv==n_sv2), file=f)
+            # n_sv = n_sv + loadFile(os.path.join(OutDir,"tmp", 
+            #     "blm_vox_n_batch" + str(batchNo) + ".nii")).get_fdata()
+            # with open(os.path.join(OutDir,'results.txt'), 'a') as f:
+            #     print('check 9 ',np.allclose(n_sv, n_sv2), np.all(n_sv==n_sv2), file=f)
 
         # Remove file we just read
         os.remove(os.path.join(OutDir,"tmp", "blm_vox_n_batch" + str(batchNo) + ".nii"))
