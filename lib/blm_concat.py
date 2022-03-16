@@ -195,7 +195,7 @@ def combine_batch_masking(*args):
 
             # Read in n (spatially varying)
             n_sv  = np.asarray(loadFile(os.path.join(OutDir,"tmp", 
-                             "blm_vox_n_batch" + str(batchNo) + ".nii")))
+                             "blm_vox_n_batch" + str(batchNo) + ".nii")).dataobj)
 
             # No longer looking at the first image
             firstImage = False
@@ -204,7 +204,7 @@ def combine_batch_masking(*args):
 
             # Obtain the full nmap.
             n_sv = n_sv + np.asarray(loadFile(os.path.join(OutDir,"tmp", 
-                             "blm_vox_n_batch" + str(batchNo) + ".nii")))
+                             "blm_vox_n_batch" + str(batchNo) + ".nii")).dataobj)
 
         # Remove file we just read
         os.remove(os.path.join(OutDir,"tmp", "blm_vox_n_batch" + str(batchNo) + ".nii"))
@@ -232,13 +232,13 @@ def combine_batch_masking(*args):
         # ------------------------------------------------------------------------------------
 
         if os.path.exists(df_fname):
-            df_sv = n_sv + np.asarray(loadFile(df_fname))
+            df_sv = n_sv + np.asarray(loadFile(df_fname).dataobj)
             os.remove(df_fname)
         else:
             df_sv = np.array(n_sv) 
 
         if os.path.exists(n_fname):
-            n_sv = n_sv + np.asarray(loadFile(n_fname))
+            n_sv = n_sv + np.asarray(loadFile(n_fname).dataobj)
             os.remove(n_fname)
 
         # Save nmap
@@ -273,7 +273,7 @@ def combine_batch_masking(*args):
     if maskJob:
 
         # Read in degrees of freedom
-        df_sv = np.asarray(loadFile(os.path.join(OutDir,'blm_vox_edf.nii')))
+        df_sv = np.asarray(loadFile(os.path.join(OutDir,'blm_vox_edf.nii')).dataobj)
 
         # Remove non-zero voxels
         df_sv = np.maximum(df_sv,0)
@@ -286,7 +286,7 @@ def combine_batch_masking(*args):
         del dfmap
 
         # Read in n (spatially varying)
-        n_sv  = np.asarray(loadFile(os.path.join(OutDir,'blm_vox_n.nii')))
+        n_sv  = np.asarray(loadFile(os.path.join(OutDir,'blm_vox_n.nii')).dataobj)
 
         Mask = np.ones([v, 1])
         n_sv = n_sv.reshape(v, 1)   
@@ -343,7 +343,7 @@ def combine_batch_masking(*args):
             amask_path = inputs["analysis_mask"]
             
             # Read in the mask nifti.
-            amask = np.asarray(loadFile(amask_path)).reshape([v,1])
+            amask = np.asarray(loadFile(amask_path).dataobj).reshape([v,1])
 
         else:
 
@@ -414,7 +414,7 @@ def combine_batch_designs(AtBstr, OutDir, fileRange):
     hdr = loadFile(NIFTIfilenames[0]).header
 
     # Initialize current uniqueness map and AtB
-    uniquenessMask_current = np.asarray(loadFile(NIFTIfilenames[0]))
+    uniquenessMask_current = np.asarray(loadFile(NIFTIfilenames[0]).dataobj)
     AtB_unique_current = np.load(AtBfilenames[0])
 
     # Add row of zeros for outside of mask
@@ -431,7 +431,7 @@ def combine_batch_designs(AtBstr, OutDir, fileRange):
         if i < len(NIFTIfilenames):
 
             # Read new uniqueness mask
-            uniquenessMask_new = np.asarray(loadFile(NIFTIfilenames[i]))
+            uniquenessMask_new = np.asarray(loadFile(NIFTIfilenames[i]).dataobj)
 
             # Read in new unique list of AtB's
             AtB_unique_new = np.load(AtBfilenames[i])
@@ -461,7 +461,7 @@ def combine_batch_designs(AtBstr, OutDir, fileRange):
 
                 # Adding to the running total now
                 uniquenessMask_new = np.asarray(loadFile(os.path.join(OutDir,"tmp", 
-                                              "blm_vox_uniqueM.nii")))
+                                              "blm_vox_uniqueM.nii")).dataobj)
 
                 # Read in the running list of AtB's
                 AtB_unique_new = np.load(os.path.join(OutDir,"tmp",
