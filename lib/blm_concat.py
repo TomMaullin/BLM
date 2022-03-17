@@ -440,12 +440,12 @@ def combine_batch_designs(AtBstr, OutDir, fileRange):
     hdr = loadFile(NIFTIfilenames[0]).header
 
     # Initialize current uniqueness map and AtB
-    uniquenessMask_current = loadFile(NIFTIfilenames[0]).get_fdata()
-    uniquenessMask_current2 = np.asarray(loadFile(NIFTIfilenames[0]).dataobj)
+    # uniquenessMask_current = loadFile(NIFTIfilenames[0]).get_fdata()
+    uniquenessMask_current = np.asarray(loadFile(NIFTIfilenames[0]).dataobj)
     AtB_unique_current = np.load(AtBfilenames[0])
 
-    with open(os.path.join(OutDir,'results.txt'), 'a') as file:
-        print('check 3 ',np.allclose(uniquenessMask_current, uniquenessMask_current2), np.all(uniquenessMask_current==uniquenessMask_current2), file=file)
+    # with open(os.path.join(OutDir,'results.txt'), 'a') as file:
+    #     print('check 3 ',np.allclose(uniquenessMask_current, uniquenessMask_current2), np.all(uniquenessMask_current==uniquenessMask_current2), file=file)
 
     # Add row of zeros for outside of mask
     AtB_unique_current = np.concatenate((np.zeros((1,AtB_unique_current.shape[1])), AtB_unique_current), axis=0)
