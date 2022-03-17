@@ -198,8 +198,8 @@ def combine_batch_masking(*args):
                              "blm_vox_n_batch" + str(batchNo) + ".nii")).get_fdata()
             n_sv2  = np.asarray(loadFile(os.path.join(OutDir,"tmp",  
                              "blm_vox_n_batch" + str(batchNo) + ".nii")).dataobj)
-            with open(os.path.join(OutDir,'results.txt'), 'a') as f:
-                print('check 10 ',np.allclose(n_sv, n_sv2), np.all(n_sv==n_sv2), file=f)
+            with open(os.path.join(OutDir,'results.txt'), 'a') as file:
+                print('check 10 ',np.allclose(n_sv, n_sv2), np.all(n_sv==n_sv2), file=file)
 
 
             # No longer looking at the first image
@@ -212,8 +212,8 @@ def combine_batch_masking(*args):
                 "blm_vox_n_batch" + str(batchNo) + ".nii")).dataobj)
             # n_sv = n_sv + loadFile(os.path.join(OutDir,"tmp", 
             #     "blm_vox_n_batch" + str(batchNo) + ".nii")).get_fdata()
-            # with open(os.path.join(OutDir,'results.txt'), 'a') as f:
-            #     print('check 9 ',np.allclose(n_sv, n_sv2), np.all(n_sv==n_sv2), file=f)
+            # with open(os.path.join(OutDir,'results.txt'), 'a') as file:
+            #     print('check 9 ',np.allclose(n_sv, n_sv2), np.all(n_sv==n_sv2), file=file)
 
         # Remove file we just read
         os.remove(os.path.join(OutDir,"tmp", "blm_vox_n_batch" + str(batchNo) + ".nii"))
@@ -243,8 +243,8 @@ def combine_batch_masking(*args):
         if os.path.exists(df_fname):
             df_sv = n_sv + loadFile(df_fname).get_fdata()
             df_sv2 = n_sv + np.asarray(loadFile(df_fname).dataobj)
-            with open(os.path.join(OutDir,'results.txt'), 'a') as f:
-                print('check 8 ',np.allclose(df_sv, df_sv2), np.all(df_sv==df_sv2), file=f)
+            with open(os.path.join(OutDir,'results.txt'), 'a') as file:
+                print('check 8 ',np.allclose(df_sv, df_sv2), np.all(df_sv==df_sv2), file=file)
 
             os.remove(df_fname)
         else:
@@ -253,8 +253,8 @@ def combine_batch_masking(*args):
         if os.path.exists(n_fname):
             n_sv2 = n_sv + np.asarray(loadFile(n_fname).dataobj)
             n_sv = n_sv + loadFile(n_fname).get_fdata()
-            with open(os.path.join(OutDir,'results.txt'), 'a') as f:
-                print('check 7 ',np.allclose(n_sv, n_sv2), np.all(n_sv==n_sv2), file=f)
+            with open(os.path.join(OutDir,'results.txt'), 'a') as file:
+                print('check 7 ',np.allclose(n_sv, n_sv2), np.all(n_sv==n_sv2), file=file)
             os.remove(n_fname)
 
         # Save nmap
@@ -291,8 +291,8 @@ def combine_batch_masking(*args):
         # Read in degrees of freedom
         df_sv = loadFile(os.path.join(OutDir,'blm_vox_edf.nii')).get_fdata()
         df_sv2 = np.asarray(loadFile(os.path.join(OutDir,'blm_vox_edf.nii')).dataobj)
-        with open(os.path.join(OutDir,'results.txt'), 'a') as f:
-            print('check 6 ',np.allclose(df_sv, df_sv2), np.all(df_sv==df_sv2), file=f)
+        with open(os.path.join(OutDir,'results.txt'), 'a') as file:
+            print('check 6 ',np.allclose(df_sv, df_sv2), np.all(df_sv==df_sv2), file=file)
 
         # Remove non-zero voxels
         df_sv = np.maximum(df_sv,0)
@@ -308,8 +308,8 @@ def combine_batch_masking(*args):
         n_sv  = loadFile(os.path.join(OutDir,'blm_vox_n.nii')).get_fdata()
         n_sv2 = np.asarray(loadFile(os.path.join(OutDir,'blm_vox_n.nii')).dataobj)
 
-        with open(os.path.join(OutDir,'results.txt'), 'a') as f:
-            print('check 5 ',np.allclose(n_sv, n_sv2), np.all(n_sv==n_sv2), file=f)
+        with open(os.path.join(OutDir,'results.txt'), 'a') as file:
+            print('check 5 ',np.allclose(n_sv, n_sv2), np.all(n_sv==n_sv2), file=file)
 
         Mask = np.ones([v, 1])
         n_sv = n_sv.reshape(v, 1)   
@@ -369,8 +369,8 @@ def combine_batch_masking(*args):
             amask = loadFile(amask_path).get_fdata().reshape([v,1])
             amask2 = np.asarray(loadFile(amask_path).dataobj).reshape([v,1])
 
-            with open(os.path.join(OutDir,'results.txt'), 'a') as f:
-                print('check 4 ',np.allclose(amask, amask2), np.all(amask==amask2), file=f)
+            with open(os.path.join(OutDir,'results.txt'), 'a') as file:
+                print('check 4 ',np.allclose(amask, amask2), np.all(amask==amask2), file=file)
         else:
 
             # By default make amask ones
@@ -444,8 +444,8 @@ def combine_batch_designs(AtBstr, OutDir, fileRange):
     uniquenessMask_current2 = np.asarray(loadFile(NIFTIfilenames[0]).dataobj)
     AtB_unique_current = np.load(AtBfilenames[0])
 
-    with open(os.path.join(OutDir,'results.txt'), 'a') as f:
-        print('check 3 ',np.allclose(uniquenessMask_current, uniquenessMask_current2), np.all(uniquenessMask_current==uniquenessMask_current2), file=f)
+    with open(os.path.join(OutDir,'results.txt'), 'a') as file:
+        print('check 3 ',np.allclose(uniquenessMask_current, uniquenessMask_current2), np.all(uniquenessMask_current==uniquenessMask_current2), file=file)
 
     # Add row of zeros for outside of mask
     AtB_unique_current = np.concatenate((np.zeros((1,AtB_unique_current.shape[1])), AtB_unique_current), axis=0)
@@ -464,8 +464,8 @@ def combine_batch_designs(AtBstr, OutDir, fileRange):
             uniquenessMask_new = loadFile(NIFTIfilenames[i]).get_fdata()
             uniquenessMask_new2 = np.asarray(loadFile(NIFTIfilenames[i]).dataobj)
 
-            with open(os.path.join(OutDir,'results.txt'), 'a') as f:
-                print('check 2 ',np.allclose(uniquenessMask_new, uniquenessMask_new2), np.all(uniquenessMask_new==uniquenessMask_new2), file=f)
+            with open(os.path.join(OutDir,'results.txt'), 'a') as file:
+                print('check 2 ',np.allclose(uniquenessMask_new, uniquenessMask_new2), np.all(uniquenessMask_new==uniquenessMask_new2), file=file)
 
             # Read in new unique list of AtB's
             AtB_unique_new = np.load(AtBfilenames[i])
@@ -499,8 +499,8 @@ def combine_batch_designs(AtBstr, OutDir, fileRange):
                 uniquenessMask_new2 = np.asarray(loadFile(os.path.join(OutDir,"tmp", 
                                               "blm_vox_uniqueM.nii")).dataobj)
 
-                with open(os.path.join(OutDir,'results.txt'), 'a') as f:
-                    print('check 1 ',np.allclose(uniquenessMask_new, uniquenessMask_new2), np.all(uniquenessMask_new==uniquenessMask_new2), file=f)
+                with open(os.path.join(OutDir,'results.txt'), 'a') as file:
+                    print('check 1 ',np.allclose(uniquenessMask_new, uniquenessMask_new2), np.all(uniquenessMask_new==uniquenessMask_new2), file=file)
 
                 # Read in the running list of AtB's
                 AtB_unique_new = np.load(os.path.join(OutDir,"tmp",
