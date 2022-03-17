@@ -461,11 +461,11 @@ def combine_batch_designs(AtBstr, OutDir, fileRange):
         if i < len(NIFTIfilenames):
 
             # Read new uniqueness mask
-            uniquenessMask_new = loadFile(NIFTIfilenames[i]).get_fdata()
-            uniquenessMask_new2 = np.asarray(loadFile(NIFTIfilenames[i]).dataobj)
+            # uniquenessMask_new = loadFile(NIFTIfilenames[i]).get_fdata()
+            uniquenessMask_new = np.asarray(loadFile(NIFTIfilenames[i]).dataobj)
 
-            with open(os.path.join(OutDir,'results.txt'), 'a') as file:
-                print('check 2 ',np.allclose(uniquenessMask_new, uniquenessMask_new2), np.all(uniquenessMask_new==uniquenessMask_new2), file=file)
+            # with open(os.path.join(OutDir,'results.txt'), 'a') as file:
+            #     print('check 2 ',np.allclose(uniquenessMask_new, uniquenessMask_new2), np.all(uniquenessMask_new==uniquenessMask_new2), file=file)
 
             # Read in new unique list of AtB's
             AtB_unique_new = np.load(AtBfilenames[i])
