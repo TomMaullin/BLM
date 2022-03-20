@@ -547,6 +547,13 @@ def combine_batch_designs(AtBstr, OutDir, fileRange):
             # Work out which value the updated uniqueness values corresponded to in the `current' image
             value_current = int(value_updated_full-value_new*(maxM+1))
 
+            print('maxM_updated ', maxM_updated, 'maxM ', maxM, 'maxM_new ', maxM_new, 'maxM_current ', maxM_current)
+            print('value_updated ', value_updated, 'value_new ', value_new, 'value_current ', value_current)
+            print('updated shape ', AtB_unique_updated.shape, 'new shape ', AtB_unique_new.shape, 'current shape ', AtB_unique_current.shape)
+            x = AtB_unique_updated[value_updated,:]
+            x2 = AtB_unique_new[value_new,:]
+            x3 = AtB_unique_current[value_current,:]
+
             # Update the unique AtB array
             AtB_unique_updated[value_updated,:] = AtB_unique_new[value_new,:] + AtB_unique_current[value_current,:]
 
