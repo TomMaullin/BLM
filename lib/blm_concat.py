@@ -427,9 +427,6 @@ def combine_batch_designs(AtBstr, OutDir, fileRange):
 
     # MARKER HANDLE EMPTY JOB
 
-    with open(os.path.join(OutDir,'results.txt'), 'a') as file:
-        print('fileRange ', fileRange, file=file)
-
     # Get NIFTIfilenames
     NIFTIfilenames = [os.path.join(OutDir,"tmp", 
         "blm_vox_uniqueM_batch" + str(i) + ".nii") for i in fileRange]
@@ -550,11 +547,7 @@ def combine_batch_designs(AtBstr, OutDir, fileRange):
             # Work out which value the updated uniqueness values corresponded to in the `current' image
             value_current = int(value_updated_full-value_new*(maxM+1))
 
-            with open(os.path.join(OutDir,'results.txt'), 'a') as file:
-                print('maxM_updated ', maxM_updated, 'maxM ', maxM, 'maxM_new ', maxM_new, 'maxM_current ', maxM_current, file=file)
-                print('value_updated ', value_updated, 'value_new ', value_new, 'value_current ', value_current, file=file)
-                print('updated shape ', AtB_unique_updated.shape, 'new shape ', AtB_unique_new.shape, 'current shape ', AtB_unique_current.shape, file=file)
-            x = AtB_unique_updated[value_updated,:]
+            x1 = AtB_unique_updated[value_updated,:]
             x2 = AtB_unique_new[value_new,:]
             x3 = AtB_unique_current[value_current,:]
 
@@ -582,9 +575,6 @@ def combine_batch_designs(AtBstr, OutDir, fileRange):
     # file
     os.remove(os.path.join(OutDir,'tmp',AtBstr + ".lock"))
     os.close(f)
-
-    with open(os.path.join(OutDir,'results.txt'), 'a') as file:
-        print('fileRange2 ', fileRange, file=file)
 
 
     
