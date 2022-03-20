@@ -553,8 +553,8 @@ def combine_batch_designs(AtBstr, OutDir, fileRange):
                 x3 = AtB_unique_current[value_current,:]
             except:
                 with open(os.path.join(OutDir,'results.txt'), 'a') as file:
-                    print('i ', i)
-                    print('len ', len(NIFTIfilenames))
+                    print('i ', i,file=file)
+                    print('len ', len(NIFTIfilenames),file=file)
                     print('value_current ', value_current,file=file)
                     print('AtB_unique_current.shape ', AtB_unique_current.shape,file=file)
                     print('value_new ', value_new,file=file)
@@ -569,7 +569,7 @@ def combine_batch_designs(AtBstr, OutDir, fileRange):
                     
                     value_new2 = uniquenessMask_new[np.where(uniquenessMask_updated_full==value_updated_full)][0]
                     value_current2 = uniquenessMask_current[np.where(uniquenessMask_updated_full==value_updated_full)][0]
-                    print('values ', value_new2, value_current2)
+                    print('values ', value_new2, value_current2,file=file)
 
             # Update the unique AtB array
             AtB_unique_updated[value_updated,:] = AtB_unique_new[value_new,:] + AtB_unique_current[value_current,:]
