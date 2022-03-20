@@ -494,8 +494,8 @@ def combine_batch_designs(AtBstr, OutDir, fileRange):
             if os.path.isfile(os.path.join(OutDir,"tmp", "blm_vox_uniqueM.nii")):
 
                 # Adding to the running total now
-                # uniquenessMask_new = loadFile(os.path.join(OutDir,"tmp", 
-                #                               "blm_vox_uniqueM.nii")).get_fdata()
+                uniquenessMask_new2 = loadFile(os.path.join(OutDir,"tmp", 
+                                              "blm_vox_uniqueM.nii")).get_fdata()
                 uniquenessMask_new = np.asarray(loadFile(os.path.join(OutDir,"tmp", 
                                               "blm_vox_uniqueM.nii")).dataobj)
 
@@ -559,6 +559,12 @@ def combine_batch_designs(AtBstr, OutDir, fileRange):
                     print('value_updated_full ', value_updated_full,file=file)
                     print('value_updated ', value_updated,file=file)
                     print('maxM_updated ', maxM_updated,file=file)
+                    print('maxM_current ', maxM_current,file=file)
+                    print('maxM_new ', maxM_new,file=file)
+                    print('maxM ', maxM,file=file)
+                    print('fileRange ', fileRange,file=file)
+                    print('amax ', np.amax(uniquenessMask_updated_full),file=file)
+                    print('check ',np.allclose(uniquenessMask_new, uniquenessMask_new2), np.all(uniquenessMask_new==uniquenessMask_new2), file=file)
 
 
             # Update the unique AtB array
