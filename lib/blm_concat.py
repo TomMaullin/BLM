@@ -494,8 +494,8 @@ def combine_batch_designs(AtBstr, OutDir, fileRange):
             if os.path.isfile(os.path.join(OutDir,"tmp", "blm_vox_uniqueM.nii")):
 
                 # Adding to the running total now
-                uniquenessMask_new2 = loadFile(os.path.join(OutDir,"tmp", 
-                                              "blm_vox_uniqueM.nii")).get_fdata()
+                # uniquenessMask_new2 = loadFile(os.path.join(OutDir,"tmp", 
+                #                               "blm_vox_uniqueM.nii")).get_fdata()
                 uniquenessMask_new = np.asarray(loadFile(os.path.join(OutDir,"tmp", 
                                               "blm_vox_uniqueM.nii")).dataobj)
 
@@ -553,6 +553,8 @@ def combine_batch_designs(AtBstr, OutDir, fileRange):
                 x3 = AtB_unique_current[value_current,:]
             except:
                 with open(os.path.join(OutDir,'results.txt'), 'a') as file:
+                    print('i ', i)
+                    print('len ', len(NIFTIfilenames))
                     print('value_current ', value_current,file=file)
                     print('AtB_unique_current.shape ', AtB_unique_current.shape,file=file)
                     print('value_new ', value_new,file=file)
@@ -564,8 +566,10 @@ def combine_batch_designs(AtBstr, OutDir, fileRange):
                     print('maxM ', maxM,file=file)
                     print('fileRange ', fileRange,file=file)
                     print('amax ', np.amax(uniquenessMask_updated_full),file=file)
-                    print('check ',np.allclose(uniquenessMask_new, uniquenessMask_new2), np.all(uniquenessMask_new==uniquenessMask_new2), file=file)
-
+                    
+                    value_new2 = uniquenessMask_new[np.where(uniquenessMask_updated_full==value_updated_full)][0]
+                    value_current2 = uniquenessMask_current[np.where(uniquenessMask_updated_full==value_updated_full)][0]
+                    print('values ', value_new2, value_current2)
 
             # Update the unique AtB array
             AtB_unique_updated[value_updated,:] = AtB_unique_new[value_new,:] + AtB_unique_current[value_current,:]
