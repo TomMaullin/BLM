@@ -462,7 +462,7 @@ def combine_batch_designs(AtBstr, OutDir, fileRange):
 
             # Read new uniqueness mask
             # uniquenessMask_new = loadFile(NIFTIfilenames[i]).get_fdata()
-            uniquenessMask_new = np.asarray(loadFile(NIFTIfilenames[i]).dataobj)
+            uniquenessMask_new = np.asarray(loadFile(NIFTIfilenames[i]).dataobj, dtype=np.int64)
 
             # with open(os.path.join(OutDir,'results.txt'), 'a') as file:
             #     print('check 2 ',np.allclose(uniquenessMask_new, uniquenessMask_new2), np.all(uniquenessMask_new==uniquenessMask_new2), file=file)
@@ -497,7 +497,7 @@ def combine_batch_designs(AtBstr, OutDir, fileRange):
                 # uniquenessMask_new2 = loadFile(os.path.join(OutDir,"tmp", 
                 #                               "blm_vox_uniqueM.nii")).get_fdata()
                 uniquenessMask_new = np.asarray(loadFile(os.path.join(OutDir,"tmp", 
-                                              "blm_vox_uniqueM.nii")).dataobj)
+                                              "blm_vox_uniqueM.nii")).dataobj, dtype=np.int64)
 
                 # with open(os.path.join(OutDir,'results.txt'), 'a') as file:
                 #     print('check 1 ',np.allclose(uniquenessMask_new, uniquenessMask_new2), np.all(uniquenessMask_new==uniquenessMask_new2), file=file)
@@ -570,6 +570,11 @@ def combine_batch_designs(AtBstr, OutDir, fileRange):
                     value_new2 = uniquenessMask_new[np.where(uniquenessMask_updated_full==value_updated_full)][0]
                     value_current2 = uniquenessMask_current[np.where(uniquenessMask_updated_full==value_updated_full)][0]
                     print('values ', value_new2, value_current2,file=file)
+
+                    nib.save(nib.Nifti1Image(uniquenessMask_current,aff, header=hdr), os.path.join(OutDir,"current.nii"))
+                    nib.save(nib.Nifti1Image(uniquenessMask_new,aff, header=hdr), os.path.join(OutDir,"new.nii"))
+                    nib.save(nib.Nifti1Image(uniquenessMask_updated_full,aff, header=hdr), os.path.join(OutDir,"updated_full.nii"))
+                    nib.save(nib.Nifti1Image(uniquenessMask_updated,aff, header=hdr), os.path.join(OutDir,"updated.nii"))
 
             # Update the unique AtB array
             AtB_unique_updated[value_updated,:] = AtB_unique_new[value_new,:] + AtB_unique_current[value_current,:]
