@@ -549,7 +549,17 @@ def combine_batch_designs(AtBstr, OutDir, fileRange):
 
             x1 = AtB_unique_updated[value_updated,:]
             x2 = AtB_unique_new[value_new,:]
-            x3 = AtB_unique_current[value_current,:]
+            try:
+                x3 = AtB_unique_current[value_current,:]
+            except:
+                with open(os.path.join(OutDir,'results.txt'), 'a') as file:
+                    print('value_current ', value_current)
+                    print('AtB_unique_current.shape ', AtB_unique_current.shape)
+                    print('value_new ', value_new)
+                    print('value_updated_full ', value_updated_full)
+                    print('value_updated ', value_updated)
+                    print('maxM_updated ', maxM_updated)
+
 
             # Update the unique AtB array
             AtB_unique_updated[value_updated,:] = AtB_unique_new[value_new,:] + AtB_unique_current[value_current,:]
