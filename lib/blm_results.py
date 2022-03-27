@@ -244,6 +244,15 @@ def output_results(*args):
     # turn.
     for cv in range(nvg):
 
+        # Initialize lists for output niftis
+        fnames = []
+        blocks = []
+        blockIndexes = []
+        dims = []
+        volInds = []
+        affs = []
+        hdrs = []
+
         # Current group of voxels
         bamInds_cv = voxelGroups[cv]
 
@@ -316,7 +325,7 @@ def output_results(*args):
                 addBlockToNifti(os.path.join(OutDir, 'blm_vox_mask.nii'), np.zeros(v_lowrank), R_inds[lowrank_inds],volInd=0,dim=NIFTIsize,aff=nifti.affine,hdr=nifti.header)
                 addBlockToNifti(os.path.join(OutDir, 'blm_vox_edf.nii'), np.zeros(v_lowrank), R_inds[lowrank_inds],volInd=0,dim=NIFTIsize,aff=nifti.affine,hdr=nifti.header)
                 addBlockToNifti(os.path.join(OutDir, 'blm_vox_n.nii'), np.zeros(v_lowrank), R_inds[lowrank_inds],volInd=0,dim=NIFTIsize,aff=nifti.affine,hdr=nifti.header)
-            
+                
                 # Remove from R_inds
                 R_inds = R_inds[fullrank_inds]
             
@@ -351,6 +360,15 @@ def output_results(*args):
             # Output Beta
             addBlockToNifti(os.path.join(OutDir, 'blm_vox_beta.nii'), beta_r, R_inds,volInd=None,dim=dimBeta,aff=nifti.affine,hdr=nifti.header)
 
+            # Add beta to lists
+            fnames.append(os.path.join(OutDir, 'blm_vox_beta.nii'))
+            blocks.append(np.array(beta_r))
+            blockIndexes.append(R_inds)
+            volInds.append(None)
+            dims.append(dimBeta)
+            affs.append(nifti.affine)
+            hdrs.append(nifti.header)
+
         # If we have indices where all studies are present, work out X'X and
         # X'Y for these studies.
         if v_i:
@@ -358,9 +376,17 @@ def output_results(*args):
             # Calculate masked Beta for ring
             beta_i = np.linalg.solve(XtX_i, XtY_i)
 
-
             # Output Beta
             addBlockToNifti(os.path.join(OutDir, 'blm_vox_beta.nii'), beta_i, I_inds,volInd=None,dim=dimBeta,aff=nifti.affine,hdr=nifti.header)
+
+            # Add beta to lists
+            fnames.append(os.path.join(OutDir, 'blm_vox_beta.nii'))
+            blocks.append(np.array(beta_i))
+            blockIndexes.append(I_inds)
+            volInds.append(None)
+            dims.append(dimBeta)
+            affs.append(nifti.affine)
+            hdrs.append(nifti.header)
 
         # ----------------------------------------------------------------------
         # Calculate residual sum of squares e'e = Y'Y - (Xb)'Xb
@@ -425,12 +451,29 @@ def output_results(*args):
             resms_r = ete_r/(n_sv_r-p)
             addBlockToNifti(os.path.join(OutDir, 'blm_vox_resms.nii'), resms_r, R_inds,volInd=0,dim=NIFTIsize,aff=nifti.affine,hdr=nifti.header)
 
+            # Add resms to lists
+            fnames.append(os.path.join(OutDir, 'blm_vox_resms.nii'))
+            blocks.append(np.array(resms_r))
+            blockIndexes.append(R_inds)
+            volInds.append(0)
+            dims.append(NIFTIsize)
+            affs.append(nifti.affine)
+            hdrs.append(nifti.header)
+
         if v_i:
 
             # All voxels in the inner mask have n scans present
             resms_i = ete_i/(n-p)
             addBlockToNifti(os.path.join(OutDir, 'blm_vox_resms.nii'), resms_i, I_inds,volInd=0,dim=NIFTIsize,aff=nifti.affine,hdr=nifti.header)
 
+            # Add resms to lists
+            fnames.append(os.path.join(OutDir, 'blm_vox_resms.nii'))
+            blocks.append(np.array(resms_i))
+            blockIndexes.append(I_inds)
+            volInds.append(0)
+            dims.append(NIFTIsize)
+            affs.append(nifti.affine)
+            hdrs.append(nifti.header)
 
         # ----------------------------------------------------------------------
         # Calculate log likelihood
@@ -452,6 +495,15 @@ def output_results(*args):
             # Output
             addBlockToNifti(os.path.join(OutDir, 'blm_vox_llh.nii'), llh_r, R_inds,volInd=0,dim=NIFTIsize,aff=nifti.affine,hdr=nifti.header)
 
+            # Add llh to lists
+            fnames.append(os.path.join(OutDir, 'blm_vox_llh.nii'))
+            blocks.append(np.array(llh_r))
+            blockIndexes.append(R_inds)
+            volInds.append(0)
+            dims.append(NIFTIsize)
+            affs.append(nifti.affine)
+            hdrs.append(nifti.header)
+
         if v_i:
 
             sigma2_i = 1/n * ete_i
@@ -467,6 +519,15 @@ def output_results(*args):
 
             # Output
             addBlockToNifti(os.path.join(OutDir, 'blm_vox_llh.nii'), llh_i, I_inds,volInd=0,dim=NIFTIsize,aff=nifti.affine,hdr=nifti.header)
+
+            # Add llh to lists
+            fnames.append(os.path.join(OutDir, 'blm_vox_llh.nii'))
+            blocks.append(np.array(llh_i))
+            blockIndexes.append(I_inds)
+            volInds.append(0)
+            dims.append(NIFTIsize)
+            affs.append(nifti.affine)
+            hdrs.append(nifti.header)
 
         # ----------------------------------------------------------------------
         # Calculate beta covariance maps
@@ -543,6 +604,15 @@ def output_results(*args):
                     # A T contrast has only one row so we can output Lbeta here
                     addBlockToNifti(os.path.join(OutDir, 'blm_vox_con.nii'), Lbeta_r, R_inds,volInd=current_nt,dim=dimT,aff=nifti.affine,hdr=nifti.header)
 
+                    # Add con to lists
+                    fnames.append(os.path.join(OutDir, 'blm_vox_con.nii'))
+                    blocks.append(np.array(Lbeta_r))
+                    blockIndexes.append(R_inds)
+                    volInds.append(current_nt)
+                    dims.append(dimT)
+                    affs.append(nifti.affine)
+                    hdrs.append(nifti.header)
+
                     # Calculate c'(X'X)^(-1)c
                     LvectiXtXLvec_r = np.matmul(
                         np.matmul(Lvec, iXtX_r),
@@ -552,9 +622,27 @@ def output_results(*args):
                     covLbeta_r = LvectiXtXLvec_r*resms_r.reshape(v_r)
                     addBlockToNifti(os.path.join(OutDir, 'blm_vox_conSE.nii'), np.sqrt(covLbeta_r), R_inds,volInd=current_nt,dim=dimT,aff=nifti.affine,hdr=nifti.header)
 
+                    # Add conSE to lists
+                    fnames.append(os.path.join(OutDir, 'blm_vox_conSE.nii'))
+                    blocks.append(np.array(np.sqrt(covLbeta_r)))
+                    blockIndexes.append(R_inds)
+                    volInds.append(current_nt)
+                    dims.append(dimT)
+                    affs.append(nifti.affine)
+                    hdrs.append(nifti.header)
+
                     # Calculate T stat
                     tStatc_r = Lbeta_r.reshape(v_r)/np.sqrt(covLbeta_r)
                     addBlockToNifti(os.path.join(OutDir, 'blm_vox_conT.nii'), tStatc_r, R_inds,volInd=current_nt,dim=dimT,aff=nifti.affine,hdr=nifti.header)
+
+                    # Add conT to lists
+                    fnames.append(os.path.join(OutDir, 'blm_vox_conT.nii'))
+                    blocks.append(np.array(tStatc_r))
+                    blockIndexes.append(R_inds)
+                    volInds.append(current_nt)
+                    dims.append(dimT)
+                    affs.append(nifti.affine)
+                    hdrs.append(nifti.header)
 
                     # Degrees of freedom
                     df_r = n_sv[R_inds,:] - p
@@ -574,11 +662,29 @@ def output_results(*args):
                     # Output p
                     addBlockToNifti(os.path.join(OutDir, 'blm_vox_conTlp.nii'), pc_r, R_inds,volInd=current_nt,dim=dimT,aff=nifti.affine,hdr=nifti.header)
 
+                    # Add conTlp to lists
+                    fnames.append(os.path.join(OutDir, 'blm_vox_conTlp.nii'))
+                    blocks.append(np.array(pc_r))
+                    blockIndexes.append(R_inds)
+                    volInds.append(current_nt)
+                    dims.append(dimT)
+                    affs.append(nifti.affine)
+                    hdrs.append(nifti.header)
+
                 if v_i:
 
                     # A T contrast has only one row so we can output Lbeta here
                     addBlockToNifti(os.path.join(OutDir, 'blm_vox_con.nii'), Lbeta_i, I_inds,volInd=current_nt,dim=dimT,aff=nifti.affine,hdr=nifti.header)
                     
+                    # Add con to lists
+                    fnames.append(os.path.join(OutDir, 'blm_vox_con.nii'))
+                    blocks.append(np.array(Lbeta_i))
+                    blockIndexes.append(I_inds)
+                    volInds.append(current_nt)
+                    dims.append(dimT)
+                    affs.append(nifti.affine)
+                    hdrs.append(nifti.header)
+
                     # Calculate c'(X'X)^(-1)c
                     LvectiXtXLvec_i = np.matmul(
                         np.matmul(Lvec, iXtX_i),
@@ -588,9 +694,27 @@ def output_results(*args):
                     covLbeta_i = LvectiXtXLvec_i*resms_i.reshape(v_i)
                     addBlockToNifti(os.path.join(OutDir, 'blm_vox_conSE.nii'), np.sqrt(covLbeta_i), I_inds,volInd=current_nt,dim=dimT,aff=nifti.affine,hdr=nifti.header)
 
+                    # Add conSE to lists
+                    fnames.append(os.path.join(OutDir, 'blm_vox_conSE.nii'))
+                    blocks.append(np.array(np.sqrt(covLbeta_i)))
+                    blockIndexes.append(I_inds)
+                    volInds.append(current_nt)
+                    dims.append(dimT)
+                    affs.append(nifti.affine)
+                    hdrs.append(nifti.header)
+
                     # Calculate T stat
                     tStatc_i = Lbeta_i.reshape(v_i)/np.sqrt(covLbeta_i)
                     addBlockToNifti(os.path.join(OutDir, 'blm_vox_conT.nii'), tStatc_i, I_inds,volInd=current_nt,dim=dimT,aff=nifti.affine,hdr=nifti.header)
+
+                    # Add conT to lists
+                    fnames.append(os.path.join(OutDir, 'blm_vox_conT.nii'))
+                    blocks.append(np.array(tStatc_i))
+                    blockIndexes.append(I_inds)
+                    volInds.append(current_nt)
+                    dims.append(dimT)
+                    affs.append(nifti.affine)
+                    hdrs.append(nifti.header)
 
                     # Calculate p (seperately for >0 and <0 to avoid underflow)
                     pc_i = np.zeros(np.shape(tStatc_i))
@@ -605,6 +729,15 @@ def output_results(*args):
 
                     # Output p
                     addBlockToNifti(os.path.join(OutDir, 'blm_vox_conTlp.nii'), pc_i, I_inds,volInd=current_nt,dim=dimT,aff=nifti.affine,hdr=nifti.header)
+
+                    # Add conTlp to lists
+                    fnames.append(os.path.join(OutDir, 'blm_vox_conTlp.nii'))
+                    blocks.append(np.array(pc_i))
+                    blockIndexes.append(I_inds)
+                    volInds.append(current_nt)
+                    dims.append(dimT)
+                    affs.append(nifti.affine)
+                    hdrs.append(nifti.header)
 
                 # Record that we have seen another T contrast
                 current_nt = current_nt + 1
@@ -642,6 +775,15 @@ def output_results(*args):
                     # Output F statistic.
                     addBlockToNifti(os.path.join(OutDir, 'blm_vox_conF.nii'), fStatc_r, R_inds,volInd=current_nf,dim=dimF,aff=nifti.affine,hdr=nifti.header)
 
+                    # Add conF to lists
+                    fnames.append(os.path.join(OutDir, 'blm_vox_conF.nii'))
+                    blocks.append(np.array(fStatc_r))
+                    blockIndexes.append(R_inds)
+                    volInds.append(current_nf)
+                    dims.append(dimF)
+                    affs.append(nifti.affine)
+                    hdrs.append(nifti.header)
+
                     # Degrees of freedom
                     df_r = n_sv[R_inds,:] - p
                     df_r = df_r.reshape(df_r.shape[0])
@@ -658,6 +800,15 @@ def output_results(*args):
                     # Output p
                     addBlockToNifti(os.path.join(OutDir, 'blm_vox_conFlp.nii'), pc_r, R_inds,volInd=current_nf,dim=dimF,aff=nifti.affine,hdr=nifti.header)
 
+                    # Add conFlp to lists
+                    fnames.append(os.path.join(OutDir, 'blm_vox_conFlp.nii'))
+                    blocks.append(np.array(pc_r))
+                    blockIndexes.append(R_inds)
+                    volInds.append(current_nf)
+                    dims.append(dimF)
+                    affs.append(nifti.affine)
+                    hdrs.append(nifti.header)
+
                     # Reshape for partial R^2
                     n_sv_r = n_sv_r.reshape([v_r])
 
@@ -666,6 +817,15 @@ def output_results(*args):
 
                     # Output R^2
                     addBlockToNifti(os.path.join(OutDir, 'blm_vox_conR2.nii'), partialR2_r, R_inds,volInd=current_nf,dim=dimF,aff=nifti.affine,hdr=nifti.header)
+
+                    # Add conR2 to lists
+                    fnames.append(os.path.join(OutDir, 'blm_vox_conR2.nii'))
+                    blocks.append(np.array(partialR2_r))
+                    blockIndexes.append(R_inds)
+                    volInds.append(current_nf)
+                    dims.append(dimF)
+                    affs.append(nifti.affine)
+                    hdrs.append(nifti.header)
 
 
                 if v_i:
@@ -694,6 +854,15 @@ def output_results(*args):
                     # Output F statistic.
                     addBlockToNifti(os.path.join(OutDir, 'blm_vox_conF.nii'), fStatc_i, I_inds,volInd=current_nf,dim=dimF,aff=nifti.affine,hdr=nifti.header)
 
+                    # Add conF to lists
+                    fnames.append(os.path.join(OutDir, 'blm_vox_conF.nii'))
+                    blocks.append(np.array(fStatc_i))
+                    blockIndexes.append(I_inds)
+                    volInds.append(current_nf)
+                    dims.append(dimF)
+                    affs.append(nifti.affine)
+                    hdrs.append(nifti.header)
+
                     # Degrees of freedom
                     df_r = n_sv[R_inds,:] - p
                     df_r = df_r.reshape(df_r.shape[0])
@@ -710,11 +879,29 @@ def output_results(*args):
                     # Output p
                     addBlockToNifti(os.path.join(OutDir, 'blm_vox_conFlp.nii'), pc_i, I_inds,volInd=current_nf,dim=dimF,aff=nifti.affine,hdr=nifti.header)
 
+                    # Add conFlp to lists
+                    fnames.append(os.path.join(OutDir, 'blm_vox_conFlp.nii'))
+                    blocks.append(np.array(pc_i))
+                    blockIndexes.append(I_inds)
+                    volInds.append(current_nf)
+                    dims.append(dimF)
+                    affs.append(nifti.affine)
+                    hdrs.append(nifti.header)
+
                     # Calculate partial R2 masked for inner mask.
                     partialR2_i = (q*fStatc_i)/(q*fStatc_i + n - p)
 
                     # Output R^2
                     addBlockToNifti(os.path.join(OutDir, 'blm_vox_conR2.nii'), partialR2_i, I_inds,volInd=current_nf,dim=dimF,aff=nifti.affine,hdr=nifti.header)
+
+                    # Add conR2 to lists
+                    fnames.append(os.path.join(OutDir, 'blm_vox_conR2.nii'))
+                    blocks.append(np.array(partialR2_i))
+                    blockIndexes.append(I_inds)
+                    volInds.append(current_nf)
+                    dims.append(dimF)
+                    affs.append(nifti.affine)
+                    hdrs.append(nifti.header)
 
     w.resetwarnings()
 

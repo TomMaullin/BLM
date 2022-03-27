@@ -331,14 +331,21 @@ def obtainY(Y_files, M_files, M_t, M_a):
 # ---------------------
 # Instead we need to save masked version. I.e. something like:
 
-#     # Apply analysis mask to d, we use the analysis mask here as the product
-#     # matrices across all batches should have the same masking for convinience
-#     # We can apply the full mask at a later stage.
-#     if M_a is not None:
-#         d = d[:, np.where(M_a.reshape([v]))[0]]
-
-#     # Number of voxels in analysis mask
-#     v_am = np.count_nonzero(np.nan_to_num(M_a))
+#        # Apply analysis mask to d, we use the analysis mask here as the product
+#        # matrices across all batches should have the same masking for convinience
+#        # We can apply the full mask at a later stage.
+#        if M_a is not None:
+#            d = d[:, np.where(M_a.reshape([v]))[0]]
+#    
+#            # Number of voxels in analysis mask
+#            v_am = np.count_nonzero(np.nan_to_num(M_a))
+#
+#        else:
+#
+#             v_am = v
+#    
+#        # Constructing Y array
+#        Y[i, :] = d.reshape([1, v_am])
 
         # Constructing Y array
         Y[i, :] = d.reshape([1, v])

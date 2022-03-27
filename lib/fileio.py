@@ -271,8 +271,8 @@ def addBlockToNifti(fname, block, blockInds,dim=None,volInd=None,aff=None,hdr=No
         
         # Put in the volume
         data_out[:,:,:,volInd] = data[:,0].reshape(int(dim[0]),
-                                                 int(dim[1]),
-                                                 int(dim[2]))
+                                                   int(dim[1]),
+                                                   int(dim[2]))
 
 
     # Make NIFTI
@@ -288,6 +288,182 @@ def addBlockToNifti(fname, block, blockInds,dim=None,volInd=None,aff=None,hdr=No
 
     del nifti, fname, data_out, affine
 
+
+# ============================================================================
+#
+# The below function adds a block of voxels to a pre-existing NIFTI or creates
+# a NIFTI of specified dimensions if not.
+#
+# ----------------------------------------------------------------------------
+#
+# This function takes the following inputs:
+#
+# ----------------------------------------------------------------------------
+#
+# - `fname`: An absolute path to the Nifti file.
+# - `block`: The block of values to write to the NIFTI.
+# - `blockInds`: The indices representing the 3D coordinates `block` should be 
+#                written to in the NIFTI. (Note: It is assumed if the NIFTI is
+#                4D we assume that the indices we want to write to in each 3D
+#                volume/slice are the same across all 3D volumes/slices).
+# - `dim` (optional): If creating the NIFTI image for the first time, the 
+#                     dimensions of the NIFTI image must be specified.
+# - `volInd` (optional): If we only want to write to one 3D volume/slice,
+#                        within a 4D file, this specifies the index of the
+#                        volume of interest.
+# - `aff` (optional): If creating the NIFTI image for the first time, the 
+#                     affine of the NIFTI image must be specified.
+# - `hdr` (optional): If creating the NIFTI image for the first time, the 
+#                     header of the NIFTI image must be specified.
+#
+# ============================================================================
+def addBlocksToNiftis(fnames, blocks, blockIndexes,dims=None,volInds=None,affs=None,hdrs=None):
+
+
+    # Get number of blocks we're adding
+    nBlocks = len(fnames)
+
+    # Create an array to tell us which blocks have been added
+    blocksAdded = np.zeros(nBlocks)
+
+    # Boolean to track if we've added all the NIFTIs to all the blocks
+    allAdded = False
+
+    # Loop through all blocks until they're all added≈
+    while not allAdded:
+
+        # Loop through all blocks
+        for i in np.arange(nBlocks):
+
+            # Check if we've already added this block to a nifti
+            if not blocksAdded[i]:
+
+                # Check if file is in use
+                try:
+                    # Create lock file, so other jobs know we are writing to this file
+                    f=os.open(fname + ".lock", os.O_CREAT|os.O_EXCL|os.O_RDWR)
+                    fileLocked = False
+                except FileExistsError:
+                    fileLocked = True
+
+                # If the files not in use we can add to it
+                if not fileLocked: 
+
+                    # Get inputs for this block
+                    fname = fnames[i]
+                    block = blocks[i]
+                    blockInds = blockIndexes[i]
+                    dim = dims[i] 
+                    volInd = volInds[i]
+                    aff = affs[i]
+                    hdr = hdrs[i]
+
+                    # Check volInd is correct datatype
+                    if volInd is not None:
+
+                        volInd = int(volInd)
+
+                    # Check whether the NIFTI exists already
+                    if os.path.isfile(fname):
+
+                        # Load in NIFTI
+                        img = nib.load(fname)
+
+                        # Work out dim if we don't already have it
+                        dim = img.shape
+
+                        # Work out data
+                        data = np.asarray(img.dataobj, dtype=np.float64) 
+
+                        # Work out affine
+                        affine = img.affine
+                        
+                    else:
+
+                        # If we know how, make the NIFTI
+                        if dim is not None:
+                            
+                            # Make data
+                            data = np.zeros(dim)
+
+                            # Make affine
+                            if aff is None:
+                                affine = np.eye(4)
+                            else:
+                                affine = aff
+
+                        else:
+
+                            # Throw an error because we don't know what to do
+                            raise Exception('NIFTI does not exist and dimensions not given')
+
+                    # Work out the number of output volumes inside the nifti 
+                    if len(dim)==3:
+
+                        # We only have one volume in this case
+                        n_vol = 1
+                        dim = np.array([dim[0],dim[1],dim[2],1])
+
+                    else:
+
+                        # The number of volumes is the last dimension
+                        n_vol = dim[3]
+
+                    # Seperate copy of data for outputting
+                    data_out = np.array(data).reshape(dim)
+
+                    # Work out the number of voxels
+                    n_vox = np.prod(dim[:3])
+
+                    # Reshape     
+                    data = data.reshape([n_vox, n_vol])
+
+                    # Add all the volumes
+                    if volInd is None:
+
+                        # Add block
+                        data[blockInds,:] = block.reshape(data[blockInds,:].shape)
+                        
+                        # Cycle through volumes, reshaping.
+                        for k in range(0,data.shape[1]):
+
+                            data_out[:,:,:,k] = data[:,k].reshape(int(dim[0]),
+                                                                  int(dim[1]),
+                                                                  int(dim[2]))
+
+                    # Add the one volume in the correct place
+                    else:
+
+                        # We're only looking at this volume
+                        data = data[:,volInd].reshape((n_vox,1))
+
+                        # Add block
+                        data[blockInds,:] = block.reshape(data[blockInds,:].shape)
+                        
+                        # Put in the volume
+                        data_out[:,:,:,volInd] = data[:,0].reshape(int(dim[0]),
+                                                                   int(dim[1]),
+                                                                   int(dim[2]))
+
+
+                    # Make NIFTI
+                    nifti = nib.Nifti1Image(data_out, affine, header=hdr)
+                    
+                    # Save NIFTI
+                    nib.save(nifti, fname)
+
+                    # Delete lock file, so other jobs know they can now write to the
+                    # file
+                    os.remove(fname + ".lock")
+                    os.close(f)
+
+                    del nifti, fname, data_out, affine
+
+                    # Record that we've added to this block
+                    blocksAdded[i] = 1
+
+                    # Check if we've added all the blocks
+                    allAdded = np.all(blocksAdded)
 
 # ============================================================================
 #
