@@ -356,11 +356,6 @@ def addBlocksToNiftis(fnames, blocks, blockIndexes,dims=None,volInds=None,affs=N
                     aff = affs[i]
                     hdr = hdrs[i]
 
-                    # Check volInd is correct datatype
-                    if volInd is not None:
-
-                        volInd = int(volInd)
-
                     # Check whether the NIFTI exists already
                     if os.path.isfile(fname):
 
