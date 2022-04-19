@@ -240,18 +240,18 @@ def output_results(*args):
     # Split voxels we want to look at into groups we can compute
     voxelGroups = np.array_split(bamInds, nvg)
 
+    # Initialize lists for output niftis
+    fnames = []
+    blocks = []
+    blockIndexes = []
+    dims = []
+    volInds = []
+    affs = []
+    hdrs = []
+
     # Loop through list of voxel indices, looking at each group of voxels, in
     # turn.
     for cv in range(nvg):
-
-        # Initialize lists for output niftis
-        fnames = []
-        blocks = []
-        blockIndexes = []
-        dims = []
-        volInds = []
-        affs = []
-        hdrs = []
 
         # Current group of voxels
         bamInds_cv = voxelGroups[cv]
@@ -529,9 +529,6 @@ def output_results(*args):
             affs.append(nifti.affine)
             hdrs.append(nifti.header)
 
-        # Add the blocks to the niftis
-        addBlocksToNiftis(fnames, blocks, blockIndexes,dims,volInds,affs,hdrs)
-
         # ----------------------------------------------------------------------
         # Calculate beta covariance maps
         # ----------------------------------------------------------------------
@@ -582,15 +579,6 @@ def output_results(*args):
         current_nf = 0
 
         for i in range(0,c):
-
-            # Initialize lists for output niftis
-            fnames = []
-            blocks = []
-            blockIndexes = []
-            dims = []
-            volInds = []
-            affs = []
-            hdrs = []
 
             # Read in contrast vector
             # Get number of parameters
@@ -916,8 +904,8 @@ def output_results(*args):
                     hdrs.append(nifti.header)
 
 
-            # Add the blocks to the niftis
-            addBlocksToNiftis(fnames, blocks, blockIndexes,dims,volInds,affs,hdrs)
+    # Add the blocks to the niftis
+    addBlocksToNiftis(fnames, blocks, blockIndexes,dims,volInds,affs,hdrs)
 
     w.resetwarnings()
 

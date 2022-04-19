@@ -351,10 +351,8 @@ def addBlocksToNiftis(fnames, blocks, blockIndexes,dims=None,volInds=None,affs=N
 
                 # If the files not in use we can add to it
                 if not fileLocked: 
-                    block = blocks[i]
-                    blockInds = blockIndexes[i]
+
                     dim = dims[i] 
-                    volInd = volInds[i]
                     aff = affs[i]
                     hdr = hdrs[i]
 
@@ -418,32 +416,42 @@ def addBlocksToNiftis(fnames, blocks, blockIndexes,dims=None,volInds=None,affs=N
                     # Reshape     
                     data = data.reshape([n_vox, n_vol])
 
-                    # Add all the volumes
-                    if volInd is None:
+                    # Loop through all blocks
+                    for j in np.arange(nBlocks):
 
-                        # Add block
-                        data[blockInds,:] = block.reshape(data[blockInds,:].shape)
-                        
-                        # Cycle through volumes, reshaping.
-                        for k in range(0,data.shape[1]):
+                        # Check if we are looking at the same file
+                        if fnames[j]==fnames[i]:
 
-                            data_out[:,:,:,k] = data[:,k].reshape(int(dim[0]),
-                                                                  int(dim[1]),
-                                                                  int(dim[2]))
+                            # If it's going to the same file, add this block
+                            block = blocks[j]
+                            blockInds = blockIndexes[j]
+                            volInd = volInds[j]
 
-                    # Add the one volume in the correct place
-                    else:
+                            # Add all the volumes
+                            if volInd is None:
 
-                        # We're only looking at this volume
-                        data = data[:,volInd].reshape((n_vox,1))
+                                # Add block
+                                data[blockInds,:] = block.reshape(data[blockInds,:].shape)
 
-                        # Add block
-                        data[blockInds,:] = block.reshape(data[blockInds,:].shape)
-                        
-                        # Put in the volume
-                        data_out[:,:,:,volInd] = data[:,0].reshape(int(dim[0]),
-                                                                   int(dim[1]),
-                                                                   int(dim[2]))
+                            # Add the one volume in the correct place
+                            else:
+
+                                # We're only looking at this volume
+                                data = data[:,volInd].reshape((n_vox,1))
+
+                                # Add block
+                                data[blockInds,:] = block.reshape(data[blockInds,:].shape)
+
+                            # Record that we've added this block
+                            blocksAdded[j] = 1
+
+
+                    # Cycle through volumes, reshaping.
+                    for k in range(0,data.shape[1]):
+
+                        data_out[:,:,:,k] = data[:,k].reshape(int(dim[0]),
+                                                              int(dim[1]),
+                                                              int(dim[2]))
 
 
                     # Make NIFTI
@@ -458,9 +466,6 @@ def addBlocksToNiftis(fnames, blocks, blockIndexes,dims=None,volInds=None,affs=N
                     os.close(f)
 
                     del nifti, fname, data_out, affine
-
-                    # Record that we've added to this block
-                    blocksAdded[i] = 1
 
                     # Check if we've added all the blocks
                     allAdded = np.all(blocksAdded)

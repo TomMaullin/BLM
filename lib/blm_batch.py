@@ -294,6 +294,20 @@ def obtainY(Y_files, M_files, M_t, M_a):
 
     # Read in Y
     Y = np.zeros([n, v])
+
+
+   # if M_a is not None:
+
+   #     # Number of voxels in analysis mask
+   #     v_am = np.count_nonzero(np.nan_to_num(M_a))
+
+   # else:
+
+   #      v_am = v
+
+    # # Read in Y
+    # Y = np.zeros([n, v_am])
+
     for i in range(0, len(Y_files)):
 
         # Read in each individual NIFTI.
@@ -336,13 +350,6 @@ def obtainY(Y_files, M_files, M_t, M_a):
 #        # We can apply the full mask at a later stage.
 #        if M_a is not None:
 #            d = d[:, np.where(M_a.reshape([v]))[0]]
-#    
-#            # Number of voxels in analysis mask
-#            v_am = np.count_nonzero(np.nan_to_num(M_a))
-#
-#        else:
-#
-#             v_am = v
 #    
 #        # Constructing Y array
 #        Y[i, :] = d.reshape([1, v_am])
