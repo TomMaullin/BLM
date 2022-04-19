@@ -338,6 +338,9 @@ def addBlocksToNiftis(fnames, blocks, blockIndexes,dims=None,volInds=None,affs=N
             # Check if we've already added this block to a nifti
             if not blocksAdded[i]:
 
+                # Get inputs for this block
+                fname = fnames[i]
+
                 # Check if file is in use
                 try:
                     # Create lock file, so other jobs know we are writing to this file
@@ -348,9 +351,6 @@ def addBlocksToNiftis(fnames, blocks, blockIndexes,dims=None,volInds=None,affs=N
 
                 # If the files not in use we can add to it
                 if not fileLocked: 
-
-                    # Get inputs for this block
-                    fname = fnames[i]
                     block = blocks[i]
                     blockInds = blockIndexes[i]
                     dim = dims[i] 
