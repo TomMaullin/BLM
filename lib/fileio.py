@@ -427,6 +427,13 @@ def addBlocksToNiftis(fnames, blocks, blockIndexes,dims=None,volInds=None,affs=N
 
                                 # Add block
                                 data[blockInds,:] = block.reshape(data[blockInds,:].shape)
+        
+                                # Cycle through volumes, reshaping.
+                                for k in range(0,data.shape[1]):
+
+                                    data_out[:,:,:,k] = data[:,k].reshape(int(dim[0]),
+                                                                          int(dim[1]),
+                                                                          int(dim[2]))
 
                             # Add the one volume in the correct place
                             else:
@@ -435,21 +442,18 @@ def addBlocksToNiftis(fnames, blocks, blockIndexes,dims=None,volInds=None,affs=N
                                 volInd = int(volInd)
 
                                 # We're only looking at this volume
-                                data_vol = data[:,volInd].reshape((n_vox,1))
+                                data = data[:,volInd].reshape((n_vox,1))
 
                                 # Add block
-                                data_vol[blockInds,:] = block.reshape(data_vol[blockInds,:].shape)
+                                data[blockInds,:] = block.reshape(data[blockInds,:].shape)
+                                
+                                # Put in the volume
+                                data_out[:,:,:,volInd] = data[:,0].reshape(int(dim[0]),
+                                                                           int(dim[1]),
+                                                                           int(dim[2]))
 
                             # Record that we've added this block
                             blocksAdded[j] = 1
-
-
-                    # Cycle through volumes, reshaping.
-                    for k in range(0,data.shape[1]):
-
-                        data_out[:,:,:,k] = data_vol[:,k].reshape(int(dim[0]),
-                                                                  int(dim[1]),
-                                                                  int(dim[2]))
 
 
                     # Make NIFTI
