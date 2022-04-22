@@ -292,21 +292,15 @@ def obtainY(Y_files, M_files, M_t, M_a):
     # Count number of observations contributing to voxels
     n_sv = np.zeros(d.shape)
 
-    # Read in Y
-    Y = np.zeros([n, v])
+    # Number of voxels in analysis mask
+    if M_a is not None:
+        # Number of voxels in analysis mask
+        v_am = np.count_nonzero(np.nan_to_num(M_a))
+    else:
+        v_am = v
 
-
-   # if M_a is not None:
-
-   #     # Number of voxels in analysis mask
-   #     v_am = np.count_nonzero(np.nan_to_num(M_a))
-
-   # else:
-
-   #      v_am = v
-
-    # # Read in Y
-    # Y = np.zeros([n, v_am])
+    # Empty array for Y
+    Y = np.zeros([n, v_am])
 
     for i in range(0, len(Y_files)):
 
@@ -329,8 +323,8 @@ def obtainY(Y_files, M_files, M_t, M_a):
         if M_t is not None:
             d[d<M_t]=0
 
-        if M_a is not None:
-            d[M_a==0]=0
+        # if M_a is not None:
+        #     d[M_a==0]=0
 
         # NaN check
         d = np.nan_to_num(d)
@@ -339,36 +333,36 @@ def obtainY(Y_files, M_files, M_t, M_a):
         n_sv = n_sv + 1*(np.nan_to_num(d)!=0)
 
 # MARKER ===================================================================================
-# The code in this section is causing mass slowdown for Anyas design. Reason: we're saving
-# the whole volume for Yi here rather than just the masked. It is masked at the end of this 
-# highlighted block.
-# ---------------------
-# Instead we need to save masked version. I.e. something like:
+# 
 
-#        # Apply analysis mask to d, we use the analysis mask here as the product
-#        # matrices across all batches should have the same masking for convinience
-#        # We can apply the full mask at a later stage.
-#        if M_a is not None:
-#            d = d[:, np.where(M_a.reshape([v]))[0]]
-#    
-#        # Constructing Y array
-#        Y[i, :] = d.reshape([1, v_am])
-
+        # Apply analysis mask to d, we use the analysis mask here as the product
+        # matrices across all batches should have the same masking for convinience
+        # We can apply the full mask at a later stage.
+        if M_a is not None:
+            d = d[M_a!=0]
+   
         # Constructing Y array
-        Y[i, :] = d.reshape([1, v])
+        Y[i, :] = d.reshape([1, v_am])
+
+        # # Constructing Y array
+        # Y[i, :] = d.reshape([1, v])
     
-    # Work out mask
+    # Work out mask (within analysis mask)
+    Mask_am = np.zeros([v_am])
+    Mask_am[np.where(np.count_nonzero(Y, axis=0)>0)[0]] = 1
+
+    # Un(analysis)mask mask
     Mask = np.zeros([v])
-    Mask[np.where(np.count_nonzero(Y, axis=0)>0)[0]] = 1
+    Mask[np.where(M_a.reshape([v]))[0]] = mask_am
     
     # Apply full mask to Y
     Y_fm = Y[:, np.where(np.count_nonzero(Y, axis=0)>0)[0]]
 
-    # Apply analysis mask to Y, we use the analysis mask here as the product
-    # matrices across all batches should have the same masking for convinience
-    # We can apply the full mask at a later stage.
-    if M_a is not None:
-        Y = Y[:, np.where(M_a.reshape([v]))[0]]
+    # # Apply analysis mask to Y, we use the analysis mask here as the product
+    # # matrices across all batches should have the same masking for convinience
+    # # We can apply the full mask at a later stage.
+    # if M_a is not None:
+    #     Y = Y[:, np.where(M_a.reshape([v]))[0]]
 
 # MARKER ===================================================================================
 
