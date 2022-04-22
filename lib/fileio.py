@@ -441,16 +441,16 @@ def addBlocksToNiftis(fnames, blocks, blockIndexes,dims=None,volInds=None,affs=N
                                 # Check volInd has correct datatype
                                 volInd = int(volInd)
 
-                                # We're only looking at this volume
-                                data_vol = data_vol[:,volInd].reshape((n_vox,1))
+                                # # We're only looking at this volume
+                                # data_vol = data[:,].reshape((n_vox,1))
 
                                 # Add block
-                                data_vol[blockInds,:] = block.reshape(data_vol[blockInds,:].shape)
-                                
+                                data[blockInds,volInd] = block.reshape(data[blockInds,volInd].shape)
+
                                 # Put in the volume
-                                data_out[:,:,:,volInd] = data_vol[:,0].reshape(int(dim[0]),
-                                                                               int(dim[1]),
-                                                                               int(dim[2]))
+                                data_out[:,:,:,volInd] = data[:,volInd].reshape(int(dim[0]),
+                                                                                int(dim[1]),
+                                                                                int(dim[2]))
 
                             # Record that we've added this block
                             blocksAdded[j] = 1
