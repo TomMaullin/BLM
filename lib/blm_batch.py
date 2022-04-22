@@ -353,7 +353,7 @@ def obtainY(Y_files, M_files, M_t, M_a):
 
     # Un(analysis)mask mask
     Mask = np.zeros([v])
-    Mask[np.where(M_a.reshape([v]))[0]] = mask_am
+    Mask[np.where(M_a.reshape([v]))[0]] = Mask_am
     
     # Apply full mask to Y
     Y_fm = Y[:, np.where(np.count_nonzero(Y, axis=0)>0)[0]]
