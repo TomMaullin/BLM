@@ -42,11 +42,6 @@ from lib.fileio import *
 
 def combine_batch_masking(*args):
 
-    print('marker')
-
-    t1 = time.time()
-    print('started, time ',t1-t1)
-
     # Work out number of batchs
     n_b = args[0]
 
@@ -55,10 +50,7 @@ def combine_batch_masking(*args):
 
     # Number of nodes
     numNodes = args[2]
-
     maskJob = args[3]
-
-    print('n_b: ', n_b, ', node: ', node, ', numNodes: ', numNodes, ', maskJob: ', maskJob)
 
     # ----------------------------------------------------------------------
     # Check inputs
@@ -78,9 +70,6 @@ def combine_batch_masking(*args):
         else:  
             # In this case inputs structure is first argument.
             inputs = args[4]
-
-    t2 = time.time()
-    print('inputs, time ',t2-t1)
 
     # ----------------------------------------------------------------------
     # Read basic inputs
@@ -113,42 +102,13 @@ def combine_batch_masking(*args):
     else:
         OutputCovB = True
 
-    t2 = time.time()
-    print('inputs2, time ',t2-t1)
-
-    print('OutputCovB ', OutputCovB)
-
     # --------------------------------------------------------------------------------
     # Get n (number of observations) and n_sv (spatially varying number of
     # observations)
     # --------------------------------------------------------------------------------
 
-    print('marker2')
-
-    # # Work out number of batchs
-    # n_b = len(glob.glob(os.path.join(OutDir,"tmp","blm_vox_n_batch*")))
-
-    # ----------------------------------------------------------------
-    # CHANGED
-    # ----------------------------------------------------------------
-
     # Number of images to look at for each node 
     n_images = n_b//numNodes+1
-
-    # ----------------------------------------------------------------
-    # Remove file we just read
-    #os.remove(os.path.join(OutDir,"tmp", "blm_vox_n_batch1.nii"))
-
-    print('marker3')
-
-    # MARKER: node range is 1 to numNodes
-
-
-    # REMEM TO START LOOP WITH 1 MAP ABOVE
-    # Becomes: 
-
-    # Loop over:
-    # 
 
     if ((1 + node*n_images) >= (n_b + 1)) and ((1+(node-1)*n_images) <= (n_b + 1)):
     
@@ -194,12 +154,8 @@ def combine_batch_masking(*args):
         if firstImage:
 
             # Read in n (spatially varying)
-            # n_sv  = loadFile(os.path.join(OutDir,"tmp", 
-            #                  "blm_vox_n_batch" + str(batchNo) + ".nii")).get_fdata()
             n_sv = np.asarray(loadFile(os.path.join(OutDir,"tmp",  
                              "blm_vox_n_batch" + str(batchNo) + ".nii")).dataobj, dtype=np.int64)
-            # with open(os.path.join(OutDir,'results.txt'), 'a') as file:
-            #     print('check 10 ',np.allclose(n_sv, n_sv2), np.all(n_sv==n_sv2), file=file)
 
 
             # No longer looking at the first image
@@ -210,10 +166,6 @@ def combine_batch_masking(*args):
             # Obtain the full nmap.
             n_sv = n_sv + np.asarray(loadFile(os.path.join(OutDir,"tmp", 
                 "blm_vox_n_batch" + str(batchNo) + ".nii")).dataobj, dtype=np.int64)
-            # n_sv = n_sv + loadFile(os.path.join(OutDir,"tmp", 
-            #     "blm_vox_n_batch" + str(batchNo) + ".nii")).get_fdata()
-            # with open(os.path.join(OutDir,'results.txt'), 'a') as file:
-            #     print('check 9 ',np.allclose(n_sv, n_sv2), np.all(n_sv==n_sv2), file=file)
 
         # Remove file we just read
         os.remove(os.path.join(OutDir,"tmp", "blm_vox_n_batch" + str(batchNo) + ".nii"))
@@ -243,18 +195,12 @@ def combine_batch_masking(*args):
         if os.path.exists(df_fname):
             # df_sv = n_sv + loadFile(df_fname).get_fdata()
             df_sv = n_sv + np.asarray(loadFile(df_fname).dataobj, dtype=np.int64)
-            # with open(os.path.join(OutDir,'results.txt'), 'a') as file:
-            #     print('check 8 ',np.allclose(df_sv, df_sv2), np.all(df_sv==df_sv2), file=file)
-
             os.remove(df_fname)
         else:
-            df_sv = np.array(n_sv) # MARKER SOMETHING WRONG WITH DF
+            df_sv = np.array(n_sv)
 
         if os.path.exists(n_fname):
             n_sv = n_sv + np.asarray(loadFile(n_fname).dataobj, dtype=np.int64)
-            # n_sv = n_sv + loadFile(n_fname).get_fdata()
-            # with open(os.path.join(OutDir,'results.txt'), 'a') as file:
-            #     print('check 7 ',np.allclose(n_sv, n_sv2), np.all(n_sv==n_sv2), file=file)
             os.remove(n_fname)
 
         # Save nmap
@@ -289,10 +235,7 @@ def combine_batch_masking(*args):
     if maskJob:
 
         # Read in degrees of freedom
-        # df_sv = loadFile(os.path.join(OutDir,'blm_vox_edf.nii')).get_fdata()
         df_sv = np.asarray(loadFile(os.path.join(OutDir,'blm_vox_edf.nii')).dataobj, dtype=np.int64)
-        # with open(os.path.join(OutDir,'results.txt'), 'a') as file:
-        #     print('check 6 ',np.allclose(df_sv, df_sv2), np.all(df_sv==df_sv2), file=file)
 
         # Remove non-zero voxels
         df_sv = np.maximum(df_sv,0)
@@ -305,11 +248,7 @@ def combine_batch_masking(*args):
         del dfmap
 
         # Read in n (spatially varying)
-        # n_sv  = loadFile(os.path.join(OutDir,'blm_vox_n.nii')).get_fdata()
         n_sv = np.asarray(loadFile(os.path.join(OutDir,'blm_vox_n.nii')).dataobj, dtype=np.int64)
-
-        # with open(os.path.join(OutDir,'results.txt'), 'a') as file:
-        #     print('check 5 ',np.allclose(n_sv, n_sv2), np.all(n_sv==n_sv2), file=file)
 
         Mask = np.ones([v, 1])
         n_sv = n_sv.reshape(v, 1)   
@@ -366,11 +305,8 @@ def combine_batch_masking(*args):
             amask_path = inputs["analysis_mask"]
             
             # Read in the mask nifti.
-            # amask = loadFile(amask_path).get_fdata().reshape([v,1])
             amask = np.asarray(loadFile(amask_path).dataobj).reshape([v,1])
 
-            # with open(os.path.join(OutDir,'results.txt'), 'a') as file:
-            #     print('check 4 ',np.allclose(amask, amask2), np.all(amask==amask2), file=file)
         else:
 
             # By default make amask ones
@@ -444,9 +380,6 @@ def combine_batch_designs(AtBstr, OutDir, fileRange):
     uniquenessMask_current = np.asarray(loadFile(NIFTIfilenames[0]).dataobj, dtype=np.int64)
     AtB_unique_current = np.load(AtBfilenames[0])
 
-    # with open(os.path.join(OutDir,'results.txt'), 'a') as file:
-    #     print('check 3 ',np.allclose(uniquenessMask_current, uniquenessMask_current2), np.all(uniquenessMask_current==uniquenessMask_current2), file=file)
-
     # Add row of zeros for outside of mask
     AtB_unique_current = np.concatenate((np.zeros((1,AtB_unique_current.shape[1])), AtB_unique_current), axis=0)
 
@@ -461,11 +394,7 @@ def combine_batch_designs(AtBstr, OutDir, fileRange):
         if i < len(NIFTIfilenames):
 
             # Read new uniqueness mask
-            # uniquenessMask_new = loadFile(NIFTIfilenames[i]).get_fdata()
             uniquenessMask_new = np.asarray(loadFile(NIFTIfilenames[i]).dataobj, dtype=np.int64)
-
-            # with open(os.path.join(OutDir,'results.txt'), 'a') as file:
-            #     print('check 2 ',np.allclose(uniquenessMask_new, uniquenessMask_new2), np.all(uniquenessMask_new==uniquenessMask_new2), file=file)
 
             # Read in new unique list of AtB's
             AtB_unique_new = np.load(AtBfilenames[i])
@@ -494,13 +423,8 @@ def combine_batch_designs(AtBstr, OutDir, fileRange):
             if os.path.isfile(os.path.join(OutDir,"tmp", "blm_vox_uniqueM.nii")):
 
                 # Adding to the running total now
-                # uniquenessMask_new2 = loadFile(os.path.join(OutDir,"tmp", 
-                #                               "blm_vox_uniqueM.nii")).get_fdata()
                 uniquenessMask_new = np.asarray(loadFile(os.path.join(OutDir,"tmp", 
                                               "blm_vox_uniqueM.nii")).dataobj, dtype=np.int64)
-
-                # with open(os.path.join(OutDir,'results.txt'), 'a') as file:
-                #     print('check 1 ',np.allclose(uniquenessMask_new, uniquenessMask_new2), np.all(uniquenessMask_new==uniquenessMask_new2), file=file)
 
                 # Read in the running list of AtB's
                 AtB_unique_new = np.load(os.path.join(OutDir,"tmp",
@@ -546,35 +470,6 @@ def combine_batch_designs(AtBstr, OutDir, fileRange):
 
             # Work out which value the updated uniqueness values corresponded to in the `current' image
             value_current = int(value_updated_full-value_new*(maxM+1))
-
-            x1 = AtB_unique_updated[value_updated,:]
-            x2 = AtB_unique_new[value_new,:]
-            try:
-                x3 = AtB_unique_current[value_current,:]
-            except:
-                with open(os.path.join(OutDir,'results.txt'), 'a') as file:
-                    print('i ', i,file=file)
-                    print('len ', len(NIFTIfilenames),file=file)
-                    print('value_current ', value_current,file=file)
-                    print('AtB_unique_current.shape ', AtB_unique_current.shape,file=file)
-                    print('value_new ', value_new,file=file)
-                    print('value_updated_full ', value_updated_full,file=file)
-                    print('value_updated ', value_updated,file=file)
-                    print('maxM_updated ', maxM_updated,file=file)
-                    print('maxM_current ', maxM_current,file=file)
-                    print('maxM_new ', maxM_new,file=file)
-                    print('maxM ', maxM,file=file)
-                    print('fileRange ', fileRange,file=file)
-                    print('amax ', np.amax(uniquenessMask_updated_full),file=file)
-                    
-                    value_new2 = uniquenessMask_new[np.where(uniquenessMask_updated_full==value_updated_full)][0]
-                    value_current2 = uniquenessMask_current[np.where(uniquenessMask_updated_full==value_updated_full)][0]
-                    print('values ', value_new2, value_current2,file=file)
-
-                    nib.save(nib.Nifti1Image(uniquenessMask_current,aff, header=hdr), os.path.join(OutDir,"current.nii"))
-                    nib.save(nib.Nifti1Image(uniquenessMask_new,aff, header=hdr), os.path.join(OutDir,"new.nii"))
-                    nib.save(nib.Nifti1Image(uniquenessMask_updated_full,aff, header=hdr), os.path.join(OutDir,"updated_full.nii"))
-                    nib.save(nib.Nifti1Image(uniquenessMask_updated,aff, header=hdr), os.path.join(OutDir,"updated.nii"))
 
             # Update the unique AtB array
             AtB_unique_updated[value_updated,:] = AtB_unique_new[value_new,:] + AtB_unique_current[value_current,:]
