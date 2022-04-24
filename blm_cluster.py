@@ -141,8 +141,8 @@ def main(cluster, inputs):
     # --------------------------------------------------------------------------------
     if os.path.isfile(os.path.join(OutDir, 'nb.txt')):
         os.remove(os.path.join(OutDir, 'nb.txt'))
-    if os.path.isdir(os.path.join(OutDir, 'tmp')):
-        shutil.rmtree(os.path.join(OutDir, 'tmp'))
+    # if os.path.isdir(os.path.join(OutDir, 'tmp')):
+    #     shutil.rmtree(os.path.join(OutDir, 'tmp'))
    
     print('BLM analysis complete!')
     print('')
