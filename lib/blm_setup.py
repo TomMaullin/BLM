@@ -157,7 +157,7 @@ def setup(*args):
     # as approximately a third of the volume is actually non-zero/brain 
     # and then also divide though everything by the number of parameters
     # in the analysis.
-    blksize = np.floor(MAXMEM/8/NIFTIsize/n_p)
+    blksize = np.floor(MAXMEM/8/NIFTIsize/(n_p**2))
     if blksize == 0:
         raise ValueError('Blocksize too small.')
 
