@@ -323,8 +323,8 @@ def obtainY(Y_files, M_files, M_t, M_a):
         if M_t is not None:
             d[d<M_t]=0
 
-        # if M_a is not None:
-        #     d[M_a==0]=0
+        if M_a is not None:
+            d[M_a==0]=0
 
         # NaN check
         d = np.nan_to_num(d)

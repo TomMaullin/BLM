@@ -148,8 +148,6 @@ def combine_batch_masking(*args):
     # Cycle through batches and add together n.
     for batchNo in loopRange:
 
-        print('batchNo: ', batchNo)
-
         if firstImage:
 
             # Read in n (spatially varying)
@@ -167,7 +165,7 @@ def combine_batch_masking(*args):
                 "blm_vox_n_batch" + str(batchNo) + ".nii")).dataobj, dtype=np.int64)
 
         # Remove file we just read
-        os.remove(os.path.join(OutDir,"tmp", "blm_vox_n_batch" + str(batchNo) + ".nii"))
+        #os.remove(os.path.join(OutDir,"tmp", "blm_vox_n_batch" + str(batchNo) + ".nii"))
 
     # Filename for nmap
     n_fname = os.path.join(OutDir,'blm_vox_n.nii')
