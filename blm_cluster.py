@@ -63,11 +63,17 @@ def main(cluster, inputs):
     # Groups of files
     fileGroups = np.array_split(np.arange(nb)+1, numNodes)
 
+    # Check for empty filegroups
+    fileGroups = [i for i in fileGroups if i.size!=0]
+
+    # Number of file groups
+    numFileGroups = len(fileGroups)
+
     # Empty futures list
     futures = []
 
     # Loop through nodes
-    for node in np.arange(1,numNodes + 1):
+    for node in np.arange(1,numFileGroups + 1):
 
         # Run the jobNum^{th} job.
         future_c = client.submit(combine_batch_designs, 'XtX', OutDir, fileGroups[node-1], pure=False)
@@ -76,10 +82,10 @@ def main(cluster, inputs):
         futures.append(future_c)
 
     # Loop through nodes
-    for node in np.arange(1,numNodes + 1):
+    for node in np.arange(1,numFileGroups + 1):
 
         # Give the i^{th} node the i^{th} partition of the data
-        future_b = client.submit(combine_batch_masking, nb, node, numNodes, maskJob, inputs_yml, pure=False)
+        future_b = client.submit(combine_batch_masking, nb, node, numFileGroups, maskJob, inputs_yml, pure=False)
 
         # Append to list
         futures.append(future_b)

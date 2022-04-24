@@ -361,7 +361,13 @@ def combine_batch_masking(*args):
 # ============================================================================
 def combine_batch_designs(AtBstr, OutDir, fileRange):
 
-    # MARKER HANDLE EMPTY JOB
+    # Empty job
+    try:
+        fileRange[0]
+    except Exception as error:
+        raise ValueError('The file range is empty.')
+
+
 
     # Get NIFTIfilenames
     NIFTIfilenames = [os.path.join(OutDir,"tmp", 
