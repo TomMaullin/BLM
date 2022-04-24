@@ -361,8 +361,6 @@ def combine_batch_designs(AtBstr, OutDir, fileRange):
     except Exception as error:
         raise ValueError('The file range is empty.')
 
-
-
     # Get NIFTIfilenames
     NIFTIfilenames = [os.path.join(OutDir,"tmp", 
         "blm_vox_uniqueM_batch" + str(i) + ".nii") for i in fileRange]
