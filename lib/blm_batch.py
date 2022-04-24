@@ -71,8 +71,23 @@ def compute_product_forms(*args):
     # Read in some data as a default nifti
     d0 = np.asarray(Y0.dataobj, dtype=np.float64)
 
+    # Mask volume MARKER - need corresponding memory management in blm_batch
+    if 'analysis_mask' in inputs:
+
+        # Load the file and check it's shape is 3d (as oppose to 4d with a 4th dimension
+        # of 1)
+        M_a = loadFile(inputs['analysis_mask']).get_fdata()
+
+        # Number of non-zero voxels
+        v_am = np.count_nonzero(np.nan_to_num(M_a))
+
+    else:
+
+        # Number of non-zero voxles
+        v_am = np.prod(Y0.shape)
+
     # Get the maximum memory a NIFTI could take in storage. 
-    NIFTImem = sys.getsizeof(np.zeros(d0.shape,dtype='uint64'))
+    NIFTImem = sys.getsizeof(np.zeros([v_am,1],dtype='uint64'))
 
     # Similar to blksize in SwE, we divide by 8 times the size of a nifti
     # to work out how many blocks we use.
