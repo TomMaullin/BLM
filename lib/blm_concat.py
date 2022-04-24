@@ -176,17 +176,17 @@ def combine_batch_masking(*args):
     # Filename for dfmap
     df_fname = os.path.join(OutDir,'blm_vox_edf.nii')
 
-    try:
-        n_sv
-    except:
-        with open(os.path.join(OutDir, 'tmp.txt'), 'w') as f:
-            print('firstImage ', firstImage, file=f)
-            print('lastNode ', lastNode, file=f)
-            print('emptyLoop ', emptyLoop, file=f)
-            print('loopRange ', loopRange, file=f)
-            print(1+(node-1)*n_images,1+node*n_images, n_b, file=f)
-
     if not emptyLoop:
+
+        try:
+            n_sv
+        except:
+            with open(os.path.join(OutDir, 'tmp.txt'), 'w') as f:
+                print('firstImage ', firstImage, file=f)
+                print('lastNode ', lastNode, file=f)
+                print('emptyLoop ', emptyLoop, file=f)
+                print('loopRange ', loopRange, file=f)
+                print(1+(node-1)*n_images,1+node*n_images, n_b, file=f)
 
         # Check if file is in use
         fileLocked = True
