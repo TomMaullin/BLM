@@ -139,7 +139,7 @@ def combine_batch_masking(*args):
 
 
     # MARKER
-    with open(os.path.join(os.path.join(OutDir, 'tmp.txt')), 'w') as f:
+    with open(os.path.join(os.path.join(OutDir, 'tmp.txt')), 'a') as f:
         print(emptyLoop, loopRange, n_images, n_b, numNodes, file=f)
 
     # Check if this is the first image we're looking at
