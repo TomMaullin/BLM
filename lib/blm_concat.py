@@ -117,9 +117,6 @@ def combine_batch_masking(*args):
     
         # This is the last node
         lastNode = True
-    
-        # Empty loop
-        emptyLoop = False
 
     elif ((1+(node-1)*n_images) <= (n_b + 1)):
     
@@ -129,9 +126,6 @@ def combine_batch_masking(*args):
         # This is not the last node
         lastNode = False
 
-        # Empty loop
-        emptyLoop = False
-
     else:
 
         # Empty loop range
@@ -140,8 +134,8 @@ def combine_batch_masking(*args):
         # This is not the last node (this one's redundant)
         lastNode = False
 
-        # Empty loop
-        emptyLoop = True
+    # Empty loop
+    emptyLoop = (len(loopRange)==0)
 
     # Check if this is the first image we're looking at
     firstImage = True
@@ -177,16 +171,6 @@ def combine_batch_masking(*args):
     df_fname = os.path.join(OutDir,'blm_vox_edf.nii')
 
     if not emptyLoop:
-
-        try:
-            n_sv
-        except:
-            with open(os.path.join(OutDir, 'tmp.txt'), 'w') as f:
-                print('firstImage ', firstImage, file=f)
-                print('lastNode ', lastNode, file=f)
-                print('emptyLoop ', emptyLoop, file=f)
-                print('loopRange ', loopRange, file=f)
-                print(1+(node-1)*n_images,1+node*n_images, n_b, file=f)
 
         # Check if file is in use
         fileLocked = True
