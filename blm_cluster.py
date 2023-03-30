@@ -7,6 +7,7 @@ from lib.blm_setup import setup
 from lib.blm_batch import compute_product_forms
 from lib.blm_concat import combine_batch_masking, combine_batch_designs
 from lib.blm_results import output_results
+from lib.fileio import pracNumVoxelBlocks
 from dask import config
 from dask_jobqueue import SLURMCluster
 from dask.distributed import Client, as_completed
@@ -138,10 +139,6 @@ def _main(argv=None):
     # --------------------------------------------------------------------------------
 
     # Ask for numNodes nodes for BLM batch
-    cluster.scale(numNodes)
-
-
-    # Ask for a node for setup
     cluster.scale(numNodes)
 
     # Empty futures list
