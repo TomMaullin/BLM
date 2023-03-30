@@ -249,10 +249,6 @@ def output_results(*args):
     affs = []
     hdrs = []
 
-    print(nvg)
-    with open(os.path.join(OutDir,"tmp.txt"), "w") as f:
-        f.write(nvg)
-
     # Loop through list of voxel indices, looking at each group of voxels, in
     # turn.
     for cv in range(nvg):

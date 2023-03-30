@@ -223,11 +223,7 @@ def _main(argv=None):
     # --------------------------------------------------------------------------------
 
     # Number of jobs for results (practical number of voxel batches)
-    pnvb = int(np.minimum(numNodes, pracNumVoxelBlocks(inputs)))
-
-    print(pnvb, nb)
-    with open(os.path.join(OutDir,"tmp.txt"), "w") as f:
-        f.write(pnvb,nb)
+    pnvb = int(np.maximum(numNodes, pracNumVoxelBlocks(inputs)))
 
     # Empty futures list
     futures = []
