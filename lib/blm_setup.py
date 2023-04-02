@@ -102,6 +102,24 @@ def setup(*args):
 
     OutDir = inputs['outdir']
 
+    # --------------------------------------------------------------------------------
+    # Remove any files from the previous runs
+    # --------------------------------------------------------------------------------
+    files = ['blm_vox_n.nii', 'blm_vox_mask.nii', 'blm_vox_edf.nii', 'blm_vox_beta.nii',
+             'blm_vox_llh.nii', 'blm_vox_sigma2.nii', 'blm_vox_resms.nii',
+             'blm_vox_cov.nii', 'blm_vox_conT.nii', 'blm_vox_conTlp.nii',
+             'blm_vox_conSE.nii', 'blm_vox_con.nii', 'blm_vox_conF.nii',
+             'blm_vox_conFlp.nii', 'blm_vox_conR2.nii']
+
+
+    for file in files:
+        if os.path.exists(os.path.join(OutDir, file)):
+            os.remove(os.path.join(OutDir, file))
+
+    if os.path.exists(os.path.join(OutDir, 'tmp')):  
+        shutil.rmtree(os.path.join(OutDir, 'tmp'))
+
+
     # Get number of parameters
     c1 = str2vec(inputs['contrasts'][0]['c' + str(1)]['vector'])
     c1 = np.array(c1)

@@ -137,11 +137,6 @@ def combine_batch_masking(*args):
     # Empty loop
     emptyLoop = (len(loopRange)==0)
 
-
-    # MARKER
-    with open(os.path.join(os.path.join(OutDir, 'tmp.txt')), 'a') as f:
-        print(emptyLoop, loopRange, n_images, n_b, numNodes, file=f)
-
     # Check if this is the first image we're looking at
     firstImage = True
 
@@ -186,7 +181,7 @@ def combine_batch_masking(*args):
                 fileLocked = True
 
         # ------------------------------------------------------------------------------------
-        # MARKER ADD TO RUNNING TOTAL
+        # Add to running total
         # ------------------------------------------------------------------------------------
 
         if os.path.exists(df_fname):
