@@ -51,11 +51,6 @@ def output_results(*args):
     # Work out number of batchs
     n_b = args[2]
 
-
-    # MARKER
-    with open(os.path.join(os.path.join(OutDir, 'tmp_results' + str(jobNum) + '.txt')), 'a') as f:
-        print('here1', file=f)
-
     # ----------------------------------------------------------------------
     # Check inputs
     # ----------------------------------------------------------------------
