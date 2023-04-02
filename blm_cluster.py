@@ -20,20 +20,19 @@ def _main(argv=None):
     # Check inputs
     # --------------------------------------------------------------------------------
     # Inputs file is first argument
-    if len(argv)==0 or (not argv[0]):
-        # Load in inputs
-        with open(os.path.join(
-                    os.path.dirname(os.path.realpath(__file__)),
-                    'blm_config.yml'), 'r') as stream:
-            inputs = yaml.load(stream,Loader=yaml.FullLoader)
+    if len(argv)<1:
+        inputs_yml = os.path.join(
+                        os.path.dirname(os.path.realpath(__file__)),
+                        'blm_config.yml')
+
+    # Get the inputs filepath
     else:
-        if type(argv[0]) is str:
-            # In this case inputs file is first argument
-            with open(os.path.join(argv[0]), 'r') as stream:
-                inputs = yaml.load(stream,Loader=yaml.FullLoader)
-        else:  
-            # In this case inputs structure is first argument.
-            inputs = argv[0]
+        inputs_yml = argv[0]
+        
+    # Load the inputs yaml file
+    with open(inputs_yml, 'r') as stream:
+        inputs = yaml.load(stream,Loader=yaml.FullLoader)
+
     
     # --------------------------------------------------------------------------------
     # Read Output directory, work out number of batches
