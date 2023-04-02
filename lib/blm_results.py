@@ -112,7 +112,7 @@ def output_results(*args):
 
     # Load mask
     n_sv = loadFile(os.path.join(OutDir,'blm_vox_n.nii')).get_fdata()
-    n_sv = n_sv.reshape(v, 1) # MARKER
+    n_sv = n_sv.reshape(v, 1) 
 
     # Load uniqueness file
     uniq = loadFile(os.path.join(OutDir,"tmp","blm_vox_uniqueM.nii")).get_fdata()
@@ -133,11 +133,6 @@ def output_results(*args):
     # Get indices for whole analysis mask. These indices are the indices we
     # have recorded for the product matrices with respect to the entire volume
     amInds = get_amInds(amask)
-
-
-    # MARKER
-    with open(os.path.join(os.path.join(OutDir, 'tmp_results' + str(jobNum) + '.txt')), 'a') as f:
-        print('here2', file=f)
 
     # ------------------------------------------------------------------------
     # Work out "Ring" and "Inner" indices for whole mask
@@ -212,10 +207,6 @@ def output_results(*args):
         else:
             nf = nf + 1
 
-    # MARKER
-    with open(os.path.join(os.path.join(OutDir, 'tmp_results' + str(jobNum) + '.txt')), 'a') as f:
-        print('here3', file=f)
-
     # ------------------------------------------------------------------------
     # Output volume dimensions
     # ------------------------------------------------------------------------
@@ -257,11 +248,6 @@ def output_results(*args):
     volInds = []
     affs = []
     hdrs = []
-
-
-    # MARKER
-    with open(os.path.join(os.path.join(OutDir, 'tmp_results' + str(jobNum) + '.txt')), 'a') as f:
-        print('here4', file=f)
 
     # Loop through list of voxel indices, looking at each group of voxels, in
     # turn.
@@ -316,10 +302,6 @@ def output_results(*args):
         XtY_i = readLinesFromNPY(os.path.join(OutDir,"tmp",'XtY.npy'), I_inds_am).reshape([v_i, p, 1])
         YtY_i = readLinesFromNPY(os.path.join(OutDir,"tmp",'YtY.npy'), I_inds_am).reshape([v_i, 1, 1])
 
-        # MARKER
-        with open(os.path.join(os.path.join(OutDir, 'tmp_results' + str(jobNum) + '.txt')), 'a') as f:
-            print('here5', file=f)
-
         if v_r:
 
             # Ring X'X
@@ -354,10 +336,6 @@ def output_results(*args):
                 
                 # Recalculate number of voxels left in ring
                 v_r = R_inds.shape[0]
-        
-                # MARKER
-                with open(os.path.join(os.path.join(OutDir, 'tmp_results' + str(jobNum) + '.txt')), 'a') as f:
-                    print('here6', file=f)
 
 
         if v_i:
@@ -454,11 +432,6 @@ def output_results(*args):
             ete_r = YtY_r.reshape([v_r,1]) - betatXtXbeta_r
             del betatXtXbeta_r
 
-
-            # MARKER
-            with open(os.path.join(os.path.join(OutDir, 'tmp_results' + str(jobNum) + '.txt')), 'a') as f:
-                print('here7', file=f)
-
         # ----------------------------------------------------------------------
         # Calculate residual mean squares = e'e/(n - p)
         # ----------------------------------------------------------------------
@@ -480,10 +453,6 @@ def output_results(*args):
             affs.append(nifti.affine)
             hdrs.append(nifti.header)
 
-            # MARKER
-            with open(os.path.join(os.path.join(OutDir, 'tmp_results' + str(jobNum) + '.txt')), 'a') as f:
-                print('here8', file=f)
-
         if v_i:
 
             # All voxels in the inner mask have n scans present
@@ -497,10 +466,6 @@ def output_results(*args):
             dims.append(NIFTIsize)
             affs.append(nifti.affine)
             hdrs.append(nifti.header)
-
-            # MARKER
-            with open(os.path.join(os.path.join(OutDir, 'tmp_results' + str(jobNum) + '.txt')), 'a') as f:
-                print('here9', file=f)
 
         # ----------------------------------------------------------------------
         # Calculate log likelihood
@@ -528,10 +493,6 @@ def output_results(*args):
             affs.append(nifti.affine)
             hdrs.append(nifti.header)
 
-            # MARKER
-            with open(os.path.join(os.path.join(OutDir, 'tmp_results' + str(jobNum) + '.txt')), 'a') as f:
-                print('here10', file=f)
-
         if v_i:
 
             sigma2_i = 1/n * ete_i
@@ -553,10 +514,6 @@ def output_results(*args):
             dims.append(NIFTIsize)
             affs.append(nifti.affine)
             hdrs.append(nifti.header)
-
-            # MARKER
-            with open(os.path.join(os.path.join(OutDir, 'tmp_results' + str(jobNum) + '.txt')), 'a') as f:
-                print('here11', file=f)
 
         # ----------------------------------------------------------------------
         # Calculate beta covariance maps
@@ -598,10 +555,6 @@ def output_results(*args):
                             addBlockToNifti(os.path.join(OutDir, 'blm_vox_cov.nii'), covbetaij_i, I_inds,volInd=vol,dim=dimCov,aff=nifti.affine,hdr=nifti.header)
 
                         vol = vol+1;
-
-            # MARKER
-            with open(os.path.join(os.path.join(OutDir, 'tmp_results' + str(jobNum) + '.txt')), 'a') as f:
-                print('here12', file=f)
 
         # ----------------------------------------------------------------------
         # Calculate COPEs, statistic maps and covariance maps.
@@ -696,10 +649,6 @@ def output_results(*args):
                     affs.append(nifti.affine)
                     hdrs.append(nifti.header)
 
-                    # MARKER
-                    with open(os.path.join(os.path.join(OutDir, 'tmp_results' + str(jobNum) + '.txt')), 'a') as f:
-                        print('here13', file=f)
-
                 if v_i:
 
                     # Add con to lists
@@ -759,10 +708,6 @@ def output_results(*args):
                     dims.append(dimT)
                     affs.append(nifti.affine)
                     hdrs.append(nifti.header)
-
-                    # MARKER
-                    with open(os.path.join(os.path.join(OutDir, 'tmp_results' + str(jobNum) + '.txt')), 'a') as f:
-                        print('here14', file=f)
 
                 # Record that we have seen another T contrast
                 current_nt = current_nt + 1
@@ -843,12 +788,6 @@ def output_results(*args):
                     affs.append(nifti.affine)
                     hdrs.append(nifti.header)
 
-
-                    # MARKER
-                    with open(os.path.join(os.path.join(OutDir, 'tmp_results' + str(jobNum) + '.txt')), 'a') as f:
-                        print('here15', file=f)
-
-
                 if v_i:
 
                     LvectiXtXLvec_i = np.matmul(
@@ -915,23 +854,9 @@ def output_results(*args):
                     affs.append(nifti.affine)
                     hdrs.append(nifti.header)
 
-                    # MARKER
-                    with open(os.path.join(os.path.join(OutDir, 'tmp_results' + str(jobNum) + '.txt')), 'a') as f:
-                        print('here16', file=f)
-
-
-
-    # MARKER
-    with open(os.path.join(os.path.join(OutDir, 'tmp_results' + str(jobNum) + '.txt')), 'a') as f:
-        print('here17', file=f)
-
     # Add the blocks to the niftis
     addBlocksToNiftis(fnames, blocks, blockIndexes,dims,volInds,affs,hdrs)
 
-
-    # MARKER
-    with open(os.path.join(os.path.join(OutDir, 'tmp_results' + str(jobNum) + '.txt')), 'a') as f:
-        print('here18', file=f)
 
     w.resetwarnings()
 
