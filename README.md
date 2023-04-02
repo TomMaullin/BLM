@@ -132,7 +132,7 @@ analysis_mask: /path/to/data/MNI152_T1_2mm_brain_mask.nii.gz
 On your HPC system, ensure you are in the `BLM-py` directory and once you are happy with the analysis you have specified in `blm_config.yml`, run the following command:
 
 ```
-python blm_cluster.py
+python blm_cluster.py &
 ```
 
 You can watch your analysis progress either by using `qstat` or `squeue` (depending on your system), or by using the interactive dask console. To do so, in a seperate terminal, tunnel into your HPC as follows:

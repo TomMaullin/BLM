@@ -254,6 +254,8 @@ def _main(argv=None):
     # --------------------------------------------------------------------------------
     if os.path.isfile(os.path.join(OutDir, 'nb.txt')):
         os.remove(os.path.join(OutDir, 'nb.txt'))
+    shutil.rmtree(os.path.join(OutDir, 'tmp'))
+
 
     print('BLM analysis complete!')
     print('')
