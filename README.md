@@ -2,19 +2,49 @@
 This repository contains the code for Big Linear Models for Neuroimaging cluster and local usage.
 
 ## Requirements
-To use the BLM-py code, `fsl 5.0.10` or greater must be installed and `fslpython` must be configured correctly. Alternatively the following python packages must be installed:
+To use the BLM-py code, please clone this repository to your cluster. 
 
 ```
-numpy>=1.14.0
-nibabel>=2.2.1
-yaml
-pandas
-subprocess
+git clone https://github.com/TomMaullin/BLM.git
 ```
 
-(This code may work with older versions of numpy and nibabel but caution is advised as these versions have not been tested).
+Then pip install the requirements:
 
-If running `BLM-py` on a cluster, `fsl_sub` must also be configured correctly.
+```
+pip install -r requirements.txt
+```
+
+Finally, you must set up your `dask-jobqueue` configuration file, which is likely located at `~/.config/dask/jobqueue.yaml`. This will require you to provide some details about your HPC system. See [here](https://jobqueue.dask.org/en/latest/configuration-setup.html#managing-configuration-files) for further detail. For instance, if you are using rescomp your `jobqueue.yaml` file may look something like this:
+
+```
+jobqueue:
+  slurm:
+    name: dask-worker
+
+    # Dask worker options
+    cores: 1                 # Total number of cores per job
+    memory: "100GB"                # Total amount of memory per job
+    processes: 1                # Number of Python processes per job
+
+    interface: ib0             # Network interface to use like eth0 or ib0
+    death-timeout: 60           # Number of seconds to wait if a worker can not find a scheduler
+    local-directory: "/path/of/your/choosing/"       # Location of fast local storage like /scratch or $TMPDIR
+    log-directory: "/path/of/your/choosing/"
+    silence_logs: True
+
+    # SLURM resource manager options
+    shebang: "#!/usr/bin/bash"
+    queue: short
+    project: null
+    walltime: '01:00:00'
+    job-cpu: null
+    job-mem: null
+    log-directory: null
+
+    # Scheduler options
+    scheduler-options: {'dashboard_address': ':46405'}
+```
+
 
 ## Usage
 To run `BLM-py` first specify your design using `blm_config.yml` and then run the job in parallel by following the below guidelines.
@@ -31,7 +61,9 @@ The following fields are mandatory:
  - `contrasts`: Contrast vectors to be tested. They should be listed as `c1,c2,...` etc and each contrast should contain the fields:
    - `name`: A name for the contrast. i.e. `AwesomelyNamedContrast1`.
    - `vector`: A vector for the contrast. This contrast must be one dimensional for a T test and two dimensional for an F test. For example; `[1, 0, 0]` (T contrast) or `[[1, 0, 0],[0,1,0]]` (F contrast).
-   
+ - `clusterType`: Cluster type the user wants to use (e.g. SLURM, SGE, etc).
+ - `numNodes`: Number of nodes to use for computation.
+ 
    At least one contrast must be given, see `Examples` for an example of how to specify contrasts.
  
 #### Optional fields
@@ -97,28 +129,19 @@ analysis_mask: /path/to/data/MNI152_T1_2mm_brain_mask.nii.gz
 
 ### Running the Analysis
 
-An analysis can either be run in parallel on a computing cluster using BLM.
-
-#### Running an analysis in parallel
-
-To run an analysis in parallel, log into the cluster you wish to run it on and ensure that `fsl` and `fsl_sub` are in the environment. On the `rescomp` cluster this can be done like so:
+On your HPC system, ensure you are in the `BLM-py` directory and once you are happy with the analysis you have specified in `blm_config.yml`, run the following command:
 
 ```
-module add fsl
-module add fsl_sub
+python blm_cluster.py &
 ```
 
-Ensure you are in the `BLM-py` directory and once you are happy with the analysis you have specified in `blm_config.yml`, run the following command:
+You can watch your analysis progress either by using `qstat` or `squeue` (depending on your system), or by using the interactive dask console. To do so, in a seperate terminal, tunnel into your HPC as follows:
 
 ```
-bash ./blm_cluster.sh
+ssh -L <local port>:localhost:<remote port> username@hpc_address
 ```
 
-After running this you will see text printed to the commandline telling you the analysis is being set up and the jobs are being submitted. For large analyses or small cluster this may take a minute or two as several jobs may be submitted to the cluster. Once you can access the command line again, you can use `qstat` to see the jobs which have been submitted. You will typically see jobs of the following form:
-
- - `setup`: This will be working out the number of batches/blocks the analysis needs to be split into.
- - `batch*`: There may be several jobs with names of this format. These are the "chunks" the analysis has been split into. These are run in parallel to one another and typically don't take very long.
- - `results`: This code is combining the output of each batch to obtain statistical analyses. This will run once all `batch*` jobs have been completed. Please note this code has been streamlined for large numbers of subjects but not large number of parameters; therefore this job may take some time for large numbers of parameters.
+where the local port is the port you want to view on your local machine and the remote port is the dask dashboard adress (for instance, if you are on rescomp and you used the above `jobqueue.yaml`, `<remote port>` is `46405`). On your local machine, in a browser you can now go to `http://localhost:<local port>/` to watch the analysis run.
 
 ### Analysis Output
 
@@ -144,50 +167,4 @@ The maps are given the same ordering as the inputs. For example, in `blm_vox_con
 
 ## Testing
 
-Note: All the below tests require access to test data. To ask access, please ask @TomMaullin directly.
-
-### In parallel, against ground truth
-
-To generate test cases:
-
-```
-bash ./generate_test_cases.sh $outdir $datadir
-```
-
-(Where `$datadir` is a data directory containg all data needed for analyses `test_cfg01.yml`, `test_cfg02.yml`,... `test_cfg10.yml` and `$outdir` is the desired output directory)
-
-To check the logs:
-
-```
-bash ./check_logs.sh
-```
-
-To verify the test cases against ground truth:
-
-```
-bash ./verify_test_cases.sh $GTDIR
-```
-
-(Where `$GTDIR` is a directory containing ground truth data from a previous run, i.e. inside `$GTDIR` are the folders `test_cfg01.yml`, `test_cfg02.yml`, ... etc).
-
-### In parallel, against FSL
-
-To generate test cases:
-
-```
-bash ./generate_test_cases_fsl.sh $outdir $datadir
-```
-
-(Where `$datadir` is a data directory containg all data needed for designs `fsltest_cfg01.yml`, `fsltest_cfg02.yml` and `fsltest_cfg03.yml` and `$outdir` is the desired output directory)
-
-To check the logs:
-
-```
-bash ./check_logs.sh
-```
-
-To verify the test cases against ground truth:
-
-```
-bash ./verify_test_cases_against_fsl.sh
-```
+The previous tests are currently deprecated and under renovation. Please contact @TomMaullin for further information.

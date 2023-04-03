@@ -13,11 +13,10 @@ import os
 import shutil
 import yaml
 import time
-np.set_printoptions(threshold=np.nan)
+np.set_printoptions(threshold=sys.maxsize)
 from lib.fileio import *
 
-def main(*args):
-
+def compute_product_forms(*args):
 
     # Change to blm directory
     os.chdir(os.path.dirname(os.path.realpath(__file__)))    
@@ -70,14 +69,29 @@ def main(*args):
         raise ValueError('The NIFTI "' + Y_files[0] + '"does not exist')
 
     # Read in some data as a default nifti
-    d0 = Y0.get_data()
+    d0 = np.asarray(Y0.dataobj, dtype=np.float64)
+
+    # Mask volume MARKER - need corresponding memory management in blm_batch
+    if 'analysis_mask' in inputs:
+
+        # Load the file and check it's shape is 3d (as oppose to 4d with a 4th dimension
+        # of 1)
+        M_a = loadFile(inputs['analysis_mask']).get_fdata()
+
+        # Number of non-zero voxels
+        v_am = np.count_nonzero(np.nan_to_num(M_a))
+
+    else:
+
+        # Number of non-zero voxles
+        v_am = np.prod(Y0.shape)
 
     # Get the maximum memory a NIFTI could take in storage. 
-    NIFTImem = sys.getsizeof(np.zeros(d0.shape,dtype='uint64'))
+    NIFTImem = sys.getsizeof(np.zeros([v_am,1],dtype='uint64'))
 
     # Similar to blksize in SwE, we divide by 8 times the size of a nifti
     # to work out how many blocks we use.
-    blksize = int(np.floor(MAXMEM/8/NIFTImem/p));
+    blksize = int(np.floor(MAXMEM/8/NIFTImem/(p**2)));
 
     # Reduce X to X for this block.
     X = loadFile(inputs['X'])
@@ -130,7 +144,7 @@ def main(*args):
 
         # Load the file and check it's shape is 3d (as oppose to 4d with a 4th dimension
         # of 1)
-        M_a = loadFile(inputs['analysis_mask']).get_data()
+        M_a = np.asarray(loadFile(inputs['analysis_mask']).dataobj)
         M_a = M_a.reshape((M_a.shape[0],M_a.shape[1],M_a.shape[2]))
 
     else:
@@ -196,7 +210,7 @@ def main(*args):
 def verifyInput(Y_files, M_files, Y0):
 
     # Obtain information about zero-th scan
-    d0 = Y0.get_data()
+    d0 = np.asarray(Y0.dataobj, dtype=np.float64)
     Y0aff = Y0.affine
 
     # Initial checks for NIFTI compatability for Y.
@@ -282,7 +296,7 @@ def obtainY(Y_files, M_files, M_t, M_a):
 
     # Load in one nifti to check NIFTI size
     Y0 = loadFile(Y_files[0])
-    d = Y0.get_data()
+    d = np.asarray(Y0.dataobj, dtype=np.float64)
     
     # Get number of voxels.
     v = np.prod(d.shape)
@@ -293,8 +307,16 @@ def obtainY(Y_files, M_files, M_t, M_a):
     # Count number of observations contributing to voxels
     n_sv = np.zeros(d.shape)
 
-    # Read in Y
-    Y = np.zeros([n, v])
+    # Number of voxels in analysis mask
+    if M_a is not None:
+        # Number of voxels in analysis mask
+        v_am = np.count_nonzero(np.nan_to_num(M_a))
+    else:
+        v_am = v
+
+    # Empty array for Y
+    Y = np.zeros([n, v_am])
+
     for i in range(0, len(Y_files)):
 
         # Read in each individual NIFTI.
@@ -304,13 +326,13 @@ def obtainY(Y_files, M_files, M_t, M_a):
         if M_files:
         
             # Apply mask
-            M_indiv = loadFile(M_files[i]).get_data()
+            M_indiv = np.asarray(loadFile(M_files[i]).dataobj) 
             d = np.multiply(
-                Y_indiv.get_data(),
+                np.asarray(Y_indiv.dataobj, dtype=np.float64),
                 M_indiv)
         else: 
             #Just load in Y
-            d = Y_indiv.get_data()
+            d = np.asarray(Y_indiv.dataobj, dtype=np.float64)
 
         # If theres an initial threshold for the data apply it.
         if M_t is not None:
@@ -325,21 +347,39 @@ def obtainY(Y_files, M_files, M_t, M_a):
         # Count number of observations at each voxel
         n_sv = n_sv + 1*(np.nan_to_num(d)!=0)
 
+# MARKER ===================================================================================
+# 
+
+        # Apply analysis mask to d, we use the analysis mask here as the product
+        # matrices across all batches should have the same masking for convinience
+        # We can apply the full mask at a later stage.
+        if M_a is not None:
+            d = d[M_a!=0]
+   
         # Constructing Y array
-        Y[i, :] = d.reshape([1, v])
+        Y[i, :] = d.reshape([1, v_am])
+
+        # # Constructing Y array
+        # Y[i, :] = d.reshape([1, v])
     
-    # Work out mask
+    # Work out mask (within analysis mask)
+    Mask_am = np.zeros([v_am])
+    Mask_am[np.where(np.count_nonzero(Y, axis=0)>0)[0]] = 1
+
+    # Un(analysis)mask mask
     Mask = np.zeros([v])
-    Mask[np.where(np.count_nonzero(Y, axis=0)>0)[0]] = 1
+    Mask[np.where(M_a.reshape([v]))[0]] = Mask_am
     
     # Apply full mask to Y
     Y_fm = Y[:, np.where(np.count_nonzero(Y, axis=0)>0)[0]]
 
-    # Apply analysis mask to Y, we use the analysis mask here as the product
-    # matrices across all batches should have the same masking for convinience
-    # We can apply the full mask at a later stage.
-    if M_a is not None:
-        Y = Y[:, np.where(M_a.reshape([v]))[0]]
+    # # Apply analysis mask to Y, we use the analysis mask here as the product
+    # # matrices across all batches should have the same masking for convinience
+    # # We can apply the full mask at a later stage.
+    # if M_a is not None:
+    #     Y = Y[:, np.where(M_a.reshape([v]))[0]]
+
+# MARKER ===================================================================================
 
     # Work out the mask.
     M = (Y_fm!=0)

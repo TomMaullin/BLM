@@ -19,7 +19,7 @@ from lib.fileio import *
 # - retnb: A boolean which tells us whether to return the number
 #          of batches needed (retnb=True) or save the variable
 #          in a text file (retnb=False).
-def main(*args):
+def setup(*args):
 
     # Change to blm directory
     pwd = os.getcwd()
@@ -102,6 +102,24 @@ def main(*args):
 
     OutDir = inputs['outdir']
 
+    # --------------------------------------------------------------------------------
+    # Remove any files from the previous runs
+    # --------------------------------------------------------------------------------
+    files = ['blm_vox_n.nii', 'blm_vox_mask.nii', 'blm_vox_edf.nii', 'blm_vox_beta.nii',
+             'blm_vox_llh.nii', 'blm_vox_sigma2.nii', 'blm_vox_resms.nii',
+             'blm_vox_cov.nii', 'blm_vox_conT.nii', 'blm_vox_conTlp.nii',
+             'blm_vox_conSE.nii', 'blm_vox_con.nii', 'blm_vox_conF.nii',
+             'blm_vox_conFlp.nii', 'blm_vox_conR2.nii']
+
+
+    for file in files:
+        if os.path.exists(os.path.join(OutDir, file)):
+            os.remove(os.path.join(OutDir, file))
+
+    if os.path.exists(os.path.join(OutDir, 'tmp')):  
+        shutil.rmtree(os.path.join(OutDir, 'tmp'))
+
+
     # Get number of parameters
     c1 = str2vec(inputs['contrasts'][0]['c' + str(1)]['vector'])
     c1 = np.array(c1)
@@ -130,7 +148,24 @@ def main(*args):
 
     # Get the maximum memory a NIFTI could take in storage. We divide by 3
     # as approximately a third of the volume is actually non-zero/brain
-    NIFTIsize = sys.getsizeof(np.zeros(Y0.shape,dtype='uint64'))
+
+    # Mask volume MARKER - need corresponding memory management in blm_batch
+    if 'analysis_mask' in inputs:
+
+        # Load the file and check it's shape is 3d (as oppose to 4d with a 4th dimension
+        # of 1)
+        M_a = loadFile(inputs['analysis_mask']).get_fdata()
+
+        # Number of non-zero voxels
+        v_am = np.count_nonzero(np.nan_to_num(M_a))
+
+    else:
+
+        # Number of non-zero voxles
+        v_am = np.prod(Y0.shape)
+
+    # Size of non-zero voxels in NIFTI
+    NIFTIsize = sys.getsizeof(np.zeros([v_am,1],dtype='uint64'))
 
     if NIFTIsize > MAXMEM:
         raise ValueError('The NIFTI "' + Y_files[0] + '"is too large')
@@ -140,7 +175,7 @@ def main(*args):
     # as approximately a third of the volume is actually non-zero/brain 
     # and then also divide though everything by the number of parameters
     # in the analysis.
-    blksize = np.floor(MAXMEM/8/NIFTIsize/n_p)
+    blksize = np.floor(MAXMEM/8/NIFTIsize/(n_p**2))
     if blksize == 0:
         raise ValueError('Blocksize too small.')
 
