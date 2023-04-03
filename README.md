@@ -97,6 +97,8 @@ contrasts:
   - c1:
       name: Tcontrast1
       vector: [1, 0, 1, 0, 1]
+clusterType: SLURM
+numNodes: 100
 ```
 
 Example 2: A configuration with multiple optional fields.
@@ -125,6 +127,8 @@ Missingness:
   MinPercent: 0.10
   MinN: 15
 analysis_mask: /path/to/data/MNI152_T1_2mm_brain_mask.nii.gz
+clusterType: SLURM
+numNodes: 100
 ```
 
 ### Running the Analysis
