@@ -21,7 +21,6 @@ args=(commandArgs(TRUE))
 
 # Evaluate arguments
 for (arg in args) {
-  
   # Split the argument name and value using regular expressions
   matches <- regmatches(arg, regexec("^(.+)=(.+)$", arg))[[1]]
   
@@ -56,7 +55,7 @@ Pvals <- matrix(0,dim(all_Y)[2],1)
 # Empty array for log-likelihoods
 llh <- matrix(0,dim(all_Y)[2],1)
 
-# Loop through each model and run lmer for each voxel
+# Loop through each model and run lm for each voxel
 for (i in 1:nvox){
 
   # Print i
@@ -91,7 +90,8 @@ for (i in 1:nvox){
     contrast_vec <- c(0, 0, 0, 1)
 
     # Compute the t-statistic and associated p-value for the contrast
-    Tstat <- sum(contrast_vec * coef(fit)) / sqrt(sum(contrast_vec^2 * vcovHC(fit)^2))
+    variance_of_contrast <- sum(contrast_vec %*% vcov(fit) %*% contrast_vec)
+    Tstat <- sum(contrast_vec * coef(fit)) / sqrt(variance_of_contrast)
     df <- df.residual(fit)
     p <- 2 * pt(abs(Tstat), df = df, lower.tail = FALSE)
 
