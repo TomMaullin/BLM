@@ -20,12 +20,8 @@ library(tictoc)
 args=(commandArgs(TRUE))
 
 # Evaluate arguments
-for (arg in args) {
-  # Split the argument name and value using regular expressions
-  matches <- regmatches(arg, regexec("^(.+)=(.+)$", arg))[[1]]
-  
-  # Assign the value to the variable with the given name
-  assign(matches[2], eval(parse(text = matches[3])))
+for(i in 1:length(args)){
+  eval(parse(text=args[[i]]))
 }
 
 # Read in the fixed effects design
