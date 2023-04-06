@@ -12,6 +12,7 @@ import yaml
 from lib.fileio import *
 import time
 import pandas as pd
+from scipy import ndimage
 
 # ===========================================================================
 #
@@ -74,9 +75,6 @@ def generate_data(n,dim,OutDir,simNo):
     # Get beta
     beta = get_beta(p)
 
- 
-    # MARKER UP TO HERE
-
     # -----------------------------------------------------
     # Obtain Y
     # -----------------------------------------------------
@@ -92,9 +90,6 @@ def generate_data(n,dim,OutDir,simNo):
 
         # Get epsiloni
         epsiloni = get_epsilon(v, 1).reshape(dim)
-
-        # Reshape Yi to epsiloni shape
-        Yi = Yi.reshape(dim)
 
         # Add epsilon to Yi
         Yi = Yi + epsiloni
