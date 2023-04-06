@@ -28,18 +28,8 @@ from scipy import ndimage
 # ===========================================================================
 def generate_data(n,dim,OutDir,simNo):
 
-    # Make output directory
-    if not os.path.exists(OutDir):
-        os.mkdir(OutDir)
-
-    # Make simulation directory
+    # Get simulation directory
     simDir = os.path.join(OutDir, 'sim' + str(simNo))
-    if not os.path.exists(simDir):
-        os.mkdir(simDir)
-
-    # Make new data directory.
-    if not os.path.exists(os.path.join(simDir,"data")):
-        os.mkdir(os.path.join(simDir,"data"))
 
     # Make sure in numpy format (added 20 for smoothing)
     origdim = np.array(dim)
