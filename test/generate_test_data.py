@@ -25,7 +25,7 @@ import pandas as pd
 # - `dim`: Dimensions of data to be generated. Must be given as an np array.
 #
 # ===========================================================================
-def generate_data(n,dim,OutDir,desInd):
+def generate_data(n,dim,OutDir,simNo):
 
     # Make simulation directory
     simDir = os.path.join(OutDir, 'sim' + str(simNo))
