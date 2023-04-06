@@ -27,6 +27,10 @@ import pandas as pd
 # ===========================================================================
 def generate_data(n,dim,OutDir,simNo):
 
+    # Make output directory
+    if not os.path.exists(OutDir):
+        os.mkdir(OutDir)
+
     # Make simulation directory
     simDir = os.path.join(OutDir, 'sim' + str(simNo))
     if not os.path.exists(simDir):
