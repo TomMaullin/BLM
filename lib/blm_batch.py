@@ -359,6 +359,12 @@ def obtainY(Y_files, M_files, M_t, M_a):
     # Work out mask (within analysis mask)
     Mask_am = np.zeros([v_am])
     Mask_am[np.where(np.count_nonzero(Y, axis=0)>0)[0]] = 1
+    
+    # Apply full mask to Y
+    Y_fm = Y[:, np.where(np.count_nonzero(Y, axis=0)>0)[0]]
+
+    # Work out the mask.
+    M = (Y_fm!=0)
 
     # Number of voxels in analysis mask
     if M_a is not None:
@@ -366,13 +372,7 @@ def obtainY(Y_files, M_files, M_t, M_a):
         Mask = np.zeros([v])
         Mask[np.where(M_a.reshape([v]))[0]] = Mask_am
     else:
-        Mask = np.ones([v])
-    
-    # Apply full mask to Y
-    Y_fm = Y[:, np.where(np.count_nonzero(Y, axis=0)>0)[0]]
-
-    # Work out the mask.
-    M = (Y_fm!=0)
+        Mask = Mask_am
 
     # Get indices corresponding to the unique rows of M
     M_df = pd.DataFrame(M.transpose())
