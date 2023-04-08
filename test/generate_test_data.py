@@ -118,7 +118,7 @@ def generate_data(n,dim,OutDir,simNo):
         f.write("X: " + os.path.join(simDir,"data","X.csv") + os.linesep)
 
         # Output directory
-        f.write("outdir: " + os.path.join(simDir,"BLMM") + os.linesep)
+        f.write("outdir: " + os.path.join(simDir,"BLM") + os.linesep)
 
         # Missingness percentage
         f.write("Missingness: " + os.linesep)
@@ -567,15 +567,3 @@ def smooth_data(data, D, fwhm, trunc=6, scaling='kernel'):
         data = data/np.max(data)
 
     return(data)
-
-# #generate_data(n,dim,OutDir,simNo,desInd)
-#generate_data(10, np.array([100,100,100]), '/home/tommaullin/Documents/BLMM/sim/', 23, 2)
-
-
-# nvb = 1000
-
-# # Work out number of groups we have to split indices into.
-# nvg = int(100**3//nvb)
-# #Rpreproc('$1', $2, [100,100,100], $3, $4)
-# for i in np.arange(400,600):
-#     Rpreproc('/home/tommaullin/Documents/BLMM/sim/',20,[100,100,100],nvg,i)
