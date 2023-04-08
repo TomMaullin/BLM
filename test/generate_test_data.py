@@ -145,7 +145,7 @@ def generate_data(n,dim,OutDir,simNo):
 
         # Log directory and simulation mode (backdoor options)
         f.write("sim: 1" + os.linesep)
-        f.write("logdir: " + os.path.join(simDir,"simlog"))
+        f.write("logdir: " + os.path.join(simDir,"simlog") + os.linesep)
 
     # -----------------------------------------------------
     # Yfiles.txt
