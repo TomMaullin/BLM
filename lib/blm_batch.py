@@ -347,9 +347,6 @@ def obtainY(Y_files, M_files, M_t, M_a):
         # Count number of observations at each voxel
         n_sv = n_sv + 1*(np.nan_to_num(d)!=0)
 
-# MARKER ===================================================================================
-# 
-
         # Apply analysis mask to d, we use the analysis mask here as the product
         # matrices across all batches should have the same masking for convinience
         # We can apply the full mask at a later stage.
@@ -358,31 +355,24 @@ def obtainY(Y_files, M_files, M_t, M_a):
    
         # Constructing Y array
         Y[i, :] = d.reshape([1, v_am])
-
-        # # Constructing Y array
-        # Y[i, :] = d.reshape([1, v])
     
     # Work out mask (within analysis mask)
     Mask_am = np.zeros([v_am])
     Mask_am[np.where(np.count_nonzero(Y, axis=0)>0)[0]] = 1
-
-    # Un(analysis)mask mask
-    Mask = np.zeros([v])
-    Mask[np.where(M_a.reshape([v]))[0]] = Mask_am
     
     # Apply full mask to Y
     Y_fm = Y[:, np.where(np.count_nonzero(Y, axis=0)>0)[0]]
 
-    # # Apply analysis mask to Y, we use the analysis mask here as the product
-    # # matrices across all batches should have the same masking for convinience
-    # # We can apply the full mask at a later stage.
-    # if M_a is not None:
-    #     Y = Y[:, np.where(M_a.reshape([v]))[0]]
-
-# MARKER ===================================================================================
-
     # Work out the mask.
     M = (Y_fm!=0)
+
+    # Number of voxels in analysis mask
+    if M_a is not None:
+        # Un(analysis)mask mask
+        Mask = np.zeros([v])
+        Mask[np.where(M_a.reshape([v]))[0]] = Mask_am
+    else:
+        Mask = Mask_am
 
     # Get indices corresponding to the unique rows of M
     M_df = pd.DataFrame(M.transpose())

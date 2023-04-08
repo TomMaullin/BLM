@@ -12,6 +12,7 @@ import yaml
 from lib.fileio import *
 import time
 import pandas as pd
+from scipy import ndimage
 
 # ===========================================================================
 #
@@ -25,16 +26,10 @@ import pandas as pd
 # - `dim`: Dimensions of data to be generated. Must be given as an np array.
 #
 # ===========================================================================
-def generate_data(n,dim,OutDir,desInd):
+def generate_data(n,dim,OutDir,simNo):
 
-    # Make simulation directory
+    # Get simulation directory
     simDir = os.path.join(OutDir, 'sim' + str(simNo))
-    if not os.path.exists(simDir):
-        os.mkdir(simDir)
-
-    # Make new data directory.
-    if not os.path.exists(os.path.join(simDir,"data")):
-        os.mkdir(os.path.join(simDir,"data"))
 
     # Make sure in numpy format (added 20 for smoothing)
     origdim = np.array(dim)
@@ -70,9 +65,6 @@ def generate_data(n,dim,OutDir,desInd):
     # Get beta
     beta = get_beta(p)
 
- 
-    # MARKER UP TO HERE
-
     # -----------------------------------------------------
     # Obtain Y
     # -----------------------------------------------------
@@ -88,9 +80,6 @@ def generate_data(n,dim,OutDir,desInd):
 
         # Get epsiloni
         epsiloni = get_epsilon(v, 1).reshape(dim)
-
-        # Reshape Yi to epsiloni shape
-        Yi = Yi.reshape(dim)
 
         # Add epsilon to Yi
         Yi = Yi + epsiloni
@@ -129,7 +118,7 @@ def generate_data(n,dim,OutDir,desInd):
         f.write("X: " + os.path.join(simDir,"data","X.csv") + os.linesep)
 
         # Output directory
-        f.write("outdir: " + os.path.join(simDir,"BLMM") + os.linesep)
+        f.write("outdir: " + os.path.join(simDir,"BLM") + os.linesep)
 
         # Missingness percentage
         f.write("Missingness: " + os.linesep)
@@ -156,7 +145,7 @@ def generate_data(n,dim,OutDir,desInd):
 
         # Log directory and simulation mode (backdoor options)
         f.write("sim: 1" + os.linesep)
-        f.write("logdir: " + os.path.join(simDir,"simlog"))
+        f.write("logdir: " + os.path.join(simDir,"simlog") + os.linesep)
 
     # -----------------------------------------------------
     # Yfiles.txt
@@ -578,15 +567,3 @@ def smooth_data(data, D, fwhm, trunc=6, scaling='kernel'):
         data = data/np.max(data)
 
     return(data)
-
-# #generate_data(n,dim,OutDir,simNo,desInd)
-#generate_data(10, np.array([100,100,100]), '/home/tommaullin/Documents/BLMM/sim/', 23, 2)
-
-
-# nvb = 1000
-
-# # Work out number of groups we have to split indices into.
-# nvg = int(100**3//nvb)
-# #Rpreproc('$1', $2, [100,100,100], $3, $4)
-# for i in np.arange(400,600):
-#     Rpreproc('/home/tommaullin/Documents/BLMM/sim/',20,[100,100,100],nvg,i)

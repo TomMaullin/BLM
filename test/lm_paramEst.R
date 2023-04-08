@@ -1,9 +1,4 @@
 #!/apps/well/R/3.4.3/bin/Rscript
-#$ -cwd
-#$ -q short.qc
-#$ -o sim/sim$simInd/simlog/
-#$ -e sim/sim$simInd/simlog/
-
 library(MASS)
 library(Matrix)
 library(tictoc)
@@ -21,23 +16,13 @@ library(tictoc)
 # 
 # ---------------------------------------------------------------------------------------
 
-# Read in arguments from command line
+# Read in arguments from commandline
 args=(commandArgs(TRUE))
 
 # Evaluate arguments
 for(i in 1:length(args)){
   eval(parse(text=args[[i]]))
 }
-
-#print(simInd)
-#print(batchNo)
-#print(outDir)
-#print(desInd)
-
-#desInd <-2
-#simInd <-20
-#batchNo <- 524
-#outDir <- '/home/tommaullin/Documents/BLMM/sim'
 
 # Read in the fixed effects design
 X <- read.csv(file = paste(outDir,'/sim',toString(simInd),'/data/X.csv',sep=''),sep=',', header=FALSE)
@@ -66,7 +51,7 @@ Pvals <- matrix(0,dim(all_Y)[2],1)
 # Empty array for log-likelihoods
 llh <- matrix(0,dim(all_Y)[2],1)
 
-# Loop through each model and run lmer for each voxel
+# Loop through each model and run lm for each voxel
 for (i in 1:nvox){
 
   # Print i
@@ -101,7 +86,8 @@ for (i in 1:nvox){
     contrast_vec <- c(0, 0, 0, 1)
 
     # Compute the t-statistic and associated p-value for the contrast
-    Tstat <- sum(contrast_vec * coef(fit)) / sqrt(sum(contrast_vec^2 * vcovHC(fit)^2))
+    variance_of_contrast <- sum(contrast_vec %*% vcov(fit) %*% contrast_vec)
+    Tstat <- sum(contrast_vec * coef(fit)) / sqrt(variance_of_contrast)
     df <- df.residual(fit)
     p <- 2 * pt(abs(Tstat), df = df, lower.tail = FALSE)
 
@@ -131,11 +117,11 @@ if (!file.exists(lmDir)) {
 }
 
 # Write results back to csv file
-write.csv(betas,paste(lmerDir,'/beta_',toString(batchNo),'.csv',sep=''), row.names = FALSE)
-write.csv(sigma2,paste(lmerDir,'/sigma2_',toString(batchNo),'.csv',sep=''), row.names = FALSE)
-write.csv(llh,paste(lmerDir,'/llh_',toString(batchNo),'.csv',sep=''), row.names = FALSE)
-write.csv(Tstats,paste(lmerDir,'/Tstat_',toString(batchNo),'.csv',sep=''), row.names = FALSE)
-write.csv(Pvals,paste(lmerDir,'/Pval_',toString(batchNo),'.csv',sep=''), row.names = FALSE)
+write.csv(betas,paste(lmDir,'/beta_',toString(batchNo),'.csv',sep=''), row.names = FALSE)
+write.csv(sigma2,paste(lmDir,'/sigma2_',toString(batchNo),'.csv',sep=''), row.names = FALSE)
+write.csv(llh,paste(lmDir,'/llh_',toString(batchNo),'.csv',sep=''), row.names = FALSE)
+write.csv(Tstats,paste(lmDir,'/Tstat_',toString(batchNo),'.csv',sep=''), row.names = FALSE)
+write.csv(Pvals,paste(lmDir,'/Pval_',toString(batchNo),'.csv',sep=''), row.names = FALSE)
 
 # Remove the R file for this batch as we no longer need it
 file.remove(paste(outDir,'/sim',toString(simInd),'/data/Y_Rversion_',toString(batchNo),'.csv',sep=''))
