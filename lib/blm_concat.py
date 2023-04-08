@@ -90,6 +90,11 @@ def combine_batch_masking(*args):
     NIFTIsize = nifti.shape
     v = int(np.prod(NIFTIsize))
 
+
+    # Number of observations
+    X = loadFile(inputs['X'])
+    n = X.shape[0]
+
     # Check if the maximum memory is saved.    
     if 'MAXMEM' in inputs:
         MAXMEM = eval(inputs['MAXMEM'])
