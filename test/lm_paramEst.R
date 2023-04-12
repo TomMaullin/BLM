@@ -90,6 +90,7 @@ for (i in 1:nvox){
     Tstat <- sum(contrast_vec * coef(fit)) / sqrt(variance_of_contrast)
     df <- df.residual(fit)
     p <- 2 * pt(abs(Tstat), df = df, lower.tail = FALSE)
+    sigma2 <- summary(fit)$sigma^2
 
     # Make p-values 1 sided
     if (Tstat > 0) {
