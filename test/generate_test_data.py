@@ -296,7 +296,7 @@ def get_beta(p):
 def get_sigma2(v):
 
     # Make sigma2 (for now just set to one across all voxels)
-    sigma2 = 1#np.ones(v).reshape(v,1)
+    sigma2 = 10#np.ones(v).reshape(v,1)
 
     # Return sigma
     return(sigma2)

@@ -855,7 +855,8 @@ def output_results(*args):
                     hdrs.append(nifti.header)
 
     # Add the blocks to the niftis
-    addBlocksToNiftis(fnames, blocks, blockIndexes,dims,volInds,affs,hdrs)
+    if blocks:
+        addBlocksToNiftis(fnames, blocks, blockIndexes,dims,volInds,affs,hdrs)
 
 
     w.resetwarnings()
