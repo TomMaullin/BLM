@@ -10,13 +10,13 @@ import nibabel as nib
 import sys  
 
 # Get the directory containing the script
-script_dir = os.path.dirname(__file__)
+test_dir = os.path.dirname(__file__)
 
 # Add BLM and test directory to file path
-sys.path.insert(0, script_dir)
-sys.path.insert(0, os.path.dirname(script_dir))
-sys.path.insert(0, '/well/nichols/users/inf852/BLM_lm_tests/test/')
-sys.path.insert(0, '/well/nichols/users/inf852/BLM_lm_tests/')
+sys.path.insert(0, test_dir)
+sys.path.insert(0, os.path.dirname(test_dir))
+# sys.path.insert(0, '/well/nichols/users/inf852/BLM_lm_tests/test/')
+# sys.path.insert(0, '/well/nichols/users/inf852/BLM_lm_tests/')
 
 # Import test generation and cleanup
 from generate_test_data import *
@@ -56,8 +56,7 @@ def _main(argv=None):
     out_dir = args.out_dir
     cluster_type = args.cluster_type
 
-    # Test directory and dimension
-    test_dir = "/well/nichols/users/inf852/BLM_lm_tests/test/"
+    # Test data dimension
     dim = np.array([100, 100, 100])
 
     # Simulation settings
@@ -75,13 +74,6 @@ def _main(argv=None):
         num_voxel_batches = 500
     else:
         raise ValueError("Invalid sim_ind value. Please provide a value between 1 and 4.")
-
-    # -----------------------------------------------------------------
-    # Dask setup
-    # -----------------------------------------------------------------
-
-    # Cluster Type
-    cluster_type = 'SLURM'
 
     # -----------------------------------------------------------------
     # Create folders for simulation
@@ -108,17 +100,25 @@ def _main(argv=None):
     # Generate data
     # -----------------------------------------------------------------
 
+    print('Test Update: Generating test data...')
+
     generate_data(n, dim, out_dir, sim_ind)
+
+    print('Test Update: Test data generated.')
 
     # -----------------------------------------------------------------
     # Run BLM
     # -----------------------------------------------------------------
+
+    print('Test Update: Running BLM analysis...')
 
     # Import inputs file
     inputs_yml = os.path.join(out_dir, 'sim'+ str(sim_ind), 'inputs.yml')
 
     # Run blm_cluster
     blm([inputs_yml])
+
+    print('Test Update: BLM analysis complete.')
 
     # -----------------------------------------------------------------
     # Set up cluster
@@ -195,6 +195,8 @@ def _main(argv=None):
     # Run R Jobs
     # --------------------------------------------------------------------------------
 
+    print('Test Update: Now running R simulations...')
+
     # Ask for num_nodes nodes for BLM batch
     cluster.scale(num_nodes)
 
@@ -228,6 +230,10 @@ def _main(argv=None):
 
     # Cleanup and results function
     cleanup(out_dir,sim_ind)
+    
+    # Close the client
+    client.close()
+    client.shutdown()
 
 
 def run_voxel_batch_in_R(sim_ind, dim, batch_no, num_voxel_batches, out_dir, test_dir):
@@ -248,8 +254,8 @@ def run_voxel_batch_in_R(sim_ind, dim, batch_no, num_voxel_batches, out_dir, tes
 
     import subprocess
     import sys  
-    sys.path.insert(0, '/well/nichols/users/inf852/BLM_lm_tests/test/')
-    sys.path.insert(0, '/well/nichols/users/inf852/BLM_lm_tests/')
+    sys.path.insert(0, test_dir)
+    sys.path.insert(0, os.path.dirname(test_dir))
 
     from generate_test_data import Rpreproc
     from cleanup import Rcleanup

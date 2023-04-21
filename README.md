@@ -199,9 +199,9 @@ python ./test/blm_cluster_test.py --sim_ind [SIM_IND] --num_nodes [NUM_NODES] --
 
 ### Example
 
-To run the script with a simulation index of 1, 100 nodes, an output directory of "/path/to/blm/BLM_lm_tests/output/", and the default cluster type, use the following command:
+To run the script with a simulation index of 1, 100 nodes, an output directory of "/path/to/blm/output/", and the default cluster type, use the following command:
 
 
 ```
-./test/blm_cluster_test.py --sim_ind 1 --num_nodes 100 --out_dir "/path/to/blm/BLM_lm_tests/output/"
+python ./test/blm_cluster_test.py --sim_ind 1 --num_nodes 100 --out_dir "/path/to/blm/output/"
 ```
