@@ -24,38 +24,64 @@ from cleanup import cleanup
 from blm_cluster import _main as blm
 # from r_job import run_voxel_batch_in_R
 
+
+import argparse
+import numpy as np
+
 def _main(argv=None):
     """
     Main function for running the BLM-lm test pipeline.
 
     Parameters:
-    argv (list): List of command line arguments (not used).
+    argv (list): List of command line arguments.
 
     Returns:
     None
     """
-    
-    # -----------------------------------------------------------------
-    # Temporary inputs
-    # -----------------------------------------------------------------
 
-    # Example usage
-    sim_ind = 0
-    num_voxel_batches = 200
+    # Parsing command line arguments
+    parser = argparse.ArgumentParser(description="BLM-lm test pipeline")
+    parser.add_argument("--sim_ind", type=int, required=True, help="Simulation index to determine n and num_voxel_batches values.")
+    parser.add_argument("--out_dir", type=str, required=True, help="Output directory path.")
+    parser.add_argument("--num_nodes", type=int, default=100, help="Number of nodes for Dask setup.")
+    parser.add_argument("--cluster_type", type=str, default="slurm", help="Cluster type for Dask setup. (default: slurm)")
+
+    
+    # Get arguments
+    args = parser.parse_args(argv)
+
+    # Name arguments
+    sim_ind = args.sim_ind
+    num_nodes = args.num_nodes
+    out_dir = args.out_dir
+    cluster_type = args.cluster_type
+
+    # Test directory and dimension
     test_dir = "/well/nichols/users/inf852/BLM_lm_tests/test/"
-    out_dir = "/well/nichols/users/inf852/BLM_lm_tests/output/"
-    n = 100
-    dim = np.array([100,100,100])
+    dim = np.array([100, 100, 100])
+
+    # Simulation settings
+    if sim_ind == 1:
+        n = 100
+        num_voxel_batches = 100
+    elif sim_ind == 2:
+        n = 200
+        num_voxel_batches = 200
+    elif sim_ind == 3:
+        n = 500
+        num_voxel_batches = 200
+    elif sim_ind == 4:
+        n = 1000
+        num_voxel_batches = 500
+    else:
+        raise ValueError("Invalid sim_ind value. Please provide a value between 1 and 4.")
 
     # -----------------------------------------------------------------
     # Dask setup
     # -----------------------------------------------------------------
 
-    # Number of nodes
-    numNodes = 100
-
     # Cluster Type
-    clusterType = 'SLURM'
+    cluster_type = 'SLURM'
 
     # -----------------------------------------------------------------
     # Create folders for simulation
@@ -99,56 +125,56 @@ def _main(argv=None):
     # -----------------------------------------------------------------
 
     # Check if we are using a HTCondor cluster
-    if clusterType.lower() == 'htcondor':
+    if cluster_type.lower() == 'htcondor':
 
         # Load the HTCondor Cluster
         from dask_jobqueue import HTCondorCluster
         cluster = HTCondorCluster()
 
     # Check if we are using an LSF cluster
-    elif clusterType.lower() == 'lsf':
+    elif cluster_type.lower() == 'lsf':
 
         # Load the LSF Cluster
         from dask_jobqueue import LSFCluster
         cluster = LSFCluster()
 
     # Check if we are using a Moab cluster
-    elif clusterType.lower() == 'moab':
+    elif cluster_type.lower() == 'moab':
 
         # Load the Moab Cluster
         from dask_jobqueue import MoabCluster
         cluster = MoabCluster()
 
     # Check if we are using a OAR cluster
-    elif clusterType.lower() == 'oar':
+    elif cluster_type.lower() == 'oar':
 
         # Load the OAR Cluster
         from dask_jobqueue import OARCluster
         cluster = OARCluster()
 
     # Check if we are using a PBS cluster
-    elif clusterType.lower() == 'pbs':
+    elif cluster_type.lower() == 'pbs':
 
         # Load the PBS Cluster
         from dask_jobqueue import PBSCluster
         cluster = PBSCluster()
 
     # Check if we are using an SGE cluster
-    elif clusterType.lower() == 'sge':
+    elif cluster_type.lower() == 'sge':
 
         # Load the SGE Cluster
         from dask_jobqueue import SGECluster
         cluster = SGECluster()
 
     # Check if we are using a SLURM cluster
-    elif clusterType.lower() == 'slurm':
+    elif cluster_type.lower() == 'slurm':
 
         # Load the SLURM Cluster
         from dask_jobqueue import SLURMCluster
         cluster = SLURMCluster()
 
     # Check if we are using a local cluster
-    elif clusterType.lower() == 'local':
+    elif cluster_type.lower() == 'local':
 
         # Load the Local Cluster
         from dask.distributed import LocalCluster
@@ -156,7 +182,7 @@ def _main(argv=None):
 
     # Raise a value error if none of the above
     else:
-        raise ValueError('The cluster type, ' + clusterType + ', is not recognized.')
+        raise ValueError('The cluster type, ' + cluster_type + ', is not recognized.')
 
     # --------------------------------------------------------------------------------
     # Connect to client
@@ -169,8 +195,8 @@ def _main(argv=None):
     # Run R Jobs
     # --------------------------------------------------------------------------------
 
-    # Ask for numNodes nodes for BLM batch
-    cluster.scale(numNodes)
+    # Ask for num_nodes nodes for BLM batch
+    cluster.scale(num_nodes)
 
     # Empty futures list
     futures = []

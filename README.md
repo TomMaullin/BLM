@@ -171,4 +171,37 @@ The maps are given the same ordering as the inputs. For example, in `blm_vox_con
 
 ## Testing
 
-The previous tests are currently deprecated and under renovation. Please contact @TomMaullin for further information.
+The current BLM tests run on rescomp and compare BLM's performance to that of looping over voxels in R. Details on how to run the tests are given below.
+
+### Usage
+
+To run the tests, navigate to the main BLM directory and use the following command in the commandline:
+
+```
+python ./test/blm_cluster_test.py --sim_ind [SIM_IND] --num_nodes [NUM_NODES] --out_dir [OUT_DIR] [--clusterType [CLUSTER_TYPE]]
+```
+
+
+### Arguments
+
+- `--sim_ind [SIM_IND]`: (Required) An integer value between 1 and 4. Determines the values of `n` (number of observations) and `num_voxel_batches` (number of batches to run the voxelwise R analysis in) used in the test.
+
+  - `sim_ind = 1`: `n = 100` observations, `num_voxel_batches = 100` batches
+  - `sim_ind = 2`: `n = 200` observations, `num_voxel_batches = 200` batches
+  - `sim_ind = 3`: `n = 500` observations, `num_voxel_batches = 200` batches
+  - `sim_ind = 4`: `n = 1000` observations, `num_voxel_batches = 500` batches
+
+- `--num_nodes [NUM_NODES]`: (Optional) An integer value representing the number of nodes for the Dask setup. Defaults to 100.
+
+- `--out_dir [OUT_DIR]`: (Required) A string representing the output directory path.
+
+- `--clusterType [CLUSTER_TYPE]`: (Optional) A string representing the cluster type for the Dask setup. Defaults to "slurm".
+
+### Example
+
+To run the script with a simulation index of 1, 100 nodes, an output directory of "/path/to/blm/BLM_lm_tests/output/", and the default cluster type, use the following command:
+
+
+```
+./test/blm_cluster_test.py --sim_ind 1 --num_nodes 100 --out_dir "/path/to/blm/BLM_lm_tests/output/"
+```
