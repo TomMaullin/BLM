@@ -15,6 +15,8 @@ script_dir = os.path.dirname(__file__)
 # Add BLM and test directory to file path
 sys.path.insert(0, script_dir)
 sys.path.insert(0, os.path.dirname(script_dir))
+sys.path.insert(0, '/well/nichols/users/inf852/BLM_lm_tests/test/')
+sys.path.insert(0, '/well/nichols/users/inf852/BLM_lm_tests/')
 
 # Import test generation and cleanup
 from generate_test_data import *
