@@ -100,17 +100,17 @@ def _main(argv=None):
     # Generate data
     # -----------------------------------------------------------------
 
-    print('Test Update: Generating test data...')
+    print('Test Update for Simulation ' + str(sim_ind) + ': Generating test data...')
 
     generate_data(n, dim, out_dir, sim_ind)
 
-    print('Test Update: Test data generated.')
+    print('Test Update for Simulation ' + str(sim_ind) + ': Test data generated.')
 
     # -----------------------------------------------------------------
     # Run BLM
     # -----------------------------------------------------------------
 
-    print('Test Update: Running BLM analysis...')
+    print('Test Update for Simulation ' + str(sim_ind) + ': Running BLM analysis...')
 
     # Import inputs file
     inputs_yml = os.path.join(out_dir, 'sim'+ str(sim_ind), 'inputs.yml')
@@ -118,7 +118,7 @@ def _main(argv=None):
     # Run blm_cluster
     blm([inputs_yml])
 
-    print('Test Update: BLM analysis complete.')
+    print('Test Update for Simulation ' + str(sim_ind) + ': BLM analysis complete.')
 
     # -----------------------------------------------------------------
     # Set up cluster
@@ -195,7 +195,7 @@ def _main(argv=None):
     # Run R Jobs
     # --------------------------------------------------------------------------------
 
-    print('Test Update: Now running R simulations...')
+    print('Test Update for Simulation ' + str(sim_ind) + ': Now running R simulations...')
 
     # Ask for num_nodes nodes for BLM batch
     cluster.scale(num_nodes)
@@ -230,7 +230,7 @@ def _main(argv=None):
 
     # Cleanup and results function
     cleanup(out_dir,sim_ind)
-    
+
     # Close the client
     client.close()
     client.shutdown()

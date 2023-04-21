@@ -19,16 +19,6 @@ def cleanup(out_dir,sim_ind):
     sim_dir = os.path.join(out_dir, 'sim' + str(sim_ind))
 
     # -----------------------------------------------------------------------
-    # Create results directory (if we are on the first simulation)
-    # -----------------------------------------------------------------------
-    # Results directory
-    res_dir = os.path.join(sim_dir,'results')
-
-    # If resDir doesn't exist, make it
-    if not os.path.exists(res_dir):
-        os.mkdir(res_dir)
-        
-    # -----------------------------------------------------------------------
     # Remove data directory
     # -----------------------------------------------------------------------
     if os.path.exists(os.path.join(sim_dir, 'data')):
@@ -116,7 +106,7 @@ def cleanup(out_dir,sim_ind):
 
         # Print results
         print('----------------------------------------------------------------------------------------------')
-        print('Test Results for ' + str(blm_filename))
+        print('Test Results for Simulation ' + str(sim_ind) + ': ' + str(blm_filename))
         print('----------------------------------------------------------------------------------------------')
         print(' ')
         print('Mean Absolute Errors: ')
@@ -131,6 +121,12 @@ def cleanup(out_dir,sim_ind):
         print(' ')
         
     print('----------------------------------------------------------------------------------------------')
+
+    # -----------------------------------------------------------------------
+    # Remove simulation logs directory
+    # -----------------------------------------------------------------------
+    if os.path.exists(os.path.join(sim_dir, 'simlog')):
+        shutil.rmtree(os.path.join(sim_dir, 'simlog'))
 
 
 # Add R output to nifti files
