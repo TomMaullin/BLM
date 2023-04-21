@@ -256,7 +256,7 @@ def _main(argv=None):
         os.remove(os.path.join(OutDir, 'nb.txt'))
     shutil.rmtree(os.path.join(OutDir, 'tmp'))
 
-    if 'sim' not in inputs or inputs['sim']:
+    if 'sim' not in inputs or not inputs['sim']:
 
         print('BLM analysis complete!')
         print('')

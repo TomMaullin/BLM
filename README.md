@@ -178,7 +178,7 @@ The current BLM tests run on rescomp and compare BLM's performance to that of lo
 To run the tests, navigate to the main BLM directory and use the following command in the commandline:
 
 ```
-python ./test/blm_cluster_test.py --sim_ind [SIM_IND] --num_nodes [NUM_NODES] --out_dir [OUT_DIR] [--clusterType [CLUSTER_TYPE]]
+python ./test/blm_cluster_test.py --sim_ind [SIM_IND] --num_nodes [NUM_NODES] --out_dir [OUT_DIR] [--clusterType [CLUSTER_TYPE]] &
 ```
 
 
@@ -203,5 +203,5 @@ To run the script with a simulation index of 1, 100 nodes, an output directory o
 
 
 ```
-python ./test/blm_cluster_test.py --sim_ind 1 --num_nodes 100 --out_dir "/path/to/blm/output/"
+python ./test/blm_cluster_test.py --sim_ind 1 --num_nodes 100 --out_dir "/path/to/blm/output/" &
 ```

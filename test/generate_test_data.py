@@ -180,9 +180,6 @@ def generate_data(n,dim,OutDir,simNo):
     with open(os.path.join(simDir, "data", "nb.txt"), 'w') as f:
         print(int(nvg), file=f)
 
-    print('---------------------------------------------------------------------')
-    print('Data generation complete')
-    print('---------------------------------------------------------------------')
 
 # R preprocessing
 def Rpreproc(OutDir,simNo,dim,nvg,cv):
