@@ -78,11 +78,9 @@ def cleanup(out_dir,sim_ind):
 
         # Get BLM map
         blm = nib.load(blm_filename).get_fdata()
-        print(np.sum(np.isnan(blm)))
 
         # Get lm map
         lm = nib.load(lm_filename).get_fdata()
-        print(np.sum(np.isnan(lm)))
 
         # Remove zero values (spatially varying)
         blm_sv = blm[(lm!=0) & loc_sv]

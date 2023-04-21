@@ -54,9 +54,6 @@ llh <- matrix(0,dim(all_Y)[2],1)
 # Loop through each model and run lm for each voxel
 for (i in 1:nvox){
 
-  # Print i
-  print(i)
-
   # Get Y
   y <- as.matrix(all_Y[,i])
 
