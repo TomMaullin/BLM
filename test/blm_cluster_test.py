@@ -166,9 +166,15 @@ def _main(argv=None):
     # Run R Jobs
     # --------------------------------------------------------------------------------
 
+
+    print('here1')
+
     # Ask for numNodes nodes for BLM batch
     cluster.scale(numNodes)
         
+
+    print('here2')
+
     # Empty futures list
     futures = []
 
@@ -182,6 +188,8 @@ def _main(argv=None):
         # Append to list 
         futures.append(future_r)
 
+    print('here3')
+    
     # Completed jobs
     completed = as_completed(futures)
 
@@ -217,20 +225,26 @@ def run_voxel_batch_in_R(sim_ind, dim, batch_no, num_voxel_batches, out_dir, tes
     Returns:
     None
     """
+
+    print('here4')
     
     import sys  
     sys.path.insert(0, '/well/nichols/users/inf852/BLM_lm_tests/test/')
     sys.path.insert(0, '/well/nichols/users/inf852/BLM_lm_tests/')
 
+    print('here5')
     from generate_test_data import Rpreproc
     from cleanup import Rcleanup
     
+    print('here6')
     # Preprocess this batch
     Rpreproc(out_dir, sim_ind, dim, num_voxel_batches, batch_no)
     
+    print('here7')
     # Load R and run parameter estimation in a single command
     r_path = "/apps/well/R/3.4.3/bin/R"
 
+    print('here8')
     # Write the R command to run the job
     r_cmd = (
         f"module load R/3.4.3 && "
@@ -240,12 +254,15 @@ def run_voxel_batch_in_R(sim_ind, dim, batch_no, num_voxel_batches, out_dir, tes
         f"{out_dir}/sim{sim_ind}/simlog/Rout{sim_ind}_{batch_no}.txt"
     )
 
+    print('here9')
     # Run the job
     subprocess.run(r_cmd, shell=True)
     
+    print('here10')
     # Cleanup job in R to combine files
     Rcleanup(out_dir, sim_ind, num_voxel_batches, batch_no)
 
+    print('here11')
 
 if __name__ == "__main__":
     _main(sys.argv[1:])
