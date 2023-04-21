@@ -82,6 +82,16 @@ def _main(argv=None):
     generate_data(n, dim,out_dir, sim_ind)
 
     # -----------------------------------------------------------------
+    # Run BLM
+    # -----------------------------------------------------------------
+
+    # Import inputs file
+    inputs_yml = os.path.join(out_dir, 'sim'+ str(sim_ind), 'inputs.yml')
+
+    # Run blm_cluster
+    blm([inputs_yml])
+
+    # -----------------------------------------------------------------
     # Set up cluster
     # -----------------------------------------------------------------
 
@@ -151,16 +161,6 @@ def _main(argv=None):
 
     # Connect to cluster
     client = Client(cluster)   
-
-    # -----------------------------------------------------------------
-    # Run BLM
-    # -----------------------------------------------------------------
-
-    # Import inputs file
-    inputs_yml = os.path.join(out_dir, 'sim'+ str(sim_ind), 'inputs.yml')
-
-    # Run blm_cluster
-    blm([inputs_yml])
 
     # --------------------------------------------------------------------------------
     # Run R Jobs
