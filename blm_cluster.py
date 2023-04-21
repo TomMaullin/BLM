@@ -265,6 +265,7 @@ def _main(argv=None):
 
     # Close the client
     client.close()
+    client.shutdown()
 
 if __name__ == "__main__":
     _main(sys.argv[1:])
