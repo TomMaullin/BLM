@@ -15,14 +15,11 @@ test_dir = os.path.dirname(__file__)
 # Add BLM and test directory to file path
 sys.path.insert(0, test_dir)
 sys.path.insert(0, os.path.dirname(test_dir))
-# sys.path.insert(0, '/well/nichols/users/inf852/BLM_lm_tests/test/')
-# sys.path.insert(0, '/well/nichols/users/inf852/BLM_lm_tests/')
 
 # Import test generation and cleanup
 from generate_test_data import *
 from cleanup import cleanup
 from blm_cluster import _main as blm
-# from r_job import run_voxel_batch_in_R
 
 
 import argparse
