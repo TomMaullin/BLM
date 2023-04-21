@@ -82,7 +82,7 @@ def _main(argv=None):
     # Generate data
     # -----------------------------------------------------------------
 
-    generate_data(n, dim,out_dir, sim_ind)
+    generate_data(n, dim, out_dir, sim_ind)
 
     # -----------------------------------------------------------------
     # Run BLM
@@ -219,7 +219,7 @@ def run_voxel_batch_in_R(sim_ind, dim, batch_no, num_voxel_batches, out_dir, tes
     Returns:
     None
     """
-    
+
     import subprocess
     import sys  
     sys.path.insert(0, '/well/nichols/users/inf852/BLM_lm_tests/test/')

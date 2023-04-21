@@ -72,22 +72,6 @@ def cleanup(out_dir,sim_ind):
         blm_filename = os.path.join(sim_dir, 'BLM', blm_filename)
         lm_filename = os.path.join(sim_dir, 'lm', lm_filename)
         
-        # We need to create the lm residual mean squares map using sigma2 and n
-        if blm_filename == os.path.join(sim_dir, 'BLM', 'blm_vox_resms.nii'):
-                 
-            # Load in lm sigma2 map
-            lm_sigma2 = nib.load(os.path.join(sim_dir, 'lm', 'lm_vox_sigma2.nii')).get_fdata()
-
-            # Multiply by the spatially varying n map
-            lm_resms = lm_sigma2 * n_sv
-            
-            print(np.sum(np.isnan(n_sv)))
-            print(np.sum(np.isnan(lm_sigma2)))
-            print(np.sum(np.isnan(lm_resms)))
-
-            # Output as the lm resms map
-            nib.save(nib.Nifti1Image(lm_resms, np.eye(4)), lm_filename)
-        
         # -------------------------------------------------------------------
         # Read in files
         # -------------------------------------------------------------------
@@ -228,7 +212,7 @@ def Rcleanup(OutDir, simNo, nvg, cv):
     sigma2_current = pd.io.parsers.read_csv(os.path.join(simDir, 'lm', 'sigma2_' + str(cv) + '.csv')).values
 
     # Add back to a NIFTI file
-    addBlockToNifti(os.path.join(simDir,"lm","lm_vox_sigma2.nii"), sigma2_current, inds_cv, volInd=0,dim=(*dim,1))
+    addBlockToNifti(os.path.join(simDir,"lm","lm_vox_resms.nii"), sigma2_current, inds_cv, volInd=0,dim=(*dim,1))
 
     # Remove file
     os.remove(os.path.join(simDir, 'lm', 'sigma2_' + str(cv) + '.csv'))
