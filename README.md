@@ -186,10 +186,10 @@ python ./test/blm_cluster_test.py --sim_ind [SIM_IND] --num_nodes [NUM_NODES] --
 
 - `--sim_ind [SIM_IND]`: (Required) An integer value between 1 and 4. Determines the values of `n` (number of observations) and `num_voxel_batches` (number of batches to run the voxelwise R analysis in) used in the test.
 
-  - `sim_ind = 1`: `n = 100` observations, `num_voxel_batches = 100` batches
-  - `sim_ind = 2`: `n = 200` observations, `num_voxel_batches = 200` batches
-  - `sim_ind = 3`: `n = 500` observations, `num_voxel_batches = 200` batches
-  - `sim_ind = 4`: `n = 1000` observations, `num_voxel_batches = 500` batches
+  - `sim_ind = 1`: `n = 100` observations, `p=3` parameters, `num_voxel_batches = 100` batches
+  - `sim_ind = 2`: `n = 200` observations, `p=4` parameters, `num_voxel_batches = 200` batches
+  - `sim_ind = 3`: `n = 500` observations, `p=5` parameters, `num_voxel_batches = 200` batches
+  - `sim_ind = 4`: `n = 1000` observations, `p=8` parameters, `num_voxel_batches = 500` batches
 
 - `--num_nodes [NUM_NODES]`: (Optional) An integer value representing the number of nodes for the Dask setup. Defaults to 100.
 
