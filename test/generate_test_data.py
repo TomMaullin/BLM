@@ -14,19 +14,26 @@ import time
 import pandas as pd
 from scipy import ndimage
 
-# ===========================================================================
-#
-# Inputs:
-#
-# ---------------------------------------------------------------------------
-#
-# - `fwhm`: Full Width Half Maximum for noise smoothness. Must be given as an
-#           np array. Can include 0 or None for dimensions not to be
-#           smoothed.
-# - `dim`: Dimensions of data to be generated. Must be given as an np array.
-#
-# ===========================================================================
-def generate_data(n,dim,OutDir,simNo):
+def generate_data(n, dim, OutDir, simNo):
+    """
+    Generates simulated data with the specified dimensions and other parameters.
+    
+    Parameters
+    ----------
+    n : int
+        Number of observations.
+    dim : numpy array
+        Dimensions of data to be generated. Must be given as a numpy array.
+    OutDir : str
+        Output directory path where the generated data will be saved.
+    simNo : int
+        Simulation number for generating the data.
+
+    Returns
+    -------
+    None
+        This function does not return any value. It saves the generated data in the specified output directory.
+    """
 
     # Get simulation directory
     simDir = os.path.join(OutDir, 'sim' + str(simNo))
