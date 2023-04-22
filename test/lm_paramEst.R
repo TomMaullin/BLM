@@ -37,7 +37,7 @@ all_Y <- read.csv(file = paste(outDir,'/sim',toString(simInd),'/data/Y_Rversion_
 nvox <- dim(all_Y)[2]
 
 # Empty array for beta estimates
-betas <- matrix(0,dim(all_Y)[2],4)
+betas <- matrix(0,dim(all_Y)[2],n_p)
 
 # Empty array for sigma2 estimates
 sigma2 <- matrix(0,dim(all_Y)[2],1)
@@ -75,7 +75,7 @@ for (i in 1:nvox){
     fit <- lm(y ~ 0 + ., data = as.data.frame(X))
 
     # Record fixed effects estimates
-    betas[i, 1:4] <- coef(fit)
+    betas[i, 1:n_p] <- coef(fit)
 
     # Record log likelihood
     llh[i, 1] <- logLik(fit)[1]
