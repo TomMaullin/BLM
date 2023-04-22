@@ -25,7 +25,7 @@ for(i in 1:length(args)){
 }
 
 # Read in the fixed effects design
-X <- read.csv(file = paste(outDir,'/sim',toString(simInd),'/data/X.csv',sep=''),sep=',', header=FALSE)
+all_X <- read.csv(file = paste(outDir,'/sim',toString(simInd),'/data/X.csv',sep=''),sep=',', header=FALSE)
 
 # Get the number of columns of X/number of parameters in the model
 n_p <- ncol(X)
@@ -59,6 +59,9 @@ for (i in 1:nvox){
 
   # Get Y
   y <- as.matrix(all_Y[,i])
+
+  # Get X
+  X <- as.matrix(all_X)
 
   # If all y are zero this voxel was dropped from analysis as a
   # result of missing data
