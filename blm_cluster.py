@@ -256,15 +256,17 @@ def _main(argv=None):
         os.remove(os.path.join(OutDir, 'nb.txt'))
     shutil.rmtree(os.path.join(OutDir, 'tmp'))
 
+    if 'sim' not in inputs or not inputs['sim']:
 
-    print('BLM analysis complete!')
-    print('')
-    print('---------------------------------------------------------------------------')
-    print('')
-    print('Check results in: ', OutDir)
+        print('BLM analysis complete!')
+        print('')
+        print('---------------------------------------------------------------------------')
+        print('')
+        print('Check results in: ', OutDir)
 
     # Close the client
     client.close()
+    client.shutdown()
 
 if __name__ == "__main__":
     _main(sys.argv[1:])

@@ -14,19 +14,28 @@ import time
 import pandas as pd
 from scipy import ndimage
 
-# ===========================================================================
-#
-# Inputs:
-#
-# ---------------------------------------------------------------------------
-#
-# - `fwhm`: Full Width Half Maximum for noise smoothness. Must be given as an
-#           np array. Can include 0 or None for dimensions not to be
-#           smoothed.
-# - `dim`: Dimensions of data to be generated. Must be given as an np array.
-#
-# ===========================================================================
-def generate_data(n,dim,OutDir,simNo):
+def generate_data(n, p, dim, OutDir, simNo):
+    """
+    Generates simulated data with the specified dimensions and other parameters.
+    
+    Parameters
+    ----------
+    n : int
+        Number of observations.
+    p : int
+        Number of parameters.
+    dim : numpy array
+        Dimensions of data to be generated. Must be given as a numpy array.
+    OutDir : str
+        Output directory path where the generated data will be saved.
+    simNo : int
+        Simulation number for generating the data.
+
+    Returns
+    -------
+    None
+        This function does not return any value. It saves the generated data in the specified output directory.
+    """
 
     # Get simulation directory
     simDir = os.path.join(OutDir, 'sim' + str(simNo))
@@ -38,9 +47,6 @@ def generate_data(n,dim,OutDir,simNo):
     # -------------------------------------------------
     # Design parameters
     # -------------------------------------------------
-
-    # Number of fixed effects parameters
-    p = 4
 
     # fwhm for smoothing
     fwhm = 5
@@ -107,6 +113,16 @@ def generate_data(n,dim,OutDir,simNo):
     pd.DataFrame(X.reshape(n,p)).to_csv(os.path.join(simDir,"data","X.csv"), header=None, index=None)
 
     # -----------------------------------------------------
+    # Contrast vector
+    # -----------------------------------------------------
+
+    # Make a simple string representing the contrast vector to test
+    contrast_vec = '['
+    for i in range(p-1):
+        contrast_vec = contrast_vec + '0, '
+    contrast_vec = contrast_vec + '1]'
+
+    # -----------------------------------------------------
     # Inputs file
     # -----------------------------------------------------
 
@@ -131,7 +147,7 @@ def generate_data(n,dim,OutDir,simNo):
         f.write("contrasts: " + os.linesep)
         f.write("  - c1: " + os.linesep)
         f.write("      name: null_contrast" + os.linesep)
-        f.write("      vector: [0, 0, 0, 1]" + os.linesep)
+        f.write("      vector: " + contrast_vec + os.linesep)
         f.write("      statType: T " + os.linesep)
 
         # Voxel-wise batching for speedup - not necessary - but
@@ -180,9 +196,6 @@ def generate_data(n,dim,OutDir,simNo):
     with open(os.path.join(simDir, "data", "nb.txt"), 'w') as f:
         print(int(nvg), file=f)
 
-    print('---------------------------------------------------------------------')
-    print('Data generation complete')
-    print('---------------------------------------------------------------------')
 
 # R preprocessing
 def Rpreproc(OutDir,simNo,dim,nvg,cv):
@@ -296,7 +309,7 @@ def get_beta(p):
 def get_sigma2(v):
 
     # Make sigma2 (for now just set to one across all voxels)
-    sigma2 = 1#np.ones(v).reshape(v,1)
+    sigma2 = 10#np.ones(v).reshape(v,1)
 
     # Return sigma
     return(sigma2)

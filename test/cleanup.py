@@ -10,47 +10,26 @@ import yaml
 import pandas as pd
 from lib.fileio import *
 
-def cleanup(OutDir,simNo):
+def cleanup(out_dir,sim_ind):
 
     # -----------------------------------------------------------------------
     # Get simulation directory
     # -----------------------------------------------------------------------
     # Simulation directory
-    simDir = os.path.join(OutDir, 'sim' + str(simNo))
-
-    # -----------------------------------------------------------------------
-    # Create results directory (if we are on the first simulation)
-    # -----------------------------------------------------------------------
-    # Results directory
-    resDir = os.path.join(OutDir,'results')
-
-    # If resDir doesn't exist, make it
-    if not os.path.exists(resDir):
-        os.mkdir(resDir)
+    sim_dir = os.path.join(out_dir, 'sim' + str(sim_ind))
 
     # -----------------------------------------------------------------------
     # Remove data directory
     # -----------------------------------------------------------------------
-    shutil.rmtree(os.path.join(simDir, 'data'))
-
-# MARKER UP TO HERE
-
-    # # -----------------------------------------------------------------------
-    # # Remove BLM maps we are not interested in (for memory purposes)
-    # # -----------------------------------------------------------------------
-    # os.remove(os.path.join(simDir, 'BLM', 'blm_vox_con.nii'))
-    # os.remove(os.path.join(simDir, 'BLM', 'blm_vox_conSE.nii'))
-    # os.remove(os.path.join(simDir, 'BLM', 'blm_vox_conT.nii'))
-    # os.remove(os.path.join(simDir, 'BLM', 'blm_vox_conT_swedf.nii'))
-    # os.remove(os.path.join(simDir, 'BLM', 'blm_vox_edf.nii'))
-    # os.remove(os.path.join(simDir, 'BLM', 'blm_vox_mask.nii'))
-
+    if os.path.exists(os.path.join(sim_dir, 'data')):
+        shutil.rmtree(os.path.join(sim_dir, 'data'))
+    
     # -----------------------------------------------------------------------
     # N map
     # -----------------------------------------------------------------------
 
     # Get spatially varying n
-    n_sv = nib.load(os.path.join(simDir, 'BLM', 'blm_vox_n.nii')).get_data()
+    n_sv = nib.load(os.path.join(sim_dir, 'BLM', 'blm_vox_n.nii')).get_fdata()
 
     # Work out number of subjects
     n = np.amax(n_sv)
@@ -62,159 +41,92 @@ def cleanup(OutDir,simNo):
     # Work out number of spatially varying and non-spatially varying voxels
     v_sv = np.sum(loc_sv)
     v_nsv = np.sum(loc_nsv)
+    
+    # -----------------------------------------------------------------------
+    # Files to compare
+    # -----------------------------------------------------------------------
+    
+    filenames = ['blm_vox_beta.nii', 'blm_vox_conT.nii', 'blm_vox_conTlp.nii',
+                 'blm_vox_llh.nii', 'blm_vox_resms.nii']
+    # -----------------------------------------------------------------------
+    # Compare to lm
+    # -----------------------------------------------------------------------
+    
+    # Loop through files
+    for blm_filename in filenames:
+        
+        # Get the equivalent lm file
+        lm_filename = blm_filename.replace('blm', 'lm')
+        
+        # Make the filenames full
+        blm_filename = os.path.join(sim_dir, 'BLM', blm_filename)
+        lm_filename = os.path.join(sim_dir, 'lm', lm_filename)
+        
+        # -------------------------------------------------------------------
+        # Read in files
+        # -------------------------------------------------------------------
 
-    # Make line to add to csv for MRD
-    n_line = np.array([[simNo, v_sv + v_nsv, v_sv, v_nsv]])
+        # Get BLM map
+        blm = nib.load(blm_filename).get_fdata()
 
-    # Number of voxels
-    fname_n = os.path.join(resDir, 'n.csv')
+        # Get lm map
+        lm = nib.load(lm_filename).get_fdata()
 
-    # Add to files 
-    addLineToCSV(fname_n, n_line)
+        # Remove zero values (spatially varying)
+        blm_sv = blm[(lm!=0) & loc_sv]
+        lm_sv = lm[(lm!=0) & loc_sv]
+
+        # Remove zero values (non spatially varying)
+        blm_nsv = blm[(lm!=0) & loc_nsv]
+        lm_nsv = lm[(lm!=0) & loc_nsv]
+
+        # Remove zero values (both)
+        blm = blm[lm!=0]
+        lm = lm[lm!=0]
+
+        # Get MAE
+        MAE = np.mean(np.abs(blm-lm))
+        MAE_sv = np.mean(np.abs(blm_sv-lm_sv))
+        MAE_nsv = np.mean(np.abs(blm_nsv-lm_nsv))
+
+        # Test results
+        result_MAE = 'Pass' if MAE < 1e-6 else 'Fail'
+        result_MAE_sv = 'Pass' if MAE_sv < 1e-6 else 'Fail'
+        result_MAE_nsv = 'Pass' if MAE_nsv < 1e-6 else 'Fail'
+
+        # Get MRD
+        MRD = np.mean(2*np.abs((blm-lm)/(blm+lm)))
+        MRD_sv = np.mean(2*np.abs((blm_sv-lm_sv)/(blm_sv+lm_sv)))
+        MRD_nsv = np.mean(2*np.abs((blm_nsv-lm_nsv)/(blm_nsv+lm_nsv)))
+
+        # Test results
+        result_MRD = 'Pass' if MRD < 1e-6 else 'Fail'
+        result_MRD_sv = 'Pass' if MRD_sv < 1e-6 else 'Fail'
+        result_MRD_nsv = 'Pass' if MRD_nsv < 1e-6 else 'Fail'
+
+        # Print results
+        print('----------------------------------------------------------------------------------------------')
+        print('Test Results for Simulation ' + str(sim_ind) + ': ' + str(blm_filename))
+        print('----------------------------------------------------------------------------------------------')
+        print(' ')
+        print('Mean Absolute Errors: ')
+        print('    All voxels: ' + repr(MAE) + ', Result: ' + result_MAE)
+        print('    Spatially varying voxels: ' + repr(MAE_sv) + ', Result: ' + result_MAE_sv)
+        print('    Non-spatially varying voxels: ' + repr(MAE_nsv) + ', Result: ' + result_MAE_nsv)
+        print(' ')
+        print('Mean Relative Differences: ')
+        print('    All voxels: ' + repr(MRD) + ', Result: ' + result_MRD)
+        print('    Spatially varying voxels: ' + repr(MRD_sv) + ', Result: ' + result_MRD_sv)
+        print('    Non-spatially varying voxels: ' + repr(MRD_nsv) + ', Result: ' + result_MRD_nsv)
+        print(' ')
+        
+    print('----------------------------------------------------------------------------------------------')
 
     # -----------------------------------------------------------------------
-    # MAE and MRD for beta maps
+    # Remove simulation logs directory
     # -----------------------------------------------------------------------
-
-    # Get BLM beta
-    beta_blm = nib.load(os.path.join(simDir, 'BLM', 'blm_vox_beta.nii')).get_data()
-
-    # Get lm beta
-    beta_lm = nib.load(os.path.join(simDir, 'lm', 'lm_vox_beta.nii')).get_data()
-
-    # Remove zero values (spatially varying)
-    beta_blm_sv = beta_blm[(beta_lm!=0) & loc_sv]
-    beta_lm_sv = beta_lm[(beta_lm!=0) & loc_sv]
-
-    # Remove zero values (non spatially varying)
-    beta_blm_nsv = beta_blm[(beta_lm!=0) & loc_nsv]
-    beta_lm_nsv = beta_lm[(beta_lm!=0) & loc_nsv]
-
-    # Remove zero values (both)
-    beta_blm = beta_blm[beta_lm!=0]
-    beta_lm = beta_lm[beta_lm!=0]
-
-    # Get MAE
-    MAE_beta = np.mean(np.abs(beta_blm-beta_lm))
-    MAE_beta_sv = np.mean(np.abs(beta_blm_sv-beta_lm_sv))
-    MAE_beta_nsv = np.mean(np.abs(beta_blm_nsv-beta_lm_nsv))
-
-    # Get MRD
-    MRD_beta = np.mean(2*np.abs((beta_blm-beta_lm)/(beta_blm+beta_lm)))
-    MRD_beta_sv = np.mean(2*np.abs((beta_blm_sv-beta_lm_sv)/(beta_blm_sv+beta_lm_sv)))
-    MRD_beta_nsv = np.mean(2*np.abs((beta_blm_nsv-beta_lm_nsv)/(beta_blm_nsv+beta_lm_nsv)))
-
-    # Make line to add to csv for MAE
-    MAE_beta_line = np.array([[simNo, MAE_beta, MAE_beta_sv, MAE_beta_nsv]])
-
-    # Make line to add to csv for MRD
-    MRD_beta_line = np.array([[simNo, MRD_beta, MRD_beta_sv, MRD_beta_nsv]])
-
-    # MAE beta file name
-    fname_MAE = os.path.join(resDir, 'MAE_beta.csv')
-
-    # MRD beta file name
-    fname_MRD = os.path.join(resDir, 'MRD_beta.csv')
-
-    # Add to files 
-    addLineToCSV(fname_MAE, MAE_beta_line)
-    addLineToCSV(fname_MRD, MRD_beta_line)
-
-    # Cleanup
-    del beta_lm, beta_blm, MAE_beta, MRD_beta, MAE_beta_line, MRD_beta_line
-
-    # -----------------------------------------------------------------------
-    # Sigma2 maps
-    # -----------------------------------------------------------------------
-
-    # Get BLM sigma2
-    sigma2_blm = nib.load(os.path.join(simDir, 'BLM', 'blm_vox_sigma2.nii')).get_data()
-
-    # Get lm sigma2
-    sigma2_lm = nib.load(os.path.join(simDir, 'lm', 'lm_vox_sigma2.nii')).get_data()
-
-    # Remove zero values (spatially varying)
-    sigma2_blm_sv = sigma2_blm[(sigma2_lm!=0) & loc_sv]
-    sigma2_lm_sv = sigma2_lm[(sigma2_lm!=0) & loc_sv]
-
-    # Remove zero values (non spatially varying)
-    sigma2_blm_nsv = sigma2_blm[(sigma2_lm!=0) & loc_nsv]
-    sigma2_lm_nsv = sigma2_lm[(sigma2_lm!=0) & loc_nsv]
-
-    # Remove zero values
-    sigma2_blm = sigma2_blm[sigma2_lm!=0]
-    sigma2_lm = sigma2_lm[sigma2_lm!=0]
-
-    # Get MAE
-    MAE_sigma2 = np.mean(np.abs(sigma2_blm-sigma2_lm))
-    MAE_sigma2_sv = np.mean(np.abs(sigma2_blm_sv-sigma2_lm_sv))
-    MAE_sigma2_nsv = np.mean(np.abs(sigma2_blm_nsv-sigma2_lm_nsv))
-
-    # Get MRD
-    MRD_sigma2 = np.mean(2*np.abs((sigma2_blm-sigma2_lm)/(sigma2_blm+sigma2_lm)))
-    MRD_sigma2_sv = np.mean(2*np.abs((sigma2_blm_sv-sigma2_lm_sv)/(sigma2_blm_sv+sigma2_lm_sv)))
-    MRD_sigma2_nsv = np.mean(2*np.abs((sigma2_blm_nsv-sigma2_lm_nsv)/(sigma2_blm_nsv+sigma2_lm_nsv)))
-
-    # Make line to add to csv for MAE
-    MAE_sigma2_line = np.array([[simNo, MAE_sigma2, MAE_sigma2_sv, MAE_sigma2_nsv]])
-
-    # Make line to add to csv for MRD
-    MRD_sigma2_line = np.array([[simNo, MRD_sigma2, MRD_sigma2_sv, MRD_sigma2_nsv]])
-
-    # MAE sigma2 file name
-    fname_MAE = os.path.join(resDir, 'MAE_sigma2.csv')
-
-    # MRD sigma2 file name
-    fname_MRD = os.path.join(resDir, 'MRD_sigma2.csv')
-
-    # Add to files 
-    addLineToCSV(fname_MAE, MAE_sigma2_line)
-    addLineToCSV(fname_MRD, MRD_sigma2_line)
-
-    # Cleanup
-    del sigma2_lm, sigma2_blm, MAE_sigma2, MRD_sigma2, MAE_sigma2_line, MRD_sigma2_line
-
-    # -----------------------------------------------------------------------
-    # Log-likelihood mean absolute difference
-    # -----------------------------------------------------------------------
-
-    # Get BLM llh
-    llh_blm = nib.load(os.path.join(simDir, 'BLM', 'blm_vox_llh.nii')).get_data()
-
-    # Get lm llh
-    llh_lm = nib.load(os.path.join(simDir, 'lm', 'lm_vox_llh.nii')).get_data()
-
-    # Remove zero values (spatially varying)
-    llh_blm_sv = llh_blm[(llh_lm!=0) & loc_sv]
-    llh_lm_sv = llh_lm[(llh_lm!=0) & loc_sv]
-
-    # Remove zero values (non spatially varying)
-    llh_blm_nsv = llh_blm[(llh_lm!=0) & loc_nsv]
-    llh_lm_nsv = llh_lm[(llh_lm!=0) & loc_nsv]
-
-    # Remove zero values
-    llh_blm = llh_blm[llh_lm!=0]
-    llh_lm = llh_lm[llh_lm!=0]
-
-    # Get maximum absolute difference
-    MAD_llh = np.mean(np.abs(llh_blm-llh_lm))
-    MAD_llh_sv = np.mean(np.abs(llh_blm_sv-llh_lm_sv))
-    MAD_llh_nsv = np.mean(np.abs(llh_blm_nsv-llh_lm_nsv))
-
-    # Print a string describing the results for the llh comparison
-    # TO DO
-
-    # Cleanup
-    del llh_lm, llh_blm, MAD_llh, MAD_llh_line
-
-    # -----------------------------------------------------------------------
-    # Cleanup finished!
-    # -----------------------------------------------------------------------
-
-    print('----------------------------------------------------------------')
-    print('Simulation instance ' + str(simNo) + ' complete!')
-    print('----------------------------------------------------------------')
-
+    if os.path.exists(os.path.join(sim_dir, 'simlog')):
+        shutil.rmtree(os.path.join(sim_dir, 'simlog'))
 
 
 # Add R output to nifti files
@@ -294,7 +206,7 @@ def Rcleanup(OutDir, simNo, nvg, cv):
     sigma2_current = pd.io.parsers.read_csv(os.path.join(simDir, 'lm', 'sigma2_' + str(cv) + '.csv')).values
 
     # Add back to a NIFTI file
-    addBlockToNifti(os.path.join(simDir,"lm","lm_vox_sigma2.nii"), sigma2_current, inds_cv, volInd=0,dim=(*dim,1))
+    addBlockToNifti(os.path.join(simDir,"lm","lm_vox_resms.nii"), sigma2_current, inds_cv, volInd=0,dim=(*dim,1))
 
     # Remove file
     os.remove(os.path.join(simDir, 'lm', 'sigma2_' + str(cv) + '.csv'))

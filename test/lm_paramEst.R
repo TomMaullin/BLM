@@ -25,7 +25,10 @@ for(i in 1:length(args)){
 }
 
 # Read in the fixed effects design
-X <- read.csv(file = paste(outDir,'/sim',toString(simInd),'/data/X.csv',sep=''),sep=',', header=FALSE)
+all_X <- read.csv(file = paste(outDir,'/sim',toString(simInd),'/data/X.csv',sep=''),sep=',', header=FALSE)
+
+# Get the number of columns of X/number of parameters in the model
+n_p <- ncol(all_X)
 
 # Read in the response vector
 all_Y <- read.csv(file = paste(outDir,'/sim',toString(simInd),'/data/Y_Rversion_',toString(batchNo),'.csv',sep=''),sep=',', header=FALSE)
@@ -34,7 +37,7 @@ all_Y <- read.csv(file = paste(outDir,'/sim',toString(simInd),'/data/Y_Rversion_
 nvox <- dim(all_Y)[2]
 
 # Empty array for beta estimates
-betas <- matrix(0,dim(all_Y)[2],4)
+betas <- matrix(0,dim(all_Y)[2],n_p)
 
 # Empty array for sigma2 estimates
 sigma2 <- matrix(0,dim(all_Y)[2],1)
@@ -54,42 +57,42 @@ llh <- matrix(0,dim(all_Y)[2],1)
 # Loop through each model and run lm for each voxel
 for (i in 1:nvox){
 
-  # Print i
-  print(i)
-
   # Get Y
   y <- as.matrix(all_Y[,i])
+
+  # Get X
+  X <- as.matrix(all_X)
 
   # If all y are zero this voxel was dropped from analysis as a
   # result of missing data
   if (!all(y==0)){
 
-    # Reformat X into columns and mask
-    x1 <- as.matrix(X[,1])[y!=0]
-    x2 <- as.matrix(X[,2])[y!=0]
-    x3 <- as.matrix(X[,3])[y!=0]
-    x4 <- as.matrix(X[,4])[y!=0]
+    # Get the indices of non-zero elements in y
+    non_zero_indices <- which(y != 0)
 
-    # Finally, drop any missing Y
-    y <- y[y!=0]
+    # Subset Y and X based on non-zero indices
+    y <- y[non_zero_indices]
+    X <- X[non_zero_indices, ]
 
-    # Fit the linear regression model
-    fit <- lm(y ~ 0 + x1 + x2 + x3 + x4)
+    # Fit a linear regression model of y against 0 + X
+    fit <- lm(y ~ 0 + ., data = as.data.frame(X))
 
     # Record fixed effects estimates
-    betas[i, 1:4] <- coef(fit)
+    betas[i, 1:n_p] <- coef(fit)
 
     # Record log likelihood
     llh[i, 1] <- logLik(fit)[1]
 
-    # Create a contrast vector
-    contrast_vec <- c(0, 0, 0, 1)
+    # Create a contrast vector of length n_p consisting of all zeros, bar the last entry which is one
+    contrast_vec <- rep(0, n_p)
+    contrast_vec[n_p] <- 1
 
     # Compute the t-statistic and associated p-value for the contrast
     variance_of_contrast <- sum(contrast_vec %*% vcov(fit) %*% contrast_vec)
     Tstat <- sum(contrast_vec * coef(fit)) / sqrt(variance_of_contrast)
     df <- df.residual(fit)
     p <- 2 * pt(abs(Tstat), df = df, lower.tail = FALSE)
+    sigma2[i, 1] <- summary(fit)$sigma^2
 
     # Make p-values 1 sided
     if (Tstat > 0) {
