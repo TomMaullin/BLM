@@ -14,7 +14,7 @@ import time
 import pandas as pd
 from scipy import ndimage
 
-def generate_data(n, dim, OutDir, simNo):
+def generate_data(n, p, dim, OutDir, simNo):
     """
     Generates simulated data with the specified dimensions and other parameters.
     
@@ -22,6 +22,8 @@ def generate_data(n, dim, OutDir, simNo):
     ----------
     n : int
         Number of observations.
+    p : int
+        Number of parameters.
     dim : numpy array
         Dimensions of data to be generated. Must be given as a numpy array.
     OutDir : str
@@ -45,9 +47,6 @@ def generate_data(n, dim, OutDir, simNo):
     # -------------------------------------------------
     # Design parameters
     # -------------------------------------------------
-
-    # Number of fixed effects parameters
-    p = 4
 
     # fwhm for smoothing
     fwhm = 5
@@ -114,6 +113,16 @@ def generate_data(n, dim, OutDir, simNo):
     pd.DataFrame(X.reshape(n,p)).to_csv(os.path.join(simDir,"data","X.csv"), header=None, index=None)
 
     # -----------------------------------------------------
+    # Contrast vector
+    # -----------------------------------------------------
+
+    # Make a simple string representing the contrast vector to test
+    contrast_vec = '['
+    for i in range(p-1):
+        contrast_vec = contrast_vec + '0, '
+    contrast_vec = contrast_vec + '1]'
+
+    # -----------------------------------------------------
     # Inputs file
     # -----------------------------------------------------
 
@@ -138,7 +147,7 @@ def generate_data(n, dim, OutDir, simNo):
         f.write("contrasts: " + os.linesep)
         f.write("  - c1: " + os.linesep)
         f.write("      name: null_contrast" + os.linesep)
-        f.write("      vector: [0, 0, 0, 1]" + os.linesep)
+        f.write("      vector: " + contrast_vec + os.linesep)
         f.write("      statType: T " + os.linesep)
 
         # Voxel-wise batching for speedup - not necessary - but

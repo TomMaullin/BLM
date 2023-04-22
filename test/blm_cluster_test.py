@@ -38,7 +38,7 @@ def _main(argv=None):
 
     # Parsing command line arguments
     parser = argparse.ArgumentParser(description="BLM-lm test pipeline")
-    parser.add_argument("--sim_ind", type=int, required=True, help="Simulation index to determine n and num_voxel_batches values.")
+    parser.add_argument("--sim_ind", type=int, required=True, help="Simulation index to determine n, p, and num_voxel_batches values.")
     parser.add_argument("--out_dir", type=str, required=True, help="Output directory path.")
     parser.add_argument("--num_nodes", type=int, default=100, help="Number of nodes for Dask setup.")
     parser.add_argument("--cluster_type", type=str, default="slurm", help="Cluster type for Dask setup. (default: slurm)")
@@ -59,15 +59,19 @@ def _main(argv=None):
     # Simulation settings
     if sim_ind == 1:
         n = 100
+        p = 3
         num_voxel_batches = 100
     elif sim_ind == 2:
         n = 200
+        p = 4
         num_voxel_batches = 200
     elif sim_ind == 3:
         n = 500
+        p = 5
         num_voxel_batches = 200
     elif sim_ind == 4:
         n = 1000
+        p = 8
         num_voxel_batches = 500
     else:
         raise ValueError("Invalid sim_ind value. Please provide a value between 1 and 4.")
@@ -99,7 +103,7 @@ def _main(argv=None):
 
     print('Test Update for Simulation ' + str(sim_ind) + ': Generating test data...')
 
-    generate_data(n, dim, out_dir, sim_ind)
+    generate_data(n, p, dim, out_dir, sim_ind)
 
     print('Test Update for Simulation ' + str(sim_ind) + ': Test data generated.')
 
