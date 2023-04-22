@@ -28,7 +28,7 @@ for(i in 1:length(args)){
 all_X <- read.csv(file = paste(outDir,'/sim',toString(simInd),'/data/X.csv',sep=''),sep=',', header=FALSE)
 
 # Get the number of columns of X/number of parameters in the model
-n_p <- ncol(X)
+n_p <- ncol(all_X)
 
 # Read in the response vector
 all_Y <- read.csv(file = paste(outDir,'/sim',toString(simInd),'/data/Y_Rversion_',toString(batchNo),'.csv',sep=''),sep=',', header=FALSE)
