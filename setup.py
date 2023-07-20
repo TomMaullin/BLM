@@ -8,8 +8,8 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(
-    name="blm",
-    version="0.1.1",
+    name="pyblm",
+    version="0.1.2",
     author="Tom Maullin",
     author_email="TomMaullin@gmail.com",
     description="The Big Linear Models Toolbox",
