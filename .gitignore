@@ -5,6 +5,7 @@ BLM_py.egg-info/*
 __pycache__/*
 test/cfg/*_copy*
 test/__pycache__/*
+blm/__pycache/*
 test/cfgids/*
 __pycache__/*
 blm/lib/__pycache__/*
