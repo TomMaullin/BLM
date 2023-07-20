@@ -26,6 +26,11 @@ def _main(argv=None):
 
     # Parse the arguments
     args = parser.parse_args()
+    
+    # If the argument is just a filename without a directory, 
+    # prepend the current working directory
+    if os.path.dirname(args.inputs_yml) == '':
+        args.inputs_yml = os.path.join(os.getcwd(), args.inputs_yml)
     inputs_yml = args.inputs_yml
         
     # Load the inputs yaml file
