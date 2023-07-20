@@ -1,12 +1,5 @@
 import os
-import numpy
-import pandas
-import dask
-import subprocess
-from scipy import ndimage
 from dask.distributed import Client, as_completed
-from dask.distributed import performance_report
-import nibabel as nib
 import sys  
 
 # Get the directory containing the script
