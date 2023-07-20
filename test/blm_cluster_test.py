@@ -19,7 +19,7 @@ sys.path.insert(0, os.path.dirname(test_dir))
 # Import test generation and cleanup
 from generate_test_data import *
 from cleanup import cleanup
-from blm_cluster import _main as blm
+from blm.blm_cluster import _main as blm
 
 
 import argparse

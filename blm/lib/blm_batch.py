@@ -4,17 +4,12 @@ import warnings as w
 w.simplefilter(action = 'ignore', category = FutureWarning)
 import numpy as np
 from numpy.lib.format import open_memmap
-import subprocess
-import warnings
-import resource
 import nibabel as nib
 import sys
 import os
-import shutil
 import yaml
-import time
 np.set_printoptions(threshold=sys.maxsize)
-from lib.fileio import *
+from blm.lib.fileio import *
 
 def compute_product_forms(*args):
 

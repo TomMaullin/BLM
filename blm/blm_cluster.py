@@ -3,15 +3,12 @@ import sys
 import shutil
 import yaml
 import numpy as np
-from lib.blm_setup import setup
-from lib.blm_batch import compute_product_forms
-from lib.blm_concat import combine_batch_masking, combine_batch_designs
-from lib.blm_results import output_results
-from lib.fileio import pracNumVoxelBlocks
-from dask import config
-from dask_jobqueue import SLURMCluster
+from blm.lib.blm_setup import setup
+from blm.lib.blm_batch import compute_product_forms
+from blm.lib.blm_concat import combine_batch_masking, combine_batch_designs
+from blm.lib.blm_results import output_results
+from blm.lib.fileio import pracNumVoxelBlocks
 from dask.distributed import Client, as_completed
-from dask.distributed import performance_report
 
 
 def _main(argv=None):
