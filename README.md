@@ -169,7 +169,7 @@ The current BLM tests run on rescomp and compare BLM's performance to that of lo
 
 ### Usage
 
-To run the tests, navigate to the main BLM directory and use the following command in the commandline:
+To run the tests, clone this repository, navigate to the main BLM directory and use the following command in the commandline:
 
 ```
 python ./test/blm_cluster_test.py --sim_ind [SIM_IND] --num_nodes [NUM_NODES] --out_dir [OUT_DIR] [--clusterType [CLUSTER_TYPE]] &
