@@ -24,5 +24,10 @@ setup(
         "Operating System :: OS Independent",
     ],
     install_requires=requirements, 
+    entry_points={
+        'console_scripts': [
+            'blm=blm.blm_cluster:_main',
+        ],
+    },
     python_requires='>=3.6',
 )
