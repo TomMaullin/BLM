@@ -1,14 +1,14 @@
+from blm.lib.fileio import *
+import yaml
+import os
+import sys
+import nibabel as nib
+import numpy as np
 import warnings as w
 # This warning is caused by numpy updates and should
 # be ignored for now.
-w.simplefilter(action = 'ignore', category = FutureWarning)
-import numpy as np
-import nibabel as nib
-import sys
-import os
-import yaml
+w.simplefilter(action='ignore', category=FutureWarning)
 np.set_printoptions(threshold=sys.maxsize)
-from blm.lib.fileio import *
 
 # Developer notes:
 # --------------------------------------------------------------------------
@@ -19,17 +19,18 @@ from blm.lib.fileio import *
 #      decided by the user specified thresholds. These voxels will typically
 #      be on the edge of the brain and look like a "ring" around the brain,
 #      hence "_r" for ring.
-# 
-# _i - This means that this is an array of values corresponding to voxels 
+#
+# _i - This means that this is an array of values corresponding to voxels
 #      which are present in all n studies. These will usually look like
-#      a smaller mask place inside the whole study mask. Hence "_i" for 
+#      a smaller mask place inside the whole study mask. Hence "_i" for
 #      inner.
 #
 # _sv - This means this variable is spatially varying (There is a reading
-#       per voxel). 
+#       per voxel).
 #
 # --------------------------------------------------------------------------
 # Author: Tom Maullin (04/02/2019)
+
 
 def combine_batch_masking(*args):
 
@@ -46,19 +47,19 @@ def combine_batch_masking(*args):
     # ----------------------------------------------------------------------
     # Check inputs
     # ----------------------------------------------------------------------
-    if len(args)==4 or (not args[4]):
+    if len(args) == 4 or (not args[4]):
         # Load in inputs
         with open(os.path.join(
-                    os.path.dirname(os.path.realpath(__file__)),
-                    '..',
-                    'blm_config.yml'), 'r') as stream:
-            inputs = yaml.load(stream,Loader=yaml.FullLoader)
+            os.path.dirname(os.path.realpath(__file__)),
+            '..',
+                'blm_config.yml'), 'r') as stream:
+            inputs = yaml.load(stream, Loader=yaml.FullLoader)
     else:
         if type(args[4]) is str:
             # In this case inputs file is first argument
             with open(os.path.join(args[4]), 'r') as stream:
-                inputs = yaml.load(stream,Loader=yaml.FullLoader)
-        else:  
+                inputs = yaml.load(stream, Loader=yaml.FullLoader)
+        else:
             # In this case inputs structure is first argument.
             inputs = args[4]
 
@@ -72,7 +73,7 @@ def combine_batch_masking(*args):
     L1 = np.array(L1)
     p = L1.shape[0]
     del L1
-    
+
     # Read in the nifti size and work out number of voxels.
     with open(inputs['Y_files']) as a:
         nifti_path = a.readline().replace('\n', '')
@@ -81,12 +82,11 @@ def combine_batch_masking(*args):
     NIFTIsize = nifti.shape
     v = int(np.prod(NIFTIsize))
 
-
     # Number of observations
     X = loadFile(inputs['X'])
     n = X.shape[0]
 
-    # Check if the maximum memory is saved.    
+    # Check if the maximum memory is saved.
     if 'MAXMEM' in inputs:
         MAXMEM = eval(inputs['MAXMEM'])
     else:
@@ -103,35 +103,35 @@ def combine_batch_masking(*args):
     # observations)
     # --------------------------------------------------------------------------------
 
-    # Number of images to look at for each node 
+    # Number of images to look at for each node
     n_images = n_b//numNodes+1
 
     if ((1 + node*n_images) >= (n_b + 1)) and ((1+(node-1)*n_images) <= (n_b + 1)):
-    
+
         # Work out loop range
-        loopRange = range(1+(node-1)*n_images,(n_b+1))
-    
+        loopRange = range(1+(node-1)*n_images, (n_b+1))
+
         # This is the last node
         lastNode = True
 
     elif ((1+(node-1)*n_images) <= (n_b + 1)):
-    
+
         # Work out loop range
-        loopRange = range(1+(node-1)*n_images,1+node*n_images)
-    
+        loopRange = range(1+(node-1)*n_images, 1+node*n_images)
+
         # This is not the last node
         lastNode = False
 
     else:
 
         # Empty loop range
-        loopRange = range(0,0)
+        loopRange = range(0, 0)
 
         # This is not the last node (this one's redundant)
         lastNode = False
 
     # Empty loop
-    emptyLoop = (len(loopRange)==0)
+    emptyLoop = (len(loopRange) == 0)
 
     # Check if this is the first image we're looking at
     firstImage = True
@@ -142,9 +142,8 @@ def combine_batch_masking(*args):
         if firstImage:
 
             # Read in n (spatially varying)
-            n_sv = np.asarray(loadFile(os.path.join(OutDir,"tmp",  
-                             "blm_vox_n_batch" + str(batchNo) + ".nii")).dataobj, dtype=np.int64)
-
+            n_sv = np.asarray(loadFile(os.path.join(OutDir, "tmp",
+                                                    "blm_vox_n_batch" + str(batchNo) + ".nii")).dataobj, dtype=np.int64)
 
             # No longer looking at the first image
             firstImage = False
@@ -152,17 +151,17 @@ def combine_batch_masking(*args):
         else:
 
             # Obtain the full nmap.
-            n_sv = n_sv + np.asarray(loadFile(os.path.join(OutDir,"tmp", 
-                "blm_vox_n_batch" + str(batchNo) + ".nii")).dataobj, dtype=np.int64)
+            n_sv = n_sv + np.asarray(loadFile(os.path.join(OutDir, "tmp",
+                                                           "blm_vox_n_batch" + str(batchNo) + ".nii")).dataobj, dtype=np.int64)
 
         # Remove file we just read
-        #os.remove(os.path.join(OutDir,"tmp", "blm_vox_n_batch" + str(batchNo) + ".nii"))
+        # os.remove(os.path.join(OutDir,"tmp", "blm_vox_n_batch" + str(batchNo) + ".nii"))
 
     # Filename for nmap
-    n_fname = os.path.join(OutDir,'blm_vox_n.nii')
+    n_fname = os.path.join(OutDir, 'blm_vox_n.nii')
 
     # Filename for dfmap
-    df_fname = os.path.join(OutDir,'blm_vox_edf.nii')
+    df_fname = os.path.join(OutDir, 'blm_vox_edf.nii')
 
     if not emptyLoop:
 
@@ -171,7 +170,8 @@ def combine_batch_masking(*args):
         while fileLocked:
             try:
                 # Create lock file, so other jobs know we are writing to this file
-                f=os.open(os.path.join(OutDir,"config_write.lock"), os.O_CREAT|os.O_EXCL|os.O_RDWR)
+                f = os.open(os.path.join(OutDir, "config_write.lock"),
+                            os.O_CREAT | os.O_EXCL | os.O_RDWR)
                 fileLocked = False
             except FileExistsError:
                 fileLocked = True
@@ -182,7 +182,8 @@ def combine_batch_masking(*args):
 
         if os.path.exists(df_fname):
             # df_sv = n_sv + loadFile(df_fname).get_fdata()
-            df_sv = n_sv + np.asarray(loadFile(df_fname).dataobj, dtype=np.int64)
+            df_sv = n_sv + \
+                np.asarray(loadFile(df_fname).dataobj, dtype=np.int64)
             os.remove(df_fname)
         else:
             df_sv = np.array(n_sv)
@@ -206,16 +207,16 @@ def combine_batch_masking(*args):
         else:
             dfmap = nib.Nifti1Image(df_sv-p,
                                     nifti.affine,
-                                    header=nifti.header) 
+                                    header=nifti.header)
 
         nib.save(dfmap, df_fname)
         del dfmap
 
         # Delete lock file, so other jobs know they can now write to the
         # file
-        os.remove(os.path.join(OutDir,"config_write.lock"))
+        os.remove(os.path.join(OutDir, "config_write.lock"))
         os.close(f)
-        
+
     # --------------------------------------------------------------------------------
     # Create Mask
     # --------------------------------------------------------------------------------
@@ -223,23 +224,25 @@ def combine_batch_masking(*args):
     if maskJob:
 
         # Read in degrees of freedom
-        df_sv = np.asarray(loadFile(os.path.join(OutDir,'blm_vox_edf.nii')).dataobj, dtype=np.int64)
+        df_sv = np.asarray(loadFile(os.path.join(
+            OutDir, 'blm_vox_edf.nii')).dataobj, dtype=np.int64)
 
         # Remove non-zero voxels
-        df_sv = np.maximum(df_sv,0)
+        df_sv = np.maximum(df_sv, 0)
 
         # Write to file
         dfmap = nib.Nifti1Image(df_sv,
                                 nifti.affine,
-                                header=nifti.header) 
+                                header=nifti.header)
         nib.save(dfmap, df_fname)
         del dfmap
 
         # Read in n (spatially varying)
-        n_sv = np.asarray(loadFile(os.path.join(OutDir,'blm_vox_n.nii')).dataobj, dtype=np.int64)
+        n_sv = np.asarray(loadFile(os.path.join(
+            OutDir, 'blm_vox_n.nii')).dataobj, dtype=np.int64)
 
         Mask = np.ones([v, 1])
-        n_sv = n_sv.reshape(v, 1)   
+        n_sv = n_sv.reshape(v, 1)
 
         # Check for user specified missingness thresholds.
         if 'Missingness' in inputs:
@@ -266,7 +269,7 @@ def combine_batch_masking(*args):
                                      '0 < ' + str(rmThresh) + ' < 1 violation')
 
                 # Mask based on threshold.
-                Mask[n_sv<rmThresh*n]=0
+                Mask[n_sv < rmThresh*n] = 0
 
             if ("MinN" in inputs["Missingness"]) or ("minn" in inputs["Missingness"]):
 
@@ -281,48 +284,47 @@ def combine_batch_masking(*args):
                     amThresh = float(amThresh)
 
                 # Mask based on threshold.
-                Mask[n_sv<amThresh]=0
+                Mask[n_sv < amThresh] = 0
 
         # We remove anything with 1 degree of freedom (or less) by default.
         # 1 degree of freedom seems to cause broadcasting errors on a very
         # small percentage of voxels.
-        Mask[n_sv<=p+1]=0
+        Mask[n_sv <= p+1] = 0
 
         if 'analysis_mask' in inputs:
 
             amask_path = inputs["analysis_mask"]
-            
+
             # Read in the mask nifti.
-            amask = np.asarray(loadFile(amask_path).dataobj).reshape([v,1])
+            amask = np.asarray(loadFile(amask_path).dataobj).reshape([v, 1])
 
         else:
 
             # By default make amask ones
-            amask = np.ones([v,1])
-
+            amask = np.ones([v, 1])
 
         # Get indices for whole analysis mask. These indices are the indices we
         # have recorded for the product matrices with respect to the entire volume
         amInds = get_amInds(amask)
-            
+
         # Ensure overall mask matches analysis mask
-        Mask[~np.in1d(np.arange(v).reshape(v,1), amInds)]=0
+        Mask[~np.in1d(np.arange(v).reshape(v, 1), amInds)] = 0
 
         # Output final mask map
         maskmap = nib.Nifti1Image(Mask.reshape(
-                                        NIFTIsize[0],
-                                        NIFTIsize[1],
-                                        NIFTIsize[2]
-                                        ),
-                                  nifti.affine,
-                                  header=nifti.header) 
-        nib.save(maskmap, os.path.join(OutDir,'blm_vox_mask.nii'))
+            NIFTIsize[0],
+            NIFTIsize[1],
+            NIFTIsize[2]
+        ),
+            nifti.affine,
+            header=nifti.header)
+        nib.save(maskmap, os.path.join(OutDir, 'blm_vox_mask.nii'))
         del maskmap
 
 
 # ============================================================================
 #
-# 
+#
 #
 # ----------------------------------------------------------------------------
 #
@@ -330,10 +332,10 @@ def combine_batch_masking(*args):
 #
 # ----------------------------------------------------------------------------
 #
-# - `AtBstr`: A string representing which product matrix we are looking at. 
+# - `AtBstr`: A string representing which product matrix we are looking at.
 #             e.g. "XtX" for X'X.
 # - `OutDir`: Output directory.
-# - 
+# -
 #
 # ----------------------------------------------------------------------------
 #
@@ -341,8 +343,8 @@ def combine_batch_masking(*args):
 #
 # ----------------------------------------------------------------------------
 #
-# - `AtB`: The product matrix (flattened); If we had wanted X'X (which is 
-#          dimension p by p) for v voxels, the output would here would have 
+# - `AtB`: The product matrix (flattened); If we had wanted X'X (which is
+#          dimension p by p) for v voxels, the output would here would have
 #          dimension (1 by p**2). If sv was True, we will have one matrix for
 #          each voxel. If sv was false we will have one matrix for all voxels.
 #
@@ -356,12 +358,12 @@ def combine_batch_designs(AtBstr, OutDir, fileRange):
         raise ValueError('The file range is empty.')
 
     # Get NIFTIfilenames
-    NIFTIfilenames = [os.path.join(OutDir,"tmp", 
-        "blm_vox_uniqueM_batch" + str(i) + ".nii") for i in fileRange]
+    NIFTIfilenames = [os.path.join(OutDir, "tmp",
+                                   "blm_vox_uniqueM_batch" + str(i) + ".nii") for i in fileRange]
 
     # Get AtB filenames
-    AtBfilenames = [os.path.join(OutDir,"tmp",
-        AtBstr+ str(i) + ".npy") for i in fileRange]
+    AtBfilenames = [os.path.join(OutDir, "tmp",
+                                 AtBstr + str(i) + ".npy") for i in fileRange]
 
     # Affine and header
     aff = loadFile(NIFTIfilenames[0]).affine
@@ -369,11 +371,13 @@ def combine_batch_designs(AtBstr, OutDir, fileRange):
 
     # Initialize current uniqueness map and AtB
     # uniquenessMask_current = loadFile(NIFTIfilenames[0]).get_fdata()
-    uniquenessMask_current = np.asarray(loadFile(NIFTIfilenames[0]).dataobj, dtype=np.int64)
+    uniquenessMask_current = np.asarray(
+        loadFile(NIFTIfilenames[0]).dataobj, dtype=np.int64)
     AtB_unique_current = np.load(AtBfilenames[0])
 
     # Add row of zeros for outside of mask
-    AtB_unique_current = np.concatenate((np.zeros((1,AtB_unique_current.shape[1])), AtB_unique_current), axis=0)
+    AtB_unique_current = np.concatenate(
+        (np.zeros((1, AtB_unique_current.shape[1])), AtB_unique_current), axis=0)
 
     # Remove files
     os.remove(NIFTIfilenames[0])
@@ -386,13 +390,15 @@ def combine_batch_designs(AtBstr, OutDir, fileRange):
         if i < len(NIFTIfilenames):
 
             # Read new uniqueness mask
-            uniquenessMask_new = np.asarray(loadFile(NIFTIfilenames[i]).dataobj, dtype=np.int64)
+            uniquenessMask_new = np.asarray(
+                loadFile(NIFTIfilenames[i]).dataobj, dtype=np.int64)
 
             # Read in new unique list of AtB's
             AtB_unique_new = np.load(AtBfilenames[i])
-        
+
             # Add row of zeros for outside of mask
-            AtB_unique_new = np.concatenate((np.zeros((1,AtB_unique_new.shape[1])), AtB_unique_new), axis=0)
+            AtB_unique_new = np.concatenate(
+                (np.zeros((1, AtB_unique_new.shape[1])), AtB_unique_new), axis=0)
 
             # Remove files
             os.remove(NIFTIfilenames[i])
@@ -406,20 +412,21 @@ def combine_batch_designs(AtBstr, OutDir, fileRange):
             while fileLocked:
                 try:
                     # Create lock file, so other jobs know we are writing to this file
-                    f=os.open(os.path.join(OutDir,'tmp',AtBstr + ".lock"), os.O_CREAT|os.O_EXCL|os.O_RDWR)
+                    f = os.open(os.path.join(OutDir, 'tmp', AtBstr +
+                                ".lock"), os.O_CREAT | os.O_EXCL | os.O_RDWR)
                     fileLocked = False
                 except FileExistsError:
                     fileLocked = True
 
             # Check whether the NIFTI exists already
-            if os.path.isfile(os.path.join(OutDir,"tmp", "blm_vox_uniqueM.nii")):
+            if os.path.isfile(os.path.join(OutDir, "tmp", "blm_vox_uniqueM.nii")):
 
                 # Adding to the running total now
-                uniquenessMask_new = np.asarray(loadFile(os.path.join(OutDir,"tmp", 
-                                              "blm_vox_uniqueM.nii")).dataobj, dtype=np.int64)
+                uniquenessMask_new = np.asarray(loadFile(os.path.join(OutDir, "tmp",
+                                                                      "blm_vox_uniqueM.nii")).dataobj, dtype=np.int64)
 
                 # Read in the running list of AtB's
-                AtB_unique_new = np.load(os.path.join(OutDir,"tmp",
+                AtB_unique_new = np.load(os.path.join(OutDir, "tmp",
                                          AtBstr + ".npy"))
 
             # If this is the first time we've made the running total we don't need
@@ -435,21 +442,25 @@ def combine_batch_designs(AtBstr, OutDir, fileRange):
         maxM_current = np.int64(np.amax(uniquenessMask_current))
 
         # Get max of both
-        maxM = np.maximum(maxM_new,maxM_current)
+        maxM = np.maximum(maxM_new, maxM_current)
 
         # Get updated uniqueness mask
-        uniquenessMask_updated_full = uniquenessMask_current*((maxM+1)**0) + uniquenessMask_new*((maxM+1)**1)
+        uniquenessMask_updated_full = uniquenessMask_current * \
+            ((maxM+1)**0) + uniquenessMask_new*((maxM+1)**1)
 
         # Get unique values in new map.
-        uniqueVals = np.unique(uniquenessMask_updated_full, return_inverse = True)
-        uniquenessMask_updated = uniqueVals[1].reshape(uniquenessMask_new.shape)
+        uniqueVals = np.unique(
+            uniquenessMask_updated_full, return_inverse=True)
+        uniquenessMask_updated = uniqueVals[1].reshape(
+            uniquenessMask_new.shape)
         uniqueVal_array = uniqueVals[0]
 
         # Update maxM
         maxM_updated = np.amax(uniquenessMask_updated)
 
         # Initialise AtB_unique_updated
-        AtB_unique_updated = np.zeros([maxM_updated+1, AtB_unique_current.shape[1]])
+        AtB_unique_updated = np.zeros(
+            [maxM_updated+1, AtB_unique_current.shape[1]])
 
         # Get value1 and value2, corresponding to values in original uniqueness maps.
         for value_updated in np.arange(maxM_updated+1):
@@ -464,7 +475,8 @@ def combine_batch_designs(AtBstr, OutDir, fileRange):
             value_current = int(value_updated_full-value_new*(maxM+1))
 
             # Update the unique AtB array
-            AtB_unique_updated[value_updated,:] = AtB_unique_new[value_new,:] + AtB_unique_current[value_current,:]
+            AtB_unique_updated[value_updated, :] = AtB_unique_new[value_new,
+                                                                  :] + AtB_unique_current[value_current, :]
 
         # Update uniquenessMask_current as uniquenessMask_updated
         uniquenessMask_current = np.array(uniquenessMask_updated)
@@ -473,22 +485,21 @@ def combine_batch_designs(AtBstr, OutDir, fileRange):
         AtB_unique_current = np.array(AtB_unique_updated)
 
     # Make nifti
-    uniquenessMask_current = nib.Nifti1Image(uniquenessMask_current, 
+    uniquenessMask_current = nib.Nifti1Image(uniquenessMask_current,
                                              aff, header=hdr)
 
     # Save uniqueness map
-    nib.save(uniquenessMask_current, os.path.join(OutDir,"tmp", 
+    nib.save(uniquenessMask_current, os.path.join(OutDir, "tmp",
              "blm_vox_uniqueM.nii"))
 
     # Save unique designs
-    np.save(os.path.join(OutDir,"tmp",AtBstr),AtB_unique_current)
+    np.save(os.path.join(OutDir, "tmp", AtBstr), AtB_unique_current)
 
     # Delete lock file, so other jobs know they can now write to the
     # file
-    os.remove(os.path.join(OutDir,'tmp',AtBstr + ".lock"))
+    os.remove(os.path.join(OutDir, 'tmp', AtBstr + ".lock"))
     os.close(f)
 
 
-    
 if __name__ == "__main__":
     main()

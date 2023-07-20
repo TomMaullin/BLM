@@ -1,16 +1,17 @@
+from blm.lib.fileio import *
+import pandas as pd
+import yaml
+import shutil
+import os
+import nibabel as nib
+import numpy as np
 import warnings as w
 # This warning is caused by numpy updates and should
 # be ignored for now.
-w.simplefilter(action = 'ignore', category = FutureWarning)
-import numpy as np
-import nibabel as nib
-import os
-import shutil
-import yaml
-import pandas as pd
-from blm.lib.fileio import *
+w.simplefilter(action='ignore', category=FutureWarning)
 
-def cleanup(out_dir,sim_ind):
+
+def cleanup(out_dir, sim_ind):
 
     # -----------------------------------------------------------------------
     # Get simulation directory
@@ -23,7 +24,7 @@ def cleanup(out_dir,sim_ind):
     # -----------------------------------------------------------------------
     if os.path.exists(os.path.join(sim_dir, 'data')):
         shutil.rmtree(os.path.join(sim_dir, 'data'))
-    
+
     # -----------------------------------------------------------------------
     # N map
     # -----------------------------------------------------------------------
@@ -35,33 +36,33 @@ def cleanup(out_dir,sim_ind):
     n = np.amax(n_sv)
 
     # Work out which voxels had readings for all subjects
-    loc_sv = (n_sv>n//2)&(n_sv<n)
-    loc_nsv = (n_sv==n)
+    loc_sv = (n_sv > n//2) & (n_sv < n)
+    loc_nsv = (n_sv == n)
 
     # Work out number of spatially varying and non-spatially varying voxels
     v_sv = np.sum(loc_sv)
     v_nsv = np.sum(loc_nsv)
-    
+
     # -----------------------------------------------------------------------
     # Files to compare
     # -----------------------------------------------------------------------
-    
+
     filenames = ['blm_vox_beta.nii', 'blm_vox_conT.nii', 'blm_vox_conTlp.nii',
                  'blm_vox_llh.nii', 'blm_vox_resms.nii']
     # -----------------------------------------------------------------------
     # Compare to lm
     # -----------------------------------------------------------------------
-    
+
     # Loop through files
     for blm_filename in filenames:
-        
+
         # Get the equivalent lm file
         lm_filename = blm_filename.replace('blm', 'lm')
-        
+
         # Make the filenames full
         blm_filename = os.path.join(sim_dir, 'BLM', blm_filename)
         lm_filename = os.path.join(sim_dir, 'lm', lm_filename)
-        
+
         # -------------------------------------------------------------------
         # Read in files
         # -------------------------------------------------------------------
@@ -73,16 +74,16 @@ def cleanup(out_dir,sim_ind):
         lm = nib.load(lm_filename).get_fdata()
 
         # Remove zero values (spatially varying)
-        blm_sv = blm[(lm!=0) & loc_sv]
-        lm_sv = lm[(lm!=0) & loc_sv]
+        blm_sv = blm[(lm != 0) & loc_sv]
+        lm_sv = lm[(lm != 0) & loc_sv]
 
         # Remove zero values (non spatially varying)
-        blm_nsv = blm[(lm!=0) & loc_nsv]
-        lm_nsv = lm[(lm!=0) & loc_nsv]
+        blm_nsv = blm[(lm != 0) & loc_nsv]
+        lm_nsv = lm[(lm != 0) & loc_nsv]
 
         # Remove zero values (both)
-        blm = blm[lm!=0]
-        lm = lm[lm!=0]
+        blm = blm[lm != 0]
+        lm = lm[lm != 0]
 
         # Get MAE
         MAE = np.mean(np.abs(blm-lm))
@@ -106,20 +107,25 @@ def cleanup(out_dir,sim_ind):
 
         # Print results
         print('----------------------------------------------------------------------------------------------')
-        print('Test Results for Simulation ' + str(sim_ind) + ': ' + str(blm_filename))
+        print('Test Results for Simulation ' +
+              str(sim_ind) + ': ' + str(blm_filename))
         print('----------------------------------------------------------------------------------------------')
         print(' ')
         print('Mean Absolute Errors: ')
         print('    All voxels: ' + repr(MAE) + ', Result: ' + result_MAE)
-        print('    Spatially varying voxels: ' + repr(MAE_sv) + ', Result: ' + result_MAE_sv)
-        print('    Non-spatially varying voxels: ' + repr(MAE_nsv) + ', Result: ' + result_MAE_nsv)
+        print('    Spatially varying voxels: ' +
+              repr(MAE_sv) + ', Result: ' + result_MAE_sv)
+        print('    Non-spatially varying voxels: ' +
+              repr(MAE_nsv) + ', Result: ' + result_MAE_nsv)
         print(' ')
         print('Mean Relative Differences: ')
         print('    All voxels: ' + repr(MRD) + ', Result: ' + result_MRD)
-        print('    Spatially varying voxels: ' + repr(MRD_sv) + ', Result: ' + result_MRD_sv)
-        print('    Non-spatially varying voxels: ' + repr(MRD_nsv) + ', Result: ' + result_MRD_nsv)
+        print('    Spatially varying voxels: ' +
+              repr(MRD_sv) + ', Result: ' + result_MRD_sv)
+        print('    Non-spatially varying voxels: ' +
+              repr(MRD_nsv) + ', Result: ' + result_MRD_nsv)
         print(' ')
-        
+
     print('----------------------------------------------------------------------------------------------')
 
     # -----------------------------------------------------------------------
@@ -140,13 +146,14 @@ def Rcleanup(OutDir, simNo, nvg, cv):
     # exists for using this format).
     # -----------------------------------------------------------------------
     # There should be an inputs file in each simulation directory
-    with open(os.path.join(simDir,'inputs.yml'), 'r') as stream:
-        inputs = yaml.load(stream,Loader=yaml.FullLoader)
+    with open(os.path.join(simDir, 'inputs.yml'), 'r') as stream:
+        inputs = yaml.load(stream, Loader=yaml.FullLoader)
 
     # -----------------------------------------------------------------------
     # Get number of observations and fixed effects
     # -----------------------------------------------------------------------
-    X = pd.io.parsers.read_csv(os.path.join(simDir,"data","X.csv"), header=None).values
+    X = pd.io.parsers.read_csv(os.path.join(
+        simDir, "data", "X.csv"), header=None).values
     n = X.shape[0]
     p = X.shape[1]
 
@@ -154,7 +161,7 @@ def Rcleanup(OutDir, simNo, nvg, cv):
     # Get number voxels and dimensions
     # -----------------------------------------------------------------------
 
-    # nmap location 
+    # nmap location
     nmap = os.path.join(simDir, "data", "Y0.nii")
 
     # Work out dim if we don't already have it
@@ -168,7 +175,7 @@ def Rcleanup(OutDir, simNo, nvg, cv):
 
     # Delete nmap
     del nmap
-    
+
     # -------------------------------------------------------------------
     # Voxels of interest
     # -------------------------------------------------------------------
@@ -187,13 +194,15 @@ def Rcleanup(OutDir, simNo, nvg, cv):
     # -------------------------------------------------------------------
 
     # Read in file
-    beta_current = pd.io.parsers.read_csv(os.path.join(simDir, 'lm', 'beta_' + str(cv) + '.csv')).values
+    beta_current = pd.io.parsers.read_csv(os.path.join(
+        simDir, 'lm', 'beta_' + str(cv) + '.csv')).values
 
     # Loop through parameters adding them one voxel at a time
     for param in np.arange(p):
 
         # Add back to a NIFTI file
-        addBlockToNifti(os.path.join(simDir,"lm","lm_vox_beta.nii"), beta_current[:,param], inds_cv, volInd=param,dim=(*dim,int(p)))
+        addBlockToNifti(os.path.join(simDir, "lm", "lm_vox_beta.nii"),
+                        beta_current[:, param], inds_cv, volInd=param, dim=(*dim, int(p)))
 
     # Remove file
     os.remove(os.path.join(simDir, 'lm', 'beta_' + str(cv) + '.csv'))
@@ -203,10 +212,12 @@ def Rcleanup(OutDir, simNo, nvg, cv):
     # -------------------------------------------------------------------
 
     # Read in file
-    sigma2_current = pd.io.parsers.read_csv(os.path.join(simDir, 'lm', 'sigma2_' + str(cv) + '.csv')).values
+    sigma2_current = pd.io.parsers.read_csv(os.path.join(
+        simDir, 'lm', 'sigma2_' + str(cv) + '.csv')).values
 
     # Add back to a NIFTI file
-    addBlockToNifti(os.path.join(simDir,"lm","lm_vox_resms.nii"), sigma2_current, inds_cv, volInd=0,dim=(*dim,1))
+    addBlockToNifti(os.path.join(simDir, "lm", "lm_vox_resms.nii"),
+                    sigma2_current, inds_cv, volInd=0, dim=(*dim, 1))
 
     # Remove file
     os.remove(os.path.join(simDir, 'lm', 'sigma2_' + str(cv) + '.csv'))
@@ -216,10 +227,12 @@ def Rcleanup(OutDir, simNo, nvg, cv):
     # -------------------------------------------------------------------
 
     # Read in file
-    llh_current = pd.io.parsers.read_csv(os.path.join(simDir, 'lm', 'llh_' + str(cv) + '.csv')).values
+    llh_current = pd.io.parsers.read_csv(os.path.join(
+        simDir, 'lm', 'llh_' + str(cv) + '.csv')).values
 
     # Add back to a NIFTI file
-    addBlockToNifti(os.path.join(simDir,"lm","lm_vox_llh.nii"), llh_current, inds_cv, volInd=0,dim=(*dim,1))
+    addBlockToNifti(os.path.join(simDir, "lm", "lm_vox_llh.nii"),
+                    llh_current, inds_cv, volInd=0, dim=(*dim, 1))
 
     # Remove file
     os.remove(os.path.join(simDir, 'lm', 'llh_' + str(cv) + '.csv'))
@@ -229,10 +242,12 @@ def Rcleanup(OutDir, simNo, nvg, cv):
     # -------------------------------------------------------------------
 
     # Read in file
-    Tstat_current = pd.io.parsers.read_csv(os.path.join(simDir, 'lm', 'Tstat_' + str(cv) + '.csv')).values
+    Tstat_current = pd.io.parsers.read_csv(os.path.join(
+        simDir, 'lm', 'Tstat_' + str(cv) + '.csv')).values
 
     # Add back to a NIFTI file
-    addBlockToNifti(os.path.join(simDir,"lm","lm_vox_conT.nii"), Tstat_current, inds_cv, volInd=0,dim=(*dim,1))
+    addBlockToNifti(os.path.join(simDir, "lm", "lm_vox_conT.nii"),
+                    Tstat_current, inds_cv, volInd=0, dim=(*dim, 1))
 
     # Remove file
     os.remove(os.path.join(simDir, 'lm', 'Tstat_' + str(cv) + '.csv'))
@@ -242,13 +257,16 @@ def Rcleanup(OutDir, simNo, nvg, cv):
     # -------------------------------------------------------------------
 
     # Read in file
-    Pval_current = pd.io.parsers.read_csv(os.path.join(simDir, 'lm', 'Pval_' + str(cv) + '.csv')).values
+    Pval_current = pd.io.parsers.read_csv(os.path.join(
+        simDir, 'lm', 'Pval_' + str(cv) + '.csv')).values
 
     # Change to log scale
-    Pval_current[Pval_current!=0]=-np.log10(Pval_current[Pval_current!=0])
+    Pval_current[Pval_current != 0] = - \
+        np.log10(Pval_current[Pval_current != 0])
 
     # Add back to a NIFTI file
-    addBlockToNifti(os.path.join(simDir,"lm","lm_vox_conTlp.nii"), Pval_current, inds_cv, volInd=0,dim=(*dim,1))
+    addBlockToNifti(os.path.join(simDir, "lm", "lm_vox_conTlp.nii"),
+                    Pval_current, inds_cv, volInd=0, dim=(*dim, 1))
 
     # Remove file
     os.remove(os.path.join(simDir, 'lm', 'Pval_' + str(cv) + '.csv'))
@@ -263,7 +281,7 @@ def addLineToCSV(fname, line):
     while fileLocked:
         try:
             # Create lock file, so other jobs know we are writing to this file
-            f = os.open(fname + ".lock", os.O_CREAT|os.O_EXCL|os.O_RDWR)
+            f = os.open(fname + ".lock", os.O_CREAT | os.O_EXCL | os.O_RDWR)
             fileLocked = False
         except FileExistsError:
             fileLocked = True
@@ -272,10 +290,11 @@ def addLineToCSV(fname, line):
     if os.path.isfile(fname):
 
         # Read in data
-        data = pd.io.parsers.read_csv(fname, header=None, index_col=None).values
+        data = pd.io.parsers.read_csv(
+            fname, header=None, index_col=None).values
 
         # Append line to data
-        data = np.concatenate((data, line),axis=0)
+        data = np.concatenate((data, line), axis=0)
 
     else:
 

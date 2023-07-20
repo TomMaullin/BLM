@@ -1,13 +1,13 @@
+from blm.lib.fileio import *
+import yaml
+import shutil
+import os
+import sys
+import numpy as np
 import warnings as w
 # These warnings are caused by numpy updates and should not be
 # output.
-w.simplefilter(action = 'ignore', category = FutureWarning)
-import numpy as np
-import sys
-import os
-import shutil
-import yaml
-from blm.lib.fileio import *
+w.simplefilter(action='ignore', category=FutureWarning)
 
 
 # Main takes in two arguments at most:
@@ -22,11 +22,11 @@ def setup(*args):
     pwd = os.getcwd()
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
-    if len(args)==0 or (not args[0]):
+    if len(args) == 0 or (not args[0]):
         # Load in inputs
-        ipath = os.path.abspath(os.path.join('..','blm_config.yml'))
+        ipath = os.path.abspath(os.path.join('..', 'blm_config.yml'))
         with open(ipath, 'r') as stream:
-            inputs = yaml.load(stream,Loader=yaml.FullLoader)
+            inputs = yaml.load(stream, Loader=yaml.FullLoader)
         retnb = False
     else:
         if type(args[0]) is str:
@@ -36,21 +36,21 @@ def setup(*args):
                 ipath = os.path.abspath(os.path.join(pwd, args[0]))
             # In this case inputs file is first argument
             with open(ipath, 'r') as stream:
-                inputs = yaml.load(stream,Loader=yaml.FullLoader)
-                # Work out whether to return nb or save it in a 
+                inputs = yaml.load(stream, Loader=yaml.FullLoader)
+                # Work out whether to return nb or save it in a
                 # file
-                if len(args)>1:
+                if len(args) > 1:
                     retnb = args[1]
                 else:
                     retnb = False
-        else:  
+        else:
             # In this case inputs structure is first argument.
             inputs = args[0]
             ipath = ''
             retnb = True
 
     # Save absolute filepaths in place of relative filepaths
-    if ipath: 
+    if ipath:
 
         # Y files
         if not os.path.isabs(inputs['Y_files']):
@@ -65,16 +65,18 @@ def setup(*args):
             if not os.path.isabs(inputs['data_mask_files']):
 
                 # Change M in inputs
-                inputs['data_mask_files'] = os.path.join(pwd, inputs['data_mask_files'])
+                inputs['data_mask_files'] = os.path.join(
+                    pwd, inputs['data_mask_files'])
 
-        # If analysis mask file specified,        
+        # If analysis mask file specified,
         if 'analysis_mask' in inputs:
 
             # M_files
             if not os.path.isabs(inputs['analysis_mask']):
 
                 # Change M in inputs
-                inputs['analysis_mask'] = os.path.join(pwd, inputs['analysis_mask'])
+                inputs['analysis_mask'] = os.path.join(
+                    pwd, inputs['analysis_mask'])
 
         # If X is specified
         if not os.path.isabs(inputs['X']):
@@ -91,7 +93,7 @@ def setup(*args):
         with open(ipath, 'w') as outfile:
             yaml.dump(inputs, outfile, default_flow_style=False)
 
-    # Change paths to absoluate if they aren't already    
+    # Change paths to absoluate if they aren't already
     if 'MAXMEM' in inputs:
         MAXMEM = eval(inputs['MAXMEM'])
     else:
@@ -108,14 +110,12 @@ def setup(*args):
              'blm_vox_conSE.nii', 'blm_vox_con.nii', 'blm_vox_conF.nii',
              'blm_vox_conFlp.nii', 'blm_vox_conR2.nii']
 
-
     for file in files:
         if os.path.exists(os.path.join(OutDir, file)):
             os.remove(os.path.join(OutDir, file))
 
-    if os.path.exists(os.path.join(OutDir, 'tmp')):  
+    if os.path.exists(os.path.join(OutDir, 'tmp')):
         shutil.rmtree(os.path.join(OutDir, 'tmp'))
-
 
     # Get number of parameters
     c1 = str2vec(inputs['contrasts'][0]['c' + str(1)]['vector'])
@@ -162,43 +162,45 @@ def setup(*args):
         v_am = np.prod(Y0.shape)
 
     # Size of non-zero voxels in NIFTI
-    NIFTIsize = sys.getsizeof(np.zeros([v_am,1],dtype='uint64'))
+    NIFTIsize = sys.getsizeof(np.zeros([v_am, 1], dtype='uint64'))
 
     if NIFTIsize > MAXMEM:
         raise ValueError('The NIFTI "' + Y_files[0] + '"is too large')
 
     # Similar to blksize in SwE, we divide by 8 times the size of a nifti
     # to work out how many blocks we use. We divide NIFTIsize by 3
-    # as approximately a third of the volume is actually non-zero/brain 
+    # as approximately a third of the volume is actually non-zero/brain
     # and then also divide though everything by the number of parameters
     # in the analysis.
     blksize = np.floor(MAXMEM/8/NIFTIsize/(n_p**2))
     if blksize == 0:
         raise ValueError('Blocksize too small.')
 
-    # Check F contrast ranks 
+    # Check F contrast ranks
     n_c = len(inputs['contrasts'])
-    for i in range(0,n_c):
+    for i in range(0, n_c):
 
         # Read in contrast vector
         cvec = str2vec(inputs['contrasts'][i]['c' + str(i+1)]['vector'])
         cvec = np.array(cvec)
 
-        if cvec.ndim>1:
-                
+        if cvec.ndim > 1:
+
             # Get dimension of cvector
             q = cvec.shape[0]
 
-            if np.linalg.matrix_rank(cvec)<q:
-                raise ValueError('F contrast: \n' + str(cvec) + '\n is not of correct rank.')
+            if np.linalg.matrix_rank(cvec) < q:
+                raise ValueError('F contrast: \n' + str(cvec) +
+                                 '\n is not of correct rank.')
 
     if not retnb:
         with open(os.path.join(OutDir, "nb.txt"), 'w') as f:
             print(int(np.ceil(len(Y_files)/int(blksize))), file=f)
     else:
-        return(int(np.ceil(len(Y_files)/int(blksize))))
+        return (int(np.ceil(len(Y_files)/int(blksize))))
 
     w.resetwarnings()
+
 
 if __name__ == "__main__":
     main()

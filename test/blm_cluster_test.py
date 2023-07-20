@@ -1,3 +1,8 @@
+import numpy as np
+import argparse
+from blm.blm_cluster import _main as blm
+from cleanup import cleanup
+from generate_test_data import *
 import os
 import numpy
 import pandas
@@ -7,7 +12,7 @@ from scipy import ndimage
 from dask.distributed import Client, as_completed
 from dask.distributed import performance_report
 import nibabel as nib
-import sys  
+import sys
 
 # Get the directory containing the script
 test_dir = os.path.dirname(__file__)
@@ -17,13 +22,7 @@ sys.path.insert(0, test_dir)
 sys.path.insert(0, os.path.dirname(test_dir))
 
 # Import test generation and cleanup
-from generate_test_data import *
-from cleanup import cleanup
-from blm.blm_cluster import _main as blm
 
-
-import argparse
-import numpy as np
 
 def _main(argv=None):
     """
@@ -38,12 +37,15 @@ def _main(argv=None):
 
     # Parsing command line arguments
     parser = argparse.ArgumentParser(description="BLM-lm test pipeline")
-    parser.add_argument("--sim_ind", type=int, required=True, help="Simulation index to determine n, p, and num_voxel_batches values.")
-    parser.add_argument("--out_dir", type=str, required=True, help="Output directory path.")
-    parser.add_argument("--num_nodes", type=int, default=100, help="Number of nodes for Dask setup.")
-    parser.add_argument("--cluster_type", type=str, default="slurm", help="Cluster type for Dask setup. (default: slurm)")
+    parser.add_argument("--sim_ind", type=int, required=True,
+                        help="Simulation index to determine n, p, and num_voxel_batches values.")
+    parser.add_argument("--out_dir", type=str, required=True,
+                        help="Output directory path.")
+    parser.add_argument("--num_nodes", type=int, default=100,
+                        help="Number of nodes for Dask setup.")
+    parser.add_argument("--cluster_type", type=str, default="slurm",
+                        help="Cluster type for Dask setup. (default: slurm)")
 
-    
     # Get arguments
     args = parser.parse_args(argv)
 
@@ -74,7 +76,8 @@ def _main(argv=None):
         p = 8
         num_voxel_batches = 500
     else:
-        raise ValueError("Invalid sim_ind value. Please provide a value between 1 and 4.")
+        raise ValueError(
+            "Invalid sim_ind value. Please provide a value between 1 and 4.")
 
     # -----------------------------------------------------------------
     # Create folders for simulation
@@ -90,36 +93,40 @@ def _main(argv=None):
         os.mkdir(sim_dir)
 
     # Make new data directory.
-    if not os.path.exists(os.path.join(sim_dir,"data")):
-        os.mkdir(os.path.join(sim_dir,"data"))
-        
+    if not os.path.exists(os.path.join(sim_dir, "data")):
+        os.mkdir(os.path.join(sim_dir, "data"))
+
     # Make new log directory.
-    if not os.path.exists(os.path.join(sim_dir,"simlog")):
-        os.mkdir(os.path.join(sim_dir,"simlog"))
+    if not os.path.exists(os.path.join(sim_dir, "simlog")):
+        os.mkdir(os.path.join(sim_dir, "simlog"))
 
     # -----------------------------------------------------------------
     # Generate data
     # -----------------------------------------------------------------
 
-    print('Test Update for Simulation ' + str(sim_ind) + ': Generating test data...')
+    print('Test Update for Simulation ' +
+          str(sim_ind) + ': Generating test data...')
 
     generate_data(n, p, dim, out_dir, sim_ind)
 
-    print('Test Update for Simulation ' + str(sim_ind) + ': Test data generated.')
+    print('Test Update for Simulation ' +
+          str(sim_ind) + ': Test data generated.')
 
     # -----------------------------------------------------------------
     # Run BLM
     # -----------------------------------------------------------------
 
-    print('Test Update for Simulation ' + str(sim_ind) + ': Running BLM analysis...')
+    print('Test Update for Simulation ' +
+          str(sim_ind) + ': Running BLM analysis...')
 
     # Import inputs file
-    inputs_yml = os.path.join(out_dir, 'sim'+ str(sim_ind), 'inputs.yml')
+    inputs_yml = os.path.join(out_dir, 'sim' + str(sim_ind), 'inputs.yml')
 
     # Run blm_cluster
     blm([inputs_yml])
 
-    print('Test Update for Simulation ' + str(sim_ind) + ': BLM analysis complete.')
+    print('Test Update for Simulation ' +
+          str(sim_ind) + ': BLM analysis complete.')
 
     # -----------------------------------------------------------------
     # Set up cluster
@@ -183,20 +190,22 @@ def _main(argv=None):
 
     # Raise a value error if none of the above
     else:
-        raise ValueError('The cluster type, ' + cluster_type + ', is not recognized.')
+        raise ValueError('The cluster type, ' +
+                         cluster_type + ', is not recognized.')
 
     # --------------------------------------------------------------------------------
     # Connect to client
     # --------------------------------------------------------------------------------
 
     # Connect to cluster
-    client = Client(cluster)   
+    client = Client(cluster)
 
     # --------------------------------------------------------------------------------
     # Run R Jobs
     # --------------------------------------------------------------------------------
 
-    print('Test Update for Simulation ' + str(sim_ind) + ': Now running R simulations...')
+    print('Test Update for Simulation ' +
+          str(sim_ind) + ': Now running R simulations...')
 
     # Ask for num_nodes nodes for BLM batch
     cluster.scale(num_nodes)
@@ -206,14 +215,14 @@ def _main(argv=None):
 
     # Submit jobs
     for i in np.arange(num_voxel_batches):
-        
+
         # Run the jobNum^{th} job.
         future_r = client.submit(run_voxel_batch_in_R, sim_ind, dim, i, num_voxel_batches,
                                  out_dir, test_dir, pure=False)
 
-        # Append to list 
+        # Append to list
         futures.append(future_r)
-    
+
     # Completed jobs
     completed = as_completed(futures)
 
@@ -230,7 +239,7 @@ def _main(argv=None):
     # --------------------------------------------------------------------------------
 
     # Cleanup and results function
-    cleanup(out_dir,sim_ind)
+    cleanup(out_dir, sim_ind)
 
     # Close the client
     client.close()
@@ -254,7 +263,7 @@ def run_voxel_batch_in_R(sim_ind, dim, batch_no, num_voxel_batches, out_dir, tes
     """
 
     import subprocess
-    import sys  
+    import sys
     sys.path.insert(0, test_dir)
     sys.path.insert(0, os.path.dirname(test_dir))
 
@@ -263,7 +272,7 @@ def run_voxel_batch_in_R(sim_ind, dim, batch_no, num_voxel_batches, out_dir, tes
 
     # Preprocess this batch
     Rpreproc(out_dir, sim_ind, dim, num_voxel_batches, batch_no)
-    
+
     # Load R and run parameter estimation in a single command
     r_path = "/apps/well/R/3.4.3/bin/R"
 
@@ -278,10 +287,9 @@ def run_voxel_batch_in_R(sim_ind, dim, batch_no, num_voxel_batches, out_dir, tes
 
     # Run the job
     subprocess.run(r_cmd, shell=True)
-    
+
     # Cleanup job in R to combine files
     Rcleanup(out_dir, sim_ind, num_voxel_batches, batch_no)
-
 
 
 if __name__ == "__main__":

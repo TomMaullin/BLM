@@ -1,14 +1,14 @@
+from blm.lib.fileio import *
+from scipy import stats
+import yaml
+import os
+import sys
+import numpy as np
 import warnings as w
 # This warning is caused by numpy updates and should
 # be ignored for now.
-w.simplefilter(action = 'ignore', category = FutureWarning)
-import numpy as np
-import sys
-import os
-import yaml
+w.simplefilter(action='ignore', category=FutureWarning)
 np.set_printoptions(threshold=sys.maxsize)
-from scipy import stats
-from blm.lib.fileio import *
 
 # Developer notes:
 # --------------------------------------------------------------------------
@@ -19,17 +19,18 @@ from blm.lib.fileio import *
 #      decided by the user specified thresholds. These voxels will typically
 #      be on the edge of the brain and look like a "ring" around the brain,
 #      hence "_r" for ring.
-# 
-# _i - This means that this is an array of values corresponding to voxels 
+#
+# _i - This means that this is an array of values corresponding to voxels
 #      which are present in all n studies. These will usually look like
-#      a smaller mask place inside the whole study mask. Hence "_i" for 
+#      a smaller mask place inside the whole study mask. Hence "_i" for
 #      inner.
 #
 # _sv - This means this variable is spatially varying (There is a reading
-#       per voxel). 
+#       per voxel).
 #
 # --------------------------------------------------------------------------
 # Author: Tom Maullin (04/02/2019)
+
 
 def output_results(*args):
 
@@ -45,19 +46,19 @@ def output_results(*args):
     # ----------------------------------------------------------------------
     # Check inputs
     # ----------------------------------------------------------------------
-    if len(args)==3 or (not args[3]):
+    if len(args) == 3 or (not args[3]):
         # Load in inputs
         with open(os.path.join(
-                    os.path.dirname(os.path.realpath(__file__)),
-                    '..',
-                    'blm_config.yml'), 'r') as stream:
-            inputs = yaml.load(stream,Loader=yaml.FullLoader)
+            os.path.dirname(os.path.realpath(__file__)),
+            '..',
+                'blm_config.yml'), 'r') as stream:
+            inputs = yaml.load(stream, Loader=yaml.FullLoader)
     else:
         if type(args[3]) is str:
             # In this case inputs file is first argument
             with open(os.path.join(args[3]), 'r') as stream:
-                inputs = yaml.load(stream,Loader=yaml.FullLoader)
-        else:  
+                inputs = yaml.load(stream, Loader=yaml.FullLoader)
+        else:
             # In this case inputs structure is first argument.
             inputs = args[3]
 
@@ -72,7 +73,7 @@ def output_results(*args):
     L1 = np.array(L1)
     p = L1.shape[0]
     del L1
-    
+
     # Read in the nifti size and work out number of voxels.
     with open(inputs['Y_files']) as a:
         nifti_path = a.readline().replace('\n', '')
@@ -81,7 +82,7 @@ def output_results(*args):
     NIFTIsize = nifti.shape
     v = int(np.prod(NIFTIsize))
 
-    # Check if the maximum memory is saved.    
+    # Check if the maximum memory is saved.
     if 'MAXMEM' in inputs:
         MAXMEM = eval(inputs['MAXMEM'])
     else:
@@ -98,28 +99,28 @@ def output_results(*args):
     n = X.shape[0]
 
     # Load mask
-    Mask = loadFile(os.path.join(OutDir,'blm_vox_mask.nii')).get_fdata()
+    Mask = loadFile(os.path.join(OutDir, 'blm_vox_mask.nii')).get_fdata()
     Mask = Mask.reshape(v, 1)
 
     # Load mask
-    n_sv = loadFile(os.path.join(OutDir,'blm_vox_n.nii')).get_fdata()
-    n_sv = n_sv.reshape(v, 1) 
+    n_sv = loadFile(os.path.join(OutDir, 'blm_vox_n.nii')).get_fdata()
+    n_sv = n_sv.reshape(v, 1)
 
     # Load uniqueness file
-    uniq = loadFile(os.path.join(OutDir,"tmp","blm_vox_uniqueM.nii")).get_fdata()
-
+    uniq = loadFile(os.path.join(
+        OutDir, "tmp", "blm_vox_uniqueM.nii")).get_fdata()
 
     if 'analysis_mask' in inputs:
 
         amask_path = inputs["analysis_mask"]
-        
+
         # Read in the mask nifti.
-        amask = loadFile(amask_path).get_fdata().reshape([v,1])
+        amask = loadFile(amask_path).get_fdata().reshape([v, 1])
 
     else:
 
         # By default make amask ones
-        amask = np.ones([v,1])
+        amask = np.ones([v, 1])
 
     # Get indices for whole analysis mask. These indices are the indices we
     # have recorded for the product matrices with respect to the entire volume
@@ -131,20 +132,20 @@ def output_results(*args):
 
     # Get indices of voxels in ring around brain where there are
     # missing studies.
-    R_inds = np.sort(np.where((Mask==1)*(n_sv<n))[0])
+    R_inds = np.sort(np.where((Mask == 1)*(n_sv < n))[0])
 
     # Work out the 'ring' indices, in relation to the analysis mask
     ix_r = np.argsort(np.argsort(R_inds))
-    R_inds_am = np.sort(np.where(np.in1d(amInds,R_inds))[0])[ix_r]
+    R_inds_am = np.sort(np.where(np.in1d(amInds, R_inds))[0])[ix_r]
 
     # Get indices of the "inner" volume where all studies had information
     # present. I.e. the voxels (usually near the middle of the brain) where
     # every voxel has a reading for every study.
-    I_inds = np.sort(np.where((Mask==1)*(n_sv==n))[0])
+    I_inds = np.sort(np.where((Mask == 1)*(n_sv == n))[0])
 
     # Work out the 'inner' indices, in relation to the analysis mask
     ix_i = np.argsort(np.argsort(I_inds))
-    I_inds_am = np.sort(np.where(np.in1d(amInds,I_inds))[0])[ix_i]
+    I_inds_am = np.sort(np.where(np.in1d(amInds, I_inds))[0])[ix_i]
 
     # ------------------------------------------------------------------------
     # Number of voxels in ring and inner
@@ -163,11 +164,11 @@ def output_results(*args):
     # Degrees of freedom (n-p)
     # ------------------------------------------------------------------------
 
-    # Get df 
+    # Get df
     df_i = n - p
 
     # ------------------------------------------------------------------------
-    # The next operations are more computationally intensive so we split 
+    # The next operations are more computationally intensive so we split
     # computation into blocks of voxels
     # ------------------------------------------------------------------------
 
@@ -175,9 +176,9 @@ def output_results(*args):
     # Work out block of voxels we are looking at
     # ------------------------------------------------------------------------
     # Get indices for block. These indices have to be the indices we want to
-    # compute, in relation to the entire volume. If we aren't partitioning by 
+    # compute, in relation to the entire volume. If we aren't partitioning by
     # block these will be equal to amInds
-    bamInds = get_amInds(amask, jobNum, pnvb) 
+    bamInds = get_amInds(amask, jobNum, pnvb)
 
     # ------------------------------------------------------------------------
     # Number of contrasts
@@ -187,7 +188,7 @@ def output_results(*args):
     # Record how many T contrasts and F contrasts we have seen
     nt = 0
     nf = 0
-    for i in range(0,c):
+    for i in range(0, c):
 
         # Read in contrast vector
         Lvec = str2vec(inputs['contrasts'][i]['c' + str(i+1)]['vector'])
@@ -203,18 +204,18 @@ def output_results(*args):
     # ------------------------------------------------------------------------
 
     # Dimension of beta volume
-    dimBeta = (NIFTIsize[0],NIFTIsize[1],NIFTIsize[2],p)
+    dimBeta = (NIFTIsize[0], NIFTIsize[1], NIFTIsize[2], p)
 
     if OutputCovB:
 
         # Dimension of cov(beta) NIFTI
-        dimCov = (NIFTIsize[0],NIFTIsize[1],NIFTIsize[2],p**2)
+        dimCov = (NIFTIsize[0], NIFTIsize[1], NIFTIsize[2], p**2)
 
     # Work out the dimension of the T-stat-related volumes
-    dimT = (NIFTIsize[0],NIFTIsize[1],NIFTIsize[2],nt)
+    dimT = (NIFTIsize[0], NIFTIsize[1], NIFTIsize[2], nt)
 
     # Work out the dimension of the F-stat-related volumes
-    dimF = (NIFTIsize[0],NIFTIsize[1],NIFTIsize[2],nf)
+    dimF = (NIFTIsize[0], NIFTIsize[1], NIFTIsize[2], nf)
 
     # ------------------------------------------------------------------------
     # Split the voxels into computable groups
@@ -224,7 +225,7 @@ def output_results(*args):
     # (This is really just a rule of thumb guess but works reasonably in
     # practice).
     nvb = MAXMEM/(10*8*(p**2))
-    
+
     # Work out number of groups we have to split indices into.
     nvg = int(len(bamInds)//nvb+1)
 
@@ -249,24 +250,24 @@ def output_results(*args):
 
         # Mask for current voxels
         Mask_cv = np.array(Mask)
-        Mask_cv[~np.in1d(np.arange(v).reshape(v,1), bamInds_cv)]=0
+        Mask_cv[~np.in1d(np.arange(v).reshape(v, 1), bamInds_cv)] = 0
 
         # Get indices of voxels in ring around brain where there are
         # missing studies.
-        R_inds = np.sort(np.where((Mask_cv==1)*(n_sv<n))[0])
+        R_inds = np.sort(np.where((Mask_cv == 1)*(n_sv < n))[0])
 
         # Work out the 'ring' indices, in relation to the analysis mask
         ix_r = np.argsort(np.argsort(R_inds))
-        R_inds_am = np.sort(np.where(np.in1d(amInds,R_inds))[0])[ix_r]
+        R_inds_am = np.sort(np.where(np.in1d(amInds, R_inds))[0])[ix_r]
 
         # Get indices of the "inner" volume where all studies had information
         # present. I.e. the voxels (usually near the middle of the brain) where
         # every voxel has a reading for every study.
-        I_inds = np.sort(np.where((Mask_cv==1)*(n_sv==n))[0])
+        I_inds = np.sort(np.where((Mask_cv == 1)*(n_sv == n))[0])
 
         # Work out the 'inner' indices, in relation to the analysis mask
         ix_i = np.argsort(np.argsort(I_inds))
-        I_inds_am = np.sort(np.where(np.in1d(amInds,I_inds))[0])[ix_i]
+        I_inds_am = np.sort(np.where(np.in1d(amInds, I_inds))[0])[ix_i]
 
         # ------------------------------------------------------------------------
         # Number of voxels in ring and inner
@@ -286,25 +287,30 @@ def output_results(*args):
         # --------------------------------------------------------------------------------
 
         # Ring X'Y, Y'Y
-        XtY_r = readLinesFromNPY(os.path.join(OutDir,"tmp",'XtY.npy'), R_inds_am).reshape([v_r, p, 1])
-        YtY_r = readLinesFromNPY(os.path.join(OutDir,"tmp",'YtY.npy'), R_inds_am).reshape([v_r, 1, 1])
+        XtY_r = readLinesFromNPY(os.path.join(
+            OutDir, "tmp", 'XtY.npy'), R_inds_am).reshape([v_r, p, 1])
+        YtY_r = readLinesFromNPY(os.path.join(
+            OutDir, "tmp", 'YtY.npy'), R_inds_am).reshape([v_r, 1, 1])
 
         # Inner X'Y, Y'Y
-        XtY_i = readLinesFromNPY(os.path.join(OutDir,"tmp",'XtY.npy'), I_inds_am).reshape([v_i, p, 1])
-        YtY_i = readLinesFromNPY(os.path.join(OutDir,"tmp",'YtY.npy'), I_inds_am).reshape([v_i, 1, 1])
+        XtY_i = readLinesFromNPY(os.path.join(
+            OutDir, "tmp", 'XtY.npy'), I_inds_am).reshape([v_i, p, 1])
+        YtY_i = readLinesFromNPY(os.path.join(
+            OutDir, "tmp", 'YtY.npy'), I_inds_am).reshape([v_i, 1, 1])
 
         if v_r:
 
             # Ring X'X
-            XtX_r = readUniqueAtB('XtX', OutDir, R_inds, True, uniq).reshape([v_r, p, p])
+            XtX_r = readUniqueAtB('XtX', OutDir, R_inds,
+                                  True, uniq).reshape([v_r, p, p])
 
             # ----------------------------------------------------------------------------
             # Remove low rank designs
             # ----------------------------------------------------------------------------
 
             # Work out indices of low rank designs
-            lowrank_inds = np.where(np.linalg.matrix_rank(XtX_r)<p)[0]
-            fullrank_inds = np.where(np.linalg.matrix_rank(XtX_r)==p)[0]
+            lowrank_inds = np.where(np.linalg.matrix_rank(XtX_r) < p)[0]
+            fullrank_inds = np.where(np.linalg.matrix_rank(XtX_r) == p)[0]
 
             # Work out number of low rank indices
             v_lowrank = np.prod(lowrank_inds.shape)
@@ -313,34 +319,38 @@ def output_results(*args):
             if v_lowrank:
 
                 # Remove low rank designs from the existing NIFTI files
-                addBlockToNifti(os.path.join(OutDir, 'blm_vox_mask.nii'), np.zeros(v_lowrank), R_inds[lowrank_inds],volInd=0,dim=NIFTIsize,aff=nifti.affine,hdr=nifti.header)
-                addBlockToNifti(os.path.join(OutDir, 'blm_vox_edf.nii'), np.zeros(v_lowrank), R_inds[lowrank_inds],volInd=0,dim=NIFTIsize,aff=nifti.affine,hdr=nifti.header)
-                addBlockToNifti(os.path.join(OutDir, 'blm_vox_n.nii'), np.zeros(v_lowrank), R_inds[lowrank_inds],volInd=0,dim=NIFTIsize,aff=nifti.affine,hdr=nifti.header)
-                
+                addBlockToNifti(os.path.join(OutDir, 'blm_vox_mask.nii'), np.zeros(
+                    v_lowrank), R_inds[lowrank_inds], volInd=0, dim=NIFTIsize, aff=nifti.affine, hdr=nifti.header)
+                addBlockToNifti(os.path.join(OutDir, 'blm_vox_edf.nii'), np.zeros(
+                    v_lowrank), R_inds[lowrank_inds], volInd=0, dim=NIFTIsize, aff=nifti.affine, hdr=nifti.header)
+                addBlockToNifti(os.path.join(OutDir, 'blm_vox_n.nii'), np.zeros(
+                    v_lowrank), R_inds[lowrank_inds], volInd=0, dim=NIFTIsize, aff=nifti.affine, hdr=nifti.header)
+
                 # Remove from R_inds
                 R_inds = R_inds[fullrank_inds]
-            
+
                 # Remove from product matrices
-                YtY_r = YtY_r[fullrank_inds,:,:]
-                XtX_r = XtX_r[fullrank_inds,:,:]
-                XtY_r = XtY_r[fullrank_inds,:,:]
-                
+                YtY_r = YtY_r[fullrank_inds, :, :]
+                XtX_r = XtX_r[fullrank_inds, :, :]
+                XtY_r = XtY_r[fullrank_inds, :, :]
+
                 # Recalculate number of voxels left in ring
                 v_r = R_inds.shape[0]
-
 
         if v_i:
 
             # Inner X'X
-            XtX_i = readUniqueAtB('XtX', OutDir, I_inds, False, uniq).reshape([1, p, p])
+            XtX_i = readUniqueAtB('XtX', OutDir, I_inds,
+                                  False, uniq).reshape([1, p, p])
 
             # Check the design is full rank
-            if np.linalg.matrix_rank(XtX_i)<p:
-                raise Exception('The design matrix, X, is of insufficient rank.') 
+            if np.linalg.matrix_rank(XtX_i) < p:
+                raise Exception(
+                    'The design matrix, X, is of insufficient rank.')
 
         # ----------------------------------------------------------------------
         # Calculate betahat = (X'X)^(-1)X'Y and output beta maps
-        # ----------------------------------------------------------------------    
+        # ----------------------------------------------------------------------
 
         # Get beta for ring
         if v_r:
@@ -375,13 +385,13 @@ def output_results(*args):
 
         # ----------------------------------------------------------------------
         # Calculate residual sum of squares e'e = Y'Y - (Xb)'Xb
-        # ---------------------------------------------------------------------- 
+        # ----------------------------------------------------------------------
 
         if v_i:
 
             # Reshape beta along smallest axis for quicker
             # residual calculation
-            beta_i_t = beta_i.transpose(0,2,1)
+            beta_i_t = beta_i.transpose(0, 2, 1)
 
             # Calculate Beta transpose times XtX and delete the
             # now redundant matrices.
@@ -394,17 +404,17 @@ def output_results(*args):
             del betatXtX_i
 
             # Reshape betat XtX beta
-            betatXtXbeta_i = np.reshape(betatXtXbeta_i, [v_i,1])
+            betatXtXbeta_i = np.reshape(betatXtXbeta_i, [v_i, 1])
 
             # Residual sum of squares
-            ete_i = YtY_i.reshape([v_i,1]) - betatXtXbeta_i
+            ete_i = YtY_i.reshape([v_i, 1]) - betatXtXbeta_i
             del betatXtXbeta_i
 
         if v_r:
 
             # Reshape beta along smallest axis for quicker
             # residual calculation
-            beta_r_t = beta_r.transpose(0,2,1)
+            beta_r_t = beta_r.transpose(0, 2, 1)
 
             # Calculate Beta transpose times XtX and delete the
             # now redundant matrices.
@@ -417,10 +427,10 @@ def output_results(*args):
             del betatXtX_r
 
             # Reshape betat XtX beta
-            betatXtXbeta_r = np.reshape(betatXtXbeta_r, [v_r,1])
+            betatXtXbeta_r = np.reshape(betatXtXbeta_r, [v_r, 1])
 
             # Residual sum of squares
-            ete_r = YtY_r.reshape([v_r,1]) - betatXtXbeta_r
+            ete_r = YtY_r.reshape([v_r, 1]) - betatXtXbeta_r
             del betatXtXbeta_r
 
         # ----------------------------------------------------------------------
@@ -429,7 +439,7 @@ def output_results(*args):
 
         # Mask spatially varying n
         if v_r:
-            n_sv_r = n_sv[R_inds,:]
+            n_sv_r = n_sv[R_inds, :]
 
             # In spatially varying the degrees of freedom
             # varies across voxels
@@ -467,10 +477,12 @@ def output_results(*args):
             sigma2_r = 1/n_sv_r * ete_r.reshape(n_sv_r.shape)
 
             # Work out -1/2(nln(sigma^2))
-            firstterm = -0.5*(n_sv_r.reshape(sigma2_r.shape)*np.log(sigma2_r)).reshape(ete_r.shape)
+            firstterm = -0.5*(n_sv_r.reshape(sigma2_r.shape)
+                              * np.log(sigma2_r)).reshape(ete_r.shape)
 
             # Work out -N/2 ln(2pi)
-            secondterm = -0.5*(n_sv_r.reshape(sigma2_r.shape)*np.log(2*np.pi)).reshape(ete_r.shape)  
+            secondterm = -0.5*(n_sv_r.reshape(sigma2_r.shape)
+                               * np.log(2*np.pi)).reshape(ete_r.shape)
 
             # Work out the log likelihood
             llh_r = firstterm + secondterm - 0.5*n_sv_r.reshape(ete_r.shape)
@@ -487,7 +499,7 @@ def output_results(*args):
         if v_i:
 
             sigma2_i = 1/n * ete_i
-        
+
             # Work out -1/2(nln(sigma^2))
             firstterm = -0.5*(n*np.log(sigma2_i)).reshape(ete_i.shape)
 
@@ -517,35 +529,37 @@ def output_results(*args):
             iXtX_i = np.linalg.pinv(XtX_i)
 
         if OutputCovB:
-            
+
             vol = 0
 
             # Output variance for each pair of betas
-            for i in range(0,p):
-                for j in range(0,p):
+            for i in range(0, p):
+                for j in range(0, p):
 
-                        # Unmask cov beta ij
-                        covbetaij = np.zeros([v])
+                    # Unmask cov beta ij
+                    covbetaij = np.zeros([v])
 
-                        if v_r: 
-                            # Calculate masked cov beta ij for ring
-                            covbetaij_r = np.multiply(
-                                resms_r.reshape([resms_r.shape[0]]),
-                                iXtX_r[:,i,j])
+                    if v_r:
+                        # Calculate masked cov beta ij for ring
+                        covbetaij_r = np.multiply(
+                            resms_r.reshape([resms_r.shape[0]]),
+                            iXtX_r[:, i, j])
 
-                            # Output 
-                            addBlockToNifti(os.path.join(OutDir, 'blm_vox_cov.nii'), covbetaij_r, R_inds,volInd=vol,dim=dimCov,aff=nifti.affine,hdr=nifti.header)
-            
-                        if v_i:
-                            # Calculate masked cov beta ij for inner
-                            covbetaij_i = np.multiply(
-                                resms_i.reshape([resms_i.shape[0]]),
-                                iXtX_i[:,i,j])
+                        # Output
+                        addBlockToNifti(os.path.join(OutDir, 'blm_vox_cov.nii'), covbetaij_r,
+                                        R_inds, volInd=vol, dim=dimCov, aff=nifti.affine, hdr=nifti.header)
 
-                            # Output 
-                            addBlockToNifti(os.path.join(OutDir, 'blm_vox_cov.nii'), covbetaij_i, I_inds,volInd=vol,dim=dimCov,aff=nifti.affine,hdr=nifti.header)
+                    if v_i:
+                        # Calculate masked cov beta ij for inner
+                        covbetaij_i = np.multiply(
+                            resms_i.reshape([resms_i.shape[0]]),
+                            iXtX_i[:, i, j])
 
-                        vol = vol+1;
+                        # Output
+                        addBlockToNifti(os.path.join(OutDir, 'blm_vox_cov.nii'), covbetaij_i,
+                                        I_inds, volInd=vol, dim=dimCov, aff=nifti.affine, hdr=nifti.header)
+
+                    vol = vol+1
 
         # ----------------------------------------------------------------------
         # Calculate COPEs, statistic maps and covariance maps.
@@ -555,7 +569,7 @@ def output_results(*args):
         current_nt = 0
         current_nf = 0
 
-        for i in range(0,c):
+        for i in range(0, c):
 
             # Read in contrast vector
             # Get number of parameters
@@ -567,12 +581,12 @@ def output_results(*args):
                 Lbeta_r = np.matmul(Lvec, beta_r)
             if v_i:
                 Lbeta_i = np.matmul(Lvec, beta_i)
-        
+
             if Lvec.ndim == 1:
-                statType='T'
-                Lvec = Lvec.reshape([1,Lvec.shape[0]])
+                statType = 'T'
+                Lvec = Lvec.reshape([1, Lvec.shape[0]])
             else:
-                statType='F'
+                statType = 'F'
 
             if statType == 'T':
 
@@ -617,19 +631,25 @@ def output_results(*args):
                     hdrs.append(nifti.header)
 
                     # Degrees of freedom
-                    df_r = n_sv[R_inds,:] - p
+                    df_r = n_sv[R_inds, :] - p
                     df_r = df_r.reshape(df_r.shape[0])
 
                     # Calculate p (seperately for >0 and <0 to avoid underflow)
                     pc_r = np.zeros(np.shape(tStatc_r))
-                    pc_r[tStatc_r < 0] = -np.log10(1-stats.t.cdf(tStatc_r[tStatc_r < 0], df_r[tStatc_r < 0]))
-                    pc_r[tStatc_r >= 0] = -np.log10(stats.t.cdf(-tStatc_r[tStatc_r >= 0], df_r[tStatc_r >= 0]))
+                    pc_r[tStatc_r < 0] = - \
+                        np.log10(
+                            1-stats.t.cdf(tStatc_r[tStatc_r < 0], df_r[tStatc_r < 0]))
+                    pc_r[tStatc_r >= 0] = - \
+                        np.log10(
+                            stats.t.cdf(-tStatc_r[tStatc_r >= 0], df_r[tStatc_r >= 0]))
 
                     # Remove infs
                     if "minlog" in inputs:
-                        pc_r[np.logical_and(np.isinf(pc_r), pc_r<0)]=inputs['minlog']
+                        pc_r[np.logical_and(
+                            np.isinf(pc_r), pc_r < 0)] = inputs['minlog']
                     else:
-                        pc_r[np.logical_and(np.isinf(pc_r), pc_r<0)]=-323.3062153431158
+                        pc_r[np.logical_and(
+                            np.isinf(pc_r), pc_r < 0)] = -323.3062153431158
 
                     # Add conTlp to lists
                     fnames.append(os.path.join(OutDir, 'blm_vox_conTlp.nii'))
@@ -670,7 +690,7 @@ def output_results(*args):
 
                     # Calculate T stat
                     tStatc_i = Lbeta_i.reshape(v_i)/np.sqrt(covLbeta_i)
-                    
+
                     # Add conT to lists
                     fnames.append(os.path.join(OutDir, 'blm_vox_conT.nii'))
                     blocks.append(np.array(tStatc_i))
@@ -682,14 +702,18 @@ def output_results(*args):
 
                     # Calculate p (seperately for >0 and <0 to avoid underflow)
                     pc_i = np.zeros(np.shape(tStatc_i))
-                    pc_i[tStatc_i < 0] = -np.log10(1-stats.t.cdf(tStatc_i[tStatc_i < 0], df_i))
-                    pc_i[tStatc_i >= 0] = -np.log10(stats.t.cdf(-tStatc_i[tStatc_i >= 0], df_i))
+                    pc_i[tStatc_i < 0] = - \
+                        np.log10(1-stats.t.cdf(tStatc_i[tStatc_i < 0], df_i))
+                    pc_i[tStatc_i >= 0] = - \
+                        np.log10(stats.t.cdf(-tStatc_i[tStatc_i >= 0], df_i))
 
                     # Remove infs
                     if "minlog" in inputs:
-                        pc_i[np.logical_and(np.isinf(pc_i), pc_i<0)]=inputs['minlog']
+                        pc_i[np.logical_and(
+                            np.isinf(pc_i), pc_i < 0)] = inputs['minlog']
                     else:
-                        pc_i[np.logical_and(np.isinf(pc_i), pc_i<0)]=-323.3062153431158
+                        pc_i[np.logical_and(
+                            np.isinf(pc_i), pc_i < 0)] = -323.3062153431158
 
                     # Add conTlp to lists
                     fnames.append(os.path.join(OutDir, 'blm_vox_conTlp.nii'))
@@ -707,7 +731,7 @@ def output_results(*args):
 
                 # Get dimension of Lvector
                 q = Lvec.shape[0]
-            
+
                 # Calculate L'(X'X)^(-1)L
                 # (Note L is read in the other way around for F)
                 if v_r:
@@ -718,13 +742,15 @@ def output_results(*args):
 
                     # Lbeta needs to be nvox by 1 by npar for stacked
                     # multiply.
-                    Lbetat_r = Lbeta_r.transpose(0,2,1)
+                    Lbetat_r = Lbeta_r.transpose(0, 2, 1)
 
                     # Calculate masked (L'(X'X)^(-1)L)^(-1) values for ring
-                    iLvectiXtXLvec_r = np.linalg.pinv(LvectiXtXLvec_r).reshape([v_r, q*q])
+                    iLvectiXtXLvec_r = np.linalg.pinv(
+                        LvectiXtXLvec_r).reshape([v_r, q*q])
 
                     # Calculate the numerator of the F statistic for the ring
-                    Fnumerator_r = np.matmul(Lbetat_r, np.linalg.solve(LvectiXtXLvec_r, Lbeta_r))
+                    Fnumerator_r = np.matmul(
+                        Lbetat_r, np.linalg.solve(LvectiXtXLvec_r, Lbeta_r))
                     Fnumerator_r = Fnumerator_r.reshape(Fnumerator_r.shape[0])
 
                     # Calculate the denominator of the F statistic for ring
@@ -743,7 +769,7 @@ def output_results(*args):
                     hdrs.append(nifti.header)
 
                     # Degrees of freedom
-                    df_r = n_sv[R_inds,:] - p
+                    df_r = n_sv[R_inds, :] - p
                     df_r = df_r.reshape(df_r.shape[0])
 
                     # Work out p for this contrast
@@ -751,9 +777,11 @@ def output_results(*args):
 
                     # Remove infs
                     if "minlog" in inputs:
-                        pc_r[np.logical_and(np.isinf(pc_r), pc_r<0)]=inputs['minlog']
+                        pc_r[np.logical_and(
+                            np.isinf(pc_r), pc_r < 0)] = inputs['minlog']
                     else:
-                        pc_r[np.logical_and(np.isinf(pc_r), pc_r<0)]=-323.3062153431158
+                        pc_r[np.logical_and(
+                            np.isinf(pc_r), pc_r < 0)] = -323.3062153431158
 
                     # Add conFlp to lists
                     fnames.append(os.path.join(OutDir, 'blm_vox_conFlp.nii'))
@@ -787,13 +815,15 @@ def output_results(*args):
 
                     # Lbeta needs to be nvox by 1 by npar for stacked
                     # multiply.
-                    Lbetat_i = Lbeta_i.transpose(0,2,1)
+                    Lbetat_i = Lbeta_i.transpose(0, 2, 1)
 
                     # Calculate masked (L'(X'X)^(-1)L)^(-1) values for inner
-                    iLvectiXtXLvec_i = np.linalg.pinv(LvectiXtXLvec_i).reshape([1, q*q])
+                    iLvectiXtXLvec_i = np.linalg.pinv(
+                        LvectiXtXLvec_i).reshape([1, q*q])
 
                     # Calculate the numerator of the F statistic for the ring
-                    Fnumerator_i = np.matmul(Lbetat_i, np.linalg.solve(LvectiXtXLvec_i, Lbeta_i))
+                    Fnumerator_i = np.matmul(
+                        Lbetat_i, np.linalg.solve(LvectiXtXLvec_i, Lbeta_i))
                     Fnumerator_i = Fnumerator_i.reshape(Fnumerator_i.shape[0])
 
                     # Calculate the denominator of the F statistic for inner
@@ -812,7 +842,7 @@ def output_results(*args):
                     hdrs.append(nifti.header)
 
                     # Degrees of freedom
-                    df_r = n_sv[R_inds,:] - p
+                    df_r = n_sv[R_inds, :] - p
                     df_r = df_r.reshape(df_r.shape[0])
 
                     # Work out p for this contrast
@@ -820,9 +850,11 @@ def output_results(*args):
 
                     # Remove infs
                     if "minlog" in inputs:
-                        pc_i[np.logical_and(np.isinf(pc_i), pc_i<0)]=inputs['minlog']
+                        pc_i[np.logical_and(
+                            np.isinf(pc_i), pc_i < 0)] = inputs['minlog']
                     else:
-                        pc_i[np.logical_and(np.isinf(pc_i), pc_i<0)]=-323.3062153431158
+                        pc_i[np.logical_and(
+                            np.isinf(pc_i), pc_i < 0)] = -323.3062153431158
 
                     # Add conFlp to lists
                     fnames.append(os.path.join(OutDir, 'blm_vox_conFlp.nii'))
@@ -847,8 +879,8 @@ def output_results(*args):
 
     # Add the blocks to the niftis
     if blocks:
-        addBlocksToNiftis(fnames, blocks, blockIndexes,dims,volInds,affs,hdrs)
-
+        addBlocksToNiftis(fnames, blocks, blockIndexes,
+                          dims, volInds, affs, hdrs)
 
     w.resetwarnings()
 
@@ -869,15 +901,15 @@ def blm_inverse(A, ouflow=False):
     if ouflow:
 
         # Make D to be filled with diagonal elements
-        D = np.broadcast_to(np.eye(d_r), (n_r,d_r,d_r)).copy()
+        D = np.broadcast_to(np.eye(d_r), (n_r, d_r, d_r)).copy()
 
         # Obtain 1/sqrt(diagA)
-        diagA = 1/np.sqrt(A.diagonal(0,1,2))
+        diagA = 1/np.sqrt(A.diagonal(0, 1, 2))
         diagA = diagA.reshape(n_r, d_r)
 
         # Make this back into diagonal matrices
         diaginds = np.diag_indices(d_r)
-        D[:, diaginds[0], diaginds[1]] = diagA 
+        D[:, diaginds[0], diaginds[1]] = diagA
 
         # Precondition A.
         A = np.matmul(np.matmul(D, A), D)
@@ -886,20 +918,21 @@ def blm_inverse(A, ouflow=False):
     if np.ndim(A) == 1:
         iA = 1/A
     else:
-        iA = np.linalg.solve(A, np.eye(d_r).reshape(1,d_r,d_r))
+        iA = np.linalg.solve(A, np.eye(d_r).reshape(1, d_r, d_r))
 
     if ouflow:
 
         # Undo preconditioning.
         iA = np.matmul(np.matmul(D, iA), D)
 
-    return(iA)
+    return (iA)
 
 # This function calculates the determinant of matrix A/
 # stack of matrices A, with special handling accounting
-# for over/under flow. 
-def blm_det(A):
+# for over/under flow.
 
+
+def blm_det(A):
 
     # Precondition A.
     # Work out number of matrices and dimension of
@@ -909,15 +942,15 @@ def blm_det(A):
     d_r = A.shape[1]
 
     # Make D to be filled with diagonal elements
-    D = np.broadcast_to(np.eye(d_r), (n_r,d_r,d_r)).copy()
+    D = np.broadcast_to(np.eye(d_r), (n_r, d_r, d_r)).copy()
 
     # Obtain 1/sqrt(diagA)
-    diagA = 1/np.sqrt(A.diagonal(0,1,2))
+    diagA = 1/np.sqrt(A.diagonal(0, 1, 2))
     diagA = diagA.reshape(n_r, d_r)
 
     # Make this back into diagonal matrices
     diaginds = np.diag_indices(d_r)
-    D[:, diaginds[0], diaginds[1]] = diagA 
+    D[:, diaginds[0], diaginds[1]] = diagA
 
     # Calculate DAD.
     DAD = np.matmul(np.matmul(D, A), D)
@@ -925,19 +958,18 @@ def blm_det(A):
     # Calculate determinants.
     detDAD = np.linalg.det(DAD)
     detDD = np.prod(diagA, axis=1)
-    
+
     # Calculate determinant of A
     detA = detDAD/detDD
 
-    return(detA)
-
+    return (detA)
 
 
 # ============================================================================
 #
-# For a specified set of voxels, the below function reads in the unique 
-# product matrices A'B from each batch job, works out which voxel had which 
-# product matrix, sums the batch product matrices and returns the sum, i.e. 
+# For a specified set of voxels, the below function reads in the unique
+# product matrices A'B from each batch job, works out which voxel had which
+# product matrix, sums the batch product matrices and returns the sum, i.e.
 # the product matrix for the entire analysis, at each voxel.
 #
 # Note: This function is only really designed for the product matrix X'X in
@@ -950,10 +982,10 @@ def blm_det(A):
 #
 # ----------------------------------------------------------------------------
 #
-# - `AtBstr`: A string representing which product matrix we are looking at. 
+# - `AtBstr`: A string representing which product matrix we are looking at.
 #             e.g. "XtX" for X'X.
 # - `OutDir`: Output directory.
-# - `vinds`: Voxel indices; (flattened) indices representing which voxels we 
+# - `vinds`: Voxel indices; (flattened) indices representing which voxels we
 #            are interested in looking at.
 # - `n_b`: The number of batches run during the batch stage.
 # - `sv`: Spatial varying boolean value. This tells us if we expect the
@@ -966,8 +998,8 @@ def blm_det(A):
 #
 # ----------------------------------------------------------------------------
 #
-# - `AtB`: The product matrix (flattened); If we had wanted X'X (which is 
-#          dimension p by p) for v voxels, the output would here would have 
+# - `AtB`: The product matrix (flattened); If we had wanted X'X (which is
+#          dimension p by p) for v voxels, the output would here would have
 #          dimension (1 by p**2). If sv was True, we will have one matrix for
 #          each voxel. If sv was false we will have one matrix for all voxels.
 #
@@ -975,13 +1007,13 @@ def blm_det(A):
 def readAndSumUniqueAtB(AtBstr, OutDir, vinds, n_b, sv, jobNum):
 
     # Work out the uniqueness mask for the spatially varying designs
-    uniquenessMask = loadFile(os.path.join(OutDir,"tmp", 
-        "blm_vox_uniqueM_batch1.nii")).get_fdata()
+    uniquenessMask = loadFile(os.path.join(OutDir, "tmp",
+                                           "blm_vox_uniqueM_batch1.nii")).get_fdata()
 
     v = np.prod(uniquenessMask.shape)
     vcurrent = np.prod(vinds.shape)
 
-    uniquenessMask=uniquenessMask.reshape(v)
+    uniquenessMask = uniquenessMask.reshape(v)
 
     # Work out how many unique matrices there were
     maxM = np.int32(np.amax(uniquenessMask))
@@ -991,80 +1023,80 @@ def readAndSumUniqueAtB(AtBstr, OutDir, vinds, n_b, sv, jobNum):
         uniquenessMask = uniquenessMask[vinds]
     else:
         # Work out the uniqueness mask value inside the inner part of the brain
-        uniquenessMask = uniquenessMask[vinds[0]] 
-
+        uniquenessMask = uniquenessMask[vinds[0]]
 
     # read in XtX
     AtB_batch_unique = np.load(
-        os.path.join(OutDir,"tmp",AtBstr+"1.npy"))
+        os.path.join(OutDir, "tmp", AtBstr+"1.npy"))
 
     # Make zeros for outer ring of brain XtX (remember A'B is still flattened)
     if sv:
         AtB = np.zeros((vcurrent, AtB_batch_unique.shape[1]))
 
     # Fill with unique maskings
-    for m in range(1,maxM+1):
+    for m in range(1, maxM+1):
 
         if sv:
             # Work out X'X for the ring
-            AtB[np.where(uniquenessMask==m),:] = AtB_batch_unique[(m-1),:]
+            AtB[np.where(uniquenessMask == m), :] = AtB_batch_unique[(m-1), :]
 
         # Work out X'X for the inner
         else:
             if uniquenessMask == m:
-                AtB = AtB_batch_unique[(m-1),:]
+                AtB = AtB_batch_unique[(m-1), :]
 
     # Cycle through batches and add together results.
-    for batchNo in range(2,(n_b+1)):
+    for batchNo in range(2, (n_b+1)):
 
         # Read in uniqueness Mask file
-        uniquenessMask = loadFile(os.path.join(OutDir,"tmp", 
-            "blm_vox_uniqueM_batch" + str(batchNo) + ".nii")).get_fdata().reshape(v)
+        uniquenessMask = loadFile(os.path.join(OutDir, "tmp",
+                                               "blm_vox_uniqueM_batch" + str(batchNo) + ".nii")).get_fdata().reshape(v)
 
         maxM = np.int32(np.amax(uniquenessMask))
 
         if sv:
             # Work out the uniqueness mask inside the ring around the brain
-            uniquenessMask = uniquenessMask[vinds] 
+            uniquenessMask = uniquenessMask[vinds]
         else:
             # Work out the uniqueness mask value inside the inner part of the brain
-            uniquenessMask = uniquenessMask[vinds[0]] 
-
+            uniquenessMask = uniquenessMask[vinds[0]]
 
         # read in XtX
         AtB_batch_unique = np.load(
-            os.path.join(OutDir,"tmp",AtBstr + str(batchNo) + ".npy"))
+            os.path.join(OutDir, "tmp", AtBstr + str(batchNo) + ".npy"))
 
         # Make zeros for whole nifti XtX
         if sv:
             AtB_batch = np.zeros((vcurrent, AtB_batch_unique.shape[1]))
 
         # Fill with unique maskings
-        for m in range(1,maxM+1):
+        for m in range(1, maxM+1):
 
             if sv:
-                AtB_batch[np.where(uniquenessMask==m),:] = AtB_batch_unique[(m-1),:]
+                AtB_batch[np.where(uniquenessMask == m),
+                          :] = AtB_batch_unique[(m-1), :]
             else:
                 # Work out X'X for the inner
                 if uniquenessMask == m:
 
-                    AtB_batch = AtB_batch_unique[(m-1),:]
+                    AtB_batch = AtB_batch_unique[(m-1), :]
 
         # Add to running total
         AtB = AtB + AtB_batch
 
-    return(AtB)
+    return (AtB)
+
 
 def readUniqueAtB(AtBstr, OutDir, vinds, sv, uniquenessMask):
 
     # # Work out the uniqueness mask for the spatially varying designs
-    # uniquenessMask = loadFile(os.path.join(OutDir,"tmp", 
+    # uniquenessMask = loadFile(os.path.join(OutDir,"tmp",
     #     "blm_vox_uniqueM.nii")).get_fdata()
 
     v = np.prod(uniquenessMask.shape)
     vcurrent = np.prod(vinds.shape)
 
-    uniquenessMask=uniquenessMask.reshape(v)
+    uniquenessMask = uniquenessMask.reshape(v)
 
     # Work out how many unique matrices there were
     maxM = np.int32(np.amax(uniquenessMask))
@@ -1074,33 +1106,32 @@ def readUniqueAtB(AtBstr, OutDir, vinds, sv, uniquenessMask):
         uniquenessMask = uniquenessMask[vinds]
     else:
         # Work out the uniqueness mask value inside the inner part of the brain
-        uniquenessMask = uniquenessMask[vinds[0]] 
+        uniquenessMask = uniquenessMask[vinds[0]]
 
     # Get the unique values for these voxels
     uniqueVals = np.unique(uniquenessMask).astype(int)
 
     # Read in the unique lines
-    AtB_unique = readLinesFromNPY(os.path.join(OutDir,"tmp",AtBstr+".npy"), uniqueVals)
+    AtB_unique = readLinesFromNPY(os.path.join(
+        OutDir, "tmp", AtBstr+".npy"), uniqueVals)
 
     # Make zeros for outer ring of brain XtX (remember A'B is still flattened)
     if sv:
         AtB = np.zeros((vcurrent, AtB_unique.shape[1]))
-
 
     # Fill with unique maskings
     for i, m in enumerate(uniqueVals):
 
         if sv:
             # Work out X'X for the ring
-            AtB[np.where(uniquenessMask==m),:] = AtB_unique[i,:],
+            AtB[np.where(uniquenessMask == m), :] = AtB_unique[i, :],
 
         # Work out X'X for the inner
         else:
             if uniquenessMask == m:
-                AtB = AtB_unique[i,:]
+                AtB = AtB_unique[i, :]
 
-    return(AtB)
-
+    return (AtB)
 
 
 if __name__ == "__rain__":

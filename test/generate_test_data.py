@@ -1,23 +1,24 @@
+from scipy import ndimage
+import pandas as pd
+import time
+from blm.lib.fileio import *
+import yaml
+import shutil
+import glob
+import os
+import sys
+import nibabel as nib
+import numpy as np
 import warnings as w
 # This warning is caused by numpy updates and should
 # be ignored for now.
-w.simplefilter(action = 'ignore', category = FutureWarning)
-import numpy as np
-import nibabel as nib
-import sys
-import os
-import glob
-import shutil
-import yaml
-from blm.lib.fileio import *
-import time
-import pandas as pd
-from scipy import ndimage
+w.simplefilter(action='ignore', category=FutureWarning)
+
 
 def generate_data(n, p, dim, OutDir, simNo):
     """
     Generates simulated data with the specified dimensions and other parameters.
-    
+
     Parameters
     ----------
     n : int
@@ -63,7 +64,7 @@ def generate_data(n, p, dim, OutDir, simNo):
 
     # Fixed effects design matrix
     X = get_X(n, p)
-    
+
     # -------------------------------------------------
     # Obtain beta parameter vector
     # -------------------------------------------------
@@ -79,10 +80,10 @@ def generate_data(n, p, dim, OutDir, simNo):
     Xbeta = X @ beta
 
     # Loop through subjects generating nifti images
-    for i in np.arange(n):    
+    for i in np.arange(n):
 
         # Initialize Yi to Xi times beta
-        Yi = Xbeta[0,i,0]
+        Yi = Xbeta[0, i, 0]
 
         # Get epsiloni
         epsiloni = get_epsilon(v, 1).reshape(dim)
@@ -91,7 +92,8 @@ def generate_data(n, p, dim, OutDir, simNo):
         Yi = Yi + epsiloni
 
         # Smooth Y_i
-        Yi = smooth_data(Yi, 3, [fwhm]*3, trunc=6, scaling='kernel').reshape(dim)
+        Yi = smooth_data(Yi, 3, [fwhm]*3, trunc=6,
+                         scaling='kernel').reshape(dim)
 
         # Obtain mask
         mask = get_random_mask(dim).reshape(Yi.shape)
@@ -100,17 +102,19 @@ def generate_data(n, p, dim, OutDir, simNo):
         Yi = Yi*mask
 
         # Truncate off (handles smoothing edge effects)
-        Yi = Yi[10:(dim[0]-10),10:(dim[1]-10),10:(dim[2]-10)]
+        Yi = Yi[10:(dim[0]-10), 10:(dim[1]-10), 10:(dim[2]-10)]
 
         # Output Yi
-        addBlockToNifti(os.path.join(simDir,"data","Y"+str(i)+".nii"), Yi, np.arange(np.prod(origdim)), volInd=0,dim=origdim)
+        addBlockToNifti(os.path.join(simDir, "data", "Y"+str(i)+".nii"),
+                        Yi, np.arange(np.prod(origdim)), volInd=0, dim=origdim)
 
     # -----------------------------------------------------
     # Save X
     # -----------------------------------------------------
 
     # Write out Z in full to a csv file
-    pd.DataFrame(X.reshape(n,p)).to_csv(os.path.join(simDir,"data","X.csv"), header=None, index=None)
+    pd.DataFrame(X.reshape(n, p)).to_csv(os.path.join(
+        simDir, "data", "X.csv"), header=None, index=None)
 
     # -----------------------------------------------------
     # Contrast vector
@@ -127,14 +131,15 @@ def generate_data(n, p, dim, OutDir, simNo):
     # -----------------------------------------------------
 
     # Write to an inputs file
-    with open(os.path.join(simDir,'inputs.yml'), 'a') as f:
+    with open(os.path.join(simDir, 'inputs.yml'), 'a') as f:
 
         # X, Y, Z and Masks
-        f.write("Y_files: " + os.path.join(simDir,"data","Yfiles.txt") + os.linesep)
-        f.write("X: " + os.path.join(simDir,"data","X.csv") + os.linesep)
+        f.write("Y_files: " + os.path.join(simDir,
+                "data", "Yfiles.txt") + os.linesep)
+        f.write("X: " + os.path.join(simDir, "data", "X.csv") + os.linesep)
 
         # Output directory
-        f.write("outdir: " + os.path.join(simDir,"BLM") + os.linesep)
+        f.write("outdir: " + os.path.join(simDir, "BLM") + os.linesep)
 
         # Missingness percentage
         f.write("Missingness: " + os.linesep)
@@ -161,27 +166,28 @@ def generate_data(n, p, dim, OutDir, simNo):
 
         # Log directory and simulation mode (backdoor options)
         f.write("sim: 1" + os.linesep)
-        f.write("logdir: " + os.path.join(simDir,"simlog") + os.linesep)
+        f.write("logdir: " + os.path.join(simDir, "simlog") + os.linesep)
 
     # -----------------------------------------------------
     # Yfiles.txt
     # -----------------------------------------------------
-    with open(os.path.join(simDir,"data",'Yfiles.txt'), 'a') as f:
+    with open(os.path.join(simDir, "data", 'Yfiles.txt'), 'a') as f:
 
         # Loop through listing mask files in text file
         for i in np.arange(n):
 
             # Write filename to text file
             if i < n-1:
-                f.write(os.path.join(simDir,"data","Y"+str(i)+".nii") + os.linesep)
+                f.write(os.path.join(simDir, "data",
+                        "Y"+str(i)+".nii") + os.linesep)
             else:
-                f.write(os.path.join(simDir,"data","Y"+str(i)+".nii"))
+                f.write(os.path.join(simDir, "data", "Y"+str(i)+".nii"))
 
     # -----------------------------------------------------
     # Version of data which can be fed into R
     # -----------------------------------------------------
     #  - i.e. seperate Y out into thousands of csv files
-    #         each containing number of subjects by 1000 
+    #         each containing number of subjects by 1000
     #         voxel arrays.
     # -----------------------------------------------------
 
@@ -191,14 +197,13 @@ def generate_data(n, p, dim, OutDir, simNo):
     # Work out number of groups we have to split indices into.
     nvg = int(np.prod(origdim)//nvb)
 
-
     # Write out the number of voxel groups we split the data into
     with open(os.path.join(simDir, "data", "nb.txt"), 'w') as f:
         print(int(nvg), file=f)
 
 
 # R preprocessing
-def Rpreproc(OutDir,simNo,dim,nvg,cv):
+def Rpreproc(OutDir, simNo, dim, nvg, cv):
 
     # Get simulation directory
     simDir = os.path.join(OutDir, 'sim' + str(simNo))
@@ -210,11 +215,12 @@ def Rpreproc(OutDir,simNo,dim,nvg,cv):
     v = np.prod(dim)
 
     # There should be an inputs file in each simulation directory
-    with open(os.path.join(simDir,'inputs.yml'), 'r') as stream:
-        inputs = yaml.load(stream,Loader=yaml.FullLoader)
+    with open(os.path.join(simDir, 'inputs.yml'), 'r') as stream:
+        inputs = yaml.load(stream, Loader=yaml.FullLoader)
 
     # Number of observations
-    X = pd.io.parsers.read_csv(os.path.join(simDir,"data","X.csv"), header=None).values
+    X = pd.io.parsers.read_csv(os.path.join(
+        simDir, "data", "X.csv"), header=None).values
     n = X.shape[0]
 
     # Relative masking threshold
@@ -229,12 +235,13 @@ def Rpreproc(OutDir,simNo,dim,nvg,cv):
     # Number of voxels currently (should be ~1000)
     v_current = len(inds_cv)
 
-    # Loop through each subject reading in Y and reducing to just the voxels 
+    # Loop through each subject reading in Y and reducing to just the voxels
     # needed
     for i in np.arange(n):
 
         # Load in the Y volume
-        Yi = nib.load(os.path.join(simDir,"data","Y"+str(i)+".nii")).get_fdata()
+        Yi = nib.load(os.path.join(simDir, "data",
+                      "Y"+str(i)+".nii")).get_fdata()
 
         # Flatten Yi
         Yi = Yi.reshape(v)
@@ -243,23 +250,24 @@ def Rpreproc(OutDir,simNo,dim,nvg,cv):
         Yi = Yi[inds_cv].reshape(1, v_current)
 
         # Concatenate
-        if i==0:
+        if i == 0:
             Y_concat = Yi
         else:
             Y_concat = np.concatenate((Y_concat, Yi), axis=0)
-    
+
     # Loop through voxels checking missingness
     for vox in np.arange(v_current):
 
         # Threshold out the voxels which have too much missingness
-        if np.count_nonzero(Y_concat[:,vox], axis=0)/n < rmThresh:
+        if np.count_nonzero(Y_concat[:, vox], axis=0)/n < rmThresh:
 
-            # If we don't have enough data lets replace that voxel 
+            # If we don't have enough data lets replace that voxel
             # with zeros
-            Y_concat[:,vox] = np.zeros(Y_concat[:,vox].shape)
+            Y_concat[:, vox] = np.zeros(Y_concat[:, vox].shape)
 
     # Write out Z in full to a csv file
-    pd.DataFrame(Y_concat.reshape(n,v_current)).to_csv(os.path.join(simDir,"data","Y_Rversion_" + str(cv) + ".csv"), header=None, index=None)
+    pd.DataFrame(Y_concat.reshape(n, v_current)).to_csv(os.path.join(
+        simDir, "data", "Y_Rversion_" + str(cv) + ".csv"), header=None, index=None)
 
 
 def get_random_mask(dim):
@@ -268,7 +276,8 @@ def get_random_mask(dim):
     fwhm = 10
 
     # Load analysis mask
-    mu = nib.load(os.path.join(os.path.dirname(__file__),'mask.nii')).get_fdata()
+    mu = nib.load(os.path.join(os.path.dirname(
+        __file__), 'mask.nii')).get_fdata()
 
     # Add some noise and smooth
     mu = smooth_data(mu + 8*np.random.randn(*(mu.shape)), 3, [fwhm]*3)
@@ -276,26 +285,26 @@ def get_random_mask(dim):
     # Re-threshold (this has induced a bit of randomness in the mask shape)
     mu = 1*(mu > 0.6)
 
-    return(mu)
+    return (mu)
 
 
-def get_X(n,p):
+def get_X(n, p):
 
     # Generate random X.
-    X = np.random.uniform(low=-0.5,high=0.5,size=(n,p))
-    
+    X = np.random.uniform(low=-0.5, high=0.5, size=(n, p))
+
     # Make the first column an intercept
-    X[:,0]=1
+    X[:, 0] = 1
 
     # Reshape to dimensions for broadcasting
     X = X.reshape(1, n, p)
 
     # Return X
-    return(X)
+    return (X)
 
 
 def get_beta(p):
-    
+
     # Make beta (we just have beta = [p-1,p-2,...,0])
     beta = p-1-np.arange(p)
 
@@ -303,29 +312,31 @@ def get_beta(p):
     beta = beta.reshape(1, p, 1)
 
     # Return beta
-    return(beta)
+    return (beta)
 
 
 def get_sigma2(v):
 
     # Make sigma2 (for now just set to one across all voxels)
-    sigma2 = 10#np.ones(v).reshape(v,1)
+    sigma2 = 10  # np.ones(v).reshape(v,1)
 
     # Return sigma
-    return(sigma2)
+    return (sigma2)
 
-def get_epsilon(v,n):
+
+def get_epsilon(v, n):
 
     # Get sigma2
     sigma2 = get_sigma2(v)
 
     # Make epsilon.
-    epsilon = sigma2*np.random.randn(v,n)
+    epsilon = sigma2*np.random.randn(v, n)
 
     # Reshape to dimensions for broadcasting
     epsilon = epsilon.reshape(v, n, 1)
 
-    return(epsilon)
+    return (epsilon)
+
 
 def get_Y(X, beta, epsilon):
 
@@ -333,8 +344,7 @@ def get_Y(X, beta, epsilon):
     Y = X @ beta + epsilon
 
     # Return Y
-    return(Y)
-
+    return (Y)
 
 
 # ============================================================================
@@ -350,29 +360,29 @@ def get_Y(X, beta, epsilon):
 #
 # - `fname`: An absolute path to the Nifti file.
 # - `block`: The block of values to write to the NIFTI.
-# - `blockInds`: The indices representing the 3D coordinates `block` should be 
+# - `blockInds`: The indices representing the 3D coordinates `block` should be
 #                written to in the NIFTI. (Note: It is assumed if the NIFTI is
 #                4D we assume that the indices we want to write to in each 3D
 #                volume/slice are the same across all 3D volumes/slices).
-# - `dim` (optional): If creating the NIFTI image for the first time, the 
+# - `dim` (optional): If creating the NIFTI image for the first time, the
 #                     dimensions of the NIFTI image must be specified.
 # - `volInd` (optional): If we only want to write to one 3D volume/slice,
 #                        within a 4D file, this specifies the index of the
 #                        volume of interest.
-# - `aff` (optional): If creating the NIFTI image for the first time, the 
+# - `aff` (optional): If creating the NIFTI image for the first time, the
 #                     affine of the NIFTI image must be specified.
-# - `hdr` (optional): If creating the NIFTI image for the first time, the 
+# - `hdr` (optional): If creating the NIFTI image for the first time, the
 #                     header of the NIFTI image must be specified.
 #
 # ============================================================================
-def addBlockToNifti(fname, block, blockInds,dim=None,volInd=None,aff=None,hdr=None):
+def addBlockToNifti(fname, block, blockInds, dim=None, volInd=None, aff=None, hdr=None):
 
     # Check if file is in use
     fileLocked = True
     while fileLocked:
         try:
             # Create lock file, so other jobs know we are writing to this file
-            f = os.open(fname + ".lock", os.O_CREAT|os.O_EXCL|os.O_RDWR)
+            f = os.open(fname + ".lock", os.O_CREAT | os.O_EXCL | os.O_RDWR)
             fileLocked = False
         except FileExistsError:
             fileLocked = True
@@ -389,16 +399,17 @@ def addBlockToNifti(fname, block, blockInds,dim=None,volInd=None,aff=None,hdr=No
         dim = nib.Nifti1Image.from_filename(fname, mmap=False).shape
 
         # Work out data
-        data = nib.Nifti1Image.from_filename(fname, mmap=False).get_fdata().copy()
+        data = nib.Nifti1Image.from_filename(
+            fname, mmap=False).get_fdata().copy()
 
         # Work out affine
         affine = nib.Nifti1Image.from_filename(fname, mmap=False).affine.copy()
-        
+
     else:
 
         # If we know how, make the NIFTI
         if dim is not None:
-            
+
             # Make data
             data = np.zeros(dim)
 
@@ -413,12 +424,12 @@ def addBlockToNifti(fname, block, blockInds,dim=None,volInd=None,aff=None,hdr=No
             # Throw an error because we don't know what to do
             raise Exception('NIFTI does not exist and dimensions not given')
 
-    # Work out the number of output volumes inside the nifti 
-    if len(dim)==3:
+    # Work out the number of output volumes inside the nifti
+    if len(dim) == 3:
 
         # We only have one volume in this case
         n_vol = 1
-        dim = np.array([dim[0],dim[1],dim[2],1])
+        dim = np.array([dim[0], dim[1], dim[2], 1])
 
     else:
 
@@ -431,36 +442,36 @@ def addBlockToNifti(fname, block, blockInds,dim=None,volInd=None,aff=None,hdr=No
     # Work out the number of voxels
     n_vox = np.prod(dim[:3])
 
-    # Reshape     
+    # Reshape
     data = data.reshape([n_vox, n_vol])
 
     # Add all the volumes
     if volInd is None:
 
         # Add block
-        data[blockInds,:] = block.reshape(data[blockInds,:].shape)
-        
-        # Cycle through volumes, reshaping.
-        for k in range(0,data.shape[1]):
+        data[blockInds, :] = block.reshape(data[blockInds, :].shape)
 
-            data_out[:,:,:,k] = data[:,k].reshape(int(dim[0]),
-                                                  int(dim[1]),
-                                                  int(dim[2]))
+        # Cycle through volumes, reshaping.
+        for k in range(0, data.shape[1]):
+
+            data_out[:, :, :, k] = data[:, k].reshape(int(dim[0]),
+                                                      int(dim[1]),
+                                                      int(dim[2]))
 
     # Add the one volume in the correct place
     else:
 
         # We're only looking at this volume
-        data = data[:,volInd].reshape((n_vox,1))
+        data = data[:, volInd].reshape((n_vox, 1))
 
         # Add block
-        data[blockInds,:] = block.reshape(data[blockInds,:].shape)
-        
+        data[blockInds, :] = block.reshape(data[blockInds, :].shape)
+
         # Put in the volume
-        data_out[:,:,:,volInd] = data[:,0].reshape(int(dim[0]),
-                                                 int(dim[1]),
-                                                 int(dim[2]))
-    
+        data_out[:, :, :, volInd] = data[:, 0].reshape(int(dim[0]),
+                                                       int(dim[1]),
+                                                       int(dim[2]))
+
     # Save NIFTI
     nib.save(nib.Nifti1Image(data_out, affine, header=hdr), fname)
 
@@ -484,7 +495,7 @@ def smooth_data(data, D, fwhm, trunc=6, scaling='kernel'):
     fwhm = np.asarray([0. if elem is None else elem for elem in fwhm])
 
     # Non-zero dimensions
-    D_nz = np.sum(fwhm>0)
+    D_nz = np.sum(fwhm > 0)
 
     # Convert fwhm to sigma values
     sigma = fwhm / np.sqrt(8 * np.log(2))
@@ -493,7 +504,7 @@ def smooth_data(data, D, fwhm, trunc=6, scaling='kernel'):
     # Perform smoothing (this code is based on `_smooth_array` from the
     # nilearn package)
     # -----------------------------------------------------------------------
-    
+
     # Loop through each dimension and smooth
     for n, s in enumerate(sigma):
 
@@ -501,14 +512,14 @@ def smooth_data(data, D, fwhm, trunc=6, scaling='kernel'):
         if s > 0.0:
 
             # Perform smoothing in nth dimension
-            ndimage.gaussian_filter1d(data, s, output=data, mode='constant', axis=n, truncate=trunc)
-
+            ndimage.gaussian_filter1d(
+                data, s, output=data, mode='constant', axis=n, truncate=trunc)
 
     # -----------------------------------------------------------------------
     # Rescale
     # -----------------------------------------------------------------------
-    if scaling=='kernel':
-    
+    if scaling == 'kernel':
+
         # -----------------------------------------------------------------------
         # Rescale smoothed data to standard deviation 1 (this code is based on
         # `_gaussian_kernel1d` from the `scipy.ndimage` package).
@@ -520,9 +531,9 @@ def smooth_data(data, D, fwhm, trunc=6, scaling='kernel'):
         # Calculate kernel radii
         radii = np.int16(trunc*sigma + 0.5)
 
-        # Initialize array for phi values (has to be object as dimensions can 
+        # Initialize array for phi values (has to be object as dimensions can
         # vary in length)
-        phis = np.empty(shape=(D_nz),dtype=object)
+        phis = np.empty(shape=(D_nz), dtype=object)
 
         # Index for non-zero dimensions
         j = 0
@@ -531,11 +542,11 @@ def smooth_data(data, D, fwhm, trunc=6, scaling='kernel'):
         for k in np.arange(D):
 
             # Skip the non-smoothed dimensions
-            if fwhm[k]!=0:
+            if fwhm[k] != 0:
 
                 # Get range of values for this dimension
                 r = np.arange(-radii[k], radii[k]+1)
-                
+
                 # Get the kernel for this dimension
                 phi = np.exp(-0.5 / sigma2[k] * r ** 2)
 
@@ -543,13 +554,13 @@ def smooth_data(data, D, fwhm, trunc=6, scaling='kernel'):
                 phi = phi / phi.sum()
 
                 # Add phi to dictionary
-                phis[j]= phi[::-1]
+                phis[j] = phi[::-1]
 
                 # Increment j
                 j = j + 1
-                
+
         # Create the D_nz dimensional grid
-        grids = np.meshgrid(*phis);
+        grids = np.meshgrid(*phis)
 
         # Initialize normalizing constant
         ss = 1
@@ -574,9 +585,9 @@ def smooth_data(data, D, fwhm, trunc=6, scaling='kernel'):
         # Rescale noise
         data = data/np.sqrt(ss)
 
-    elif scaling=='max':
+    elif scaling == 'max':
 
         # Rescale noise by dividing by maximum value
         data = data/np.max(data)
 
-    return(data)
+    return (data)
