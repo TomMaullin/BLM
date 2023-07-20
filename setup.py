@@ -9,7 +9,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="pyblm",
-    version="0.1.1",
+    version="0.1.2",
     author="Tom Maullin",
     author_email="TomMaullin@gmail.com",
     description="The Big Linear Models Toolbox",

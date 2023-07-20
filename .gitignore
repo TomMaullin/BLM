@@ -1,7 +1,7 @@
 build/*
 log/*
 dist/*
-BLM_py.egg-info/*
+pyblm.egg-info/*
 __pycache__/*
 test/cfg/*_copy*
 test/__pycache__/*
