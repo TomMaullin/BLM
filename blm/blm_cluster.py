@@ -2,6 +2,7 @@ import os
 import sys
 import shutil
 import yaml
+import argparse
 import numpy as np
 from blm.lib.blm_setup import setup
 from blm.lib.blm_batch import compute_product_forms
