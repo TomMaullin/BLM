@@ -16,15 +16,16 @@ def _main(argv=None):
     # --------------------------------------------------------------------------------
     # Check inputs
     # --------------------------------------------------------------------------------
-    # Inputs file is first argument
-    if len(argv)<1:
-        inputs_yml = os.path.join(
-                        os.path.dirname(os.path.realpath(__file__)),
-                        'blm_config.yml')
+    # Create the parser and add argument
+    parser = argparse.ArgumentParser(description="BLM cluster script")
+    parser.add_argument('inputs_yml', type=str, nargs='?', default=os.path.join(
+                            os.path.dirname(os.path.realpath(__file__)),
+                            'blm_config.yml'), 
+                        help='Path to inputs yaml file')
 
-    # Get the inputs filepath
-    else:
-        inputs_yml = argv[0]
+    # Parse the arguments
+    args = parser.parse_args()
+    inputs_yml = args.inputs_yml
         
     # Load the inputs yaml file
     with open(inputs_yml, 'r') as stream:
