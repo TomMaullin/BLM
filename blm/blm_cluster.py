@@ -2,16 +2,14 @@ import os
 import sys
 import shutil
 import yaml
+import argparse
 import numpy as np
-from lib.blm_setup import setup
-from lib.blm_batch import compute_product_forms
-from lib.blm_concat import combine_batch_masking, combine_batch_designs
-from lib.blm_results import output_results
-from lib.fileio import pracNumVoxelBlocks
-from dask import config
-from dask_jobqueue import SLURMCluster
+from blm.lib.blm_setup import setup
+from blm.lib.blm_batch import compute_product_forms
+from blm.lib.blm_concat import combine_batch_masking, combine_batch_designs
+from blm.lib.blm_results import output_results
+from blm.lib.fileio import pracNumVoxelBlocks
 from dask.distributed import Client, as_completed
-from dask.distributed import performance_report
 
 
 def _main(argv=None):
@@ -19,15 +17,21 @@ def _main(argv=None):
     # --------------------------------------------------------------------------------
     # Check inputs
     # --------------------------------------------------------------------------------
-    # Inputs file is first argument
-    if len(argv)<1:
-        inputs_yml = os.path.join(
-                        os.path.dirname(os.path.realpath(__file__)),
-                        'blm_config.yml')
+    # Create the parser and add argument
+    parser = argparse.ArgumentParser(description="BLM cluster script")
+    parser.add_argument('inputs_yml', type=str, nargs='?', default=os.path.join(
+                            os.path.dirname(os.path.realpath(__file__)),
+                            'blm_config.yml'), 
+                        help='Path to inputs yaml file')
 
-    # Get the inputs filepath
-    else:
-        inputs_yml = argv[0]
+    # Parse the arguments
+    args = parser.parse_args()
+    
+    # If the argument is just a filename without a directory, 
+    # prepend the current working directory
+    if os.path.dirname(args.inputs_yml) == '':
+        args.inputs_yml = os.path.join(os.getcwd(), args.inputs_yml)
+    inputs_yml = args.inputs_yml
         
     # Load the inputs yaml file
     with open(inputs_yml, 'r') as stream:

@@ -1,5 +1,4 @@
 import os
-import time
 import pandas as pd
 import nibabel as nib
 import numpy as np
@@ -608,7 +607,7 @@ def numVoxelBlocks(inputs):
   # Read in analysis mask (if present)
   if 'analysis_mask' in inputs:
     am = loadFile(inputs['analysis_mask'])
-    am = am.get_data()
+    am = am.get_fdata()
   else:
 
     # --------------------------------------------------------------

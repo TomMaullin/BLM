@@ -9,7 +9,7 @@ import os
 import glob
 import shutil
 import yaml
-from lib.fileio import *
+from blm.lib.fileio import *
 import time
 import pandas as pd
 from scipy import ndimage
@@ -234,7 +234,7 @@ def Rpreproc(OutDir,simNo,dim,nvg,cv):
     for i in np.arange(n):
 
         # Load in the Y volume
-        Yi = nib.load(os.path.join(simDir,"data","Y"+str(i)+".nii")).get_data()
+        Yi = nib.load(os.path.join(simDir,"data","Y"+str(i)+".nii")).get_fdata()
 
         # Flatten Yi
         Yi = Yi.reshape(v)
@@ -268,7 +268,7 @@ def get_random_mask(dim):
     fwhm = 10
 
     # Load analysis mask
-    mu = nib.load(os.path.join(os.path.dirname(__file__),'mask.nii')).get_data()
+    mu = nib.load(os.path.join(os.path.dirname(__file__),'mask.nii')).get_fdata()
 
     # Add some noise and smooth
     mu = smooth_data(mu + 8*np.random.randn(*(mu.shape)), 3, [fwhm]*3)

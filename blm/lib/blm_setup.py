@@ -3,14 +3,11 @@ import warnings as w
 # output.
 w.simplefilter(action = 'ignore', category = FutureWarning)
 import numpy as np
-import warnings
-import resource
-import nibabel as nib
 import sys
 import os
 import shutil
 import yaml
-from lib.fileio import *
+from blm.lib.fileio import *
 
 
 # Main takes in two arguments at most:

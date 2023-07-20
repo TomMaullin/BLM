@@ -8,7 +8,7 @@ import os
 import shutil
 import yaml
 import pandas as pd
-from lib.fileio import *
+from blm.lib.fileio import *
 
 def cleanup(out_dir,sim_ind):
 
