@@ -25,9 +25,11 @@ def _main(argv=None):
         help='Path to inputs yaml file')
 
     # Parse the arguments
-    args = parser.parse_args()
+    if argv is None:
+        args = parser.parse_args()
+    else:
+        args = parser.parse_args(argv)
 
-    # If the argument is just a filename without a directory,
     # prepend the current working directory
     if os.path.dirname(args.inputs_yml) == '':
         args.inputs_yml = os.path.join(os.getcwd(), args.inputs_yml)
