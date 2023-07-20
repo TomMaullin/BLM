@@ -8,7 +8,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(
-    name="blm",
+    name="pyblm",
     version="0.1.0",
     author="Tom Maullin",
     author_email="TomMaullin@gmail.com",
