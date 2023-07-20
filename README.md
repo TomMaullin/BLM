@@ -1,20 +1,14 @@
 # BLM-py
-This repository contains the code for Big Linear Models for Neuroimaging cluster and local usage.
+This repository contains the code for Big Linear Models cluster package.
 
 ## Requirements
-To use the BLM-py code, please clone this repository to your cluster. 
+To use the BLM-py code, please pip install like so:
 
 ```
-git clone https://github.com/TomMaullin/BLM.git
+pip install pyblm
 ```
 
-Then pip install the requirements:
-
-```
-pip install -r requirements.txt
-```
-
-Finally, you must set up your `dask-jobqueue` configuration file, which is likely located at `~/.config/dask/jobqueue.yaml`. This will require you to provide some details about your HPC system. See [here](https://jobqueue.dask.org/en/latest/configuration-setup.html#managing-configuration-files) for further detail. For instance, if you are using rescomp your `jobqueue.yaml` file may look something like this:
+You must then set up your `dask-jobqueue` configuration file, which is likely located at `~/.config/dask/jobqueue.yaml`. This will require you to provide some details about your HPC system. See [here](https://jobqueue.dask.org/en/latest/configuration-setup.html#managing-configuration-files) for further detail. For instance, if you are using rescomp your `jobqueue.yaml` file may look something like this:
 
 ```
 jobqueue:
@@ -47,10 +41,10 @@ jobqueue:
 
 
 ## Usage
-To run `BLM-py` first specify your design using `blm_config.yml` and then run the job in parallel by following the below guidelines.
+To run `BLM-py` first specify your design by creating a `blm_config.yml` file and then run the job in parallel by following the below guidelines.
 
 ### Specifying your model
-The regression model for BLM must be specified in `blm_config.yml`. Below is a complete list of possible inputs to this file.
+The regression model for BLM must be specified in a yaml file (e.g. `blm_config.yml` for instance). Below is a complete list of possible inputs to this file.
 
 #### Mandatory fields
 The following fields are mandatory:
@@ -133,10 +127,10 @@ numNodes: 100
 
 ### Running the Analysis
 
-On your HPC system, ensure you are in the `BLM-py` directory and once you are happy with the analysis you have specified in `blm_config.yml`, run the following command:
+BLM can be run from the terminal as follows:
 
 ```
-python blm_cluster.py &
+blm <name_of_your_yaml_file>.yml
 ```
 
 You can watch your analysis progress either by using `qstat` or `squeue` (depending on your system), or by using the interactive dask console. To do so, in a seperate terminal, tunnel into your HPC as follows:
