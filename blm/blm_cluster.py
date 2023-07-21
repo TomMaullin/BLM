@@ -36,6 +36,9 @@ def _main(argv=None):
         args.inputs_yml = os.path.join(os.getcwd(), args.inputs_yml)
     inputs_yml = args.inputs_yml
         
+    # Change to absolute path if necessary
+    inputs_yml = os.path.abspath(inputs_yml)
+    
     # Load the inputs yaml file
     with open(inputs_yml, 'r') as stream:
         inputs = yaml.load(stream,Loader=yaml.FullLoader)
