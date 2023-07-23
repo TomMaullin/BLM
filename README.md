@@ -1,4 +1,4 @@
-# PYBLM
+# Pyblm
 This repository contains the code for Big Linear Models cluster package.
 
 ## Requirements
