@@ -1,8 +1,8 @@
-# BLM
+# pyblm
 This repository contains the code for Big Linear Models cluster package.
 
 ## Requirements
-To use the BLM code, please pip install like so:
+To use the pyblm code, please pip install like so:
 
 ```
 pip install pyblm
