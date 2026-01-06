@@ -1,4 +1,4 @@
-bokeh==2.4.3
+bokeh==3.8.2
 dask>=2023.3.2
 dask-jobqueue>=0.8.1
 distributed>=2023.3.2
